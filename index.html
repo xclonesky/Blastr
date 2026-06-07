@@ -1,0 +1,3421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blastr — Live Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06060E;--panel:#0D0D1C;--panel2:#111122;--border:#1A1A30;
+  --accent:#39FF14;--accent2:#00C6FF;--accent3:#FF1493;--accent4:#FFD166;
+  --text:#F0F0F8;--dim:#5A5A78;--red:#FF3131;
+  --sidebar-w:230px;--player-h:88px;
+  --font:'Syne',sans-serif;--mono:'Space Mono',monospace;
+  --glow:rgba(57,255,20,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2);border-radius:3px}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;transition:opacity .4s ease,transform .4s ease}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(.96)}
+
+/* ═══════════════════════════ LOGIN — SPLIT SCREEN ═══════════════════════════ */
+#loginScreen{display:flex;height:100vh;overflow:hidden}
+
+/* LEFT PANEL — visual / brand side */
+.login-left{
+  flex:1.1;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 40% 30%, #0D2845 0%, #040412 60%, #02020A 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.login-left::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(57,255,20,.4),rgba(0,198,255,.3),transparent);
+}
+.login-snow-canvas{position:absolute;inset:0;pointer-events:none}
+
+/* floating orbs behind left panel */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:orb-drift ease-in-out infinite alternate}
+.orb1{width:420px;height:420px;background:radial-gradient(circle,rgba(57,255,20,.09),transparent 70%);top:-10%;left:-15%;animation-duration:12s}
+.orb2{width:360px;height:360px;background:radial-gradient(circle,rgba(0,198,255,.07),transparent 70%);bottom:-10%;right:-10%;animation-duration:16s;animation-delay:2s}
+.orb3{width:240px;height:240px;background:radial-gradient(circle,rgba(255,20,147,.05),transparent 70%);top:40%;left:50%;animation-duration:10s;animation-delay:4s}
+@keyframes orb-drift{0%{transform:translate(0,0)}100%{transform:translate(40px,30px)}}
+
+.login-brand-wrap{position:relative;z-index:10;text-align:center}
+.login-brand-logo{
+  font-size:88px;font-weight:900;letter-spacing:12px;line-height:1;
+  background:linear-gradient(135deg,#39FF14 0%,#00E0FF 40%,#39FF14 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:200% 200%;
+  animation:logo-shift 4s ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 40px rgba(57,255,20,.3));
+}
+@keyframes logo-shift{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.login-brand-tag{
+  font-size:11px;letter-spacing:5px;color:rgba(255,255,255,.35);
+  font-family:var(--mono);margin-top:10px;text-transform:uppercase;
+}
+.login-eq-row{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:32px;margin-top:28px}
+.login-eq-bar{
+  width:5px;border-radius:3px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  animation:leq .7s ease-in-out infinite alternate;
+}
+.login-eq-bar:nth-child(1){height:10px;animation-delay:0s}
+.login-eq-bar:nth-child(2){height:20px;animation-delay:.1s}
+.login-eq-bar:nth-child(3){height:30px;animation-delay:.2s}
+.login-eq-bar:nth-child(4){height:18px;animation-delay:.3s}
+.login-eq-bar:nth-child(5){height:26px;animation-delay:.08s}
+.login-eq-bar:nth-child(6){height:14px;animation-delay:.18s}
+.login-eq-bar:nth-child(7){height:22px;animation-delay:.28s}
+.login-eq-bar:nth-child(8){height:8px;animation-delay:.38s}
+.login-eq-bar:nth-child(9){height:18px;animation-delay:.15s}
+.login-eq-bar:nth-child(10){height:28px;animation-delay:.25s}
+@keyframes leq{to{height:4px}}
+
+.login-feature-pills{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+  margin-top:36px;max-width:340px;
+}
+.feature-pill{
+  padding:6px 14px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  font-size:11px;color:rgba(255,255,255,.45);font-family:var(--mono);
+  letter-spacing:1px;
+}
+
+/* RIGHT PANEL — form side */
+.login-right{
+  width:440px;flex-shrink:0;
+  background:rgba(8,8,18,.96);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 44px;position:relative;overflow:hidden;
+}
+.login-right::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
+}
+
+.login-form-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.login-form-sub{font-size:12px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;margin-bottom:28px}
+.form-group{margin-bottom:14px;width:100%}
+.form-label{font-size:10px;letter-spacing:2.5px;color:var(--dim);margin-bottom:6px;display:block;font-family:var(--mono)}
+.form-input{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:13px 16px;
+  color:var(--text);font-size:14px;font-family:var(--font);
+  transition:border-color .2s,background .2s;outline:none;
+}
+.form-input:focus{border-color:var(--accent);background:rgba(57,255,20,.03)}
+.form-input.error{border-color:var(--red)!important;animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.btn-primary{
+  width:100%;padding:14px;
+  background:var(--accent);color:#000;
+  font-size:13px;font-weight:900;letter-spacing:2.5px;
+  border:none;border-radius:14px;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;
+  font-family:var(--mono);margin-top:6px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(57,255,20,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{background:#1e1e30;color:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
+
+.login-divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--dim);font-size:11px;width:100%}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.btn-signup{
+  width:100%;padding:13px;
+  background:transparent;color:var(--accent2);
+  border:1.5px solid rgba(0,198,255,.22);
+  border-radius:14px;cursor:pointer;font-size:13px;font-weight:700;
+  transition:all .2s;font-family:var(--font);
+}
+.btn-signup:hover{background:rgba(0,198,255,.07);border-color:var(--accent2)}
+
+/* Admin door — locked & restricted */
+.admin-door{
+  width:100%;margin-top:14px;
+  background:rgba(255,49,49,.05);
+  border:1px solid rgba(255,49,49,.15);
+  border-radius:12px;overflow:hidden;
+  transition:all .2s;
+}
+.admin-door-trigger{
+  width:100%;padding:11px 16px;
+  background:none;border:none;
+  color:rgba(255,80,80,.6);font-size:11px;font-family:var(--mono);
+  letter-spacing:2px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;justify-content:center;
+  transition:color .2s;
+}
+.admin-door-trigger:hover{color:var(--red)}
+.admin-door-trigger .lock-icon{font-size:13px;transition:transform .3s}
+.admin-door.unlocking .lock-icon{animation:wiggle .4s ease}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+.admin-code-wrap{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1),padding .35s;
+  padding:0 16px;
+}
+.admin-code-wrap.open{max-height:80px;padding:0 16px 14px}
+.admin-code-input{
+  width:100%;background:rgba(255,49,49,.06);
+  border:1.5px solid rgba(255,49,49,.25);
+  border-radius:10px;padding:11px 14px;
+  color:var(--red);font-size:20px;font-family:var(--mono);
+  letter-spacing:6px;text-align:center;outline:none;
+  transition:border-color .2s;
+}
+.admin-code-input:focus{border-color:var(--red)}
+.admin-code-input.error{animation:shake .3s ease}
+
+.login-toggle{text-align:center;margin-top:12px;font-size:12px;color:var(--dim)}
+.login-toggle a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700}
+.login-toggle a:hover{text-decoration:underline}
+
+
+.login-credit{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  font-family:'Great Vibes', cursive;
+  font-size:22px;letter-spacing:1px;color:rgba(255,255,255,.42);
+  text-shadow:0 0 18px rgba(255,255,255,.08), 0 0 28px rgba(57,255,20,.10);
+  z-index:12;pointer-events:none;user-select:none;
+}
+.login-credit span{color:var(--accent)}
+#appScreen .admin-door{margin:10px 10px 4px}
+#appScreen .admin-code-wrap.open{max-height:92px}
+#appScreen .admin-code-input{font-size:16px;letter-spacing:5px}
+.vibing-lyrics-wrap,.zen-lyrics-scroll{scroll-behavior:auto}
+.vibing-lyric-line,.zen-lyric-line{
+  position:relative;
+  transform:translate3d(0,0,0);
+  opacity:.92;
+  transition:
+    color .28s cubic-bezier(.22,1,.36,1),
+    background-color .28s cubic-bezier(.22,1,.36,1),
+    transform .28s cubic-bezier(.22,1,.36,1),
+    text-shadow .28s cubic-bezier(.22,1,.36,1),
+    opacity .28s cubic-bezier(.22,1,.36,1),
+    filter .28s cubic-bezier(.22,1,.36,1);
+  will-change:transform,opacity,color,background-color,text-shadow,filter;
+  backface-visibility:hidden;
+}
+.vibing-lyric-line::before,.zen-lyric-line::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(57,255,20,.05),transparent);
+  opacity:0;transform:scaleX(.92);
+  transition:opacity .72s cubic-bezier(.22,1,.36,1),transform .72s cubic-bezier(.22,1,.36,1);
+}
+.vibing-lyric-line.active::before,.zen-lyric-line.active::before{opacity:1;transform:scaleX(1)}
+.vibing-lyric-line.active{
+  color:#fff;font-size:16px;font-weight:900;
+  background:rgba(57,255,20,.08);
+  transform:translate3d(4px,0,0) scale(1.02);
+  text-shadow:0 0 20px rgba(57,255,20,.22);
+  filter:brightness(1.06);
+}
+.vibing-lyric-line.near-prev{color:rgba(255,255,255,.42);font-size:14px;opacity:.82;transform:translate3d(1px,0,0) scale(.99)}
+.vibing-lyric-line.near-next{color:rgba(255,255,255,.36);font-size:13.5px;opacity:.78;transform:translate3d(1px,0,0) scale(.985)}
+.zen-lyric-line{padding:14px 18px;border-radius:12px;contain:content}
+.zen-lyric-line.active{
+  color:#fff;font-size:34px;font-weight:900;
+  text-shadow:0 0 40px rgba(255,255,255,.30);
+  transform:translate3d(0,-1px,0) scale(1.02);
+  filter:brightness(1.08);
+}
+.zen-lyric-line.near{color:rgba(255,255,255,.5);font-size:28px;opacity:.86;transform:translate3d(0,0,0) scale(1.005)}
+
+
+/* ═══════════════════════════ MAIN APP ═══════════════════════════ */
+#appScreen{
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-rows:1fr var(--player-h);
+  grid-template-areas:"sidebar main""sidebar player";
+  background:var(--bg);
+}
+#appScreen.hidden{display:none}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  grid-area:sidebar;background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:18px 12px;overflow:hidden;
+}
+.sidebar-brand{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px 18px;border-bottom:1px solid var(--border);margin-bottom:14px;
+}
+.sidebar-brand .brand-text{
+  font-size:22px;font-weight:900;letter-spacing:4px;
+  background:linear-gradient(135deg,var(--accent),#00E0FF);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sidebar-eq{display:flex;align-items:flex-end;gap:2px;height:18px}
+.sidebar-eq .bar{width:3px;border-radius:2px;background:var(--accent);animation:leq .7s ease-in-out infinite alternate}
+.sidebar-eq .bar:nth-child(1){height:6px;animation-delay:0s}
+.sidebar-eq .bar:nth-child(2){height:12px;animation-delay:.15s}
+.sidebar-eq .bar:nth-child(3){height:18px;animation-delay:.3s}
+.sidebar-eq .bar:nth-child(4){height:10px;animation-delay:.45s}
+
+.sidebar-section-label{font-size:10px;letter-spacing:2px;color:var(--dim);padding:0 10px 8px;font-family:var(--mono)}
+.sidebar-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;border-radius:12px;cursor:pointer;
+  font-size:13px;font-weight:700;color:var(--dim);
+  transition:all .18s;border:none;background:transparent;width:100%;text-align:left;
+  white-space:nowrap;overflow:hidden;
+}
+.sidebar-btn .icon{font-size:16px;min-width:22px;text-align:center}
+.sidebar-btn:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.sidebar-btn.active{color:var(--accent);background:rgba(57,255,20,.07);border-left:2px solid var(--accent)}
+.sidebar-btn.admin-btn{color:var(--red);border:1px solid rgba(255,49,49,.15);margin-top:4px}
+.sidebar-btn.admin-btn:hover{background:rgba(255,49,49,.06)}
+.sidebar-btn.admin-btn.active{color:var(--red);background:rgba(255,49,49,.07);border-left:2px solid var(--red)}
+
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}
+.user-chip{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:12px;background:rgba(255,255,255,.04);
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#00C6FF);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:#000;flex-shrink:0;
+}
+.user-info .name{font-size:13px;font-weight:700}
+.user-info .role{font-size:10px;color:var(--dim);font-family:var(--mono)}
+
+/* ── MAIN CONTENT ── */
+.main-content{grid-area:main;overflow:hidden;display:flex;flex-direction:column}
+.top-bar{display:flex;align-items:center;gap:12px;padding:14px 22px 10px;flex-shrink:0}
+.search-wrap{position:relative;flex:1;max-width:600px}
+.search-input{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(57,255,20,.18);
+  border-radius:28px;padding:11px 20px 11px 46px;
+  color:var(--text);font-size:14px;font-family:var(--font);
+  outline:none;transition:border-color .2s,background .2s;
+}
+.search-input:focus{border-color:var(--accent);background:rgba(57,255,20,.03)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:15px;pointer-events:none}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:2px;display:none}
+.search-clear.visible{display:block}
+.topbar-actions{display:flex;gap:8px;margin-left:auto}
+.icon-btn{
+  width:36px;height:36px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .18s;color:var(--dim);
+}
+.icon-btn:hover{background:rgba(255,255,255,.1);color:var(--text);border-color:var(--accent)}
+.icon-btn.active{background:rgba(57,255,20,.1);color:var(--accent);border-color:var(--accent)}
+
+/* Search dropdown */
+.search-dropdown{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:rgba(12,12,24,.97);border:1.5px solid rgba(57,255,20,.3);
+  border-radius:18px;z-index:200;max-height:400px;overflow-y:auto;
+  backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.7);display:none;
+}
+.search-dropdown.open{display:block;animation:slide-down .16s ease}
+@keyframes slide-down{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.search-row{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  cursor:pointer;transition:background .15s;border-radius:12px;margin:4px 5px;
+}
+.search-row:hover{background:rgba(255,255,255,.06)}
+.search-thumb{
+  width:46px;height:46px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#1A1A2E,#252540);
+  display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--accent);overflow:hidden;
+}
+.search-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.search-bar-accent{width:3px;height:36px;border-radius:2px;flex-shrink:0}
+.search-meta .title{font-size:13px;font-weight:800}
+.search-meta .sub{font-size:11px;color:var(--dim);margin-top:2px}
+.search-go-profile{
+  margin-left:auto;padding:5px 10px;font-size:10px;font-family:var(--mono);
+  letter-spacing:1px;color:var(--accent2);border:1px solid rgba(0,198,255,.25);
+  background:rgba(0,198,255,.06);border-radius:8px;cursor:pointer;
+  white-space:nowrap;transition:all .15s;
+}
+.search-go-profile:hover{background:rgba(0,198,255,.15)}
+.search-play-btn{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;border:none;cursor:pointer;font-weight:900;
+  transition:transform .15s;flex-shrink:0;
+}
+.search-play-btn:hover{transform:scale(1.1)}
+
+/* ── PAGES ── */
+.pages-container{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;padding:0 22px 22px;display:none}
+.page.active{display:block;animation:page-in .2s ease}
+@keyframes page-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-size:24px;font-weight:900;letter-spacing:.3px;margin:18px 0 14px}
+.section-title span{color:var(--accent)}
+
+/* Song grid & tiles */
+.songs-section{margin-bottom:30px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-name{font-size:16px;font-weight:800}
+.section-more{
+  font-size:11px;color:var(--dim);cursor:pointer;font-family:var(--mono);
+  letter-spacing:1px;padding:5px 11px;border:1px solid var(--border);border-radius:20px;
+  transition:all .15s;background:none;
+}
+.section-more:hover{border-color:var(--accent);color:var(--accent)}
+.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.song-tile{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;overflow:hidden;cursor:pointer;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .18s,box-shadow .18s;
+  position:relative;
+}
+.song-tile:hover{transform:translateY(-5px) scale(1.01);border-color:rgba(57,255,20,.35);box-shadow:0 10px 35px rgba(57,255,20,.09)}
+.tile-cover{
+  width:100%;aspect-ratio:1;background:linear-gradient(135deg,#18182A,#0F0F1C);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;color:var(--accent);overflow:hidden;position:relative;
+}
+.tile-cover img{width:100%;height:100%;object-fit:cover}
+.tile-cover .verified-badge{
+  position:absolute;top:6px;right:6px;
+  width:18px;height:18px;background:var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900;
+}
+.tile-hover-layer{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  opacity:0;transition:opacity .18s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+.song-tile:hover .tile-hover-layer{opacity:1}
+.tile-hover-btns{display:flex;gap:6px;align-items:center}
+.tile-play-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--accent);color:#000;font-size:14px;
+  border:none;cursor:pointer;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .12s;box-shadow:0 4px 16px rgba(57,255,20,.4);
+}
+.tile-play-btn:hover{transform:scale(1.1)}
+.tile-like-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,20,100,.8);color:#fff;font-size:13px;
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s;
+}
+.tile-like-btn:hover{transform:scale(1.1)}
+.tile-profile-btn{
+  font-size:10px;font-family:var(--mono);letter-spacing:1px;
+  color:rgba(255,255,255,.7);background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);border-radius:8px;
+  padding:4px 9px;cursor:pointer;transition:all .12s;
+}
+.tile-profile-btn:hover{background:rgba(255,255,255,.22);color:#fff}
+.tile-info{padding:9px 11px 11px}
+.tile-title{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-artist{font-size:10px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Because you liked section */
+.because-section{
+  margin-bottom:30px;
+  border:1px solid rgba(57,255,20,.1);
+  background:rgba(57,255,20,.025);
+  border-radius:20px;padding:20px;
+}
+.because-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.because-badge{
+  display:flex;align-items:center;gap:8px;
+}
+.because-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dot-pulse 1.5s ease-in-out infinite}
+@keyframes dot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.because-label{font-size:12px;font-family:var(--mono);letter-spacing:2px;color:var(--accent)}
+.because-song-name{font-size:11px;color:var(--dim);font-family:var(--mono)}
+
+/* Skeleton */
+.skeleton{background:linear-gradient(90deg,#101020 0%,#1A1A32 50%,#101020 100%);background-size:200% 100%;animation:shimmer 1.8s linear infinite;border-radius:12px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-tile{height:190px;border-radius:16px}
+
+/* Favorites */
+.fav-list{display:flex;flex-direction:column;gap:7px}
+.fav-row{
+  display:flex;align-items:center;gap:13px;
+  padding:11px 14px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  cursor:pointer;transition:all .15s;
+}
+.fav-row:hover{background:rgba(255,255,255,.08);border-color:rgba(57,255,20,.25)}
+.fav-num{font-size:12px;color:var(--dim);width:22px;text-align:center;font-family:var(--mono)}
+.fav-cover{
+  width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#1E1E2E,#2A2A3E);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.fav-cover img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.fav-meta{flex:1;min-width:0}
+.fav-meta .title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-meta .sub{font-size:11px;color:var(--dim);margin-top:2px}
+.fav-actions{display:flex;gap:7px;align-items:center}
+.fav-play{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--accent);color:#000;font-size:10px;
+  border:none;cursor:pointer;font-weight:900;
+  display:flex;align-items:center;justify-content:center;transition:transform .12s;
+}
+.fav-play:hover{transform:scale(1.1)}
+.fav-remove{width:26px;height:26px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:color .15s}
+.fav-remove:hover{color:var(--accent3)}
+
+/* ── SONG PROFILE PAGE ── */
+.profile-hero{
+  display:flex;gap:28px;align-items:flex-end;
+  padding:26px 0 24px;
+}
+.profile-cover-wrap{position:relative;flex-shrink:0}
+.profile-cover{
+  width:210px;height:210px;border-radius:22px;
+  background:linear-gradient(135deg,#1A1A28,#0F0F18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;overflow:hidden;
+  box-shadow:0 16px 60px rgba(0,0,0,.6);
+}
+.profile-cover img{width:100%;height:100%;object-fit:cover;border-radius:22px}
+.profile-cover-glow{
+  position:absolute;inset:-20px;border-radius:50%;
+  background:radial-gradient(circle,rgba(57,255,20,.08),transparent 70%);
+  pointer-events:none;
+}
+.profile-meta{flex:1;min-width:0}
+.profile-genre-tag{font-size:10px;letter-spacing:2.5px;color:var(--dim);font-family:var(--mono);margin-bottom:8px}
+.profile-title{font-size:38px;font-weight:900;line-height:1.1;margin-bottom:6px}
+.profile-artist{font-size:18px;color:var(--dim);margin-bottom:10px}
+.profile-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px}
+.profile-tag{
+  padding:4px 12px;border-radius:20px;
+  font-size:11px;font-family:var(--mono);letter-spacing:.5px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+}
+.profile-tag.verified{background:rgba(57,255,20,.1);border-color:rgba(57,255,20,.3);color:var(--accent)}
+.profile-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn-play-big{
+  padding:13px 32px;background:var(--accent);color:#000;
+  font-size:13px;font-weight:900;letter-spacing:1.5px;
+  border:none;border-radius:24px;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;font-family:var(--mono);
+}
+.btn-play-big:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(57,255,20,.35)}
+.btn-outline{
+  padding:12px 20px;background:transparent;color:var(--text);
+  border:1.5px solid var(--border);border-radius:24px;cursor:pointer;
+  font-size:12px;font-weight:700;transition:all .15s;
+}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.profile-desc{
+  font-size:14px;color:var(--dim);line-height:1.75;
+  padding:18px;background:rgba(255,255,255,.03);
+  border-radius:14px;border:1px solid var(--border);margin-bottom:22px;
+}
+.related-title{font-size:17px;font-weight:800;margin-bottom:12px}
+
+/* ── LYRIC LAB ── */
+.lab-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;height:calc(100vh - 175px)}
+.lab-panel{
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;overflow:hidden;
+}
+.lab-panel-title{font-size:11px;letter-spacing:2.5px;color:var(--accent2);font-family:var(--mono);margin-bottom:2px}
+.lab-search-wrap{position:relative}
+.lab-search{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;transition:border-color .2s;
+}
+.lab-search:focus{border-color:var(--accent2)}
+.lab-results{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:rgba(10,10,22,.98);border:1px solid var(--accent2);
+  border-radius:12px;z-index:100;max-height:180px;overflow-y:auto;display:none;
+}
+.lab-results.open{display:block}
+.lab-result-item{
+  padding:9px 13px;cursor:pointer;font-size:12px;transition:background .12s;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.lab-result-item:hover{background:rgba(0,198,255,.08)}
+.lab-result-item:last-child{border:none}
+.lyric-textarea{
+  flex:1;resize:none;background:rgba(255,255,255,.03);
+  border:1.5px solid var(--border);border-radius:14px;
+  padding:14px;color:var(--text);font-size:13px;font-family:var(--mono);
+  line-height:1.75;outline:none;transition:border-color .2s;
+}
+.lyric-textarea:focus{border-color:var(--accent)}
+.lab-status{
+  font-size:11px;font-family:var(--mono);color:var(--dim);
+  padding:9px 13px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border);
+}
+.lab-status.active{color:var(--accent);border-color:rgba(57,255,20,.3);background:rgba(57,255,20,.04)}
+.lab-status.locked{color:var(--accent2);border-color:rgba(0,198,255,.3);background:rgba(0,198,255,.04)}
+.lab-controls{display:flex;gap:8px;flex-wrap:wrap}
+.lab-btn{
+  flex:1;padding:10px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-size:11px;font-family:var(--mono);letter-spacing:1px;
+  cursor:pointer;transition:all .15s;min-width:90px;
+}
+.lab-btn:hover{background:rgba(255,255,255,.1);border-color:var(--accent)}
+.lab-btn.primary{background:rgba(0,198,255,.1);color:var(--accent2);border-color:rgba(0,198,255,.3)}
+.lab-btn.primary:hover{background:rgba(0,198,255,.2)}
+.lab-btn.commit{background:rgba(57,255,20,.08);color:var(--accent);border-color:rgba(57,255,20,.25)}
+.lab-btn.commit:hover{background:rgba(57,255,20,.16)}
+.lab-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── ADMIN ── */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.admin-card{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:22px}
+.admin-card-title{font-size:12px;letter-spacing:2px;color:var(--red);margin-bottom:16px;font-family:var(--mono);display:flex;align-items:center;gap:8px}
+.admin-input{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;transition:border-color .2s;margin-bottom:9px;
+}
+.admin-input:focus{border-color:var(--accent)}
+.admin-select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;margin-bottom:9px;cursor:pointer;
+}
+.admin-select option{background:#111122;color:var(--text)}
+.admin-file-btn{
+  width:100%;padding:11px;background:rgba(57,255,20,.04);
+  border:1.5px dashed rgba(57,255,20,.22);border-radius:12px;
+  color:var(--accent);font-size:12px;font-family:var(--mono);
+  cursor:pointer;transition:all .15s;margin-bottom:9px;
+}
+.admin-file-btn:hover{background:rgba(57,255,20,.08);border-style:solid}
+.admin-file-btn.loaded{background:rgba(57,255,20,.07);border-style:solid;border-color:var(--accent)}
+.btn-blast{
+  width:100%;padding:13px;background:var(--accent);color:#000;
+  font-size:12px;font-weight:900;letter-spacing:2px;
+  border:none;border-radius:12px;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;font-family:var(--mono);
+}
+.btn-blast:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(57,255,20,.3)}
+.btn-blast:disabled{background:#1e1e30;color:var(--dim);cursor:not-allowed;transform:none}
+.delete-select{
+  width:100%;background:rgba(255,49,49,.04);
+  border:1.5px solid rgba(255,49,49,.18);border-radius:12px;
+  padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;margin-bottom:11px;cursor:pointer;
+}
+.delete-select option{background:#111122;color:var(--text)}
+.btn-wipe{
+  width:100%;padding:12px;background:var(--red);color:#fff;
+  font-size:12px;font-weight:900;letter-spacing:2px;
+  border:none;border-radius:12px;cursor:pointer;font-family:var(--mono);transition:all .15s;
+}
+.btn-wipe:hover{background:#FF5555;transform:translateY(-1px)}
+.admin-track-list{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:12px;padding:10px;max-height:210px;overflow-y:auto;
+}
+.admin-track-item{
+  padding:8px 10px;border-radius:8px;cursor:pointer;
+  font-size:12px;transition:background .12s;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.admin-track-item:hover{background:rgba(255,255,255,.05)}
+.verify-toggle{
+  display:flex;align-items:center;gap:10px;
+  padding:9px;background:rgba(255,255,255,.04);
+  border-radius:10px;cursor:pointer;margin-bottom:9px;
+  border:1.5px solid var(--border);transition:all .15s;
+}
+.verify-toggle:hover,.verify-toggle.on{background:rgba(57,255,20,.06);border-color:var(--accent)}
+.verify-toggle .check{
+  width:18px;height:18px;border-radius:50%;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:8px;transition:background .15s;
+}
+.verify-toggle.on .check{background:var(--accent);color:#000}
+
+/* ── NOW VIBING PANEL (expandable) ── */
+.vibing-panel{
+  position:fixed;right:0;top:0;bottom:var(--player-h);width:320px;
+  background:rgba(10,10,22,.97);border-left:1px solid var(--border);
+  backdrop-filter:blur(24px);z-index:250;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.vibing-panel.open{transform:translateX(0)}
+.vibing-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent)}
+.vibing-header{
+  padding:18px 18px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.vibing-title{font-size:11px;letter-spacing:2.5px;color:var(--dim);font-family:var(--mono)}
+.vibing-close{
+  width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);
+  border:none;color:var(--dim);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.vibing-close:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.vibing-cover-wrap{
+  padding:18px;display:flex;align-items:center;gap:14px;flex-shrink:0;
+}
+.vibing-cover{
+  width:68px;height:68px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,#1A1A2E,#252540);
+  display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;
+}
+.vibing-cover img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.vibing-track-info{min-width:0}
+.vibing-track-title{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vibing-track-artist{font-size:12px;color:var(--dim);margin-top:3px}
+.vibing-eq{display:flex;align-items:flex-end;gap:2px;height:18px;margin-top:6px}
+.vibing-eq .bar{width:3px;border-radius:2px;background:var(--accent);animation:leq .6s ease-in-out infinite alternate}
+.vibing-eq .bar:nth-child(1){height:6px;animation-delay:0s}
+.vibing-eq .bar:nth-child(2){height:12px;animation-delay:.15s}
+.vibing-eq .bar:nth-child(3){height:18px;animation-delay:.3s}
+.vibing-eq .bar:nth-child(4){height:8px;animation-delay:.45s}
+.vibing-eq.paused .bar{animation:none;height:3px!important}
+
+.vibing-lyrics-wrap{
+  flex:1;overflow-y:auto;padding:8px 18px 18px;
+  scrollbar-width:none;
+}
+.vibing-lyrics-wrap::-webkit-scrollbar{display:none}
+.vibing-lyric-line{
+  font-size:14px;font-weight:600;color:rgba(255,255,255,.2);
+  padding:10px 14px;border-radius:10px;margin:2px 0;
+  line-height:1.5;cursor:default;
+  transition:color .5s cubic-bezier(.4,0,.2,1),font-size .4s cubic-bezier(.4,0,.2,1),background .4s,transform .4s cubic-bezier(.34,1.56,.64,1);
+  will-change:color,font-size,transform;
+}
+.vibing-lyric-line.active{
+  color:#fff;font-size:16px;font-weight:900;
+  background:rgba(57,255,20,.07);
+  transform:translateX(4px);
+  text-shadow:0 0 24px rgba(57,255,20,.3);
+}
+.vibing-lyric-line.near-prev{color:rgba(255,255,255,.4);font-size:14px}
+.vibing-lyric-line.near-next{color:rgba(255,255,255,.35);font-size:13.5px}
+.vibing-no-lyrics{
+  text-align:center;padding:40px 0;
+  font-size:11px;font-family:var(--mono);letter-spacing:1px;
+  color:var(--dim);
+}
+
+/* ── ZEN STAGE ── */
+.zen-stage{
+  position:fixed;inset:0;z-index:500;
+  background:linear-gradient(135deg,#08021A 0%,#040210 50%,#020104 100%);
+  display:none;flex-direction:column;align-items:center;overflow:hidden;
+}
+.zen-stage.open{display:flex;animation:zen-in .4s ease}
+@keyframes zen-in{from{opacity:0}to{opacity:1}}
+.zen-bg-canvas{position:absolute;inset:0;opacity:.6}
+.zen-header{position:relative;z-index:10;width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
+.zen-title{font-size:12px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.3);font-family:var(--mono)}
+.zen-exit{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.55);border-radius:20px;padding:7px 16px;
+  font-size:11px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:all .15s;
+}
+.zen-exit:hover{background:rgba(255,255,255,.13);color:#fff}
+.zen-lyrics-scroll{
+  position:relative;z-index:10;flex:1;overflow-y:auto;
+  width:100%;max-width:780px;padding:70px 36px;text-align:center;scrollbar-width:none;
+}
+.zen-lyrics-scroll::-webkit-scrollbar{display:none}
+.zen-lyric-line{
+  font-size:24px;font-weight:700;
+  padding:12px 18px;margin:2px 0;
+  color:rgba(255,255,255,.2);border-radius:8px;
+  cursor:default;line-height:1.4;font-family:var(--font);
+  transition:color .5s cubic-bezier(.4,0,.2,1),font-size .45s cubic-bezier(.34,1.56,.64,1),transform .4s cubic-bezier(.34,1.56,.64,1),text-shadow .5s;
+  will-change:color,font-size,transform;
+}
+.zen-lyric-line.active{
+  color:#fff;font-size:34px;font-weight:900;
+  text-shadow:0 0 50px rgba(255,255,255,.35);
+  transform:scale(1.02);
+}
+.zen-lyric-line.near{color:rgba(255,255,255,.5);font-size:28px}
+.zen-cover-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+.zen-cover-art{width:220px;height:220px;border-radius:22px;overflow:hidden;box-shadow:0 0 100px rgba(147,51,234,.3)}
+.zen-cover-art img{width:100%;height:100%;object-fit:cover}
+.zen-no-lyrics{color:rgba(255,255,255,.25);font-size:14px;margin-top:16px;font-family:var(--mono);letter-spacing:1px}
+.zen-controls{
+  position:relative;z-index:10;width:100%;padding:18px 28px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.zen-ctrl{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.65);font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.zen-ctrl:hover{background:rgba(255,255,255,.14);color:#fff}
+.zen-ctrl.play{width:54px;height:54px;font-size:18px;background:var(--accent);color:#000;border:none}
+.zen-ctrl.play:hover{transform:scale(1.07)}
+.zen-now-playing{font-size:11px;color:rgba(255,255,255,.3);font-family:var(--mono);letter-spacing:1px;margin-bottom:7px;text-align:center}
+.zen-gradient-btn{
+  position:absolute;right:28px;top:50%;transform:translateY(-50%);
+  background:rgba(57,255,20,.07);color:var(--accent);
+  border:1px solid rgba(57,255,20,.25);border-radius:12px;
+  padding:6px 12px;font-size:10px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:all .15s;
+}
+.zen-gradient-btn:hover{background:rgba(57,255,20,.13)}
+
+/* ── PLAYER BAR ── */
+.player-bar{
+  grid-area:player;background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 20px;
+  position:relative;overflow:hidden;
+}
+.player-progress-accent{
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));
+  background-size:200% 100%;
+  animation:player-glow 4s linear infinite;
+}
+@keyframes player-glow{0%{background-position:0%}100%{background-position:200%}}
+.now-playing{display:flex;align-items:center;gap:11px;width:240px;min-width:180px}
+.np-cover{
+  width:50px;height:50px;border-radius:12px;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,#1A1A2E,#252540);
+  display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent);
+}
+.np-cover img{width:100%;height:100%;object-fit:cover}
+.np-info{min-width:0}
+.np-title{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-artist{font-size:10px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-heart{background:none;border:none;color:var(--dim);cursor:pointer;font-size:17px;margin-left:4px;transition:color .15s,transform .2s}
+.np-heart.liked{color:var(--accent3);transform:scale(1.1)}
+.np-heart:hover{color:var(--accent3)}
+
+.player-controls{display:flex;flex-direction:column;align-items:center;flex:1;max-width:560px}
+.ctrl-buttons{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.ctrl-btn{
+  width:32px;height:32px;background:none;border:none;
+  color:var(--dim);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all .15s;
+}
+.ctrl-btn:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.ctrl-btn.active{color:var(--accent)}
+.ctrl-btn.shuffle-genre{color:var(--accent4)}
+.ctrl-btn.shuffle-genre.active{color:var(--accent4);text-shadow:0 0 10px rgba(255,209,102,.4)}
+.play-btn-main{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--accent);color:#000;font-size:15px;
+  border:none;cursor:pointer;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,box-shadow .2s;
+}
+.play-btn-main:hover{transform:scale(1.07);box-shadow:0 4px 22px rgba(57,255,20,.45)}
+.progress-wrap{display:flex;align-items:center;gap:9px;width:100%}
+.time-lbl{font-size:10px;color:var(--dim);font-family:var(--mono);min-width:36px;text-align:center}
+.progress-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:3px;cursor:pointer;position:relative;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .3s linear;width:0%;pointer-events:none}
+.progress-bar:hover .progress-fill{background:var(--accent)}
+
+.player-right{display:flex;align-items:center;gap:9px;width:auto;justify-content:flex-end}
+.vol-wrap{display:flex;align-items:center;gap:7px}
+.vol-icon{font-size:14px;color:var(--dim);cursor:pointer;user-select:none}
+.vol-bar{width:80px;height:4px;background:rgba(255,255,255,.1);border-radius:3px;cursor:pointer;position:relative}
+.vol-fill{height:100%;background:rgba(255,255,255,.35);border-radius:3px;width:70%}
+.btn-zen{
+  padding:5px 11px;font-size:10px;font-family:var(--mono);letter-spacing:1px;
+  color:var(--accent);border:1px solid rgba(57,255,20,.25);
+  background:rgba(57,255,20,.05);border-radius:8px;cursor:pointer;transition:all .15s;
+}
+.btn-zen:hover,.btn-zen.active{background:var(--accent);color:#000}
+
+/* Download button — modern */
+.btn-download{
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(0,198,255,.1);border:1px solid rgba(0,198,255,.25);
+  color:var(--accent2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  position:relative;overflow:hidden;
+}
+.btn-download::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,198,255,.15),rgba(57,255,20,.1));
+  opacity:0;transition:opacity .2s;
+}
+.btn-download:hover{transform:scale(1.12);border-color:var(--accent2);box-shadow:0 4px 18px rgba(0,198,255,.25)}
+.btn-download:hover::before{opacity:1}
+.btn-download:active{transform:scale(.96)}
+.btn-download svg{transition:transform .2s}
+.btn-download:hover svg{transform:translateY(2px)}
+
+/* Pulse bars */
+.pulse-bars{display:flex;align-items:flex-end;gap:2px;height:16px}
+.pulse-bar{width:2.5px;border-radius:2px;background:var(--accent);animation:pulse-eq .6s ease-in-out infinite alternate}
+.pulse-bars.paused .pulse-bar{animation:none;height:3px!important}
+@keyframes pulse-eq{to{height:2px!important}}
+
+/* Vibing toggle btn in player */
+.btn-vibing{
+  padding:5px 11px;font-size:10px;font-family:var(--mono);letter-spacing:1px;
+  color:var(--accent2);border:1px solid rgba(0,198,255,.25);
+  background:rgba(0,198,255,.05);border-radius:8px;cursor:pointer;transition:all .15s;
+}
+.btn-vibing:hover,.btn-vibing.active{background:rgba(0,198,255,.15);border-color:var(--accent2)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(var(--player-h) + 14px);right:22px;
+  background:rgba(10,10,22,.96);border-left:3px solid var(--accent);
+  border-radius:14px;padding:13px 17px;max-width:320px;z-index:600;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateY(20px) scale(.95);opacity:0;
+  transition:all .28s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+}
+.toast.show{transform:translateY(0) scale(1);opacity:1}
+.toast.download{border-color:var(--accent2)}
+.toast-title{font-size:12px;font-weight:800}
+.toast-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.toast-badge{font-size:10px;color:var(--accent);font-family:var(--mono);margin-bottom:3px;letter-spacing:1px}
+.toast.download .toast-badge{color:var(--accent2)}
+
+/* ── MODALS ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:22px;padding:34px;width:430px;max-width:95vw;
+  transform:scale(.94) translateY(20px);
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1);position:relative;
+}
+.modal-overlay.open .modal-card{transform:scale(1) translateY(0)}
+.modal-title{font-size:18px;font-weight:900;margin-bottom:5px}
+.modal-sub{font-size:12px;color:var(--dim);margin-bottom:22px}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:30px;height:30px;background:rgba(255,255,255,.06);
+  border:none;border-radius:50%;cursor:pointer;color:var(--dim);
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:rgba(255,255,255,.12);color:var(--text)}
+
+/* ── SETTINGS ── */
+.settings-panel{
+  position:fixed;left:-290px;top:0;width:290px;height:100%;
+  background:var(--panel);border-right:1px solid var(--border);
+  z-index:400;transition:left .3s cubic-bezier(.4,0,.2,1);
+  padding:22px 18px;overflow-y:auto;
+}
+.settings-panel.open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.4)}
+.settings-title{font-size:18px;font-weight:900;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between}
+.settings-section{margin-bottom:20px}
+.settings-section-label{font-size:10px;letter-spacing:2px;color:var(--dim);margin-bottom:9px;font-family:var(--mono)}
+.theme-btn{
+  padding:9px 13px;border-radius:12px;cursor:pointer;
+  border:1.5px solid var(--border);background:rgba(255,255,255,.04);
+  font-size:12px;color:var(--text);font-weight:600;
+  transition:all .15s;display:block;width:100%;text-align:left;margin-bottom:5px;
+}
+.theme-btn:hover,.theme-btn.active{border-color:var(--accent);background:rgba(57,255,20,.06);color:var(--accent)}
+.theme-btn.light-mode.active{border-color:#7000FF;background:rgba(112,0,255,.06);color:#7000FF}
+.theme-btn.vibe.active{border-color:#FF8A4C;background:rgba(255,138,76,.06);color:#FF8A4C}
+.settings-close{background:none;border:none;cursor:pointer;color:var(--dim);font-size:18px;display:flex;align-items:center;justify-content:center}
+.settings-close:hover{color:var(--text)}
+
+/* Light theme */
+body.light{--bg:#F5F5F7;--panel:#fff;--panel2:#F0F0F5;--border:#E0E0E8;--text:#12121A;--dim:#707080;--accent:#7000FF}
+body.light .player-bar,.light .sidebar{background:var(--panel)}
+body.light .player-progress-accent{background:linear-gradient(90deg,#7000FF,#9D78FF,#7000FF)}
+body.light .search-input{color:var(--text)}
+
+/* Shuffle mode labels */
+.shuffle-label{
+  position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);
+  font-size:8px;font-family:var(--mono);letter-spacing:.5px;
+  color:var(--dim);white-space:nowrap;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  :root{--sidebar-w:60px}
+  .sidebar-brand .brand-text,.sidebar-btn span,.sidebar-section-label,.user-info{display:none}
+  .sidebar-btn{padding:12px;justify-content:center}
+  .sidebar-btn .icon{min-width:unset;font-size:20px}
+  .user-chip{justify-content:center;padding:8px}.user-avatar{margin:0}
+  .admin-grid{grid-template-columns:1fr}.lab-layout{grid-template-columns:1fr;height:auto}
+  .profile-hero{flex-direction:column;align-items:flex-start}
+  .vibing-panel{width:280px}
+}
+@media(max-width:680px){
+  :root{--player-h:78px}
+  .now-playing{width:160px}.player-right{width:auto}
+  .vol-wrap{display:none}.btn-zen,.btn-vibing{display:none}
+  .search-wrap{max-width:none}
+}
+
+/* Spinner */
+.spinner{width:18px;height:18px;border:2px solid rgba(57,255,20,.18);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LOGIN POLISH ── */
+.login-brand-wrap{padding:0 24px}
+.login-slogan-shell{
+  position:relative;z-index:10;margin-top:34px;
+  width:min(440px,86%);padding:18px 18px 14px;
+  border-radius:24px;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  box-shadow:0 22px 80px rgba(0,0,0,.22);
+  backdrop-filter:blur(14px);
+}
+.login-slogan-label{
+  font-size:10px;letter-spacing:4px;font-family:var(--mono);
+  color:rgba(255,255,255,.36);text-transform:uppercase;
+}
+.login-slogan-stage{
+  position:relative;min-height:86px;margin-top:12px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  overflow:hidden;
+}
+.login-slogan{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:0 10px;
+  font-size:clamp(26px,3vw,38px);line-height:1.15;font-weight:900;
+  letter-spacing:.2px;color:rgba(255,255,255,.55);
+  opacity:0;transform:translateY(10px) scale(.985);
+  transition:opacity .65s ease,transform .65s ease,color .65s ease;
+  text-shadow:0 0 24px rgba(57,255,20,.15);
+}
+.login-slogan.active{opacity:1;transform:translateY(0) scale(1);color:#fff}
+.login-signal-strip{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;
+  font-family:var(--mono);font-size:10px;letter-spacing:1.8px;color:rgba(255,255,255,.42);
+}
+.login-signal-strip span{
+  padding:6px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+}
+.feature-pill{display:none}
+
+/* login visual refinement */
+.login-left::before{
+  content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(135deg,rgba(57,255,20,.05),transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(0,198,255,.12), transparent 20%),
+    radial-gradient(circle at 80% 30%, rgba(255,20,147,.08), transparent 18%);
+  pointer-events:none;
+}
+.login-right{backdrop-filter:blur(14px)}
+.login-right::after{
+  content:'';position:absolute;inset:auto 28px 20px 28px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(57,255,20,.35),rgba(0,198,255,.28),transparent);
+}
+.admin-door{box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.admin-code-input::placeholder{color:rgba(255,49,49,.55);letter-spacing:4px}
+.admin-door-note{margin-top:9px;font-size:10px;line-height:1.4;color:rgba(255,255,255,.34);font-family:var(--mono);text-align:center;letter-spacing:1.2px}
+
+/* ── ACCOUNT PAGE ── */
+.account-shell{
+  display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:18px;
+  align-items:stretch;
+}
+.account-card,.account-rail{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  box-shadow:0 16px 45px rgba(0,0,0,.16);
+}
+.account-card{padding:22px}
+.account-rail{padding:22px}
+.account-topline{font-size:11px;letter-spacing:3px;font-family:var(--mono);color:var(--dim);text-transform:uppercase}
+.account-title{font-size:30px;font-weight:900;margin-top:8px;line-height:1.05}
+.account-sub{font-size:13px;color:var(--dim);margin-top:8px;line-height:1.5}
+.account-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px
+}
+.account-stat{
+  padding:14px;border-radius:18px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06)
+}
+.account-stat .label{font-size:10px;letter-spacing:2px;font-family:var(--mono);color:var(--dim)}
+.account-stat .value{font-size:18px;font-weight:800;margin-top:6px;word-break:break-word}
+.account-list{display:grid;gap:10px;margin-top:14px}
+.account-row{
+  display:flex;justify-content:space-between;gap:14px;align-items:flex-start;
+  padding:14px 15px;border-radius:16px;background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.06)
+}
+.account-row .k{font-size:10px;letter-spacing:2px;font-family:var(--mono);color:var(--dim);text-transform:uppercase}
+.account-row .v{font-size:13px;font-weight:700;text-align:right;max-width:64%}
+.account-cta{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:18px
+}
+.account-cta .mini-pill{
+  padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);font-size:11px;font-family:var(--mono);letter-spacing:1px
+}
+.account-hero{
+  min-height:220px;border-radius:22px;
+  background:radial-gradient(circle at 20% 20%, rgba(57,255,20,.22), transparent 26%),
+             radial-gradient(circle at 80% 18%, rgba(0,198,255,.20), transparent 22%),
+             linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);
+  position:relative;overflow:hidden;padding:18px
+}
+.account-hero::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, transparent 0, rgba(255,255,255,.06) 50%, transparent 100%);
+  transform:translateX(-50%);
+  animation:account-sheen 7s linear infinite;
+  pointer-events:none;
+}
+@keyframes account-sheen{0%{transform:translateX(-80%)}100%{transform:translateX(120%)}}
+.account-avatar{
+  width:74px;height:74px;border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;color:#000;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 18px 35px rgba(0,0,0,.18)
+}
+.account-hero-row{display:flex;gap:14px;align-items:center;position:relative;z-index:1}
+.account-hero-meta{min-width:0}
+.account-hero-meta .name{font-size:22px;font-weight:900}
+.account-hero-meta .mail{font-size:12px;color:rgba(255,255,255,.68);margin-top:4px;word-break:break-word}
+.account-badge{
+  display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+  padding:8px 11px;border-radius:999px;font-size:10px;letter-spacing:1.8px;
+  font-family:var(--mono);text-transform:uppercase;background:rgba(255,255,255,.08)
+}
+.account-panel-title{font-size:13px;font-family:var(--mono);letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.account-mini-list{display:grid;gap:10px;margin-top:12px}
+.account-mini-item{
+  padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:12px
+}
+.account-mini-item .left{font-size:13px;font-weight:700}
+.account-mini-item .right{font-size:12px;color:var(--dim);text-align:right}
+.account-note{font-size:12px;color:var(--dim);line-height:1.6;margin-top:12px}
+
+/* ── LYRICS SMOOTHING ── */
+.zen-lyric-line,.vibing-lyric-line{
+  -webkit-font-smoothing:antialiased;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+.zen-lyric-line.active{
+  background:rgba(57,255,20,.08);
+  box-shadow:0 0 0 1px rgba(57,255,20,.08) inset;
+}
+.vibing-lyric-line.active{
+  box-shadow:0 0 0 1px rgba(57,255,20,.06) inset;
+}
+.zen-lyrics-scroll,.vibing-lyrics-wrap{
+  scroll-behavior:smooth;
+  overscroll-behavior:contain;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px){
+  :root{--sidebar-w:210px;--player-h:92px}
+  .account-shell{grid-template-columns:1fr}
+  .login-right{width:min(440px,42vw)}
+}
+@media (max-width: 900px){
+  html,body{overflow:auto}
+  #loginScreen{flex-direction:column}
+  .login-left,.login-right{width:100%;flex:unset}
+  .login-left{min-height:52vh;padding:34px 20px}
+  .login-right{min-height:48vh;padding:24px 18px}
+  #appScreen{
+    grid-template-columns:1fr;
+    grid-template-rows:auto 1fr var(--player-h);
+    grid-template-areas:"sidebar" "main" "player";
+  }
+  .sidebar{
+    flex-direction:row;align-items:center;gap:8px;overflow-x:auto;padding:10px 10px 12px;
+  }
+  .sidebar-brand{display:none}
+  .sidebar-section-label{display:none}
+  .sidebar-btn{flex:0 0 auto}
+  .sidebar-bottom{margin-top:0;border-top:none;padding-top:0;display:flex;align-items:center;gap:10px}
+  .user-chip{min-width:180px}
+  .top-bar{padding:12px 14px}
+  .page{padding:0 14px 16px}
+}
+@media (max-width: 640px){
+  .login-brand-logo{font-size:58px;letter-spacing:7px}
+  .login-slogan-shell{width:100%;margin-top:24px}
+  .login-slogan-stage{min-height:68px}
+  .login-slogan{font-size:22px}
+  .song-grid{grid-template-columns:repeat(auto-fill,minmax(136px,1fr))}
+  .account-grid{grid-template-columns:1fr}
+  .account-shell{gap:12px}
+  .section-title{font-size:20px}
+  .profile-hero{flex-direction:column}
+  .profile-actions{flex-wrap:wrap}
+}
+
+
+/* ── MOBILE DRAWER / MINI PLAYER / LYRIC POLISH (Blastr v3 overlay) ── */
+.mobile-nav-btn{display:none}
+.sidebar-close-btn{
+  display:none;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);cursor:pointer;font-size:14px;
+  align-items:center;justify-content:center;
+  margin-left:auto;flex-shrink:0;
+}
+.sidebar-close-btn:hover{background:rgba(255,255,255,.12)}
+.sidebar-mobile-hint{
+  display:none;
+  margin:0 10px 12px;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.03);
+  border-radius:12px;
+  color:rgba(255,255,255,.42);
+  font-size:10px;
+  font-family:var(--mono);
+  letter-spacing:1px;
+  line-height:1.45;
+}
+.mobile-scrim{
+  display:none;
+}
+
+.mini-player-shell{
+  position:fixed;
+  right:22px;
+  bottom:calc(var(--player-h) + 14px);
+  width:min(420px, calc(100vw - 44px));
+  background:linear-gradient(135deg,#0E1F3A,#1A3356);
+  border:1px solid rgba(146,191,255,.28);
+  border-radius:22px;
+  padding:16px;
+  box-shadow:0 16px 50px rgba(0,0,0,.65);
+  z-index:300;
+  display:none;
+  backdrop-filter:blur(12px);
+}
+.mini-player-shell.open{display:block}
+.mini-player-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:10px;
+}
+.mini-player-label{
+  font-size:10px;font-family:var(--mono);letter-spacing:2.5px;
+  color:#C5D4E7;
+}
+.mini-player-close{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+  color:#EAF2FF;cursor:pointer;font-size:13px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.mini-player-close:hover{background:rgba(255,255,255,.14)}
+.mini-player-body{
+  display:flex;gap:11px;align-items:center;
+}
+.mini-player-cover{
+  width:68px;height:68px;border-radius:14px;
+  background:linear-gradient(135deg,#3F78C8,#0E1F3A);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;overflow:hidden;
+}
+.mini-player-cover img{width:100%;height:100%;object-fit:cover}
+.mini-player-meta{flex:1;min-width:0}
+.mini-player-title{
+  font-size:14px;font-weight:900;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;color:#F7FBFF;
+}
+.mini-player-artist{
+  font-size:11px;color:#C5D4E7;margin-top:3px;
+}
+.mini-progress-wrap{margin-top:7px}
+.mini-player-controls{
+  display:flex;gap:7px;margin-top:11px;align-items:center;
+}
+.mini-player-btn{
+  border-radius:11px;
+  cursor:pointer;
+  font-size:13px;
+  padding:9px 12px;
+  border:none;
+}
+.mini-player-btn-ghost{
+  flex:1;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(146,191,255,.18);
+  color:#C5D4E7;
+}
+.mini-player-btn-main{
+  flex:2;
+  background:var(--accent);
+  color:#000;
+  font-weight:900;
+  border:none;
+}
+.mini-player-btn:hover{filter:brightness(1.05)}
+
+.vibing-lyrics-wrap,.zen-lyrics-scroll{
+  scroll-behavior:smooth;
+  overscroll-behavior:contain;
+}
+.vibing-lyric-line,.zen-lyric-line{
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.vibing-lyric-line.active{
+  transform:translate3d(6px,0,0) scale(1.03);
+}
+.vibing-lyric-line.near-prev{
+  transform:translate3d(1px,0,0) scale(.995);
+}
+.vibing-lyric-line.near-next{
+  transform:translate3d(1px,0,0) scale(.99);
+}
+.zen-lyric-line.active{
+  transform:translate3d(0,-1px,0) scale(1.025);
+}
+.zen-lyric-line.near{
+  transform:translate3d(0,0,0) scale(1.008);
+}
+
+@media (max-width: 860px){
+  #appScreen{
+    grid-template-columns:1fr !important;
+    grid-template-rows:1fr var(--player-h);
+    grid-template-areas:"main" "player";
+  }
+
+  .mobile-nav-btn{display:flex}
+  .sidebar{
+    position:fixed;
+    left:0;top:0;bottom:0;
+    width:min(320px,88vw);
+    z-index:650;
+    transform:translateX(-105%);
+    transition:transform .32s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;
+    padding-bottom:24px;
+    box-shadow:24px 0 80px rgba(0,0,0,.45);
+  }
+  #appScreen.mobile-nav-open .sidebar{transform:translateX(0)}
+  #appScreen.mobile-nav-open .mobile-scrim{
+    display:block;
+    position:fixed;
+    inset:0;
+    z-index:640;
+    background:rgba(0,0,0,.45);
+    backdrop-filter:blur(4px);
+    opacity:1;
+    pointer-events:auto;
+  }
+  .mobile-scrim{
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .22s ease;
+  }
+  .sidebar-close-btn{display:flex}
+  .sidebar-mobile-hint{display:block}
+  .sidebar-brand .brand-text,
+  .sidebar-btn span,
+  .sidebar-section-label,
+  .user-info{display:block}
+  .sidebar-btn{justify-content:flex-start}
+  .sidebar-btn .icon{min-width:22px;font-size:16px}
+  .sidebar-bottom{padding-bottom:8px}
+  .top-bar{padding-left:14px;padding-right:14px}
+  .topbar-actions{gap:6px}
+}
+
+@media (max-width: 640px){
+  .mini-player-shell{
+    right:12px;
+    left:12px;
+    width:auto;
+    bottom:calc(var(--player-h) + 10px);
+    padding:14px;
+  }
+  .mini-player-title{font-size:13px}
+  .mini-player-artist{font-size:10px}
+  .mini-player-body{gap:10px}
+  .mini-player-cover{width:60px;height:60px}
+  .mini-player-controls{margin-top:10px}
+  .profile-actions{gap:8px}
+  .btn-play-big,.btn-outline{width:100%}
+  .login-signal-strip{gap:6px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .vibing-lyric-line,.zen-lyric-line,.mini-player-shell,.sidebar,.mobile-scrim{
+    transition:none !important;
+    animation:none !important;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN — SPLIT SCREEN ═══════════════════ -->
+<div id="loginScreen" class="screen">
+  <!-- LEFT: Brand side -->
+  <div class="login-left">
+    <canvas class="login-snow-canvas" id="snowCanvas"></canvas>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="login-brand-wrap">
+      <div class="login-brand-logo">BLASTR</div>
+      <div class="login-brand-tag">LIVE EDITION — STREAM THE GRID</div>
+      <div class="login-eq-row">
+        <div class="login-eq-bar"></div><div class="login-eq-bar"></div>
+        <div class="login-eq-bar"></div><div class="login-eq-bar"></div>
+        <div class="login-eq-bar"></div><div class="login-eq-bar"></div>
+        <div class="login-eq-bar"></div><div class="login-eq-bar"></div>
+        <div class="login-eq-bar"></div><div class="login-eq-bar"></div>
+      </div>
+      <div class="login-slogan-shell">
+        <div class="login-slogan-label">LIVE SIGNAL</div>
+        <div class="login-slogan-stage" aria-live="polite">
+          <span class="login-slogan active" id="loginSloganA">Echoes of 2026...</span>
+          <span class="login-slogan" id="loginSloganB">Your memories, remixed.</span>
+        </div>
+        <div class="login-signal-strip">
+          <span>ADAPTIVE RECOMMENDATIONS</span>
+          <span>SMOOTH LYRIC STAGES</span>
+          <span>ADMIN VAULT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Form side -->
+  <div class="login-right">
+    <!-- LOGIN FORM -->
+    <div id="loginFormWrap" style="width:100%">
+      <div class="login-form-title" id="loginFormTitle">Welcome back</div>
+      <div class="login-form-sub" id="loginFormSub">SIGN INTO THE GRID</div>
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label">EMAIL_ADDRESS</label>
+          <input type="email" class="form-input" id="emailInput" placeholder="user@blastr.io" onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">PASSWORD</label>
+          <input type="password" class="form-input" id="passInput" placeholder="••••••••••" onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+        <button class="btn-primary" id="loginBtn" onclick="handleLogin()">INITIALIZE SESSION</button>
+        <div class="login-divider">or</div>
+        <button class="btn-signup" onclick="switchToSignup()">CREATE NEW ACCOUNT</button>
+      </div>
+
+      <!-- SIGNUP FORM (hidden) -->
+      <div id="signupForm" style="display:none">
+        <div class="form-group">
+          <label class="form-label">USERNAME</label>
+          <input type="text" class="form-input" id="signupUsername" placeholder="your_handle">
+        </div>
+        <div class="form-group">
+          <label class="form-label">EMAIL_ADDRESS</label>
+          <input type="email" class="form-input" id="signupEmail" placeholder="user@blastr.io">
+        </div>
+        <div class="form-group">
+          <label class="form-label">PASSWORD</label>
+          <input type="password" class="form-input" id="signupPass" placeholder="••••••••••">
+        </div>
+        <button class="btn-primary" onclick="handleSignupSubmit()">REGISTER & LAUNCH</button>
+      </div>
+
+      <div class="login-toggle" id="loginToggle">No account? <a onclick="switchToSignup()">Create one</a></div>
+      <div class="login-toggle" id="signupToggle" style="display:none">Have an account? <a onclick="switchToLogin()">Sign in</a></div>
+
+      <div class="login-credit">Made by <span>Xclone Studios</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN APP ═══════════════════ -->
+<div id="appScreen" class="screen hidden">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-eq"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+      <div class="brand-text">BLASTR</div>
+      <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" onclick="closeSidebarDrawer()" aria-label="Close navigation">✕</button>
+    </div>
+    <div class="sidebar-mobile-hint">Swipe from the left edge to open this panel.</div>
+    <div class="sidebar-section-label">NAVIGATE</div>
+    <button class="sidebar-btn active" id="nav-home" onclick="showPage('home',this)"><span class="icon">⌂</span><span>Home</span></button>
+    <button class="sidebar-btn" id="nav-profile" onclick="showPage('profile',this)"><span class="icon">◉</span><span>Song Profile</span></button>
+    <button class="sidebar-btn" id="nav-favorites" onclick="showPage('favorites',this)"><span class="icon">♥</span><span>Favorites</span></button>
+    <button class="sidebar-btn" id="nav-lab" onclick="showPage('lab',this)"><span class="icon">⚗</span><span>Lyric Lab</span></button>
+    <div class="sidebar-section-label" style="margin-top:14px">ADMIN</div>
+    <button class="sidebar-btn admin-btn" id="nav-admin" onclick="requireAdminAccess('admin',this)"><span class="icon">⬡</span><span>Admin Matrix</span></button>
+    <div class="admin-door" id="adminDoor">
+      <button class="admin-door-trigger" onclick="toggleAdminDoor()">
+        <span class="lock-icon" id="lockIcon">🔒</span>
+        <span>ADMIN ACCESS — RESTRICTED</span>
+      </button>
+      <div class="admin-code-wrap" id="adminCodeWrap">
+        <input type="password" class="admin-code-input" id="adminCode" placeholder="_ _ _ _ _ _ _" maxlength="8" oninput="handleAdminInput(this)" autocomplete="off">
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-btn account-btn" id="nav-account" onclick="showPage('account',this)"><span class="icon">◎</span><span>MyAccount</span></button>
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-info">
+          <div class="name" id="sidebarUser">Admin</div>
+          <div class="role" id="sidebarRole">GRID_ADMIN</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="mobile-scrim" id="mobileScrim" onclick="closeSidebarDrawer()" aria-hidden="true"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="top-bar">
+      <button class="icon-btn mobile-nav-btn" id="mobileNavBtn" onclick="toggleSidebarDrawer()" title="Menu">☰</button>
+      <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+      <div class="search-wrap">
+        <span class="search-icon">🔎</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search the Cloud Matrix..." oninput="onSearchType(this.value)" onblur="setTimeout(closeSearch,200)">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="btnZenTop" onclick="toggleZen()" title="Zen Stage">✦</button>
+        <button class="icon-btn" onclick="toggleMiniPlayer()" title="Mini Player">⊡</button>
+      </div>
+    </div>
+
+    <div class="pages-container">
+      <!-- HOME PAGE -->
+      <div class="page active" id="page-home">
+        <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> ⚡</div>
+        <div id="becauseSection"></div>
+        <div id="homeContent"></div>
+      </div>
+
+      <!-- SONG PROFILE PAGE -->
+      <div class="page" id="page-profile">
+        <div class="profile-hero">
+          <div class="profile-cover-wrap">
+            <div class="profile-cover" id="profCover">♪</div>
+            <div class="profile-cover-glow" id="profCoverGlow"></div>
+          </div>
+          <div class="profile-meta">
+            <div class="profile-genre-tag" id="profGenreTag">GENRE • SOURCE</div>
+            <div class="profile-title" id="profTitle">Select a track</div>
+            <div class="profile-artist" id="profArtist">—</div>
+            <div class="profile-tags" id="profTags"></div>
+            <div class="profile-actions">
+              <button class="btn-play-big" id="profPlayBtn" onclick="playCurrentProfile()">▶ PLAY</button>
+              <button class="btn-outline" onclick="likeCurrentProfile()">♡ LIKE</button>
+              <button class="btn-outline" onclick="queueCurrentProfile()">⊕ QUEUE</button>
+            </div>
+          </div>
+        </div>
+        <div class="profile-desc" id="profDesc">No description available.</div>
+        <div class="related-title">Related Tracks</div>
+        <div class="song-grid" id="relatedGrid"></div>
+      </div>
+
+      <!-- FAVORITES PAGE -->
+      <div class="page" id="page-favorites">
+        <div class="section-title">Your <span>Favorites</span></div>
+        <div class="fav-list" id="favList">
+          <div style="color:var(--dim);text-align:center;padding:40px;font-family:var(--mono);font-size:12px;letter-spacing:1px">NO TRACKS LIKED YET — HIT ♡ ON ANY TRACK</div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT PAGE -->
+      <div class="page" id="page-account">
+        <div id="accountPage"></div>
+      </div>
+
+      <!-- LAB PAGE -->
+      <div class="page" id="page-lab">
+        <div class="section-title">Lyric <span>Lab</span></div>
+        <div class="lab-layout">
+          <div class="lab-panel">
+            <div class="lab-panel-title">TRACK LOCK</div>
+            <div class="lab-search-wrap">
+              <input type="text" class="lab-search" id="labSearch" placeholder="Search & lock a track..." oninput="onLabSearch(this.value)">
+              <div class="lab-results" id="labResults"></div>
+            </div>
+            <div class="lab-status" id="labStatus">NO TRACK LOCKED — SEARCH AND SELECT ABOVE</div>
+            <div class="lab-controls">
+              <button class="lab-btn primary" id="btnLockSong" onclick="lockLabSong()">⚲ LOCK SONG</button>
+              <button class="lab-btn" id="btnStartSync" onclick="startLabSync()" disabled>▶ START SYNC</button>
+            </div>
+            <div class="progress-wrap" style="margin-top:4px">
+              <span class="time-lbl" id="labTimeLbl">0:00</span>
+              <div class="progress-bar" onclick="labSeek(event)" style="cursor:pointer">
+                <div class="progress-fill" id="labProgress" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-panel">
+            <div class="lab-panel-title">LYRIC STAGE</div>
+            <textarea class="lyric-textarea" id="lyricInput" placeholder="Paste or type lyrics here, one line per row...&#10;&#10;Hit ENTER after each line during sync to stamp timestamp"></textarea>
+            <div class="lab-controls">
+              <button class="lab-btn commit" id="btnCommit" onclick="commitLyrics()" disabled>☁ COMMIT TO DATABASE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN PAGE -->
+      <div class="page" id="page-admin">
+        <div class="section-title">Admin <span>Matrix</span></div>
+        <div class="admin-grid">
+          <div class="admin-card">
+            <div class="admin-card-title">⬆ DUAL_BLAST() — UPLOAD TRACK</div>
+            <input type="text" class="admin-input" id="adminTitle" placeholder="Track Title">
+            <input type="text" class="admin-input" id="adminArtist" placeholder="Artist Name">
+            <input type="text" class="admin-input" id="adminDesc" placeholder="Description (optional)">
+            <select class="admin-select" id="adminGenre">
+              <option value="">SELECT GENRE...</option>
+              <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+              <option>Electronic</option><option>Rock</option><option>Jazz</option>
+              <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
+              <option>Latin</option><option>Country</option><option>Indie</option>
+            </select>
+            <button class="admin-file-btn" id="btnAudio" onclick="selectAdminFile('audio')">⬆ LOAD_AUDIO: click to select MP3</button>
+            <button class="admin-file-btn" id="btnImage" onclick="selectAdminFile('image')">⬆ LOAD_VISUAL: click to select cover image</button>
+            <div class="verify-toggle" id="verifyToggle" onclick="toggleVerify()">
+              <div class="check" id="verifyCheck"></div>
+              <span id="verifyLabel">VERIFY SONG (Blastr Certified Original)</span>
+            </div>
+            <button class="btn-blast" id="btnBlast" onclick="executeBlast()">EXECUTE_DUAL_BLAST()</button>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-title">🗑 METABASE WIPE — DELETE TRACK</div>
+            <select class="delete-select" id="deleteSelect"><option>SELECT_TRACK_TARGET...</option></select>
+            <button class="btn-wipe" onclick="executeWipe()">⚡ EXECUTE WIPE</button>
+            <div style="margin-top:18px">
+              <div class="admin-card-title" style="margin-bottom:9px">📊 TRACK REGISTRY</div>
+              <div class="admin-track-list" id="adminTrackList">
+                <div style="color:var(--dim);font-size:11px;padding:8px;font-family:var(--mono)">LOADING REGISTRY...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PLAYER BAR -->
+  <div class="player-bar">
+    <div class="player-progress-accent"></div>
+    <div class="now-playing">
+      <div class="np-cover" id="npCover">♪</div>
+      <div class="np-info">
+        <div class="np-title" id="npTitle">Nothing playing</div>
+        <div class="np-artist" id="npArtist">Blastr — Live Edition</div>
+      </div>
+      <button class="np-heart" id="npHeart" onclick="toggleCurrentLike()">♡</button>
+    </div>
+    <div class="player-controls">
+      <div class="ctrl-buttons">
+        <div style="position:relative">
+          <button class="ctrl-btn" id="btnShuffle" onclick="cycleShuffle()" title="Shuffle Mode">⇌</button>
+        </div>
+        <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
+        <button class="play-btn-main" id="mainPlayBtn" onclick="togglePlayback()">▶</button>
+        <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+        <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()" title="Repeat">↺</button>
+      </div>
+      <div class="progress-wrap">
+        <span class="time-lbl" id="timeLbl">0:00</span>
+        <div class="progress-bar" id="progressBar" onclick="seekTo(event)">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="time-lbl" id="durLbl">0:00</span>
+      </div>
+    </div>
+    <div class="player-right">
+      <div class="pulse-bars paused" id="pulseBars">
+        <div class="pulse-bar" style="height:12px;animation-delay:0s"></div>
+        <div class="pulse-bar" style="height:8px;animation-delay:.1s"></div>
+        <div class="pulse-bar" style="height:16px;animation-delay:.2s"></div>
+        <div class="pulse-bar" style="height:6px;animation-delay:.15s"></div>
+        <div class="pulse-bar" style="height:14px;animation-delay:.3s"></div>
+      </div>
+      <div class="vol-wrap">
+        <span class="vol-icon" id="volIcon" onclick="toggleMute()">🔊</span>
+        <div class="vol-bar" id="volBar" onclick="setVolume(event)">
+          <div class="vol-fill" id="volFill"></div>
+        </div>
+      </div>
+      <button class="btn-vibing" id="btnVibing" onclick="toggleVibing()">NOW VIBING</button>
+      <button class="btn-zen" id="btnZen" onclick="toggleZen()">ZEN</button>
+      <button class="btn-download" onclick="downloadCurrentTrack()" title="Download Track">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NOW VIBING PANEL -->
+<div class="vibing-panel" id="vibingPanel">
+  <div class="vibing-header">
+    <div class="vibing-title">NOW VIBING</div>
+    <button class="vibing-close" onclick="toggleVibing()">✕</button>
+  </div>
+  <div class="vibing-cover-wrap">
+    <div class="vibing-cover" id="vibingCover">♪</div>
+    <div class="vibing-track-info">
+      <div class="vibing-track-title" id="vibingTitle">Nothing playing</div>
+      <div class="vibing-track-artist" id="vibingArtist">—</div>
+      <div class="vibing-eq" id="vibingEq">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="vibing-lyrics-wrap" id="vibingLyricsWrap">
+    <div class="vibing-no-lyrics" id="vibingNoLyrics">PLAY A SONG TO SEE LYRICS</div>
+  </div>
+</div>
+
+<!-- ZEN STAGE -->
+<div class="zen-stage" id="zenStage">
+  <canvas class="zen-bg-canvas" id="zenCanvas"></canvas>
+  <div class="zen-header">
+    <div class="zen-title">ZEN STAGE — BLASTR</div>
+    <button class="zen-exit" onclick="toggleZen()">ESC / EXIT ZEN</button>
+  </div>
+  <div class="zen-lyrics-scroll" id="zenLyricsScroll"></div>
+  <div class="zen-now-playing" id="zenNowPlaying">Nothing playing</div>
+  <div class="zen-controls">
+    <button class="zen-ctrl" onclick="prevTrack()">⏮</button>
+    <button class="zen-ctrl play" id="zenPlayBtn" onclick="togglePlayback()">▶</button>
+    <button class="zen-ctrl" onclick="nextTrack()">⏭</button>
+    <button class="zen-gradient-btn" id="zenGradBtn" onclick="toggleZenGradient()">GRADIENT ON</button>
+  </div>
+</div>
+
+<!-- MINI PLAYER -->
+<div id="miniPlayer" class="mini-player-shell" aria-hidden="true">
+  <div class="mini-player-header">
+    <div class="mini-player-label">MINI PLAYER</div>
+    <button class="mini-player-close" type="button" onclick="closeMiniPlayer()" aria-label="Close mini player">✕</button>
+  </div>
+
+  <div class="mini-player-body">
+    <div id="miniCover" class="mini-player-cover">♪</div>
+    <div class="mini-player-meta">
+      <div id="miniTitle" class="mini-player-title">Nothing playing</div>
+      <div id="miniArtist" class="mini-player-artist">Blastr mini player</div>
+      <div class="progress-wrap mini-progress-wrap">
+        <div class="progress-bar" onclick="seekTo(event)" style="flex:1"><div class="progress-fill" id="miniProgress"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mini-player-controls">
+    <button onclick="prevTrack()" class="mini-player-btn mini-player-btn-ghost" type="button">⏮</button>
+    <button onclick="togglePlayback()" id="miniPlayBtn" class="mini-player-btn mini-player-btn-main" type="button">▶</button>
+    <button onclick="nextTrack()" class="mini-player-btn mini-player-btn-ghost" type="button">⏭</button>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-title">Settings <button class="settings-close" onclick="toggleSettings()">✕</button></div>
+  <div class="settings-section">
+    <div class="settings-section-label">THEME</div>
+    <button class="theme-btn active" id="theme-dark" onclick="applyTheme('dark',this)">🌑 Dark Mode</button>
+    <button class="theme-btn light-mode" id="theme-light" onclick="applyTheme('light',this)">☀ Light Mode</button>
+    <button class="theme-btn vibe" id="theme-vibe" onclick="applyTheme('vibe',this)">⚡ Vibe Mode</button>
+  </div>
+  <div class="settings-section">
+    <div class="settings-section-label">ACCOUNT</div>
+    <button class="theme-btn" onclick="logout()" style="color:var(--red)">⬡ Logout / Switch Account</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-badge" id="toastBadge">BLASTR</div>
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-sub" id="toastSub"></div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-sub" id="modalSub">Are you sure?</div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button style="flex:1;padding:12px;background:var(--red);color:#fff;border:none;border-radius:12px;cursor:pointer;font-weight:800;font-size:13px" onclick="modalConfirm()">CONFIRM</button>
+      <button onclick="closeModal('confirmModal')" style="flex:1;padding:12px;background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:12px;cursor:pointer;font-weight:700">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audioPlayer" preload="none"></audio>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// BLASTR WEB v2 — CORE STATE ENGINE
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = "https://oapfpawypuodfvpzdffi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hcGZwYXd5cHVvZGZ2cHpkZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzk0MDUsImV4cCI6MjA4NzYxNTQwNX0.jrWLCX7pww2C_JzqMz0SMn1dyZ3HsQyVDfGWL2UkcX0";
+const BLASTR_AUTH_STORAGE_KEY = 'blastr_session_v3';
+const ADMIN_PASSCODE = '19731979';
+
+const state = {
+  currentTrack: null,
+  isPlaying: false,
+  shuffleMode: 0, // 0=off, 1=genre shuffle, 2=smart shuffle
+  isRepeat: false,
+  volume: 0.7,
+  isMuted: false,
+  favorites: JSON.parse(localStorage.getItem('blastr_favorites')||'[]'),
+  queue: [],
+  history: [],
+  allTracks: [],
+  currentUser: null,
+  currentUserProfile: null,
+  session: null,
+  isAdmin: false,
+  inZen: false,
+  inVibing: false,
+  zenGradient: true,
+  zenAnimFrame: null,
+  labLockedSong: null,
+  labSelectedSong: null,
+  labSongs: [],
+  labSearchTimer: null,
+  parsedLyrics: [],
+  vibingLyrics: [],
+  zenLineEls: [],
+  vibingLineEls: [],
+  lastZenIdx: -1,
+  lastVibingIdx: -1,
+  confirmCallback: null,
+};
+
+const audio = document.getElementById('audioPlayer');
+const loginScreen = document.getElementById('loginScreen');
+const appScreen = document.getElementById('appScreen');
+
+// ── DIAGNOSTICS ──
+function diag(tag, msg, extra) {
+  const ts = new Date().toISOString().slice(11,23);
+  console.debug(`[BLASTR ${ts}] [${tag}] ${msg}`, extra||'');
+}
+
+
+// ── DYNAMIC COPY + ACCOUNT PAGE ──
+let loginSloganTimer = null;
+let loginSloganIndex = 0;
+const LOGIN_SLOGANS = [
+  'Echoes of 2026...',
+  'Your memories, remixed.',
+  'The grid remembers your pulse.',
+  'A calmer shuffle with sharper instincts.',
+  'Sound that learns your rhythm.'
+];
+
+function blastrResolveTimeGreeting(date=new Date()) {
+  const h = date.getHours();
+  if (h === 0) return 'Midnight drive for you';
+  if (h < 5) return 'Late-night listening';
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  if (h < 21) return 'Good evening';
+  return 'Night mode on';
+}
+
+function blastrRefreshGreeting() {
+  const greet = document.getElementById('timeGreeting');
+  if (greet) greet.textContent = blastrResolveTimeGreeting();
+  const user = document.getElementById('greetUser');
+  if (user) user.textContent = state.currentUser || 'User';
+}
+
+function blastrGetLoginSlogans() {
+  const hour = new Date().getHours();
+  const base = [...LOGIN_SLOGANS];
+  if (hour >= 0 && hour < 5) base.unshift('Midnight drive for you.');
+  else if (hour >= 17 && hour < 22) base.unshift('Good evening — your library glows differently now.');
+  else if (hour >= 12 && hour < 17) base.unshift('Good afternoon — let the mix settle.');
+  else base.unshift('Good morning — the grid is awake.');
+  return base;
+}
+
+function blastrSetLoginSlogan(text) {
+  const a = document.getElementById('loginSloganA');
+  const b = document.getElementById('loginSloganB');
+  if (!a || !b) return;
+  const next = a.classList.contains('active') ? b : a;
+  const prev = next === a ? b : a;
+  next.textContent = text;
+  next.classList.add('active');
+  prev.classList.remove('active');
+}
+
+function blastrStartLoginSloganCycle() {
+  const phrases = blastrGetLoginSlogans();
+  const a = document.getElementById('loginSloganA');
+  const b = document.getElementById('loginSloganB');
+  if (!a || !b || !phrases.length) return;
+  a.textContent = phrases[0];
+  b.textContent = phrases[1 % phrases.length];
+  a.classList.add('active');
+  b.classList.remove('active');
+  clearInterval(loginSloganTimer);
+  loginSloganIndex = 1;
+  loginSloganTimer = setInterval(() => {
+    const nextText = phrases[loginSloganIndex % phrases.length];
+    blastrSetLoginSlogan(nextText);
+    loginSloganIndex = (loginSloganIndex + 1) % phrases.length;
+  }, 3600);
+}
+
+function blastrRenderAccountPage() {
+  const wrap = document.getElementById('accountPage');
+  if (!wrap) return;
+  const profile = state.currentUserProfile || {};
+  const user = state.currentUser || profile.username || 'User';
+  const email = profile.email || state.session?.user?.email || 'Not connected';
+  const now = new Date();
+  const favoritesCount = state.favorites?.length || 0;
+  const queueCount = state.queue?.length || 0;
+  const tracksCount = state.allTracks?.length || 0;
+  const adminStatus = state.isAdmin ? 'Admin vault unlocked' : 'Listener mode';
+  const vibe = blastrResolveTimeGreeting(now);
+  const initials = String(user || '?').trim().slice(0,1).toUpperCase();
+
+  wrap.innerHTML = `
+    <div class="account-shell">
+      <div class="account-card">
+        <div class="account-hero">
+          <div class="account-hero-row">
+            <div class="account-avatar">${esc(initials)}</div>
+            <div class="account-hero-meta">
+              <div class="account-topline">${esc(vibe)}</div>
+              <div class="name">${esc(user)}</div>
+              <div class="mail">${esc(email)}</div>
+              <div class="account-badge">${state.isAdmin ? 'GRID ADMIN' : 'LISTENER'} • ${esc(now.toLocaleDateString())}</div>
+            </div>
+          </div>
+        </div>
+        <div class="account-grid">
+          <div class="account-stat">
+            <div class="label">Favorites</div>
+            <div class="value">${favoritesCount}</div>
+          </div>
+          <div class="account-stat">
+            <div class="label">Queue</div>
+            <div class="value">${queueCount}</div>
+          </div>
+          <div class="account-stat">
+            <div class="label">Library</div>
+            <div class="value">${tracksCount}</div>
+          </div>
+          <div class="account-stat">
+            <div class="label">Mode</div>
+            <div class="value">${esc(adminStatus)}</div>
+          </div>
+        </div>
+        <div class="account-cta">
+          <span class="mini-pill">Adaptive login copy</span>
+          <span class="mini-pill">Gentle unpredictability</span>
+          <span class="mini-pill">Smooth lyric sync</span>
+          <span class="mini-pill">Responsive layout</span>
+        </div>
+      </div>
+
+      <div class="account-rail">
+        <div class="account-panel-title">Account Details</div>
+        <div class="account-list">
+          <div class="account-row"><div><div class="k">Display Name</div><div class="v">${esc(profile.username || user)}</div></div><div class="v" style="color:var(--accent)">Active</div></div>
+          <div class="account-row"><div><div class="k">Email</div><div class="v">${esc(email)}</div></div><div class="v">${state.session?.user?.email_confirmed_at ? 'Verified' : 'Pending'}</div></div>
+          <div class="account-row"><div><div class="k">Joined</div><div class="v">${esc(profile.created_at || '—')}</div></div><div class="v">${state.session?.user?.last_sign_in_at ? esc(String(state.session.user.last_sign_in_at).slice(0,19).replace('T',' ')) : '—'}</div></div>
+          <div class="account-row"><div><div class="k">Listening Style</div><div class="v">${esc(profile.personality || 'Adaptive')}</div></div><div class="v">${esc(vibe)}</div></div>
+        </div>
+        <div class="account-note">This page is linked to your live session, so the details stay in sync with your current account, favorites, queue, and admin status.</div>
+      </div>
+    </div>
+  `;
+}
+
+function blastrUpdateTimeBasedCopy() {
+  blastrRefreshGreeting();
+  const homeTitle = document.querySelector('#page-home .section-title');
+  if (homeTitle) {
+    const greet = blastrResolveTimeGreeting();
+    const user = state.currentUser || 'User';
+    homeTitle.innerHTML = `<span id="timeGreeting">${esc(greet)}</span>, <span id="greetUser">${esc(user)}</span> ⚡`;
+  }
+  if (document.getElementById('page-account')?.classList.contains('active')) blastrRenderAccountPage();
+}
+
+// ── AUTH STORAGE ──
+function blastrPersistAuth(session) {
+  try { localStorage.setItem(BLASTR_AUTH_STORAGE_KEY, JSON.stringify(session)); } catch(e) {}
+}
+function blastrGetStoredAuth() {
+  try { return JSON.parse(localStorage.getItem(BLASTR_AUTH_STORAGE_KEY)); } catch(e) { return null; }
+}
+function blastrClearStoredAuth() {
+  try { localStorage.removeItem(BLASTR_AUTH_STORAGE_KEY); } catch(e) {}
+}
+function blastrEmailLocalPart(email) { return email ? email.split('@')[0] : 'user'; }
+function blastrSafeUsername(s) { return String(s||'').replace(/[^a-zA-Z0-9_\-\.]/g,'').slice(0,32)||'user'; }
+function blastrGetBearerToken(t) { const s=state.session||blastrGetStoredAuth(); return t||s?.access_token||SUPABASE_KEY; }
+function blastrAuthHeaders(t, extra) {
+  const h=new Headers(extra||{});
+  h.set('apikey',SUPABASE_KEY);
+  h.set('Authorization',`Bearer ${blastrGetBearerToken(t)}`);
+  return h;
+}
+function blastrPrepareBody(body,headers) {
+  if(body==null) return body;
+  const bin=body instanceof Blob||body instanceof File||body instanceof FormData||body instanceof ArrayBuffer||body instanceof URLSearchParams;
+  if(bin) return body;
+  if(!headers.has('Content-Type')) headers.set('Content-Type','application/json');
+  return typeof body==='string'?body:JSON.stringify(body);
+}
+async function sbFetch(path, opts={}, token=null) {
+  try {
+    const h=blastrAuthHeaders(token, opts.headers||{});
+    const body=blastrPrepareBody(opts.body,h);
+    const res=await fetch(`${SUPABASE_URL}${path}`,{...opts,headers:h,body,credentials:'omit'});
+    const ct=res.headers.get('content-type')||'';
+    const payload=ct.includes('application/json')?await res.json().catch(()=>null):await res.text().catch(()=>null);
+    if(!res.ok){diag('API',`${path} ${res.status}`,payload);return null;}
+    return payload;
+  } catch(e){diag('API ERROR',path,e?.message||e);return null;}
+}
+
+function blastrCleanFileStem(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 72) || 'track';
+}
+
+function blastrGuessExtension(file, fallback = 'bin') {
+  try {
+    const name = String(file?.name || '');
+    const dot = name.lastIndexOf('.');
+    if (dot > -1 && dot < name.length - 1) {
+      return name.slice(dot + 1).toLowerCase();
+    }
+    const type = String(file?.type || '').toLowerCase();
+    const map = {
+      'audio/mpeg': 'mp3',
+      'audio/mp3': 'mp3',
+      'audio/mp4': 'm4a',
+      'audio/x-m4a': 'm4a',
+      'audio/aac': 'aac',
+      'audio/wav': 'wav',
+      'audio/x-wav': 'wav',
+      'audio/ogg': 'ogg',
+      'audio/webm': 'webm',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+      'image/svg+xml': 'svg'
+    };
+    return map[type] || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function blastrGuessMime(file, ext = '') {
+  const type = String(file?.type || '').toLowerCase();
+  if (type) return type;
+  const e = String(ext || '').toLowerCase();
+  const map = {
+    mp3: 'audio/mpeg',
+    m4a: 'audio/mp4',
+    aac: 'audio/aac',
+    wav: 'audio/wav',
+    ogg: 'audio/ogg',
+    webm: 'audio/webm',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+    gif: 'image/gif',
+    svg: 'image/svg+xml'
+  };
+  return map[e] || 'application/octet-stream';
+}
+
+function blastrGetAuthToken() {
+  return state.session?.access_token || blastrGetStoredAuth()?.access_token || SUPABASE_KEY;
+}
+
+async function blastrUploadStorageFile(bucket, fileName, file) {
+  const safeBucket = String(bucket || '').trim();
+  if (!safeBucket) throw new Error('Missing storage bucket.');
+  if (!file) throw new Error(`Missing file for ${safeBucket}.`);
+
+  const cleanName = String(fileName || '').replace(/^\/+/, '');
+  const encodedName = cleanName.split('/').map(encodeURIComponent).join('/');
+  const headers = new Headers({
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${blastrGetAuthToken()}`,
+    'x-upsert': 'true'
+  });
+
+  const mime = blastrGuessMime(file, blastrGuessExtension(file));
+  if (mime) headers.set('Content-Type', mime);
+
+  const url = `${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(safeBucket)}/${encodedName}?upsert=true`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: file,
+    credentials: 'omit'
+  });
+
+  const ct = res.headers.get('content-type') || '';
+  let payload = null;
+  try {
+    payload = ct.includes('application/json') ? await res.json() : await res.text();
+  } catch (e) {
+    payload = null;
+  }
+
+  if (!res.ok) {
+    const detail = (payload && typeof payload === 'object')
+      ? (payload.message || payload.error || payload.msg || JSON.stringify(payload))
+      : String(payload || '');
+    throw new Error(detail || `Storage upload failed (${res.status})`);
+  }
+
+  return `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(safeBucket)}/${encodedName}`;
+}
+
+async function blastrAuthRequest(path, body) {
+  const h=new Headers({apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'});
+  const res=await fetch(`${SUPABASE_URL}${path}`,{method:'POST',headers:h,body:JSON.stringify(body||{}),credentials:'omit'});
+  const payload=await res.json().catch(async()=>({raw:await res.text().catch(()=>'')}));
+  if(!res.ok){const e=new Error(payload?.msg||payload?.error_description||payload?.message||`Auth ${res.status}`);e.payload=payload;throw e;}
+  return payload;
+}
+
+// ── DB ──
+async function getTracks(query='') {
+  let url=`/rest/v1/tracks?select=*&order=id.desc`;
+  if(query) url+=`&or=(title.ilike.*${encodeURIComponent(query)}*,artist.ilike.*${encodeURIComponent(query)}*)`;
+  const d=await sbFetch(url);
+  return Array.isArray(d)?d:[];
+}
+async function deleteSbTrack(id) { return sbFetch(`/rest/v1/tracks?id=eq.${id}`,{method:'DELETE'}); }
+async function updateLyrics(id, lyrics) {
+  return sbFetch(`/rest/v1/tracks?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'Prefer':'return=representation','Content-Type':'application/json'},
+    body:JSON.stringify({lyrics})
+  });
+}
+
+// ── SESSION ──
+async function blastrLoadProfile(user, fallback={}) {
+  const base={id:user?.id||'',username:blastrSafeUsername(fallback.username||blastrEmailLocalPart(user?.email)),email:user?.email||fallback.email||'',first_name:fallback.first_name||'',age:fallback.age??null,personality:fallback.personality||'Unassigned',fav_songs:fallback.fav_songs||''};
+  if(!user?.id) return base;
+  try {
+    const rows=await sbFetch(`/rest/v1/profiles?select=*&id=eq.${encodeURIComponent(user.id)}`);
+    if(Array.isArray(rows)&&rows.length) return rows[0];
+  } catch(e){}
+  try {
+    const created=await sbFetch('/rest/v1/profiles',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:base});
+    if(Array.isArray(created)&&created.length) return created[0];
+    if(created&&typeof created==='object') return created;
+  } catch(e){}
+  return base;
+}
+async function blastrHydrateSession(session, source='session') {
+  if(!session?.user) return null;
+  state.session=session; blastrPersistAuth(session);
+  const profile=await blastrLoadProfile(session.user,{username:session.user.user_metadata?.username||blastrEmailLocalPart(session.user.email),email:session.user.email||''});
+  state.currentUserProfile=profile;
+  state.currentUser=profile?.username||session.user.user_metadata?.username||blastrEmailLocalPart(session.user.email);
+  state.isAdmin=false;
+  blastrSetUiUser(state.currentUser, false);
+  enterApp(state.currentUser, false);
+  blastrRenderAccountPage();
+  const msgs={signup:'ACCOUNT READY',login:'SESSION LOADED',restore:'SESSION RESTORED'};
+  showToast(msgs[source]||'BLASTR', `Welcome${source==='login'?' back':''}, ${state.currentUser}.`);
+  return profile;
+}
+async function blastrRestoreSession() {
+  const saved=blastrGetStoredAuth();
+  if(!saved?.refresh_token&&!saved?.access_token) return false;
+  try {
+    if(saved?.access_token) {
+      const user=await sbFetch('/auth/v1/user',{},saved.access_token);
+      if(user&&user.id) {
+        await blastrHydrateSession({...saved,user},'restore');
+        return true;
+      }
+    }
+    if(saved?.refresh_token) {
+      const refreshed=await blastrAuthRequest('/auth/v1/token?grant_type=refresh_token',{refresh_token:saved.refresh_token});
+      if(refreshed?.access_token&&refreshed?.user) {
+        await blastrHydrateSession({access_token:refreshed.access_token,refresh_token:refreshed.refresh_token||saved.refresh_token,token_type:refreshed.token_type||'bearer',expires_at:refreshed.expires_at||null,user:refreshed.user},'restore');
+        return true;
+      }
+    }
+  } catch(e){ diag('RESTORE','failed',e?.message); }
+  blastrClearStoredAuth(); return false;
+}
+
+// ── SNOW PARTICLES (login screen) ──
+(()=>{
+  const canvas=document.getElementById('snowCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  let W,H,flakes=[];
+  function resize(){W=canvas.width=canvas.parentElement.offsetWidth;H=canvas.height=canvas.parentElement.offsetHeight;}
+  function makeFlake(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+.5,sp:Math.random()*1.2+.4,dx:(Math.random()-.5)*.5,op:Math.random()*.7+.2};}
+  function init(){resize();flakes=Array.from({length:120},makeFlake);}
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    flakes.forEach(f=>{
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${Math.random()>.4?'57,255,20':'0,198,255'},${f.op})`;
+      ctx.fill();
+      f.y+=f.sp;f.x+=f.dx;
+      if(f.y>H||f.x<0||f.x>W) Object.assign(f,makeFlake(),{y:-4});
+    });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize',init);
+  init();tick();
+})();
+
+// ── ADMIN DOOR ──
+function toggleAdminDoor() {
+  const wrap=document.getElementById('adminCodeWrap');
+  const door=document.getElementById('adminDoor');
+  const icon=document.getElementById('lockIcon');
+  const open=wrap.classList.toggle('open');
+  door.classList.toggle('unlocking',open);
+  icon.textContent=open?'🔓':'🔒';
+  if(open) setTimeout(()=>document.getElementById('adminCode').focus(),200);
+}
+function handleAdminInput(el) {
+  if(el.value.length===8) {
+    if(el.value===ADMIN_PASSCODE) {
+      const currentName = state.currentUser || state.currentUserProfile?.username || 'Admin';
+      state.isAdmin = true;
+      blastrSetUiUser(currentName,true);
+      const door = document.getElementById('adminDoor');
+      const wrap = document.getElementById('adminCodeWrap');
+      if(door) door.classList.remove('unlocking');
+      if(wrap) wrap.classList.remove('open');
+      if(el) el.value = '';
+      showToast('ACCESS GRANTED','Admin mode unlocked for the current session.');
+      const navAdmin = document.getElementById('nav-admin');
+      if(navAdmin) showPage('admin', navAdmin);
+    } else {
+      el.classList.add('error');
+      el.value='';
+      document.getElementById('lockIcon').textContent='🔒';
+      document.getElementById('adminCodeWrap').classList.remove('open');
+      document.getElementById('adminDoor').classList.remove('unlocking');
+      setTimeout(()=>el.classList.remove('error'),600);
+      showToast('ACCESS DENIED','Wrong code. The door stays locked.');
+    }
+  }
+}
+
+// ── AUTH ──
+function shakeInput(id) {
+  const el=document.getElementById(id);
+  el.classList.add('error');
+  setTimeout(()=>el.classList.remove('error'),400);
+}
+function switchToSignup() {
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('signupForm').style.display='block';
+  document.getElementById('loginToggle').style.display='none';
+  document.getElementById('signupToggle').style.display='block';
+  document.getElementById('loginFormTitle').textContent='Join Blastr';
+  document.getElementById('loginFormSub').textContent='CREATE YOUR ACCOUNT';
+  blastrStartLoginSloganCycle();
+}
+function switchToLogin() {
+  document.getElementById('loginForm').style.display='block';
+  document.getElementById('signupForm').style.display='none';
+  document.getElementById('loginToggle').style.display='block';
+  document.getElementById('signupToggle').style.display='none';
+  document.getElementById('loginFormTitle').textContent='Welcome back';
+  document.getElementById('loginFormSub').textContent='SIGN INTO THE GRID';
+  blastrStartLoginSloganCycle();
+}
+async function handleLogin() {
+  const btn=document.getElementById('loginBtn');
+  const email=document.getElementById('emailInput').value.trim();
+  const password=document.getElementById('passInput').value;
+  if(!email){shakeInput('emailInput');showToast('LOGIN ERROR','Email is required.');return;}
+  if(!password||password.length<6){shakeInput('passInput');showToast('LOGIN ERROR','Password must be 6+ chars.');return;}
+  btn.disabled=true;btn.textContent='VERIFYING...';
+  try {
+    const data=await blastrAuthRequest('/auth/v1/token?grant_type=password',{email,password});
+    if(!data?.access_token||!data?.user) throw new Error('No session returned.');
+    await blastrHydrateSession({access_token:data.access_token,refresh_token:data.refresh_token||'',token_type:data.token_type||'bearer',expires_at:data.expires_at||null,user:data.user},'login');
+  } catch(e) {
+    const msg=String(e?.message||'Login failed');
+    showToast('ACCESS DENIED',/confirm/i.test(msg)?'Confirm your email first.':msg);
+    shakeInput('emailInput');shakeInput('passInput');
+  } finally {btn.disabled=false;btn.textContent='INITIALIZE SESSION';}
+}
+async function handleSignupSubmit() {
+  const btn=document.querySelector('#signupForm .btn-primary');
+  const username=blastrSafeUsername(document.getElementById('signupUsername').value);
+  const email=document.getElementById('signupEmail').value.trim();
+  const password=document.getElementById('signupPass').value;
+  if(!username){shakeInput('signupUsername');showToast('ERROR','Username is required.');return;}
+  if(!email){shakeInput('signupEmail');showToast('ERROR','Email is required.');return;}
+  if(!password||password.length<6){shakeInput('signupPass');showToast('ERROR','Password must be 6+ chars.');return;}
+  btn.disabled=true;btn.textContent='REGISTERING...';
+  try {
+    const data=await blastrAuthRequest('/auth/v1/signup',{email,password,data:{username,display_name:username}});
+    if(data?.session?.access_token&&data?.user) {
+      await blastrHydrateSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token||'',token_type:'bearer',user:data.user},'signup');
+      return;
+    }
+    if(data?.user) {
+      showToast('ACCOUNT READY','Account created! Sign in now.');
+      switchToLogin();
+      document.getElementById('emailInput').value=email;
+      return;
+    }
+    throw new Error('Signup did not return a user.');
+  } catch(e) {
+    showToast('SIGNUP FAILED',String(e?.message||'Signup failed'));
+  } finally {btn.disabled=false;btn.textContent='REGISTER & LAUNCH';}
+}
+function blastrSetUiUser(name, isAdmin) {
+  const avatar=document.getElementById('sidebarAvatar');
+  const userEl=document.getElementById('sidebarUser');
+  const roleEl=document.getElementById('sidebarRole');
+  if(avatar) avatar.textContent=(name||'?')[0].toUpperCase();
+  if(userEl) userEl.textContent=name||'User';
+  if(roleEl) roleEl.textContent=isAdmin?'GRID_ADMIN':'LISTENER';
+  const greet = document.getElementById('greetUser');
+  if(greet) greet.textContent=name||'User';
+  state.isAdmin=isAdmin;
+  blastrRefreshGreeting();
+  if (document.getElementById('accountPage')) blastrRenderAccountPage();
+}
+function enterApp(name, isAdmin) {
+  loginScreen.classList.add('hidden');
+  appScreen.classList.remove('hidden');
+  blastrSetUiUser(name,isAdmin);
+  loadHomeContent();
+  blastrUpdateTimeBasedCopy();
+  blastrRenderAccountPage();
+}
+function logout() {
+  blastrClearStoredAuth();
+  state.session=null;state.currentUser=null;state.isAdmin=false;
+  appScreen.classList.add('hidden');
+  loginScreen.classList.remove('hidden');
+  audio.pause();state.isPlaying=false;
+  document.getElementById('settingsPanel').classList.remove('open');
+  const door=document.getElementById('adminDoor');
+  const wrap=document.getElementById('adminCodeWrap');
+  const code=document.getElementById('adminCode');
+  if(door) door.classList.remove('unlocking');
+  if(wrap) wrap.classList.remove('open');
+  if(code) code.value='';
+  switchToLogin();
+}
+
+// ── ADMIN ACCESS GUARD ──
+function requireAdminAccess(page, btn) {
+  if(state.isAdmin) {
+    showPage(page,btn);
+  } else {
+    showToast('ACCESS RESTRICTED','Admin Matrix requires admin unlock.','Use the padlock inside the app sidebar.');
+  }
+}
+
+// ── NAVIGATION ──
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+  const page=document.getElementById('page-'+name);
+  if(page) page.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='admin') loadAdminTracks();
+  if(name==='favorites') renderFavorites();
+  if(name==='account') blastrRenderAccountPage();
+  if(name==='home') blastrUpdateTimeBasedCopy();
+  if(blastrIsCompactViewport()) closeSidebarDrawer(true);
+}
+
+// ── SEARCH ──
+let searchTimer=null;
+function onSearchType(val) {
+  document.getElementById('searchClear').classList.toggle('visible',val.length>0);
+  clearTimeout(searchTimer);
+  if(val.length<2){closeSearch();return;}
+  searchTimer=setTimeout(()=>runSearch(val),280);
+}
+async function runSearch(q) {
+  const dd=document.getElementById('searchDropdown');
+  dd.innerHTML='<div style="padding:16px;text-align:center"><div class="spinner"></div></div>';
+  dd.classList.add('open');
+  const tracks=await getTracks(q);
+  if(!tracks||!tracks.length){
+    dd.innerHTML=`<div style="padding:16px;color:var(--dim);text-align:center;font-family:var(--mono);font-size:12px">No results for "${esc(q)}"</div>`;
+    return;
+  }
+  const accents=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
+  dd.innerHTML=tracks.slice(0,10).map((t,i)=>`
+    <div class="search-row" onclick="playTrackFromSearch(${jsonAttr(t)})">
+      <div class="search-bar-accent" style="background:${accents[i%accents.length]}"></div>
+      <div class="search-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
+      <div class="search-meta">
+        <div class="title">${esc(t.title)}</div>
+        <div class="sub">${esc(t.artist||'')}${t.genre?' · '+esc(t.genre):''}</div>
+      </div>
+      <button class="search-go-profile" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})">↗ PROFILE</button>
+      <button class="search-play-btn" style="background:${accents[i%accents.length]};color:#000" onclick="event.stopPropagation();playTrackFromSearch(${jsonAttr(t)})">▶</button>
+    </div>
+  `).join('');
+}
+function closeSearch(){document.getElementById('searchDropdown').classList.remove('open');}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('searchClear').classList.remove('visible');closeSearch();}
+function playTrackFromSearch(track){closeSearch();clearSearch();initiateHandshake(track);}
+
+// ── HOME CONTENT ──
+async function loadHomeContent() {
+  const home=document.getElementById('homeContent');
+  home.innerHTML=renderSkeletons();
+  blastrUpdateTimeBasedCopy();
+  const tracks=await getTracks();
+  state.allTracks=tracks;
+  if(!tracks.length){home.innerHTML='<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS IN THE GRID YET.</p>';return;}
+
+  const genres={};
+  tracks.forEach(t=>{const g=t.genre||'Uncategorized';if(!genres[g])genres[g]=[];genres[g].push(t);});
+
+  let html='';
+
+  // All Tracks
+  html+=`<div class="songs-section"><div class="section-header"><div class="section-name">All Tracks</div><button class="section-more" onclick="showAllTracks()">VIEW ALL →</button></div><div class="song-grid">`;
+  tracks.slice(0,12).forEach((t,i)=>{html+=songTileHTML(t,i);});
+  html+='</div></div>';
+
+  // Genre rows
+  Object.entries(genres).slice(0,5).forEach(([genre,songs])=>{
+    if(songs.length<2) return;
+    html+=`<div class="songs-section"><div class="section-header"><div class="section-name">${esc(genre)}</div><button class="section-more" onclick="genreShuffle('${esc(genre)}')">⇌ SHUFFLE</button></div><div class="song-grid">`;
+    songs.slice(0,8).forEach((t,i)=>{html+=songTileHTML(t,i);});
+    html+='</div></div>';
+  });
+
+  home.innerHTML=html;
+  renderBecauseSection();
+}
+
+function renderBecauseSection() {
+  const sec=document.getElementById('becauseSection');
+  if(!state.favorites.length||!state.allTracks.length){sec.innerHTML='';return;}
+  const ref=state.favorites[state.favorites.length-1];
+  const recs=state.allTracks.filter(t=>t.id!==ref.id&&t.genre===ref.genre).slice(0,6);
+  if(!recs.length){sec.innerHTML='';return;}
+  sec.innerHTML=`<div class="because-section">
+    <div class="because-header">
+      <div class="because-badge"><div class="dot"></div><div class="because-label">BECAUSE YOU LIKED</div></div>
+      <div class="because-song-name">${esc(ref.title)}</div>
+    </div>
+    <div class="song-grid">${recs.map((t,i)=>songTileHTML(t,i)).join('')}</div>
+  </div>`;
+}
+
+function renderSkeletons() {
+  return `<div class="songs-section"><div class="song-grid">${Array(8).fill('<div class="skeleton skel-tile"></div>').join('')}</div></div>`;
+}
+function songTileHTML(t, idx) {
+  const ac=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
+  const color=ac[idx%ac.length];
+  const liked=state.favorites.some(f=>f.id===t.id);
+  return `<div class="song-tile" onclick="initiateHandshake(${jsonAttr(t)})">
+    <div class="tile-cover" style="background:linear-gradient(135deg,${color}22,${color}08)">
+      ${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:`<span style="color:${color}">♪</span>`}
+      ${t.is_verified?'<div class="verified-badge">✓</div>':''}
+      <div class="tile-hover-layer">
+        <div class="tile-hover-btns">
+          <button class="tile-like-btn" onclick="event.stopPropagation();toggleLike(${jsonAttr(t)})">${liked?'♥':'♡'}</button>
+          <button class="tile-play-btn" onclick="event.stopPropagation();initiateHandshake(${jsonAttr(t)})">▶</button>
+        </div>
+        <button class="tile-profile-btn" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})">↗ PROFILE</button>
+      </div>
+    </div>
+    <div class="tile-info">
+      <div class="tile-title">${esc(t.title)}</div>
+      <div class="tile-artist">${esc(t.artist||'Unknown')}</div>
+    </div>
+  </div>`;
+}
+
+// ── SHUFFLE MODES ──
+// mode 0: off, mode 1: genre shuffle, mode 2: smart shuffle (cross-genre)
+const SHUFFLE_MODES=['OFF','GENRE','SMART'];
+const SHUFFLE_COLORS=['var(--dim)','var(--accent4)','var(--accent2)'];
+function cycleShuffle() {
+  state.shuffleMode=(state.shuffleMode+1)%3;
+  const btn=document.getElementById('btnShuffle');
+  btn.style.color=SHUFFLE_COLORS[state.shuffleMode];
+  btn.classList.toggle('active',state.shuffleMode>0);
+  const labels=['SHUFFLE OFF','GENRE SHUFFLE','SMART MIX'];
+  showToast('SHUFFLE',labels[state.shuffleMode],state.shuffleMode===1?'Stays within genre':state.shuffleMode===2?'Crosses all genres':'Sequential play');
+}
+function genreShuffle(genre) {
+  const tracks=state.allTracks.filter(t=>t.genre===genre);
+  if(!tracks.length) return;
+  const t=tracks[Math.floor(Math.random()*tracks.length)];
+  initiateHandshake(t);
+  showToast('GENRE SHUFFLE',`Playing ${genre}`,'Shuffling within genre');
+}
+function getNextShuffleTrack() {
+  const all = state.allTracks || [];
+  if (!all.length) return null;
+
+  const current = state.currentTrack || null;
+  const currentGenre = current?.genre || '';
+  const currentArtist = (current?.artist || '').trim().toLowerCase();
+  const recentIds = new Set((state.history || []).slice(-8).map(t => t?.id).filter(Boolean));
+  if (current?.id) recentIds.add(current.id);
+
+  let pool = all.filter(t => t && t.id && !recentIds.has(t.id));
+  if (!pool.length) pool = all.filter(t => t && t.id);
+  if (!pool.length) return null;
+
+  const nowHour = new Date().getHours();
+  const isLate = nowHour >= 22 || nowHour < 6;
+  const isDay = nowHour >= 11 && nowHour < 17;
+
+  const moodBoost = (track) => {
+    const g = String(track.genre || '').toLowerCase();
+    const a = String(track.artist || '').trim().toLowerCase();
+    const title = String(track.title || '').toLowerCase();
+    let score = 0;
+
+    if (state.shuffleMode === 1 && currentGenre && String(track.genre || '') === currentGenre) score += 40;
+    if (state.shuffleMode === 2) score += 12;
+
+    if (currentArtist && a && a !== currentArtist) score += 10;
+    if (track.is_verified) score += 4;
+    if (state.favorites.some(f => f.id === track.id)) score += 14;
+
+    if (isLate && /lo[- ]?fi|ambient|chill|sleep|soft|dream|jazz|focus/.test(g)) score += 16;
+    if (isDay && /pop|afrobeats|house|dance|energy|party|hip[- ]?hop|afro/.test(g)) score += 12;
+
+    if (/midnight|night|drive|echo|memory|memories/.test(title)) score += isLate ? 10 : 3;
+
+    const historyIndex = (state.history || []).slice(-16).findIndex(t => t?.id === track.id);
+    if (historyIndex >= 0) {
+      const historyPenalty = Math.max(0, 16 - historyIndex);
+      score -= historyPenalty * 2;
+    }
+
+    score += Math.random() * 14;
+    return score;
+  };
+
+  let winner = pool[0];
+  let best = -Infinity;
+  for (const track of pool) {
+    const score = moodBoost(track);
+    if (score > best) { best = score; winner = track; }
+  }
+
+  if (winner) {
+    state._shuffleMemory = state._shuffleMemory || [];
+    state._shuffleMemory.push(winner.id);
+    state._shuffleMemory = state._shuffleMemory.slice(-20);
+  }
+  return winner || pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ── PLAYBACK ──
+function initiateHandshake(track) {
+  if(!track||!track.url){showToast('ERROR','No audio URL for this track.');return;}
+  const prev=state.currentTrack;
+  state.currentTrack=track;
+  if(prev) state.history.push(prev);
+  audio.src=track.url;
+  audio.volume=state.isMuted?0:state.volume;
+  audio.play().then(()=>{
+    state.isPlaying=true;syncPlayState();
+    showToast('NOW PLAYING',track.title,track.artist||'');
+  }).catch(e=>{console.error(e);showToast('STREAM ERROR','Could not play this track.');});
+  updateNowPlaying(track);
+  if(state.inZen) loadZenLyrics(track);
+  if(state.inVibing) loadVibingLyrics(track);
+  // Reveal vibing panel on new song if it was open
+  if(state.inVibing) {
+    document.getElementById('vibingPanel').classList.add('open');
+  }
+}
+function updateNowPlaying(t) {
+  if(!t) return;
+  document.getElementById('npTitle').textContent=t.title||'Unknown';
+  document.getElementById('npArtist').textContent=t.artist||'Unknown';
+  const npCover=document.getElementById('npCover');
+  const miniCover=document.getElementById('miniCover');
+  const vibCover=document.getElementById('vibingCover');
+  if(t.cover_url){
+    npCover.innerHTML=`<img src="${esc(t.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'">`;
+    miniCover.innerHTML=`<img src="${esc(t.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:14px" onerror="this.remove();this.parentElement.textContent='♪'">`;
+    vibCover.innerHTML=`<img src="${esc(t.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'">`;
+  } else {
+    npCover.textContent='♪';miniCover.textContent='♪';vibCover.textContent='♪';
+  }
+  document.getElementById('miniTitle').textContent=t.title||'Unknown';
+  document.getElementById('miniArtist').textContent=t.artist||'Unknown';
+  document.getElementById('vibingTitle').textContent=t.title||'Unknown';
+  document.getElementById('vibingArtist').textContent=t.artist||'Unknown';
+  const liked=state.favorites.some(f=>f.id===t.id);
+  document.getElementById('npHeart').textContent=liked?'♥':'♡';
+  document.getElementById('npHeart').classList.toggle('liked',liked);
+  if(state.inZen) document.getElementById('zenNowPlaying').textContent=`${t.title} — ${t.artist||''}`;
+}
+function togglePlayback() {
+  if(!state.currentTrack) return;
+  if(state.isPlaying){audio.pause();state.isPlaying=false;}
+  else{audio.play();state.isPlaying=true;}
+  syncPlayState();
+}
+function syncPlayState() {
+  const playing=state.isPlaying;
+  document.getElementById('mainPlayBtn').textContent=playing?'⏸':'▶';
+  const zp=document.getElementById('zenPlayBtn');if(zp)zp.textContent=playing?'⏸':'▶';
+  const mp=document.getElementById('miniPlayBtn');if(mp)mp.textContent=playing?'⏸':'▶';
+  document.getElementById('pulseBars').classList.toggle('paused',!playing);
+  document.getElementById('vibingEq').classList.toggle('paused',!playing);
+}
+function nextTrack() {
+  const tracks = state.allTracks || [];
+  if (!tracks.length) return;
+  if (state.queue.length) { initiateHandshake(state.queue.shift()); return; }
+  if (state.shuffleMode > 0) {
+    const t = getNextShuffleTrack();
+    if (t) { initiateHandshake(t); return; }
+  }
+  if (state.currentTrack) {
+    const idx = tracks.findIndex(t => t.id === state.currentTrack.id);
+    initiateHandshake(tracks[(idx + 1) % tracks.length]);
+  }
+}
+function prevTrack() {
+  if(state.history.length>0){initiateHandshake(state.history.pop());}
+  else if(audio.currentTime>3){audio.currentTime=0;}
+}
+function seekTo(e) {
+  if(!state.currentTrack||!audio.duration) return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+}
+function toggleRepeat() {
+  state.isRepeat=!state.isRepeat;
+  audio.loop=state.isRepeat;
+  document.getElementById('btnRepeat').classList.toggle('active',state.isRepeat);
+}
+function addToQueue(t){state.queue.push(t);showToast('QUEUED',t.title,'Added to queue','download');}
+function toggleMute() {
+  state.isMuted=!state.isMuted;
+  audio.volume=state.isMuted?0:state.volume;
+  document.getElementById('volIcon').textContent=state.isMuted?'🔇':'🔊';
+}
+function setVolume(e) {
+  const bar=document.getElementById('volBar');
+  const pct=Math.max(0,Math.min(1,(e.clientX-bar.getBoundingClientRect().left)/bar.offsetWidth));
+  state.volume=pct;state.isMuted=false;audio.volume=pct;
+  document.getElementById('volFill').style.width=(pct*100)+'%';
+  document.getElementById('volIcon').textContent=pct<.05?'🔇':pct<.5?'🔉':'🔊';
+}
+
+// Audio events
+audio.addEventListener('timeupdate',()=>{
+  const pos=audio.currentTime,dur=audio.duration||0;
+  const pct=dur>0?(pos/dur*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('miniProgress').style.width=pct+'%';
+  document.getElementById('timeLbl').textContent=fmtTime(pos);
+  document.getElementById('durLbl').textContent=fmtTime(dur);
+  const lbl=document.getElementById('labTimeLbl');if(lbl)lbl.textContent=fmtTime(pos);
+  const lp=document.getElementById('labProgress');if(lp)lp.style.width=pct+'%';
+  if(state.inZen&&state.parsedLyrics.length>0) syncZenLyric(pos*1000);
+  if(state.inVibing&&state.vibingLyrics.length>0) syncVibingLyric(pos*1000);
+});
+audio.addEventListener('ended',()=>{if(!state.isRepeat) nextTrack();});
+audio.addEventListener('play',()=>{state.isPlaying=true;syncPlayState();});
+audio.addEventListener('pause',()=>{state.isPlaying=false;syncPlayState();});
+function fmtTime(s){if(!s||isNaN(s)) return '0:00';return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
+
+// ── FAVORITES ──
+function toggleLike(track) {
+  const idx=state.favorites.findIndex(f=>f.id===track.id);
+  if(idx>=0){state.favorites.splice(idx,1);showToast('REMOVED',track.title,'Removed from Favorites');}
+  else{state.favorites.push(track);showToast('LIKED ♥',track.title,'Added to Favorites');}
+  localStorage.setItem('blastr_favorites',JSON.stringify(state.favorites));
+  if(state.currentTrack&&state.currentTrack.id===track.id){
+    const h=document.getElementById('npHeart');
+    const liked=idx<0;h.textContent=liked?'♥':'♡';h.classList.toggle('liked',liked);
+  }
+  renderFavorites();
+  renderBecauseSection();
+}
+function toggleCurrentLike(){if(state.currentTrack) toggleLike(state.currentTrack);}
+function renderFavorites() {
+  const list=document.getElementById('favList');
+  if(!state.favorites.length){
+    list.innerHTML='<div style="color:var(--dim);text-align:center;padding:40px;font-family:var(--mono);font-size:12px;letter-spacing:1px">NO TRACKS LIKED YET — HIT ♡ ON ANY TRACK</div>';
+    return;
+  }
+  list.innerHTML=state.favorites.map((t,i)=>`
+    <div class="fav-row" onclick="initiateHandshake(${jsonAttr(t)})">
+      <span class="fav-num">${i+1}</span>
+      <div class="fav-cover">${t.cover_url?`<img src="${esc(t.cover_url)}">`:'♪'}</div>
+      <div class="fav-meta">
+        <div class="title">${esc(t.title)}</div>
+        <div class="sub">${esc(t.artist||'Unknown')}${t.genre?' · '+esc(t.genre):''}</div>
+      </div>
+      <div class="fav-actions">
+        <button class="fav-play" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})">↗</button>
+        <button class="fav-play" onclick="event.stopPropagation();initiateHandshake(${jsonAttr(t)})">▶</button>
+        <button class="fav-remove" onclick="event.stopPropagation();toggleLike(${jsonAttr(t)})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── SONG PROFILE ──
+function openSongProfile(track) {
+  loadSongProfile(track);
+}
+function loadSongProfile(track) {
+  if(!track) return;
+  state.currentProfileTrack=track;
+  document.getElementById('profTitle').textContent=track.title||'Unknown';
+  document.getElementById('profArtist').textContent=track.artist||'Unknown';
+  document.getElementById('profDesc').textContent=track.description||'No description available for this track.';
+  const genreTag=[track.genre,track.source].filter(Boolean).join(' • ')||'GENRE • SOURCE';
+  document.getElementById('profGenreTag').textContent=genreTag;
+  const cover=document.getElementById('profCover');
+  cover.innerHTML=track.cover_url?`<img src="${esc(track.cover_url)}">`:'♪';
+  // Dynamic glow based on cover color
+  const glow=document.getElementById('profCoverGlow');
+  if(track.cover_url) glow.style.background='radial-gradient(circle,rgba(57,255,20,.08),transparent 70%)';
+  const tags=document.getElementById('profTags');
+  tags.innerHTML=[track.genre,track.source,track.is_verified?'✓ Verified':null].filter(Boolean)
+    .map(t=>`<span class="profile-tag${t==='✓ Verified'?' verified':''}">${esc(t)}</span>`).join('');
+  const related=state.allTracks.filter(t=>t.id!==track.id&&(t.artist===track.artist||t.genre===track.genre)).slice(0,6);
+  document.getElementById('relatedGrid').innerHTML=related.map((t,i)=>songTileHTML(t,i)).join('');
+  showPage('profile',document.getElementById('nav-profile'));
+}
+function playCurrentProfile(){if(state.currentProfileTrack) initiateHandshake(state.currentProfileTrack);}
+function likeCurrentProfile(){if(state.currentProfileTrack) toggleLike(state.currentProfileTrack);}
+function queueCurrentProfile(){if(state.currentProfileTrack) addToQueue(state.currentProfileTrack);}
+
+// ── NOW VIBING PANEL ──
+function toggleVibing() {
+  state.inVibing=!state.inVibing;
+  const panel=document.getElementById('vibingPanel');
+  panel.classList.toggle('open',state.inVibing);
+  document.getElementById('btnVibing').classList.toggle('active',state.inVibing);
+  if(state.inVibing&&state.currentTrack) loadVibingLyrics(state.currentTrack);
+}
+
+function parseLyricRaw(raw) {
+  if(!raw||raw.length<5) return [];
+  const lines=raw.split('\n').filter(l=>l.trim());
+  const tsRe=/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/;
+  const parsed=lines.map(l=>{const m=tsRe.exec(l.trim());if(m)return{ms:parseInt(m[1])*60000+parseFloat(m[2])*1000,text:m[3]};return null;}).filter(Boolean);
+  if(parsed.length>0) return parsed;
+  return lines.map((l,i)=>({ms:i*2500,text:l}));
+}
+
+function loadVibingLyrics(track) {
+  const wrap=document.getElementById('vibingLyricsWrap');
+  document.getElementById('vibingTitle').textContent=track?.title||'Unknown';
+  document.getElementById('vibingArtist').textContent=track?.artist||'Unknown';
+  if(track?.cover_url) document.getElementById('vibingCover').innerHTML=`<img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'">`;
+  const raw=track?.lyrics||'';
+  state.vibingLyrics=parseLyricRaw(raw);
+  if(!state.vibingLyrics.length){
+    wrap.innerHTML='<div class="vibing-no-lyrics">NO SYNCED LYRICS</div>';
+    return;
+  }
+  wrap.innerHTML=state.vibingLyrics.map((l,i)=>`<div class="vibing-lyric-line" id="vl${i}">${esc(l.text)}</div>`).join('');
+  state.vibingLineEls = Array.from(wrap.querySelectorAll('.vibing-lyric-line'));
+  wrap.scrollTop = 0;
+  state.lastVibingIdx=-1;
+}
+
+function syncVibingLyric(posMs) {
+  if(!state.vibingLyrics.length) return;
+  let idx=-1;
+  for(let i=0;i<state.vibingLyrics.length;i++){
+    if(posMs>=state.vibingLyrics[i].ms) idx=i; else break;
+  }
+  if(idx===state.lastVibingIdx||idx<0) return;
+  state.lastVibingIdx=idx;
+  const lines = state.vibingLineEls && state.vibingLineEls.length ? state.vibingLineEls : Array.from(document.querySelectorAll('.vibing-lyric-line'));
+  blastrSetLyricFocus(lines, idx, { prev: 'near-prev', next: 'near-next' });
+  const el=document.getElementById(`vl${idx}`);
+  if(el) blastrSmoothScrollToLine(el);
+}
+
+// ── ZEN STAGE ──
+let zenCanvasCtx=null,zenHue=0;
+function toggleZen() {
+  state.inZen=!state.inZen;
+  const z=document.getElementById('zenStage');
+  z.classList.toggle('open',state.inZen);
+  document.getElementById('btnZen').classList.toggle('active',state.inZen);
+  document.getElementById('btnZenTop').classList.toggle('active',state.inZen);
+  if(state.inZen){loadZenLyrics(state.currentTrack);startZenCanvas();}
+  else{stopZenCanvas();}
+}
+function startZenCanvas(){
+  const c=document.getElementById('zenCanvas');
+  zenCanvasCtx=c.getContext('2d');
+  resizeZenCanvas();animateZenCanvas();
+}
+function stopZenCanvas(){if(state.zenAnimFrame)cancelAnimationFrame(state.zenAnimFrame);state.zenAnimFrame=null;}
+function resizeZenCanvas(){const c=document.getElementById('zenCanvas');c.width=window.innerWidth;c.height=window.innerHeight;}
+function animateZenCanvas(){
+  if(!state.inZen||!state.zenGradient) return;
+  const c=document.getElementById('zenCanvas');const ctx=zenCanvasCtx;if(!ctx) return;
+  ctx.clearRect(0,0,c.width,c.height);
+  zenHue=(zenHue+.25)%360;
+  const g=ctx.createRadialGradient(c.width*.4,c.height*.35,0,c.width*.5,c.height*.5,c.width*.85);
+  g.addColorStop(0,`hsla(${zenHue},70%,25%,.55)`);
+  g.addColorStop(.5,`hsla(${(zenHue+90)%360},60%,15%,.35)`);
+  g.addColorStop(1,`hsla(${(zenHue+170)%360},50%,5%,.15)`);
+  ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+  state.zenAnimFrame=requestAnimationFrame(animateZenCanvas);
+}
+function toggleZenGradient(){
+  state.zenGradient=!state.zenGradient;
+  document.getElementById('zenGradBtn').textContent=state.zenGradient?'GRADIENT ON':'FOCUS MODE';
+  if(state.zenGradient) animateZenCanvas();
+}
+function loadZenLyrics(track) {
+  const scroll=document.getElementById('zenLyricsScroll');
+  if(!track){scroll.innerHTML='<div class="zen-lyric-line active">No track playing</div>';return;}
+  document.getElementById('zenNowPlaying').textContent=`${track.title} — ${track.artist||''}`;
+  state.parsedLyrics=parseLyricRaw(track.lyrics||'');
+  if(!state.parsedLyrics.length){
+    scroll.innerHTML=`<div class="zen-cover-fallback">${track.cover_url?`<div class="zen-cover-art"><img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'"></div>`:'<div style="font-size:80px">♪</div>'}<div class="zen-no-lyrics">NO LYRICS AVAILABLE</div></div>`;
+    return;
+  }
+  scroll.innerHTML=state.parsedLyrics.map((l,i)=>`<div class="zen-lyric-line" id="zenLine${i}">${esc(l.text)}</div>`).join('');
+  state.zenLineEls = Array.from(scroll.querySelectorAll('.zen-lyric-line'));
+  scroll.scrollTop = 0;
+  state.lastZenIdx=-1;
+}
+
+let lyricScrollRaf = 0;
+let lyricScrollTarget = 0;
+
+function blastrSmoothScrollToLine(el) {
+  try {
+    if (!el) return;
+    const container = el.closest('.zen-lyrics-scroll, .vibing-lyrics-wrap');
+    if (!container) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
+
+    const c = container.getBoundingClientRect();
+    const e = el.getBoundingClientRect();
+    const offset = (e.top - c.top) - (container.clientHeight * 0.42);
+    const target = Math.max(0, container.scrollTop + offset);
+
+    if (Math.abs(target - container.scrollTop) < 4) return;
+    lyricScrollTarget = target;
+
+    if (lyricScrollRaf) return;
+
+    const step = () => {
+      const current = container.scrollTop;
+      const diff = lyricScrollTarget - current;
+      if (Math.abs(diff) < 0.8) {
+        container.scrollTop = lyricScrollTarget;
+        lyricScrollRaf = 0;
+        return;
+      }
+      container.scrollTop = current + (diff * 0.18);
+      lyricScrollRaf = requestAnimationFrame(step);
+    };
+
+    lyricScrollRaf = requestAnimationFrame(step);
+  } catch (err) {
+    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(e) {}
+  }
+}
+
+function blastrSetLyricFocus(lines, idx, extraClassMap={}) {
+  try {
+    if (!lines || !lines.length) return;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      l.classList.remove('active','near','near-prev','near-next');
+      if (i === idx) {
+        l.classList.add('active');
+      } else if (extraClassMap.prev && i === idx - 1) {
+        l.classList.add(extraClassMap.prev);
+      } else if (extraClassMap.next && i === idx + 1) {
+        l.classList.add(extraClassMap.next);
+      } else if (Math.abs(i - idx) === 1 && !extraClassMap.prev && !extraClassMap.next) {
+        l.classList.add('near');
+      }
+    }
+  } catch (err) {}
+}
+
+function syncZenLyric(posMs) {
+  if(!state.parsedLyrics.length) return;
+  let idx=-1;
+  for(let i=0;i<state.parsedLyrics.length;i++){if(posMs>=state.parsedLyrics[i].ms) idx=i; else break;}
+  if(idx===state.lastZenIdx||idx<0) return;
+  state.lastZenIdx=idx;
+  const lines = state.zenLineEls && state.zenLineEls.length ? state.zenLineEls : Array.from(document.querySelectorAll('.zen-lyric-line'));
+  blastrSetLyricFocus(lines, idx, { near: 'near' });
+  const el=document.getElementById(`zenLine${idx}`);
+  if(el) blastrSmoothScrollToLine(el);
+}
+window.addEventListener('resize',resizeZenCanvas);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&state.inZen) toggleZen();
+  if(e.code==='Space'&&state.inZen){e.preventDefault();togglePlayback();}
+});
+
+// ── THEME ──
+let vibeTimer=null;
+function applyTheme(mode,btn) {
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  clearInterval(vibeTimer);
+  document.body.classList.remove('light');
+  if(mode==='light') document.body.classList.add('light');
+  else if(mode==='vibe') startVibe();
+  else{document.body.style.setProperty('--accent','#39FF14');document.body.style.setProperty('--bg','#06060E');document.body.style.setProperty('--panel','#0D0D1C');}
+}
+function startVibe() {
+  const palettes=[['#FF8A4C','#FF4E50'],['#F9D423','#FF4E50'],['#4CA1AF','#2C3E50'],['#7F53AC','#647DEE'],['#00C6FF','#0072FF'],['#39FF14','#00C6FF']];
+  let i=0;
+  function tick(){const[a,b]=palettes[i%palettes.length];document.body.style.setProperty('--accent',a);document.body.style.background=`linear-gradient(135deg,${a}22,${b}11)`;i++;}
+  tick();vibeTimer=setInterval(tick,2800);
+}
+function toggleSettings(){document.getElementById('settingsPanel').classList.toggle('open');}
+
+// ── DOWNLOAD ──
+async function downloadCurrentTrack() {
+  const t=state.currentTrack;
+  if(!t||!t.url){showToast('ERROR','Nothing playing to download');return;}
+  showToast('DOWNLOADING',t.title,'Extracting from grid...','download');
+  try{const a=document.createElement('a');a.href=t.url;a.download=`${t.title} - ${t.artist||'Blastr'}.mp3`;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+  catch(e){showToast('ERROR','Download failed');}
+}
+
+// ── MINI PLAYER ──
+function toggleMiniPlayer(forceOpen){
+  const mp=document.getElementById('miniPlayer');
+  if(!mp) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !mp.classList.contains('open');
+  mp.classList.toggle('open', shouldOpen);
+  mp.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+}
+function closeMiniPlayer(){ toggleMiniPlayer(false); }
+
+// ── ADMIN ──
+async function loadAdminTracks() {
+  if(!state.isAdmin){showToast('RESTRICTED','Admin access required.');return;}
+  const tracks=await getTracks();
+  state.allTracks=tracks;
+  const list=document.getElementById('adminTrackList');
+  const sel=document.getElementById('deleteSelect');
+  if(!tracks.length){list.innerHTML='<div style="color:var(--dim);font-size:11px;padding:8px;font-family:var(--mono)">NO TRACKS FOUND</div>';return;}
+  list.innerHTML=tracks.map(t=>`<div class="admin-track-item" onclick="initiateHandshake(${jsonAttr(t)})"><span>${esc(t.title)} — <span style="color:var(--dim)">${esc(t.artist||'')}</span></span><span style="font-size:10px;color:var(--dim);font-family:var(--mono)">${t.genre||''}</span></div>`).join('');
+  sel.innerHTML='<option value="">SELECT_TRACK_TARGET...</option>'+tracks.map(t=>`<option value="${t.id}">${esc(t.title)} - ${esc(t.artist||'')}</option>`).join('');
+}
+let pendingIsVerified=false;
+function toggleVerify(){
+  pendingIsVerified=!pendingIsVerified;
+  document.getElementById('verifyToggle').classList.toggle('on',pendingIsVerified);
+  document.getElementById('verifyCheck').textContent=pendingIsVerified?'✓':'';
+  document.getElementById('verifyLabel').textContent=pendingIsVerified?'✓ VERIFIED ORIGINAL':'VERIFY SONG (Blastr Certified Original)';
+}
+let adminAudioFile=null,adminImageFile=null;
+function selectAdminFile(type){
+  const inp=document.createElement('input');inp.type='file';inp.accept=type==='audio'?'audio/*':'image/*';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f) return;
+    if(type==='audio'){adminAudioFile=f;const btn=document.getElementById('btnAudio');btn.textContent='✓ LOAD_AUDIO: '+f.name;btn.classList.add('loaded');}
+    else{adminImageFile=f;const btn=document.getElementById('btnImage');btn.textContent='✓ LOAD_VISUAL: '+f.name;btn.classList.add('loaded');}
+  };inp.click();
+}
+async function executeBlast() {
+  const title=document.getElementById('adminTitle').value.trim();
+  const artist=document.getElementById('adminArtist').value.trim();
+  const desc=document.getElementById('adminDesc').value.trim();
+  const genre=document.getElementById('adminGenre').value;
+
+  if(!title||!artist||!genre){
+    showToast('ERROR','Title, Artist, and Genre are required.');
+    return;
+  }
+  if(!adminAudioFile||!adminImageFile){
+    showToast('ERROR','Audio and cover image are required.');
+    return;
+  }
+
+  const btn=document.getElementById('btnBlast');
+  btn.textContent='EXECUTING...';
+  btn.disabled=true;
+
+  try{
+    const safeStem = blastrCleanFileStem(title);
+    const audioExt = blastrGuessExtension(adminAudioFile, 'mp3');
+    const imageExt = blastrGuessExtension(adminImageFile, 'png');
+    const aName = `${safeStem}.${audioExt}`;
+    const cName = `${safeStem}_cover.${imageExt}`;
+
+    const aUrl = await blastrUploadStorageFile('songs', aName, adminAudioFile);
+    const cUrl = await blastrUploadStorageFile('covers', cName, adminImageFile);
+
+    const inserted = await sbFetch('/rest/v1/tracks',{
+      method:'POST',
+      body:{
+        title,
+        artist,
+        description:desc,
+        genre,
+        url:aUrl,
+        cover_url:cUrl,
+        is_verified:pendingIsVerified
+      },
+      headers:{
+        'Prefer':'return=representation'
+      }
+    });
+
+    if(!inserted){
+      throw new Error('Track insert failed after storage upload.');
+    }
+
+    showToast('BLAST SUCCESS!',`"${title}" uploaded to the Grid`);
+    ['adminTitle','adminArtist','adminDesc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('adminGenre').value='';
+    adminAudioFile=null;
+    adminImageFile=null;
+    document.getElementById('btnAudio').textContent='⬆ LOAD_AUDIO: click to select audio file';
+    document.getElementById('btnAudio').classList.remove('loaded');
+    document.getElementById('btnImage').textContent='⬆ LOAD_VISUAL: click to select cover image';
+    document.getElementById('btnImage').classList.remove('loaded');
+    pendingIsVerified=false;
+    document.getElementById('verifyToggle').classList.remove('on');
+    document.getElementById('verifyCheck').textContent='';
+    document.getElementById('verifyLabel').textContent='VERIFY SONG (Blastr Certified Original)';
+    loadAdminTracks();
+    loadHomeContent();
+  } catch(e){
+    console.error(e);
+    showToast('UPLOAD FAILED',String(e?.message||e));
+  } finally{
+    btn.textContent='EXECUTE_DUAL_BLAST()';
+    btn.disabled=false;
+  }
+}
+
+function executeWipe(){
+  const id=document.getElementById('deleteSelect').value;
+  if(!id){showToast('ERROR','Select a track to delete.');return;}
+  const name=document.getElementById('deleteSelect').selectedOptions[0].text;
+  showConfirm(`Delete "${name}"?`,'This will permanently remove this track.',async()=>{
+    await deleteSbTrack(id);
+    showToast('WIPED','Track removed from the Grid.');
+    loadAdminTracks();loadHomeContent();
+  });
+}
+
+// ── LAB ──
+function onLabSearch(val){
+  clearTimeout(state.labSearchTimer);
+  if(val.length<2){document.getElementById('labResults').classList.remove('open');return;}
+  state.labSearchTimer=setTimeout(()=>runLabSearch(val),280);
+}
+async function runLabSearch(q){
+  const tracks=await getTracks(q);
+  state.labSongs=tracks;
+  const res=document.getElementById('labResults');
+  if(!tracks.length){res.classList.remove('open');return;}
+  res.innerHTML=tracks.slice(0,8).map(t=>`<div class="lab-result-item" onclick="selectLabSong(${jsonAttr(t)})">${esc(t.title)} — <span style="color:var(--dim)">${esc(t.artist||'')}</span></div>`).join('');
+  res.classList.add('open');
+}
+function selectLabSong(track){
+  state.labSelectedSong=track;
+  document.getElementById('labSearch').value=`${track.title} — ${track.artist||''}`;
+  document.getElementById('labResults').classList.remove('open');
+  document.getElementById('lyricInput').value=track.lyrics||'';
+  document.getElementById('labStatus').textContent=`SELECTED: ${track.title}`;
+  document.getElementById('labStatus').className='lab-status';
+  document.getElementById('btnLockSong').disabled=false;
+}
+function lockLabSong(){
+  if(!state.labSelectedSong){showToast('ERROR','Select a track first.');return;}
+  state.labLockedSong=state.labSelectedSong;
+  audio.src=state.labLockedSong.url;
+  document.getElementById('labStatus').textContent=`🔒 LOCKED: ${state.labLockedSong.title}`;
+  document.getElementById('labStatus').className='lab-status locked';
+  document.getElementById('btnStartSync').disabled=false;
+  document.getElementById('btnCommit').disabled=false;
+}
+function startLabSync(){
+  if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
+  audio.play();state.isPlaying=true;syncPlayState();
+  document.getElementById('labStatus').textContent='REAL-TIME SYNC ACTIVE — Hit ENTER at each line';
+  document.getElementById('labStatus').className='lab-status active';
+  document.getElementById('lyricInput').focus();
+}
+document.getElementById('lyricInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&state.labLockedSong&&state.isPlaying){e.preventDefault();stampLyricLine();}
+});
+function stampLyricLine(){
+  const pos=audio.currentTime;
+  const comp=Math.max(0,pos-.05);
+  const m=Math.floor(comp/60);
+  const s=(comp%60).toFixed(2);
+  const stamp=`[${String(m).padStart(2,'0')}:${parseFloat(s).toFixed(2).padStart(5,'0')}] `;
+  const ta=document.getElementById('lyricInput');
+  const start=ta.selectionStart;
+  const lines=ta.value.split('\n');
+  let charCount=0,lineIdx=0;
+  for(let i=0;i<lines.length;i++){if(charCount+lines[i].length>=start){lineIdx=i;break;}charCount+=lines[i].length+1;}
+  lines[lineIdx]=stamp+lines[lineIdx].replace(/^\[\d+:\d+\.\d+\]\s*/,'');
+  ta.value=lines.join('\n');
+  document.getElementById('labStatus').textContent=`Stamped @ ${fmtTime(comp)} — keep going!`;
+}
+async function commitLyrics(){
+  if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
+  const lyrics=document.getElementById('lyricInput').value;
+  const btn=document.getElementById('btnCommit');
+  btn.textContent='⌛ UPLOADING...';btn.disabled=true;
+  const res=await updateLyrics(state.labLockedSong.id, lyrics);
+  if(res!==null){
+    showToast('CLOUD SUCCESS','Lyrics saved to the Grid!');
+    document.getElementById('labStatus').textContent='✅ Lyrics committed to cloud.';
+    document.getElementById('labStatus').className='lab-status active';
+    if(state.currentTrack&&state.currentTrack.id===state.labLockedSong.id) state.currentTrack.lyrics=lyrics;
+    state.labLockedSong.lyrics=lyrics;
+    const t=state.allTracks.find(t=>t.id===state.labLockedSong.id);
+    if(t) t.lyrics=lyrics;
+    // Reload vibing/zen lyrics if same track is playing
+    if(state.inVibing&&state.currentTrack&&state.currentTrack.id===state.labLockedSong.id) loadVibingLyrics(state.currentTrack);
+    if(state.inZen&&state.currentTrack&&state.currentTrack.id===state.labLockedSong.id) loadZenLyrics(state.currentTrack);
+  } else {
+    showToast('TRANSMISSION FAILED','Could not save lyrics. Check your connection.');
+  }
+  btn.textContent='☁ COMMIT TO DATABASE';btn.disabled=false;
+}
+function labSeek(e){
+  if(!state.labLockedSong||!audio.duration) return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+}
+
+// ── TOAST ──
+let toastTimer=null;
+function showToast(badge,title,sub='',type=''){
+  const t=document.getElementById('toast');
+  document.getElementById('toastBadge').textContent=badge;
+  document.getElementById('toastTitle').textContent=title;
+  document.getElementById('toastSub').textContent=sub;
+  t.className='toast'+(type?' '+type:'');
+  clearTimeout(toastTimer);
+  setTimeout(()=>t.classList.add('show'),10);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3600);
+}
+
+// ── MODAL ──
+function showConfirm(title,sub,cb){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalSub').textContent=sub;
+  state.confirmCallback=cb;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function modalConfirm(){if(state.confirmCallback)state.confirmCallback();closeModal('confirmModal');state.confirmCallback=null;}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ── UTILS ──
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function jsonAttr(obj){return JSON.stringify(obj).replace(/"/g,'&quot;');}
+
+
+// ── RESPONSIVE NAV / DRAWER / GESTURES ──
+function blastrIsCompactViewport(){
+  try { return window.matchMedia('(max-width: 860px)').matches; }
+  catch (e) { return window.innerWidth <= 860; }
+}
+
+function blastrSyncAppShellState(){
+  const app = document.getElementById('appScreen');
+  if(!app) return;
+  if(blastrIsCompactViewport()){
+    app.classList.remove('mobile-nav-open');
+  }
+}
+
+function openSidebarDrawer(){
+  const app = document.getElementById('appScreen');
+  if(!app) return;
+  app.classList.add('mobile-nav-open');
+  const btn = document.getElementById('mobileNavBtn');
+  if(btn) btn.textContent = '✕';
+}
+
+function closeSidebarDrawer(hard=false){
+  const app = document.getElementById('appScreen');
+  if(!app) return;
+  app.classList.remove('mobile-nav-open');
+  const btn = document.getElementById('mobileNavBtn');
+  if(btn) btn.textContent = '☰';
+  if(hard){
+    const scrim = document.getElementById('mobileScrim');
+    if(scrim) scrim.style.pointerEvents = 'none';
+  }
+}
+
+function toggleSidebarDrawer(){
+  const app = document.getElementById('appScreen');
+  if(!app) return;
+  if(app.classList.contains('mobile-nav-open')) closeSidebarDrawer();
+  else openSidebarDrawer();
+}
+
+let blastrTouchState = { active:false, startX:0, startY:0, lastX:0, startedFromEdge:false };
+function blastrBindMobileGestures(){
+  const app = document.getElementById('appScreen');
+  const sidebar = document.querySelector('.sidebar');
+  if(!app || !sidebar) return;
+
+  const reset = () => {
+    blastrTouchState.active = false;
+    blastrTouchState.startedFromEdge = false;
+  };
+
+  document.addEventListener('touchstart', (e) => {
+    if(!blastrIsCompactViewport()) return;
+    if(!e.touches || !e.touches.length) return;
+    const t = e.touches[0];
+    blastrTouchState.active = true;
+    blastrTouchState.startX = t.clientX;
+    blastrTouchState.startY = t.clientY;
+    blastrTouchState.lastX = t.clientX;
+    blastrTouchState.startedFromEdge = (t.clientX <= 24) && !app.classList.contains('mobile-nav-open');
+  }, { passive:true });
+
+  document.addEventListener('touchmove', (e) => {
+    if(!blastrTouchState.active || !blastrIsCompactViewport()) return;
+    if(!e.touches || !e.touches.length) return;
+    const t = e.touches[0];
+    blastrTouchState.lastX = t.clientX;
+  }, { passive:true });
+
+  document.addEventListener('touchend', () => {
+    if(!blastrTouchState.active || !blastrIsCompactViewport()) return;
+    const dx = blastrTouchState.lastX - blastrTouchState.startX;
+    if(blastrTouchState.startedFromEdge && dx > 52){
+      openSidebarDrawer();
+    } else if(app.classList.contains('mobile-nav-open') && dx < -52){
+      closeSidebarDrawer();
+    }
+    reset();
+  }, { passive:true });
+
+  sidebar.addEventListener('click', (e) => {
+    if(blastrIsCompactViewport() && e.target.classList.contains('sidebar-btn')){
+      closeSidebarDrawer();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if(!blastrIsCompactViewport()) closeSidebarDrawer(true);
+  });
+}
+
+function blastrInstallEscapeShortcuts(){
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){
+      closeSidebarDrawer();
+      closeMiniPlayer();
+      if(state.inZen) toggleZen();
+      if(document.getElementById('settingsPanel')?.classList.contains('open')) toggleSettings();
+    }
+  });
+}
+
+// Better lyric motion — smoother centering, gentler active-state settling.
+function blastrEaseInOutCubic(t){
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+function blastrSmoothScrollToLine(el) {
+  try {
+    if (!el) return;
+    const container = el.closest('.zen-lyrics-scroll, .vibing-lyrics-wrap');
+    if (!container) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
+
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const target = Math.max(0, container.scrollTop + (eRect.top - cRect.top) - (container.clientHeight * 0.44));
+    const current = container.scrollTop;
+
+    if (Math.abs(target - current) < 2) return;
+    lyricScrollTarget = target;
+
+    if (prefersReduced) {
+      container.scrollTop = target;
+      return;
+    }
+
+    if (lyricScrollRaf) return;
+
+    const start = current;
+    const delta = target - start;
+    const duration = Math.min(720, Math.max(240, Math.abs(delta) * 1.4));
+
+    let startTs = 0;
+    const step = (ts) => {
+      if (!startTs) startTs = ts;
+      const progress = Math.min(1, (ts - startTs) / duration);
+      const eased = blastrEaseInOutCubic(progress);
+      container.scrollTop = start + (delta * eased);
+
+      if (progress < 1) {
+        lyricScrollRaf = requestAnimationFrame(step);
+      } else {
+        container.scrollTop = target;
+        lyricScrollRaf = 0;
+      }
+    };
+
+    lyricScrollRaf = requestAnimationFrame(step);
+  } catch (err) {
+    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(e) {}
+  }
+}
+
+function blastrSetLyricFocus(lines, idx, extraClassMap={}) {
+  try {
+    if (!lines || !lines.length) return;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      l.classList.remove('active','near','near-prev','near-next');
+      l.style.removeProperty('--lyric-lift');
+      if (i === idx) {
+        l.classList.add('active');
+        l.style.setProperty('--lyric-lift', '1');
+      } else if (extraClassMap.prev && i === idx - 1) {
+        l.classList.add(extraClassMap.prev);
+        l.style.setProperty('--lyric-lift', '0.72');
+      } else if (extraClassMap.next && i === idx + 1) {
+        l.classList.add(extraClassMap.next);
+        l.style.setProperty('--lyric-lift', '0.68');
+      } else if (Math.abs(i - idx) === 1 && !extraClassMap.prev && !extraClassMap.next) {
+        l.classList.add('near');
+        l.style.setProperty('--lyric-lift', '0.74');
+      } else {
+        l.style.setProperty('--lyric-lift', '0.45');
+      }
+    }
+  } catch (err) {}
+}
+
+// ── GLOBAL ERRORS ──
+window.addEventListener('error',e=>{try{diag('JS ERROR',e?.message||'Unknown',{file:e?.filename,line:e?.lineno});}catch(err){}});
+window.addEventListener('unhandledrejection',e=>{try{diag('REJECTION',e?.reason?.message||String(e?.reason||''));}catch(err){}});
+
+// ── BOOT ──
+async function blastrInit(){
+  diag('BOOT','Blastr v2 starting');
+  loginScreen.classList.remove('hidden');
+  appScreen.classList.add('hidden');
+  blastrStartLoginSloganCycle();
+  blastrRefreshGreeting();
+  blastrSyncAppShellState();
+  blastrBindMobileGestures();
+  blastrInstallEscapeShortcuts();
+  try{await blastrRestoreSession();}catch(e){diag('BOOT','Session restore failed',e?.message||e);}
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',blastrInit,{once:true});
+} else {
+  blastrInit();
+}
+setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
+</script>
+</body>
+</html>
