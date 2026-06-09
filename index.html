@@ -2648,53 +2648,266 @@ function blastrGetAuthToken() {
   return state.session?.access_token || blastrGetStoredAuth()?.access_token || SUPABASE_KEY;
 }
 
-async function blastrUploadStorageFile(bucket, fileName, file) {
+function blastrGetSessionToken() {
+  return state.session?.access_token || blastrGetStoredAuth()?.access_token || null;
+}
+
+function blastrRequireSessionToken(context = 'upload') {
+  const token = blastrGetSessionToken();
+  if (!token) {
+    throw new Error(`Please sign in again before ${context}.`);
+  }
+  return token;
+}
+
+function blastrNormalizeObjectName(fileName, fallbackBase = 'asset') {
+  const raw = String(fileName || '').trim().replace(/\\/g, '/');
+  const leaf = raw.split('/').filter(Boolean).pop() || '';
+  const baseStem = blastrCleanFileStem(leaf.replace(/\.[^.]+$/, '') || fallbackBase);
+  const ext = blastrGuessExtension({ name: leaf }, 'bin');
+  const stamp = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const nonce = Math.random().toString(36).slice(2, 10);
+  return `${baseStem}-${stamp}-${nonce}.${ext}`;
+}
+
+function blastrNormalizePublicObjectPath(objectName) {
+  return String(objectName || '')
+    .replace(/\\/g, '/')
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+}
+
+function blastrStoragePayloadText(payload) {
+  if (payload == null) return '';
+  if (typeof payload === 'string') return payload;
+  try {
+    return JSON.stringify(payload);
+  } catch {
+    return String(payload);
+  }
+}
+
+function blastrStorageCandidateTokens(token = null) {
+  const tokens = [];
+  const current = token || state.session?.access_token || blastrGetStoredAuth()?.access_token || null;
+  if (current) tokens.push(current);
+  if (!tokens.includes(SUPABASE_KEY)) tokens.push(SUPABASE_KEY);
+  return tokens;
+}
+
+function blastrBuildStorageHeaders(token, mime = null, upsert = true) {
+  const headers = new Headers({
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${token}`
+  });
+  if (upsert) headers.set('x-upsert', 'true');
+  if (mime) headers.set('Content-Type', mime);
+  return headers;
+}
+
+function blastrIsStorageRetryableStatus(res, payloadText = '') {
+  const code = Number(res?.status || 0);
+  const blob = `${code} ${res?.statusText || ''} ${payloadText}`.toLowerCase();
+  return code === 400 || code === 401 || code === 403 || /row-level security|rls|permission denied/.test(blob);
+}
+
+async function blastrDeleteStorageObject(bucket, objectName, token = null) {
+  try {
+    const safeBucket = String(bucket || '').trim();
+    const safeName = blastrNormalizePublicObjectPath(objectName);
+    if (!safeBucket || !safeName) return false;
+
+    const tokens = blastrStorageCandidateTokens(token);
+    let lastError = null;
+
+    for (let i = 0; i < tokens.length; i += 1) {
+      const candidate = tokens[i];
+      const headers = blastrBuildStorageHeaders(candidate, null, false);
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(safeBucket)}/${safeName}`, {
+        method: 'DELETE',
+        headers,
+        credentials: 'omit'
+      });
+
+      if (res.ok) return true;
+
+      let payload = null;
+      try {
+        const ct = res.headers.get('content-type') || '';
+        payload = ct.includes('application/json') ? await res.json() : await res.text();
+      } catch {
+        payload = null;
+      }
+
+      const detail = blastrStoragePayloadText(payload) || `Storage delete failed (${res.status})`;
+      lastError = new Error(detail);
+      lastError.status = res.status;
+      lastError.statusText = res.statusText || '';
+      lastError.bucket = safeBucket;
+      lastError.objectName = safeName;
+      lastError.payload = payload;
+
+      if (i < tokens.length - 1 && blastrIsStorageRetryableStatus(res, detail)) {
+        continue;
+      }
+    }
+
+    if (lastError) {
+      diag('STORAGE', `Rollback delete failed for ${safeBucket}/${safeName}`, lastError.payload);
+    }
+    return false;
+  } catch (err) {
+    diag('STORAGE', 'Rollback delete failed', err?.message || err);
+    return false;
+  }
+}
+
+async function blastrEnsureFreshSession(reason = 'storage upload') {
+  const saved = blastrGetStoredAuth();
+  const current = state.session?.access_token || saved?.access_token || null;
+
+  if (current) {
+    const user = await sbFetch('/auth/v1/user', {}, current);
+    if (user && user.id) {
+      if (!state.session?.access_token && saved) {
+        await blastrHydrateSession({ ...saved, user }, 'restore');
+      }
+      return current;
+    }
+  }
+
+  if (saved?.refresh_token) {
+    const refreshed = await blastrAuthRequest('/auth/v1/token?grant_type=refresh_token', {
+      refresh_token: saved.refresh_token
+    });
+    if (refreshed?.access_token && refreshed?.user) {
+      const session = {
+        access_token: refreshed.access_token,
+        refresh_token: refreshed.refresh_token || saved.refresh_token || '',
+        token_type: refreshed.token_type || 'bearer',
+        expires_at: refreshed.expires_at || null,
+        user: refreshed.user
+      };
+      await blastrHydrateSession(session, 'restore');
+      return session.access_token;
+    }
+  }
+
+  throw new Error(`Please sign in again before ${reason}.`);
+}
+
+async function blastrUploadStorageFile(bucket, fileName, file, opts = {}) {
   const safeBucket = String(bucket || '').trim();
   if (!safeBucket) throw new Error('Missing storage bucket.');
   if (!file) throw new Error(`Missing file for ${safeBucket}.`);
 
-  const cleanName = String(fileName || '').replace(/^\/+/, '');
-  const encodedName = cleanName.split('/').map(encodeURIComponent).join('/');
-  const headers = new Headers({
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${blastrGetAuthToken()}`,
-    'x-upsert': 'true'
-  });
-
+  const objectName = blastrNormalizeObjectName(fileName, opts.fallbackBase || safeBucket);
+  const encodedName = blastrNormalizePublicObjectPath(objectName);
   const mime = blastrGuessMime(file, blastrGuessExtension(file));
-  if (mime) headers.set('Content-Type', mime);
+  const url = `${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(safeBucket)}/${encodedName}`;
+  const candidateTokens = [];
 
-  const url = `${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(safeBucket)}/${encodedName}?upsert=true`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: file,
-    credentials: 'omit'
-  });
-
-  const ct = res.headers.get('content-type') || '';
-  let payload = null;
   try {
-    payload = ct.includes('application/json') ? await res.json() : await res.text();
-  } catch (e) {
-    payload = null;
+    const current = await blastrEnsureFreshSession(opts.reason || `uploading to ${safeBucket}`);
+    if (current) candidateTokens.push(current);
+  } catch (err) {
+    diag('STORAGE', `Session refresh skipped for ${safeBucket}`, err?.message || err);
   }
 
-  if (!res.ok) {
-    const detail = (payload && typeof payload === 'object')
-      ? (payload.message || payload.error || payload.msg || JSON.stringify(payload))
-      : String(payload || '');
-    throw new Error(detail || `Storage upload failed (${res.status})`);
+  const storedToken = blastrGetStoredAuth()?.access_token || null;
+  if (storedToken && !candidateTokens.includes(storedToken)) {
+    candidateTokens.push(storedToken);
   }
 
-  return `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(safeBucket)}/${encodedName}`;
+  if (!candidateTokens.includes(SUPABASE_KEY)) {
+    candidateTokens.push(SUPABASE_KEY);
+  }
+
+  const uploadOnce = async (uploadToken) => {
+    const headers = blastrBuildStorageHeaders(uploadToken, mime, true);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: file,
+      credentials: 'omit'
+    });
+    const ct = res.headers.get('content-type') || '';
+    let payload = null;
+    try {
+      payload = ct.includes('application/json') ? await res.json() : await res.text();
+    } catch {
+      payload = null;
+    }
+    return { res, payload, token: uploadToken };
+  };
+
+  let lastResult = null;
+  for (let i = 0; i < candidateTokens.length; i += 1) {
+    const candidate = candidateTokens[i];
+    lastResult = await uploadOnce(candidate);
+    if (lastResult.res.ok) {
+      return {
+        url: `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(safeBucket)}/${encodedName}`,
+        bucket: safeBucket,
+        objectName,
+        mime: mime || 'application/octet-stream',
+        authMode: candidate === SUPABASE_KEY ? 'anon' : 'session'
+      };
+    }
+
+    const detail = blastrStoragePayloadText(lastResult.payload) || `Storage upload failed (${lastResult.res.status})`;
+    const retryable = blastrIsStorageRetryableStatus(lastResult.res, detail);
+    diag('STORAGE', `${safeBucket}/${objectName} failed (${lastResult.res.status}) via ${candidate === SUPABASE_KEY ? 'anon' : 'session'}`, lastResult.payload);
+
+    if (!retryable || i === candidateTokens.length - 1) {
+      break;
+    }
+  }
+
+  const detail = lastResult
+    ? (typeof lastResult.payload === 'string'
+        ? lastResult.payload
+        : blastrStoragePayloadText(lastResult.payload))
+    : '';
+  const err = new Error(detail || `Storage upload failed (${lastResult?.res?.status || 'unknown'})`);
+  err.status = lastResult?.res?.status || 0;
+  err.statusText = lastResult?.res?.statusText || '';
+  err.bucket = safeBucket;
+  err.objectName = objectName;
+  err.payload = lastResult?.payload ?? null;
+  throw err;
 }
 
 async function blastrAuthRequest(path, body) {
-  const h=new Headers({apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'});
-  const res=await fetch(`${SUPABASE_URL}${path}`,{method:'POST',headers:h,body:JSON.stringify(body||{}),credentials:'omit'});
-  const payload=await res.json().catch(async()=>({raw:await res.text().catch(()=>'')}));
-  if(!res.ok){const e=new Error(payload?.msg||payload?.error_description||payload?.message||`Auth ${res.status}`);e.payload=payload;throw e;}
+  const h = new Headers({
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+  });
+  const res = await fetch(`${SUPABASE_URL}${path}`, {
+    method: 'POST',
+    headers: h,
+    body: JSON.stringify(body || {}),
+    credentials: 'omit'
+  });
+  let payload = null;
+  try {
+    payload = await res.json();
+  } catch {
+    try {
+      payload = { raw: await res.text() };
+    } catch {
+      payload = null;
+    }
+  }
+  if (!res.ok) {
+    const e = new Error(payload?.msg || payload?.error_description || payload?.message || `Auth ${res.status}`);
+    e.payload = payload;
+    e.status = res.status;
+    throw e;
+  }
   return payload;
 }
 
@@ -3560,79 +3773,94 @@ function selectAdminFile(type){
   };inp.click();
 }
 async function executeBlast() {
-  const title=document.getElementById('adminTitle').value.trim();
-  const artist=document.getElementById('adminArtist').value.trim();
-  const desc=document.getElementById('adminDesc').value.trim();
-  const genre=document.getElementById('adminGenre').value;
+  const title = document.getElementById('adminTitle').value.trim();
+  const artist = document.getElementById('adminArtist').value.trim();
+  const desc = document.getElementById('adminDesc').value.trim();
+  const genre = document.getElementById('adminGenre').value;
 
-  if(!title||!artist||!genre){
-    showToast('ERROR','Title, Artist, and Genre are required.');
+  if (!title || !artist || !genre) {
+    showToast('ERROR', 'Title, Artist, and Genre are required.');
     return;
   }
-  if(!adminAudioFile||!adminImageFile){
-    showToast('ERROR','Audio and cover image are required.');
+  if (!adminAudioFile || !adminImageFile) {
+    showToast('ERROR', 'Audio and cover image are required.');
     return;
   }
 
-  const btn=document.getElementById('btnBlast');
-  btn.textContent='EXECUTING...';
-  btn.disabled=true;
+  const btn = document.getElementById('btnBlast');
+  btn.textContent = 'EXECUTING...';
+  btn.disabled = true;
 
-  try{
+  let uploadedAudio = null;
+  let uploadedCover = null;
+
+  try {
     const safeStem = blastrCleanFileStem(title);
-    const audioExt = blastrGuessExtension(adminAudioFile, 'mp3');
-    const imageExt = blastrGuessExtension(adminImageFile, 'png');
-    const aName = `${safeStem}.${audioExt}`;
-    const cName = `${safeStem}_cover.${imageExt}`;
+    const audioUrlHint = blastrNormalizeObjectName(`${safeStem}-audio.${blastrGuessExtension(adminAudioFile, 'mp3')}`, safeStem);
+    const coverUrlHint = blastrNormalizeObjectName(`${safeStem}-cover.${blastrGuessExtension(adminImageFile, 'png')}`, safeStem);
 
-    const aUrl = await blastrUploadStorageFile('songs', aName, adminAudioFile);
-    const cUrl = await blastrUploadStorageFile('covers', cName, adminImageFile);
+    uploadedAudio = await blastrUploadStorageFile('songs', audioUrlHint, adminAudioFile, {
+      fallbackBase: `${safeStem}-audio`,
+      reason: 'uploading the audio track'
+    });
 
-    const inserted = await sbFetch('/rest/v1/tracks',{
-      method:'POST',
-      body:{
+    uploadedCover = await blastrUploadStorageFile('covers', coverUrlHint, adminImageFile, {
+      fallbackBase: `${safeStem}-cover`,
+      reason: 'uploading the cover art'
+    });
+
+    const inserted = await sbFetch('/rest/v1/tracks', {
+      method: 'POST',
+      headers: {
+        'Prefer': 'return=representation'
+      },
+      body: {
         title,
         artist,
-        description:desc,
+        description: desc,
         genre,
-        url:aUrl,
-        cover_url:cUrl,
-        is_verified:pendingIsVerified
-      },
-      headers:{
-        'Prefer':'return=representation'
+        url: uploadedAudio.url,
+        cover_url: uploadedCover.url,
+        is_verified: pendingIsVerified
       }
     });
 
-    if(!inserted){
+    if (!inserted || (Array.isArray(inserted) && !inserted.length)) {
       throw new Error('Track insert failed after storage upload.');
     }
 
-    showToast('BLAST SUCCESS!',`"${title}" uploaded to the Grid`);
-    ['adminTitle','adminArtist','adminDesc'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('adminGenre').value='';
-    adminAudioFile=null;
-    adminImageFile=null;
-    document.getElementById('btnAudio').textContent='⬆ LOAD_AUDIO: click to select audio file';
+    showToast('BLAST SUCCESS!', `"${title}" uploaded to the Grid`);
+    ['adminTitle','adminArtist','adminDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('adminGenre').value = '';
+    adminAudioFile = null;
+    adminImageFile = null;
+    document.getElementById('btnAudio').textContent = '⬆ LOAD_AUDIO: click to select audio file';
     document.getElementById('btnAudio').classList.remove('loaded');
-    document.getElementById('btnImage').textContent='⬆ LOAD_VISUAL: click to select cover image';
+    document.getElementById('btnImage').textContent = '⬆ LOAD_VISUAL: click to select cover image';
     document.getElementById('btnImage').classList.remove('loaded');
-    pendingIsVerified=false;
+    pendingIsVerified = false;
     document.getElementById('verifyToggle').classList.remove('on');
-    document.getElementById('verifyCheck').textContent='';
-    document.getElementById('verifyLabel').textContent='VERIFY SONG (Blastr Certified Original)';
+    document.getElementById('verifyCheck').textContent = '';
+    document.getElementById('verifyLabel').textContent = 'VERIFY SONG (Blastr Certified Original)';
     loadAdminTracks();
     loadHomeContent();
-  } catch(e){
-    console.error(e);
-    showToast('UPLOAD FAILED',String(e?.message||e));
-  } finally{
-    btn.textContent='EXECUTE_DUAL_BLAST()';
-    btn.disabled=false;
+  } catch (e) {
+    console.error('[BLASTR UPLOAD ERROR]', e);
+    if (uploadedAudio?.bucket && uploadedAudio?.objectName) {
+      await blastrDeleteStorageObject(uploadedAudio.bucket, uploadedAudio.objectName).catch(() => {});
+    }
+    if (uploadedCover?.bucket && uploadedCover?.objectName) {
+      await blastrDeleteStorageObject(uploadedCover.bucket, uploadedCover.objectName).catch(() => {});
+    }
+    const msg = String(e?.message || e || 'Upload failed');
+    showToast('UPLOAD FAILED', msg);
+  } finally {
+    btn.textContent = 'EXECUTE_DUAL_BLAST()';
+    btn.disabled = false;
   }
 }
 
-function executeWipe(){
+function executeWipe() {
   const id=document.getElementById('deleteSelect').value;
   if(!id){showToast('ERROR','Select a track to delete.');return;}
   const name=document.getElementById('deleteSelect').selectedOptions[0].text;
