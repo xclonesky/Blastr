@@ -5083,5 +5083,661 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
 })();
 </script>
 
+<style>
+body.blastr-lite-mode .orb,
+body.blastr-lite-mode .login-snow-canvas,
+body.blastr-lite-mode .zen-bg-canvas,
+body.blastr-lite-mode .player-progress-accent,
+body.blastr-lite-mode .vibing-eq .bar,
+body.blastr-lite-mode .sidebar-eq .bar,
+body.blastr-lite-mode .login-eq-bar,
+body.blastr-lite-mode .pulse-bar,
+body.blastr-lite-mode .tile-hover-layer,
+body.blastr-lite-mode .skeleton{animation:none !important}
+body.blastr-lite-mode .vibing-lyric-line,
+body.blastr-lite-mode .zen-lyric-line,
+body.blastr-lite-mode .song-tile,
+body.blastr-lite-mode .fav-row,
+body.blastr-lite-mode .search-row,
+body.blastr-lite-mode .account-row{transition:none !important}
+
+.continue-card,.continue-empty{margin:18px 0 22px}
+.continue-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 18px 18px 20px;border-radius:22px;border:1px solid rgba(57,255,20,.16);background:linear-gradient(135deg, rgba(57,255,20,.08), rgba(0,198,255,.05) 48%, rgba(255,255,255,.04));box-shadow:0 18px 50px rgba(0,0,0,.18);cursor:pointer;overflow:hidden;position:relative}
+.continue-empty{padding:18px 20px;border-radius:22px;border:1px dashed rgba(255,255,255,.12);color:var(--dim);font-size:12px;font-family:var(--mono);letter-spacing:1px;background:rgba(255,255,255,.025)}
+.continue-left{min-width:0;position:relative;z-index:1}
+.continue-kicker{font-size:10px;letter-spacing:4px;font-family:var(--mono);color:var(--accent2);text-transform:uppercase}
+.continue-title{font-size:18px;font-weight:900;line-height:1.15;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.continue-meta{font-size:12px;color:var(--dim);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap}
+.continue-right{display:flex;align-items:center;gap:12px;flex-shrink:0;position:relative;z-index:1}
+.continue-art{width:56px;height:56px;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2a,#10101a);border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 20px rgba(0,0,0,.25);font-size:22px;color:var(--accent)}
+.continue-art img{width:100%;height:100%;object-fit:cover}
+.continue-btn{border:none;border-radius:16px;padding:12px 16px;cursor:pointer;background:var(--accent);color:#000;font-weight:900;font-family:var(--mono);letter-spacing:1.5px;font-size:11px;box-shadow:0 8px 22px rgba(57,255,20,.22)}
+
+.account-shell{grid-template-columns:minmax(280px,360px) 1fr;align-items:start}
+.account-hero{min-height:280px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+.account-hero-row{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
+.account-avatar{width:84px;height:84px;border-radius:26px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.14), transparent 38%),linear-gradient(135deg, var(--accent), var(--accent2));color:#000;font-size:34px;font-weight:900;flex-shrink:0;box-shadow:0 18px 55px rgba(0,0,0,.28), 0 0 0 8px rgba(255,255,255,.04)}
+.account-hero-meta .name{font-size:28px;font-weight:900;line-height:1.06;margin-top:4px}
+.account-hero-meta .mail{font-size:12px;color:var(--dim);margin-top:4px;word-break:break-all}
+.account-badge{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;letter-spacing:2px;font-family:var(--mono);text-transform:uppercase}
+.account-prefs{display:grid;gap:14px;margin-top:16px;position:relative;z-index:1}
+.account-pref-block{padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.account-pref-label{font-size:10px;letter-spacing:3px;font-family:var(--mono);color:var(--dim);text-transform:uppercase}
+.account-pref-title{font-size:12px;font-weight:800;margin-top:8px}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.avatar-chip{padding:10px 8px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:transform .15s,border-color .15s,background .15s}
+.avatar-chip:hover{transform:translateY(-2px);border-color:rgba(57,255,20,.32);background:rgba(57,255,20,.05)}
+.avatar-chip.active{border-color:rgba(57,255,20,.55);background:rgba(57,255,20,.09);box-shadow:0 0 0 1px rgba(57,255,20,.15) inset}
+.avatar-emoji{font-size:20px;line-height:1}
+.avatar-name{font-size:9px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+.theme-swatches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.theme-swatch{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);cursor:pointer;background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:space-between;gap:10px;transition:transform .15s,border-color .15s}
+.theme-swatch:hover{transform:translateY(-2px);border-color:rgba(0,198,255,.28)}
+.theme-swatch.active{border-color:rgba(0,198,255,.5);box-shadow:0 0 0 1px rgba(0,198,255,.12) inset}
+.theme-dot{width:14px;height:14px;border-radius:50%}
+.theme-dot.neon{background:#39FF14}.theme-dot.aurora{background:#00C6FF}.theme-dot.violet{background:#9D78FF}.theme-dot.sunset{background:#FF8A4C}.theme-dot.crimson{background:#FF4D6D}.theme-dot.midnight{background:#1E2A4A}
+.performance-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.perf-pill{padding:9px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);font-size:10px;letter-spacing:1.5px;font-family:var(--mono);text-transform:uppercase;cursor:pointer;transition:all .15s}
+.perf-pill:hover{border-color:var(--accent);color:var(--accent)}
+.perf-pill.active{background:rgba(57,255,20,.09);border-color:rgba(57,255,20,.35);color:var(--accent)}
+.account-note{margin-top:14px;font-size:11px;color:var(--dim);line-height:1.6}
+.account-list .account-row .v small{display:block;color:var(--dim);font-size:10px;font-family:var(--mono);margin-top:4px}
+@media(max-width:680px){.continue-card{flex-direction:column;align-items:flex-start}.continue-right{width:100%;justify-content:space-between}.avatar-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.theme-swatches{grid-template-columns:1fr}}
+</style>
+
+<script>
+(() => {
+  'use strict';
+
+  const AVATARS = {
+    dj: { emoji: '🎧', name: 'DJ' },
+    robot: { emoji: '🤖', name: 'Bot' },
+    fox: { emoji: '🦊', name: 'Fox' },
+    wolf: { emoji: '🐺', name: 'Wolf' },
+    astronaut: { emoji: '🚀', name: 'Astronaut' },
+    king: { emoji: '👑', name: 'King' },
+    cosmic: { emoji: '🌌', name: 'Cosmic' },
+    volt: { emoji: '⚡', name: 'Volt' }
+  };
+
+  const THEMES = {
+    neon_green: { label: 'Neon Green', accent: '#39FF14', accent2: '#00C6FF', bg: '#06060E', panel: '#0D0D1C', panel2: '#111122', border: '#1A1A30', dim: '#5A5A78' },
+    aurora_blue: { label: 'Aurora Blue', accent: '#00C6FF', accent2: '#39FF14', bg: '#050914', panel: '#0D1322', panel2: '#121A2E', border: '#20304A', dim: '#6C7A98' },
+    violet_wave: { label: 'Violet Wave', accent: '#9D78FF', accent2: '#00C6FF', bg: '#0A0714', panel: '#111025', panel2: '#171632', border: '#29244A', dim: '#7A739E' },
+    sunset_glow: { label: 'Sunset Glow', accent: '#FF8A4C', accent2: '#FFD166', bg: '#12080C', panel: '#1A1014', panel2: '#221519', border: '#3D242B', dim: '#A07D80' },
+    crimson_edge: { label: 'Crimson Edge', accent: '#FF4D6D', accent2: '#FF8A4C', bg: '#100608', panel: '#170A0E', panel2: '#1D0F13', border: '#3E1A21', dim: '#A46D76' },
+    midnight_ice: { label: 'Midnight Ice', accent: '#9DD7FF', accent2: '#56A4FF', bg: '#04070D', panel: '#0A101A', panel2: '#0F1724', border: '#213149', dim: '#74839A' }
+  };
+
+  const PREF_KEY = 'blastr_user_prefs_v4';
+  const RESUME_KEY = 'blastr_resume_playback_v4';
+  const PERF_KEY = 'blastr_performance_mode_v4';
+  const AUTO_SAVE_MS = 4500;
+
+  const audio = document.getElementById('audioPlayer');
+  const original = {
+    loadProfile: window.blastrLoadProfile,
+    hydrateSession: window.blastrHydrateSession,
+    setUiUser: window.blastrSetUiUser,
+    loadHomeContent: window.loadHomeContent,
+    initiateHandshake: window.initiateHandshake,
+    showPage: window.showPage,
+    togglePlayback: window.togglePlayback,
+    nextTrack: window.nextTrack,
+    prevTrack: window.prevTrack,
+    syncPlayState: window.syncPlayState,
+    loadVibingLyrics: window.loadVibingLyrics,
+    loadZenLyrics: window.loadZenLyrics,
+    blastrSmoothScrollToLine: window.blastrSmoothScrollToLine,
+    syncZenLyric: window.syncZenLyric,
+    syncVibingLyric: window.syncVibingLyric,
+    toggleLike: window.toggleLike,
+    applyTheme: window.applyTheme
+  };
+
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const json = (v) => JSON.stringify(v).replace(/"/g, '&quot;');
+  const readJson = (key, fallback = null) => {
+    try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch { return fallback; }
+  };
+  const writeJson = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
+
+  function getPrefs() {
+    const p = readJson(PREF_KEY, {});
+    return p && typeof p === 'object' ? p : {};
+  }
+
+  function savePrefs(next) {
+    const merged = { ...getPrefs(), ...next };
+    writeJson(PREF_KEY, merged);
+    return merged;
+  }
+
+  function getPerfMode() {
+    const v = localStorage.getItem(PERF_KEY);
+    return v === 'lite' || v === 'balanced' || v === 'auto' ? v : 'auto';
+  }
+
+  function setPerfClass() {
+    const mode = getPerfMode();
+    const weak = (() => {
+      const cores = Number(navigator.hardwareConcurrency || 0);
+      const memory = Number(navigator.deviceMemory || 0);
+      let reduce = false, narrow = false;
+      try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
+      try { narrow = window.matchMedia('(max-width: 980px)').matches; } catch {}
+      return (cores && cores <= 4) || (memory && memory <= 4) || reduce || narrow;
+    })();
+    document.body.classList.toggle('blastr-lite-mode', mode === 'lite' || (mode === 'auto' && weak));
+  }
+
+  function themeMeta(themeId) {
+    return THEMES[themeId] || THEMES.neon_green;
+  }
+
+  function avatarMeta(avatarId) {
+    return AVATARS[avatarId] || AVATARS.dj;
+  }
+
+  function currentProfileId() {
+    return window.state?.currentUserProfile?.id || window.state?.session?.user?.id || null;
+  }
+
+  function currentFields() {
+    const profile = window.state?.currentUserProfile || {};
+    const prefs = getPrefs();
+    return {
+      avatar_id: profile.avatar_id || prefs.avatar_id || 'dj',
+      profile_theme: profile.profile_theme || prefs.profile_theme || 'neon_green',
+      listening_aura: profile.listening_aura || prefs.listening_aura || 'New Listener',
+      performance_mode: profile.performance_mode || prefs.performance_mode || getPerfMode()
+    };
+  }
+
+  function applyThemeVars(themeId) {
+    const t = themeMeta(themeId);
+    const root = document.documentElement;
+    root.style.setProperty('--accent', t.accent);
+    root.style.setProperty('--accent2', t.accent2);
+    root.style.setProperty('--bg', t.bg);
+    root.style.setProperty('--panel', t.panel);
+    root.style.setProperty('--panel2', t.panel2);
+    root.style.setProperty('--border', t.border);
+    root.style.setProperty('--dim', t.dim);
+  }
+
+  async function patchProfile(fields) {
+    const id = currentProfileId();
+    if (!id || !window.sbFetch) return false;
+    const body = {};
+    Object.entries(fields || {}).forEach(([k, v]) => { if (v !== undefined) body[k] = v; });
+    if (!Object.keys(body).length) return false;
+    const patch = await window.sbFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=representation' },
+      body
+    });
+    if (patch) return true;
+    const upsert = await window.sbFetch('/rest/v1/profiles', {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+      body: { id, ...body }
+    });
+    return !!upsert;
+  }
+
+  function formatTime(s) {
+    const n = Number(s || 0);
+    if (!isFinite(n) || n <= 0) return '0:00';
+    return `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, '0')}`;
+  }
+
+  function readResume() {
+    return readJson(RESUME_KEY, null);
+  }
+
+  function saveResume(data) {
+    writeJson(RESUME_KEY, data);
+  }
+
+  function refreshSidebarAvatar() {
+    const avatar = document.getElementById('sidebarAvatar');
+    const user = document.getElementById('sidebarUser');
+    const role = document.getElementById('sidebarRole');
+    const fields = currentFields();
+    if (avatar) avatar.textContent = avatarMeta(fields.avatar_id).emoji;
+    if (user) user.textContent = window.state?.currentUser || 'User';
+    if (role) role.textContent = window.state?.isAdmin ? 'GRID_ADMIN' : 'LISTENER';
+  }
+
+  function renderAccountPage() {
+    const wrap = document.getElementById('accountPage');
+    if (!wrap) return;
+    const profile = window.state?.currentUserProfile || {};
+    const user = window.state?.currentUser || profile.username || 'User';
+    const email = profile.email || window.state?.session?.user?.email || 'Not connected';
+    const fields = currentFields();
+    const av = avatarMeta(fields.avatar_id);
+    const th = themeMeta(fields.profile_theme);
+    const resume = readResume();
+    const track = resume?.trackId && Array.isArray(window.state?.allTracks)
+      ? window.state.allTracks.find(t => String(t.id) === String(resume.trackId))
+      : null;
+    const aura = profile.listening_aura || fields.listening_aura;
+    const lastSignIn = window.state?.session?.user?.last_sign_in_at
+      ? String(window.state.session.user.last_sign_in_at).slice(0, 19).replace('T', ' ')
+      : '—';
+    const resumeLabel = track
+      ? `Ready to continue ${esc(track.title || 'Unknown track')}`
+      : 'No song remembered yet';
+
+    wrap.innerHTML = `
+      <div class="account-shell">
+        <div class="account-card">
+          <div class="account-hero" style="background:radial-gradient(circle at 20% 20%, ${th.accent}33, transparent 26%), radial-gradient(circle at 80% 18%, ${th.accent2}33, transparent 22%), linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));">
+            <div class="account-hero-row">
+              <div class="account-avatar" style="background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.14), transparent 38%), linear-gradient(135deg, ${th.accent}, ${th.accent2});">${av.emoji}</div>
+              <div class="account-hero-meta">
+                <div class="account-topline">${esc(window.blastrResolveTimeGreeting ? window.blastrResolveTimeGreeting() : 'Welcome')}</div>
+                <div class="name">${esc(user)}</div>
+                <div class="mail">${esc(email)}</div>
+                <div class="account-badge">${window.state?.isAdmin ? 'GRID ADMIN' : 'LISTENER'} • ${esc(aura)}</div>
+              </div>
+            </div>
+            <div class="account-prefs">
+              <div class="account-pref-block">
+                <div class="account-pref-label">Resume Playback</div>
+                <div class="account-pref-title">${resumeLabel}</div>
+                <div class="account-note">Blastr remembers your last track, time, and volume on this device so you can continue instantly.</div>
+              </div>
+              <div class="account-pref-block">
+                <div class="account-pref-label">Performance</div>
+                <div class="account-pref-title">${(window.state?.performanceMode || getPerfMode()).toUpperCase()}</div>
+                <div class="performance-toggle">
+                  <button class="perf-pill ${getPerfMode()==='auto' ? 'active' : ''}" onclick="window.blastrSetPerfMode('auto')" type="button">Auto</button>
+                  <button class="perf-pill ${getPerfMode()==='balanced' ? 'active' : ''}" onclick="window.blastrSetPerfMode('balanced')" type="button">Balanced</button>
+                  <button class="perf-pill ${getPerfMode()==='lite' ? 'active' : ''}" onclick="window.blastrSetPerfMode('lite')" type="button">Lite</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="account-grid">
+            <div class="account-stat"><div class="label">Favorites</div><div class="value">${window.state?.favorites?.length || 0}</div></div>
+            <div class="account-stat"><div class="label">Queue</div><div class="value">${window.state?.queue?.length || 0}</div></div>
+            <div class="account-stat"><div class="label">Library</div><div class="value">${window.state?.allTracks?.length || 0}</div></div>
+            <div class="account-stat"><div class="label">Mode</div><div class="value">${esc(window.state?.isAdmin ? 'Admin vault unlocked' : 'Listener mode')}</div></div>
+          </div>
+          <div class="account-cta">
+            <span class="mini-pill">Resume memory</span>
+            <span class="mini-pill">Avatar chips</span>
+            <span class="mini-pill">Color themes</span>
+            <span class="mini-pill">Lite mode</span>
+          </div>
+        </div>
+
+        <div class="account-rail">
+          <div class="account-panel-title">Identity & Style</div>
+          <div class="account-list">
+            <div class="account-row"><div><div class="k">Display Name</div><div class="v">${esc(profile.username || user)}</div></div><div class="v" style="color:var(--accent)">Active</div></div>
+            <div class="account-row"><div><div class="k">Email</div><div class="v">${esc(email)}</div></div><div class="v">${window.state?.session?.user?.email_confirmed_at ? 'Verified' : 'Pending'}</div></div>
+            <div class="account-row"><div><div class="k">Joined</div><div class="v">${esc(profile.created_at || '—')}</div></div><div class="v">Last sign in<small>${esc(lastSignIn)}</small></div></div>
+            <div class="account-row"><div><div class="k">Listening Style</div><div class="v">${esc(profile.personality || 'Adaptive')}</div></div><div class="v">${esc(aura)}</div></div>
+          </div>
+
+          <div class="account-pref-block" style="margin-top:14px;">
+            <div class="account-pref-label">Choose Avatar</div>
+            <div class="account-pref-title">No images. Just a crisp identity chip.</div>
+            <div class="avatar-grid">
+              ${Object.entries(AVATARS).map(([id, m]) => `
+                <button class="avatar-chip ${fields.avatar_id === id ? 'active' : ''}" onclick="window.blastrSetAvatar('${id}')" type="button">
+                  <div class="avatar-emoji">${m.emoji}</div>
+                  <div class="avatar-name">${m.name}</div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="account-pref-block" style="margin-top:14px;">
+            <div class="account-pref-label">Theme Mood</div>
+            <div class="account-pref-title">Lightweight color skins</div>
+            <div class="theme-swatches">
+              ${Object.entries(THEMES).map(([id, m]) => `
+                <button class="theme-swatch ${fields.profile_theme === id ? 'active' : ''}" onclick="window.blastrSetTheme('${id}')" type="button">
+                  <span>${m.label}</span>
+                  <span class="theme-dot ${id.includes('neon') ? 'neon' : id.includes('aurora') ? 'aurora' : id.includes('violet') ? 'violet' : id.includes('sunset') ? 'sunset' : id.includes('crimson') ? 'crimson' : 'midnight'}"></span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderContinueCard() {
+    const home = document.getElementById('homeContent');
+    if (!home) return;
+    const existing = home.querySelector('.continue-card, .continue-empty');
+    if (existing) existing.remove();
+    const resume = readResume();
+    const track = resume?.trackId && Array.isArray(window.state?.allTracks)
+      ? window.state.allTracks.find(t => String(t.id) === String(resume.trackId))
+      : null;
+    if (!track) {
+      home.insertAdjacentHTML('afterbegin', `<div class="continue-empty">NO RESUME STATE YET — PLAY A SONG AND BLASTR WILL REMEMBER IT HERE.</div>`);
+      return;
+    }
+    const cover = track.cover_url
+      ? `<img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'">`
+      : '♪';
+    home.insertAdjacentHTML('afterbegin', `
+      <div class="continue-card" onclick="window.blastrResumeListening()" role="button" tabindex="0">
+        <div class="continue-left">
+          <div class="continue-kicker">CONTINUE LISTENING</div>
+          <div class="continue-title">${esc(track.title || 'Unknown track')}</div>
+          <div class="continue-meta">
+            <span>${esc(track.artist || 'Unknown artist')}</span><span>•</span><span>${esc(track.genre || 'Mixed')}</span>
+            <span>•</span><span>${esc(formatTime(resume.currentTime || 0))} / ${esc(formatTime(resume.duration || 0))}</span>
+          </div>
+        </div>
+        <div class="continue-right">
+          <div class="continue-art">${cover}</div>
+          <button class="continue-btn" type="button" onclick="event.stopPropagation();window.blastrResumeListening()">▶ RESUME</button>
+        </div>
+      </div>
+    `);
+  }
+
+  function saveResumeNow(force = false) {
+    if (!window.state?.currentTrack || !audio) return;
+    const data = {
+      trackId: window.state.currentTrack.id,
+      currentTime: Number(audio.currentTime || 0),
+      duration: Number(audio.duration || 0),
+      volume: Number(window.state.volume ?? audio.volume ?? 0.7),
+      isPlaying: !!window.state.isPlaying,
+      updatedAt: new Date().toISOString()
+    };
+    saveResume(data);
+    if (force) return;
+  }
+
+  let saveTimer = 0;
+  function scheduleResumeSave(force = false) {
+    if (force) return saveResumeNow(true);
+    if (saveTimer) return;
+    saveTimer = window.setTimeout(() => {
+      saveTimer = 0;
+      saveResumeNow(true);
+    }, AUTO_SAVE_MS);
+  }
+
+  function restoreResumeToAudio() {
+    const resume = readResume();
+    const tracks = Array.isArray(window.state?.allTracks) ? window.state.allTracks : [];
+    if (!resume?.trackId || !tracks.length) return false;
+    const track = tracks.find(t => String(t.id) === String(resume.trackId));
+    if (!track || !track.url) return false;
+
+    window.state.currentTrack = track;
+    if (typeof window.updateNowPlaying === 'function') window.updateNowPlaying(track);
+    audio.src = track.url;
+    audio.volume = window.state.isMuted ? 0 : (resume.volume ?? window.state.volume ?? 0.7);
+    if (typeof window.syncPlayState === 'function') window.syncPlayState();
+
+    const onMeta = () => {
+      try {
+        const target = Math.max(0, Number(resume.currentTime || 0));
+        if (isFinite(audio.duration) && target < audio.duration) audio.currentTime = target;
+      } catch {}
+      audio.removeEventListener('loadedmetadata', onMeta);
+    };
+    audio.addEventListener('loadedmetadata', onMeta);
+    if (typeof window.showToast === 'function') {
+      window.showToast('RESUME READY', track.title || 'Unknown track', 'Press play to continue from where you left off');
+    }
+    return true;
+  }
+
+  async function setPreference(key, value) {
+    const prefs = savePrefs({ [key]: value });
+    if (key === 'profile_theme') applyThemeVars(value);
+    if (key === 'performance_mode') {
+      localStorage.setItem(PERF_KEY, value);
+      setPerfClass();
+    }
+    try { await patchProfile({ [key]: value }); } catch {}
+    refreshSidebarAvatar();
+    renderAccountPage();
+    return prefs;
+  }
+
+  function maybeThrottleLyricSync(fnName, posMs) {
+    const lite = document.body.classList.contains('blastr-lite-mode');
+    if (!lite) return false;
+    const stampKey = fnName === 'zen' ? '__blastrZenTick' : '__blastrVibingTick';
+    const now = performance.now();
+    if (window[stampKey] && now - window[stampKey] < 120) return true;
+    window[stampKey] = now;
+    return false;
+  }
+
+  window.blastrSetPerfMode = async function (mode) {
+    const finalMode = (mode === 'lite' || mode === 'balanced' || mode === 'auto') ? mode : 'auto';
+    localStorage.setItem(PERF_KEY, finalMode);
+    setPerfClass();
+    await setPreference('performance_mode', finalMode);
+    if (typeof window.showToast === 'function') {
+      window.showToast('PERFORMANCE', `Mode set to ${finalMode.toUpperCase()}`, finalMode === 'lite' ? 'Stripped for smoother older-PC playback' : 'Balanced visuals and motion');
+    }
+  };
+
+  window.blastrSetAvatar = async function (id) {
+    const avatar_id = AVATARS[id] ? id : 'dj';
+    await setPreference('avatar_id', avatar_id);
+    if (typeof window.showToast === 'function') {
+      window.showToast('AVATAR SAVED', avatarMeta(avatar_id).name, 'Profile updated');
+    }
+  };
+
+  window.blastrSetTheme = async function (id) {
+    const themeId = THEMES[id] ? id : 'neon_green';
+    applyThemeVars(themeId);
+    await setPreference('profile_theme', themeId);
+    if (typeof window.showToast === 'function') {
+      window.showToast('THEME SAVED', THEMES[themeId].label, 'Profile updated');
+    }
+  };
+
+  window.blastrResumeListening = function () {
+    const resume = readResume();
+    if (!resume?.trackId) return;
+    const tracks = Array.isArray(window.state?.allTracks) ? window.state.allTracks : [];
+    const track = tracks.find(t => String(t.id) === String(resume.trackId));
+    if (!track) {
+      if (typeof window.showToast === 'function') window.showToast('RESUME', 'Track not loaded yet', 'Open Home to refresh the library');
+      return;
+    }
+    if (!window.state.currentTrack || String(window.state.currentTrack.id) !== String(track.id)) {
+      window.initiateHandshake(track);
+      const once = () => {
+        try { audio.currentTime = Math.max(0, Number(resume.currentTime || 0)); } catch {}
+        audio.removeEventListener('loadedmetadata', once);
+        audio.play().catch(() => {});
+      };
+      audio.addEventListener('loadedmetadata', once);
+    } else {
+      try { audio.currentTime = Math.max(0, Number(resume.currentTime || 0)); } catch {}
+      audio.play().catch(() => {});
+    }
+  };
+
+  window.blastrLoadProfile = async function patchedLoadProfile(user, fallback = {}) {
+    const base = await original.loadProfile.call(window, user, fallback);
+    const merged = {
+      ...(base || {}),
+      avatar_id: base?.avatar_id || getPrefs().avatar_id || 'dj',
+      profile_theme: base?.profile_theme || getPrefs().profile_theme || 'neon_green',
+      listening_aura: base?.listening_aura || getPrefs().listening_aura || 'New Listener',
+      performance_mode: base?.performance_mode || getPrefs().performance_mode || getPerfMode()
+    };
+    savePrefs({
+      avatar_id: merged.avatar_id,
+      profile_theme: merged.profile_theme,
+      listening_aura: merged.listening_aura,
+      performance_mode: merged.performance_mode
+    });
+    return merged;
+  };
+
+  window.blastrHydrateSession = async function patchedHydrateSession(session, source = 'session') {
+    const profile = await original.hydrateSession.call(window, session, source);
+    const fields = currentFields();
+    applyThemeVars(fields.profile_theme);
+    setPerfClass();
+    refreshSidebarAvatar();
+    renderAccountPage();
+    if (window.state?.currentTrack && audio?.src) {
+      saveResumeNow(true);
+    }
+    return profile;
+  };
+
+  window.blastrSetUiUser = function patchedSetUiUser(name, isAdmin) {
+    original.setUiUser.call(window, name, isAdmin);
+    refreshSidebarAvatar();
+  };
+
+  window.loadHomeContent = async function patchedLoadHomeContent() {
+    await original.loadHomeContent.call(window);
+    renderContinueCard();
+    restoreResumeToAudio();
+    if (document.body.classList.contains('blastr-lite-mode')) {
+      const home = document.getElementById('homeContent');
+      if (home) home.classList.add('lite-home');
+    }
+  };
+
+  window.blastrRenderAccountPage = renderAccountPage;
+  window.showPage = function patchedShowPage(name, btn) {
+    original.showPage.call(window, name, btn);
+    if (name === 'account') renderAccountPage();
+  };
+
+  window.initiateHandshake = function patchedInitiateHandshake(track) {
+    const out = original.initiateHandshake.call(window, track);
+    if (track?.id) {
+      saveResume({ trackId: track.id, currentTime: 0, duration: 0, volume: Number(window.state?.volume ?? 0.7), isPlaying: true, updatedAt: new Date().toISOString() });
+      scheduleResumeSave(true);
+    }
+    return out;
+  };
+
+  window.togglePlayback = function patchedTogglePlayback() {
+    const out = original.togglePlayback.call(window);
+    scheduleResumeSave(true);
+    return out;
+  };
+
+  window.nextTrack = function patchedNextTrack() {
+    const out = original.nextTrack.call(window);
+    scheduleResumeSave(true);
+    return out;
+  };
+
+  window.prevTrack = function patchedPrevTrack() {
+    const out = original.prevTrack.call(window);
+    scheduleResumeSave(true);
+    return out;
+  };
+
+  window.syncZenLyric = function patchedSyncZenLyric(posMs) {
+    if (maybeThrottleLyricSync('zen', posMs)) return;
+    return original.syncZenLyric.call(window, posMs);
+  };
+
+  window.syncVibingLyric = function patchedSyncVibingLyric(posMs) {
+    if (maybeThrottleLyricSync('vibing', posMs)) return;
+    return original.syncVibingLyric.call(window, posMs);
+  };
+
+  window.blastrSmoothScrollToLine = function patchedSmoothScrollToLine(el) {
+    if (document.body.classList.contains('blastr-lite-mode')) {
+      try {
+        const container = el?.closest?.('.zen-lyrics-scroll, .vibing-lyrics-wrap');
+        if (container && el) {
+          container.scrollTop = Math.max(0, el.offsetTop - container.clientHeight * 0.42);
+          return;
+        }
+      } catch {}
+    }
+    return original.blastrSmoothScrollToLine.call(window, el);
+  };
+
+  window.loadVibingLyrics = function patchedLoadVibingLyrics(track) {
+    return original.loadVibingLyrics.call(window, track);
+  };
+
+  window.loadZenLyrics = function patchedLoadZenLyrics(track) {
+    return original.loadZenLyrics.call(window, track);
+  };
+
+  window.toggleLike = function patchedToggleLike(track) {
+    const out = original.toggleLike.call(window, track);
+    scheduleResumeSave(false);
+    return out;
+  };
+
+  window.applyTheme = function patchedApplyTheme(mode, btn) {
+    const out = original.applyTheme.call(window, mode, btn);
+    if (mode === 'light') {
+      savePrefs({ profile_theme: 'midnight_ice' });
+    } else if (mode === 'vibe') {
+      savePrefs({ profile_theme: 'sunset_glow' });
+    }
+    setPerfClass();
+    return out;
+  };
+
+  function autoApplyPrefs() {
+    const fields = currentFields();
+    applyThemeVars(fields.profile_theme);
+    setPerfClass();
+    refreshSidebarAvatar();
+  }
+
+  audio.addEventListener('play', () => scheduleResumeSave(true));
+  audio.addEventListener('pause', () => scheduleResumeSave(true));
+  audio.addEventListener('timeupdate', () => {
+    if (window.state?.currentTrack) scheduleResumeSave(false);
+  });
+  audio.addEventListener('ended', () => {
+    if (window.state?.currentTrack) saveResume({
+      trackId: window.state.currentTrack.id,
+      currentTime: 0,
+      duration: Number(audio.duration || 0),
+      volume: Number(window.state.volume ?? audio.volume ?? 0.7),
+      isPlaying: false,
+      updatedAt: new Date().toISOString()
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    autoApplyPrefs();
+    if (window.state?.session?.user) renderAccountPage();
+  });
+
+  window.addEventListener('resize', () => setPerfClass());
+
+  window.blastrRefreshPrefs = autoApplyPrefs;
+})();
+
+</script>
 </body>
 </html>
