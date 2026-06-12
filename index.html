@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blastr — Live Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://i.ytimg.com">
 <style>
 :root{
   --bg:#06060E;--panel:#0D0D1C;--panel2:#111122;--border:#1A1A30;
@@ -194,45 +196,102 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #appScreen .admin-door{margin:10px 10px 4px}
 #appScreen .admin-code-wrap.open{max-height:92px}
 #appScreen .admin-code-input{font-size:16px;letter-spacing:5px}
-.vibing-lyrics-wrap,.zen-lyrics-scroll{scroll-behavior:auto}
+.vibing-lyrics-wrap,.zen-lyrics-scroll{
+  scroll-behavior:auto;
+  contain:layout paint style;
+}
 .vibing-lyric-line,.zen-lyric-line{
   position:relative;
   transform:translate3d(0,0,0);
   opacity:.92;
   transition:
-    color .28s cubic-bezier(.22,1,.36,1),
-    background-color .28s cubic-bezier(.22,1,.36,1),
-    transform .28s cubic-bezier(.22,1,.36,1),
-    text-shadow .28s cubic-bezier(.22,1,.36,1),
-    opacity .28s cubic-bezier(.22,1,.36,1),
-    filter .28s cubic-bezier(.22,1,.36,1);
+    color .24s cubic-bezier(.22,1,.36,1),
+    background-color .24s cubic-bezier(.22,1,.36,1),
+    transform .24s cubic-bezier(.22,1,.36,1),
+    text-shadow .24s cubic-bezier(.22,1,.36,1),
+    opacity .24s cubic-bezier(.22,1,.36,1),
+    filter .24s cubic-bezier(.22,1,.36,1);
   will-change:transform,opacity,color,background-color,text-shadow,filter;
   backface-visibility:hidden;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .vibing-lyric-line::before,.zen-lyric-line::before{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(57,255,20,.05),transparent);
   opacity:0;transform:scaleX(.92);
-  transition:opacity .72s cubic-bezier(.22,1,.36,1),transform .72s cubic-bezier(.22,1,.36,1);
+  transition:opacity .5s cubic-bezier(.22,1,.36,1),transform .5s cubic-bezier(.22,1,.36,1);
 }
+.vibing-lyric-line::before{z-index:0}
+.zen-lyric-line::before{z-index:0}
 .vibing-lyric-line.active::before,.zen-lyric-line.active::before{opacity:1;transform:scaleX(1)}
+.vibing-lyric-line{
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:10px;
+  line-height:1.45;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
 .vibing-lyric-line.active{
-  color:#fff;font-size:16px;font-weight:900;
+  color:#fff;
+  font-weight:900;
   background:rgba(57,255,20,.08);
-  transform:translate3d(4px,0,0) scale(1.02);
+  transform:translate3d(4px,0,0) scale(1.03);
   text-shadow:0 0 20px rgba(57,255,20,.22);
   filter:brightness(1.06);
+  z-index:2;
 }
-.vibing-lyric-line.near-prev{color:rgba(255,255,255,.42);font-size:14px;opacity:.82;transform:translate3d(1px,0,0) scale(.99)}
-.vibing-lyric-line.near-next{color:rgba(255,255,255,.36);font-size:13.5px;opacity:.78;transform:translate3d(1px,0,0) scale(.985)}
-.zen-lyric-line{padding:14px 18px;border-radius:12px;contain:content}
+.vibing-lyric-line.near-prev{
+  color:rgba(255,255,255,.42);
+  opacity:.82;
+  transform:translate3d(1px,0,0) scale(.995);
+}
+.vibing-lyric-line.near-next{
+  color:rgba(255,255,255,.36);
+  opacity:.78;
+  transform:translate3d(1px,0,0) scale(.99);
+}
+.zen-lyric-line{
+  padding:14px 18px;
+  border-radius:12px;
+  contain:content;
+  min-height:56px;
+  line-height:1.35;
+  font-size:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
 .zen-lyric-line.active{
-  color:#fff;font-size:34px;font-weight:900;
+  color:#fff;
+  font-weight:900;
   text-shadow:0 0 40px rgba(255,255,255,.30);
-  transform:translate3d(0,-1px,0) scale(1.02);
+  transform:translate3d(0,-1px,0) scale(1.04);
   filter:brightness(1.08);
+  z-index:2;
 }
-.zen-lyric-line.near{color:rgba(255,255,255,.5);font-size:28px;opacity:.86;transform:translate3d(0,0,0) scale(1.005)}
+.zen-lyric-line.near{
+  color:rgba(255,255,255,.5);
+  opacity:.86;
+  transform:translate3d(0,0,0) scale(1.005);
+}
+
+@media (prefers-reduced-motion: reduce){
+  html,body,.screen,.song-tile,.tile-hover-layer,.smart-wall-shell,.smart-wall-tag,.vibing-lyric-line,.zen-lyric-line{
+    scroll-behavior:auto !important;
+    transition:none !important;
+    animation:none !important;
+  }
+}
 
 
 /* ═══════════════════════════ MAIN APP ═══════════════════════════ */
@@ -966,6 +1025,521 @@ body.light .search-input{color:var(--text)}
   color:var(--dim);white-space:nowrap;
 }
 
+
+/* ── SMART WALL ── */
+#smartWallMount{margin:10px 0 18px}
+.smart-wall-shell{
+  position:relative;
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(57,255,20,.12), transparent 26%),
+    radial-gradient(circle at 82% 22%, rgba(0,198,255,.10), transparent 22%),
+    linear-gradient(135deg, rgba(18,18,28,.96), rgba(8,8,14,.98) 45%, rgba(18,18,18,.98));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 22px 70px rgba(0,0,0,.42);
+  min-height:420px;
+  isolation:isolate;
+}
+.smart-wall-shell::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.04), transparent 34%),
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,.06), transparent 18%);
+  pointer-events:none;
+  mix-blend-mode:screen;
+}
+.smart-wall-shell::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(90deg, rgba(8,8,10,.92) 0%, rgba(8,8,10,.68) 42%, rgba(8,8,10,.24) 72%, rgba(8,8,10,.88) 100%);
+  pointer-events:none;
+}
+.smart-wall-stage{
+  position:relative;z-index:2;
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+  gap:0;
+  min-height:420px;
+}
+.smart-wall-copy{
+  padding:28px 28px 24px 30px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:14px;
+}
+.smart-wall-kicker{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.62);
+}
+.smart-wall-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+  color:#fff;
+}
+.smart-wall-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.smart-wall-headline{
+  font-size:clamp(16px,1.95vw,24px);
+  font-weight:900;line-height:1.15;letter-spacing:2px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.58);
+}
+.smart-wall-title{
+  font-size:clamp(32px,5.2vw,66px);
+  line-height:.95;
+  font-weight:900;
+  letter-spacing:-1.2px;
+  color:#fff;
+  text-shadow:0 0 30px rgba(0,0,0,.35);
+  max-width:12ch;
+}
+.smart-wall-title .brand-text{
+  font-family:var(--font);
+  background:linear-gradient(135deg,#fff 0%,#d5d5d5 38%,#fff 78%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.smart-wall-meta{
+  display:flex;flex-direction:column;gap:8px;
+  font-family:var(--mono);
+}
+.smart-wall-artist{
+  font-size:15px;
+  color:rgba(255,255,255,.72);
+  letter-spacing:.4px;
+}
+.smart-wall-sub{
+  font-size:12px;
+  color:rgba(255,255,255,.52);
+  line-height:1.7;
+  max-width:58ch;
+}
+.smart-wall-tags{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  margin-top:4px;
+}
+.smart-wall-tag{
+  padding:7px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.05);
+  color:rgba(255,255,255,.86);
+  font-size:10px;
+  letter-spacing:1.1px;
+  font-family:var(--mono);
+  text-transform:uppercase;
+  white-space:nowrap;
+  animation:wallTagPulse 3.5s ease-in-out infinite;
+}
+.smart-wall-tag:nth-child(2n){animation-delay:.6s}
+.smart-wall-tag:nth-child(3n){animation-delay:1.2s}
+@keyframes wallTagPulse{
+  0%,100%{transform:translateY(0);opacity:.88}
+  50%{transform:translateY(-1px);opacity:1}
+}
+.smart-wall-actions{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  margin-top:12px;
+}
+.smart-wall-cta{
+  padding:12px 18px;border-radius:14px;border:none;cursor:pointer;
+  font-weight:900;letter-spacing:1.8px;text-transform:uppercase;
+  font-size:11px;font-family:var(--mono);
+  background:var(--accent);
+  color:#000;
+  box-shadow:0 8px 22px rgba(57,255,20,.18);
+  transition:transform .15s,box-shadow .2s,filter .2s;
+}
+.smart-wall-cta:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(57,255,20,.28)}
+.smart-wall-cta.ghost{
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:none;
+}
+.smart-wall-cta.ghost:hover{background:rgba(255,255,255,.1)}
+.smart-wall-media{
+  position:relative;
+  min-height:420px;
+  overflow:hidden;
+  border-left:none;
+  background:#0a0a0d;
+}
+.smart-wall-media::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(90deg, rgba(8,8,10,0) 0%, rgba(8,8,10,.14) 34%, rgba(8,8,10,.42) 58%, rgba(8,8,10,.78) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+.smart-wall-media img,
+.smart-wall-media video,
+.smart-wall-media iframe{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+  border:0;
+  background:#000;
+}
+.smart-wall-media iframe{object-fit:fill}
+.smart-wall-media-shell{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:#050509;
+}
+.smart-wall-media-shell .smart-wall-media-placeholder{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(57,255,20,.18), transparent 26%),
+    radial-gradient(circle at 82% 22%, rgba(0,198,255,.14), transparent 22%),
+    linear-gradient(135deg, rgba(10,10,14,.98), rgba(0,0,0,.98));
+  transition:opacity .18s ease;
+}
+.smart-wall-media-shell .smart-wall-media-placeholder-art{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+  user-select:none;
+}
+.smart-wall-media-shell .smart-wall-media-placeholder-core{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at 30% 30%, rgba(57,255,20,.25), rgba(57,255,20,.08) 55%, rgba(0,0,0,.05) 100%);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 0 40px rgba(57,255,20,.12);
+  font-size:26px;
+  font-weight:900;
+  color:#fff;
+  letter-spacing:0;
+}
+.smart-wall-media-shell .smart-wall-media-placeholder-text{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:4px;
+  color:rgba(255,255,255,.62);
+}
+.smart-wall-media-shell video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  border:0;
+  background:#000;
+  object-fit:cover;
+  opacity:0;
+  transform:scale(1.01);
+  transition:opacity .18s ease, transform .18s ease;
+  will-change:opacity,transform;
+  z-index:2;
+}
+.smart-wall-media-shell.ready video{
+  opacity:1;
+  transform:scale(1);
+}
+.smart-wall-media-shell.ready .smart-wall-media-placeholder{
+  opacity:0;
+  pointer-events:none;
+}
+.smart-wall-empty{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  height:100%;
+  color:rgba(255,255,255,.6);
+  font-family:var(--mono);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.smart-wall-empty-shell{min-height:420px}
+.smart-wall-empty-stage{grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr)}
+.smart-wall-empty-media{
+  display:flex;align-items:center;justify-content:center;
+  padding:26px;
+}
+.smart-wall-empty-art{
+  width:min(260px,100%);
+  min-height:240px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(57,255,20,.18), transparent 28%),
+    radial-gradient(circle at 80% 25%, rgba(0,198,255,.18), transparent 22%),
+    linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 18px 54px rgba(0,0,0,.28);
+}
+.smart-wall-title{
+  font-size:clamp(26px,4vw,44px);
+  line-height:1.02;
+  font-weight:900;
+  letter-spacing:-.02em;
+  color:#fff;
+}
+.smart-wall-subtitle{
+  max-width:58ch;
+  color:rgba(255,255,255,.70);
+  font-size:14px;
+  line-height:1.75;
+}
+.smart-wall-pill{
+  padding:6px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.05);
+  color:rgba(255,255,255,.72);
+}
+.wall-song-search-wrap{
+  position:relative;
+  margin-bottom:10px;
+}
+.wall-song-results{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;right:0;
+  z-index:20;
+  max-height:280px;
+  overflow-y:auto;
+  display:none;
+}
+.wall-song-results.open{display:block}
+.wall-song-result{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;
+}
+.wall-song-result .meta{min-width:0;flex:1}
+.wall-song-result .title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wall-song-result .sub{font-size:10px;color:var(--dim);margin-top:2px;font-family:var(--mono);letter-spacing:1px}
+.wall-song-result .pick{
+  padding:7px 10px;border-radius:10px;
+  border:1px solid rgba(57,255,20,.18);
+  background:rgba(57,255,20,.06);
+  color:var(--accent);
+  font-size:10px;font-family:var(--mono);letter-spacing:1px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.wall-song-selected{
+  margin:-2px 0 10px;
+  font-size:10px;
+  color:rgba(255,255,255,.5);
+  font-family:var(--mono);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.smart-wall-sponsor{
+  position:absolute;left:22px;top:18px;z-index:4;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 11px;border-radius:999px;
+  background:rgba(0,0,0,.38);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:10px;
+  font-family:var(--mono);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  backdrop-filter:blur(10px);
+}
+.smart-wall-sponsor .spark{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent2);
+  box-shadow:0 0 18px rgba(0,198,255,.75);
+}
+.smart-wall-nav{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(12,12,16,.72);
+  color:#fff;cursor:pointer;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;
+  backdrop-filter:blur(12px);
+  transition:transform .15s,background .15s,opacity .15s;
+}
+.smart-wall-nav:hover{transform:translateY(-50%) scale(1.06);background:rgba(255,255,255,.08)}
+.smart-wall-nav.prev{left:12px}
+.smart-wall-nav.next{right:12px}
+.smart-wall-footer{
+  position:absolute;left:0;right:0;bottom:0;z-index:5;
+  display:flex;align-items:center;gap:12px;
+  padding:0 18px 16px 18px;
+}
+.smart-wall-progress{
+  flex:1;height:3px;border-radius:999px;
+  background:rgba(255,255,255,.16);
+  overflow:hidden;
+  box-shadow:0 0 18px rgba(0,0,0,.24) inset;
+}
+.smart-wall-progress-fill{
+  width:0%;height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));
+}
+.smart-wall-time{
+  min-width:84px;text-align:right;
+  font-size:10px;font-family:var(--mono);
+  letter-spacing:2px;color:rgba(255,255,255,.72);
+  text-transform:uppercase;
+}
+.smart-wall-mini-note{
+  position:absolute;right:18px;bottom:24px;z-index:4;
+  font-size:10px;font-family:var(--mono);letter-spacing:2px;
+  color:rgba(255,255,255,.48);
+  text-transform:uppercase;
+}
+.smart-wall-burst{
+  position:absolute;inset:0;z-index:6;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  opacity:0;
+  transform:scale(.45);
+  transition:opacity .24s ease,transform .24s ease;
+}
+.smart-wall-burst.show{
+  opacity:1;
+  transform:scale(1);
+}
+.smart-wall-burst .burst-core{
+  display:flex;align-items:center;justify-content:center;
+  min-width:130px;min-height:130px;
+  padding:16px 24px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(255,255,255,.22), rgba(255,255,255,.03) 68%, rgba(0,0,0,.22) 100%);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 0 60px rgba(255,255,255,.12), 0 0 120px rgba(57,255,20,.14);
+  color:#fff;
+  letter-spacing:10px;
+  text-indent:10px;
+  font-size:clamp(34px,7vw,86px);
+  font-weight:900;
+}
+.smart-wall-burst.expanded .burst-core{
+  letter-spacing:6px;
+  text-indent:0;
+  font-size:clamp(20px,4vw,56px);
+  min-width:220px;
+  min-height:90px;
+}
+.smart-wall-skeleton{
+  min-height:420px;
+  border-radius:28px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(135deg,#101018,#0a0a10 52%,#11111a);
+  overflow:hidden;
+  position:relative;
+}
+.smart-wall-skeleton::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
+  transform:translateX(-100%);
+  animation:wallShimmer 1.8s linear infinite;
+}
+.smart-wall-skeleton-inner{
+  height:100%;
+  padding:26px;
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(240px,.95fr);
+  gap:18px;
+}
+.wall-skel-block{border-radius:18px;background:rgba(255,255,255,.05)}
+.wall-skel-copy{display:flex;flex-direction:column;justify-content:flex-end;gap:12px}
+.wall-skel-line{height:18px;width:70%;border-radius:999px}
+.wall-skel-title{height:58px;width:88%}
+.wall-skel-sub{height:12px;width:64%}
+.wall-skel-media{border-radius:22px}
+@keyframes wallShimmer{to{transform:translateX(100%)}}
+
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:8px}
+.wall-form-rows{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wall-form-rows.three{grid-template-columns:1fr 1fr 1fr}
+.wall-form-note{
+  margin:8px 0 10px;
+  font-size:10px;
+  line-height:1.45;
+  color:var(--dim);
+  font-family:var(--mono);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.tag-picker{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:10px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  max-height:170px;
+  overflow:auto;
+}
+.tag-chip{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  border-radius:999px;
+  padding:7px 10px;
+  cursor:pointer;
+  font-size:11px;
+  font-family:var(--mono);
+  letter-spacing:1px;
+  transition:all .15s;
+  user-select:none;
+}
+.tag-chip:hover{border-color:var(--accent2);color:var(--accent2)}
+.tag-chip.active{
+  background:rgba(57,255,20,.10);
+  border-color:rgba(57,255,20,.32);
+  color:var(--accent);
+}
+.tag-chip .icon{margin-right:5px}
+.wall-registry-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 12px;border-radius:12px;
+  cursor:pointer;transition:background .15s;
+  border:1px solid rgba(255,255,255,.04);
+}
+.wall-registry-item:hover{background:rgba(255,255,255,.05)}
+.wall-registry-card{margin-bottom:10px}
+.wall-registry-item .meta{min-width:0}
+.wall-registry-item .title{
+  font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.wall-registry-item .sub{
+  font-size:10px;color:var(--dim);margin-top:2px;font-family:var(--mono);letter-spacing:1px;
+}
+.wall-pill{
+  font-size:10px;font-family:var(--mono);letter-spacing:1px;
+  color:var(--accent2);
+  border:1px solid rgba(0,198,255,.18);
+  background:rgba(0,198,255,.05);
+  padding:5px 9px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+.wall-mini-actions{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-top:10px;
+}
+.wall-mini-link{
+  padding:8px 10px;border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  color:var(--text);cursor:pointer;
+  font-size:10px;font-family:var(--mono);letter-spacing:1px;
+}
+.wall-mini-link:hover{border-color:var(--accent);color:var(--accent)}
+
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   :root{--sidebar-w:60px}
@@ -982,6 +1556,43 @@ body.light .search-input{color:var(--text)}
   .now-playing{width:160px}.player-right{width:auto}
   .vol-wrap{display:none}.btn-zen,.btn-vibing{display:none}
   .search-wrap{max-width:none}
+}
+
+@media(max-width:760px){
+  .smart-wall-shell,
+  .smart-wall-stage,
+  .smart-wall-empty-shell{
+    min-height:auto;
+  }
+  .smart-wall-stage,
+  .smart-wall-empty-stage{
+    grid-template-columns:1fr;
+  }
+  .smart-wall-media,
+  .smart-wall-empty-media{
+    order:-1;
+    min-height:240px;
+    border-left:none;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .smart-wall-copy{
+    padding:18px 18px 20px;
+  }
+  .smart-wall-title{
+    max-width:none;
+    font-size:clamp(26px,8vw,42px);
+  }
+  .smart-wall-headline{
+    font-size:clamp(13px,4.2vw,20px);
+    letter-spacing:1.2px;
+  }
+  .smart-wall-sub{max-width:none}
+  .smart-wall-actions{gap:8px}
+  .smart-wall-cta{padding:11px 14px}
+  .smart-wall-nav{display:none}
+  .smart-wall-sponsor{left:14px;top:14px}
+  .smart-wall-burst{transform:translate(-50%,-50%) scale(.9)}
+  .wall-song-results{max-height:240px}
 }
 
 /* Spinner */
@@ -1421,7 +2032,7 @@ body.light .search-input{color:var(--text)}
 
 .vibing-panel{
   background:rgba(8,8,18,.92);
-  border-left:1px solid rgba(255,255,255,.06);
+  border-left:none;
   backdrop-filter:blur(20px);
 }
 .vibing-lyrics-wrap{
@@ -1577,7 +2188,7 @@ body.light .search-input{color:var(--text)}
 
 .vibing-panel{
   background:rgba(8,8,18,.78);
-  border-left:1px solid rgba(255,255,255,.06);
+  border-left:none;
   box-shadow:none;
 }
 .vibing-header{
@@ -2075,6 +2686,7 @@ body.light .search-input{color:var(--text)}
       <!-- HOME PAGE -->
       <div class="page active" id="page-home">
         <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> ⚡</div>
+        <div id="smartWallMount"></div>
         <div id="becauseSection"></div>
         <div id="homeContent"></div>
       </div>
@@ -2171,6 +2783,66 @@ body.light .search-input{color:var(--text)}
               <span id="verifyLabel">VERIFY SONG (Blastr Certified Original)</span>
             </div>
             <button class="btn-blast" id="btnBlast" onclick="executeBlast()">EXECUTE_DUAL_BLAST()</button>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-title">🌟 SMART WALL — DISCOVERY ENGINE</div>
+            <div class="admin-form-note wall-form-note">One highlighted song per slide. Cover art is pulled from Supabase automatically. Add an optional video URL or a local video file, then pick up to 8 tags.</div>
+            <div class="wall-song-search-wrap">
+              <input type="text" class="admin-input" id="wallSongSearchInput" placeholder="Search a song to lock into the wall..." oninput="onWallSongSearch(this.value)" onfocus="onWallSongSearch(this.value)">
+              <div class="lab-results wall-song-results" id="wallSongResults"></div>
+            </div>
+            <div class="wall-song-selected" id="wallSelectedSongText">No featured song selected yet.</div>
+            <select class="admin-select" id="wallSongSelect" style="display:none">
+              <option value="">SELECT FEATURED SONG...</option>
+            </select>
+            <input type="text" class="admin-input" id="wallHeadline" placeholder="Headline / promo line">
+            <input type="text" class="admin-input" id="wallSubheadline" placeholder="Support copy (artist, mood, or story)">
+            <div class="wall-form-rows">
+              <select class="admin-select" id="wallMediaType" onchange="blastrWallMediaMode()">
+                <option value="none">Song cover only</option>
+                <option value="video">Video (local or URL)</option>
+                <option value="youtube">YouTube URL</option>
+              </select>
+              <input type="text" class="admin-input" id="wallCtaText" placeholder="CTA text (e.g. Listen Now)" value="Listen Now">
+            </div>
+            <input type="text" class="admin-input" id="wallMediaUrl" placeholder="Video URL (optional, for URL based videos / YouTube)">
+            <button class="admin-file-btn" id="btnWallMedia" onclick="selectWallMediaFile()">⬆ LOAD_VIDEO: choose local video file</button>
+            <div class="wall-form-rows three">
+              <input type="number" class="admin-input" id="wallDuration" placeholder="Image duration (s)" min="6" max="30" value="10">
+              <input type="number" class="admin-input" id="wallPosition" placeholder="Position" value="0">
+              <input type="text" class="admin-input" id="wallHeadlineType" placeholder="Headline type">
+            </div>
+            <div class="wall-form-rows three">
+              <input type="text" class="admin-input" id="wallGradientStart" placeholder="Gradient A" value="#1a1a1a">
+              <input type="text" class="admin-input" id="wallGradientMiddle" placeholder="Gradient B" value="#0d0d0d">
+              <input type="text" class="admin-input" id="wallGradientEnd" placeholder="Gradient C" value="#202020">
+            </div>
+            <div class="wall-mini-actions">
+              <div class="verify-toggle on" id="wallSponsoredToggle" onclick="toggleWallFlag('wallSponsoredToggle','wallSponsoredCheck','show sponsored badge')">
+                <div class="check" id="wallSponsoredCheck">✓</div>
+                <span id="wallSponsoredLabel">SPONSORED BADGE ON</span>
+              </div>
+              <div class="verify-toggle on" id="wallMutedToggle" onclick="toggleWallFlag('wallMutedToggle','wallMutedCheck','mute videos on load')">
+                <div class="check" id="wallMutedCheck">✓</div>
+                <span id="wallMutedLabel">VIDEO MUTES ON START</span>
+              </div>
+              <div class="verify-toggle on" id="wallRevealToggle" onclick="toggleWallFlag('wallRevealToggle','wallRevealCheck','show blastr reveal')">
+                <div class="check" id="wallRevealCheck">✓</div>
+                <span id="wallRevealLabel">BLASTR REVEAL ON</span>
+              </div>
+            </div>
+            <div class="admin-card-title" style="margin:16px 0 10px">🏷 TAGS — up to 8</div>
+            <div class="tag-picker" id="wallTagPicker"></div>
+            <button class="btn-blast" id="btnWallBlast" onclick="executeWallBlast()">DEPLOY SMART WALL</button>
+            <button class="btn-wipe" id="btnWallDelete" style="margin-top:10px;opacity:.92" onclick="deleteCurrentWallSlide()" disabled>🗑 DELETE CURRENT SLIDE</button>
+            <button class="btn-blast" style="margin-top:10px;background:rgba(0,198,255,.10);color:var(--accent2)" onclick="blastrShuffleWallSlides()">SHUFFLE WALL ORDER</button>
+            <div style="margin-top:18px">
+              <div class="admin-card-title" style="margin-bottom:9px">🛰 WALL REGISTRY</div>
+              <input type="text" class="admin-input" id="wallRegistrySearch" placeholder="SEARCH WALL SLIDES..." oninput="renderWallRegistry()">
+              <div class="admin-track-list" id="wallRegistry">
+                <div style="color:var(--dim);font-size:11px;padding:8px;font-family:var(--mono)">LOADING WALL SLIDES...</div>
+              </div>
+            </div>
           </div>
           <div class="admin-card">
             <div class="admin-card-title">🗑 METABASE WIPE — DELETE TRACK</div>
@@ -2385,6 +3057,19 @@ const state = {
   lastZenIdx: -1,
   lastVibingIdx: -1,
   confirmCallback: null,
+  wallSlides: [],
+  wallCatalog: [],
+  wallIndex: 0,
+  wallTimer: null,
+  wallRaf: null,
+  wallCurrentPlayer: null,
+  wallCurrentPlayerType: null,
+  wallRevealTimer: null,
+  wallMuted: true,
+  wallEditingId: null,
+  wallSelectedTags: [],
+  wallLocalFile: null,
+  wallDeckLoadedAt: 0,
 };
 
 const audio = document.getElementById('audioPlayer');
@@ -3158,15 +3843,16 @@ function showPage(name, btn) {
   const page=document.getElementById('page-'+name);
   if(page) page.classList.add('active');
   if(btn) btn.classList.add('active');
-  if(name==='admin') loadAdminTracks();
+  if(name==='admin') { loadAdminTracks(); loadWallAdmin(); }
   if(name==='favorites') renderFavorites();
   if(name==='account') blastrRenderAccountPage();
-  if(name==='home') blastrUpdateTimeBasedCopy();
+  if(name==='home') { blastrUpdateTimeBasedCopy(); loadSmartWall().catch(()=>{}); }
   if(blastrIsCompactViewport()) closeSidebarDrawer(true);
 }
 
 // ── SEARCH ──
 let searchTimer=null;
+let wallSongSearchTimer=null;
 function onSearchType(val) {
   document.getElementById('searchClear').classList.toggle('visible',val.length>0);
   clearTimeout(searchTimer);
@@ -3203,16 +3889,25 @@ function playTrackFromSearch(track){closeSearch();clearSearch();initiateHandshak
 // ── HOME CONTENT ──
 async function loadHomeContent() {
   const home=document.getElementById('homeContent');
-  home.innerHTML=renderSkeletons();
+  if(!home) return;
+  home.innerHTML=`<div id="smartWallMount">${renderSmartWallSkeleton()}</div>${renderSkeletons()}`;
   blastrUpdateTimeBasedCopy();
+
   const tracks=await getTracks();
-  state.allTracks=tracks;
-  if(!tracks.length){home.innerHTML='<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS IN THE GRID YET.</p>';return;}
+  state.allTracks=tracks || [];
 
   const genres={};
-  tracks.forEach(t=>{const g=t.genre||'Uncategorized';if(!genres[g])genres[g]=[];genres[g].push(t);});
+  (tracks||[]).forEach(t=>{const g=t.genre||'Uncategorized';if(!genres[g])genres[g]=[];genres[g].push(t);});
 
-  let html='';
+  let html=`<div id="smartWallMount">${renderSmartWallSkeleton()}</div>`;
+
+  if(!tracks.length){
+    html+=`<div style="color:var(--dim);padding:20px 4px 6px;font-family:var(--mono);font-size:12px;letter-spacing:1px">NO TRACKS IN THE GRID YET.</div>`;
+    home.innerHTML=html;
+    void loadSmartWall(tracks).catch(err => diag('WALL', 'Home wall load failed', err?.message || err));
+    renderBecauseSection();
+    return;
+  }
 
   // All Tracks
   html+=`<div class="songs-section"><div class="section-header"><div class="section-name">All Tracks</div><button class="section-more" onclick="showAllTracks()">VIEW ALL →</button></div><div class="song-grid">`;
@@ -3228,6 +3923,7 @@ async function loadHomeContent() {
   });
 
   home.innerHTML=html;
+  await loadSmartWall(tracks);
   renderBecauseSection();
 }
 
@@ -3575,9 +4271,10 @@ function syncVibingLyric(posMs) {
     if(posMs>=state.vibingLyrics[i].ms) idx=i; else break;
   }
   if(idx===state.lastVibingIdx||idx<0) return;
+  const prevIdx = state.lastVibingIdx;
   state.lastVibingIdx=idx;
   const lines = state.vibingLineEls && state.vibingLineEls.length ? state.vibingLineEls : Array.from(document.querySelectorAll('.vibing-lyric-line'));
-  blastrSetLyricFocus(lines, idx, { prev: 'near-prev', next: 'near-next' });
+  blastrSetLyricFocus(lines, idx, { prev: 'near-prev', next: 'near-next' }, prevIdx);
   const el=document.getElementById(`vl${idx}`);
   if(el) blastrSmoothScrollToLine(el);
 }
@@ -3657,12 +4354,12 @@ function blastrSmoothScrollToLine(el) {
     const step = () => {
       const current = container.scrollTop;
       const diff = lyricScrollTarget - current;
-      if (Math.abs(diff) < 0.8) {
+      if (Math.abs(diff) < 0.9) {
         container.scrollTop = lyricScrollTarget;
         lyricScrollRaf = 0;
         return;
       }
-      container.scrollTop = current + (diff * 0.18);
+      container.scrollTop = current + (diff * 0.16);
       lyricScrollRaf = requestAnimationFrame(step);
     };
 
@@ -3672,22 +4369,27 @@ function blastrSmoothScrollToLine(el) {
   }
 }
 
-function blastrSetLyricFocus(lines, idx, extraClassMap={}) {
+function blastrSetLyricFocus(lines, idx, extraClassMap = {}, prevIdx = -1) {
   try {
-    if (!lines || !lines.length) return;
-    for (let i = 0; i < lines.length; i++) {
+    if (!lines || !lines.length || idx < 0) return;
+
+    const targets = new Set([idx, idx - 1, idx + 1, prevIdx, prevIdx - 1, prevIdx + 1].filter(i => i >= 0 && i < lines.length));
+    targets.forEach(i => {
       const l = lines[i];
-      l.classList.remove('active','near','near-prev','near-next');
-      if (i === idx) {
-        l.classList.add('active');
-      } else if (extraClassMap.prev && i === idx - 1) {
-        l.classList.add(extraClassMap.prev);
-      } else if (extraClassMap.next && i === idx + 1) {
-        l.classList.add(extraClassMap.next);
-      } else if (Math.abs(i - idx) === 1 && !extraClassMap.prev && !extraClassMap.next) {
-        l.classList.add('near');
-      }
-    }
+      if (!l) return;
+      l.classList.remove('active', 'near', 'near-prev', 'near-next');
+    });
+
+    const current = lines[idx];
+    if (current) current.classList.add('active');
+
+    const prevClass = extraClassMap.prev || 'near';
+    const nextClass = extraClassMap.next || 'near';
+
+    const prevEl = lines[idx - 1];
+    const nextEl = lines[idx + 1];
+    if (prevEl) prevEl.classList.add(prevClass);
+    if (nextEl) nextEl.classList.add(nextClass);
   } catch (err) {}
 }
 
@@ -3696,9 +4398,10 @@ function syncZenLyric(posMs) {
   let idx=-1;
   for(let i=0;i<state.parsedLyrics.length;i++){if(posMs>=state.parsedLyrics[i].ms) idx=i; else break;}
   if(idx===state.lastZenIdx||idx<0) return;
+  const prevIdx = state.lastZenIdx;
   state.lastZenIdx=idx;
   const lines = state.zenLineEls && state.zenLineEls.length ? state.zenLineEls : Array.from(document.querySelectorAll('.zen-lyric-line'));
-  blastrSetLyricFocus(lines, idx, { near: 'near' });
+  blastrSetLyricFocus(lines, idx, { near: 'near' }, prevIdx);
   const el=document.getElementById(`zenLine${idx}`);
   if(el) blastrSmoothScrollToLine(el);
 }
@@ -5069,6 +5772,7 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
     try { patchMobileMore(); } catch {}
     ensureHomeDoubleClick();
     applyZenTheme(state.currentTrack);
+    if (typeof blastrWallMediaMode === 'function') blastrWallMediaMode();
     if (audio) {
       audio.addEventListener('timeupdate', monitorUpNext);
       audio.addEventListener('ended', () => {
@@ -5081,6 +5785,2197 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
     if (state.inZen) applyZenTheme(state.currentTrack);
   });
 })();
+
+// ── SMART WALL SYSTEM ──
+const BLASTR_WALL_MEDIA_BUCKET = 'songs';
+const BLASTR_WALL_DEFAULT_TAGS = [
+  { tag_name:'High Energy', icon:'⚡' },
+  { tag_name:'Danceable', icon:'💃' },
+  { tag_name:'FIFA Vibes', icon:'🎮' },
+  { tag_name:'Gym', icon:'🏋️' },
+  { tag_name:'Party', icon:'🕺' },
+  { tag_name:'Trending', icon:'🔥' },
+  { tag_name:'Road Trip', icon:'🚗' },
+  { tag_name:'Night Drive', icon:'🌙' },
+  { tag_name:'Romantic', icon:'❤️' },
+  { tag_name:'Focus', icon:'🎯' },
+  { tag_name:'Chill', icon:'✨' },
+  { tag_name:'Premium Pick', icon:'💎' },
+  { tag_name:'Summer', icon:'🌴' },
+  { tag_name:'Rainy Day', icon:'🌧' },
+  { tag_name:'Viral', icon:'🚀' },
+  { tag_name:'Sing Along', icon:'🎤' }
+];
+const BLASTR_WALL_HEADLINES = [
+  'NEW HIT IN TOWN',
+  'TRAILER OF THE DAY',
+  'EDITOR\'S SPOTLIGHT',
+  'BLASTR FEATURED DROP',
+  'NOW TAKING OFF',
+  'COMMUNITY FAVOURITE',
+  'FRESH FROM THE GRID',
+  'SPONSORED DISCOVERY'
+];
+const BLASTR_WALL_SUBLINES = [
+  'Cinematic discovery, styled for the front row.',
+  'This is the new heartbeat of the home grid.',
+  'Music, motion, and a premium spotlight feel.',
+  'A smart banner that behaves like a trailer.',
+  'Curated to pull listeners deeper into the orbit.'
+];
+
+function blastrWallPick(arr, fallback='') {
+  return (Array.isArray(arr) && arr.length) ? arr[Math.floor(Math.random()*arr.length)] : fallback;
+}
+function blastrWallNumber(v, fallback) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+function blastrWallSafeText(v, fallback='') {
+  const s = String(v ?? '').trim();
+  return s || fallback;
+}
+function blastrWallDbMediaType(v) {
+  const t = String(v ?? 'none').trim().toLowerCase();
+  if (t === 'video' || t === 'youtube') return t;
+  return 'image';
+}
+function blastrWallIsYoutube(url='') {
+  return /(?:youtube\.com|youtu\.be)/i.test(String(url||''));
+}
+function blastrWallExtractYoutubeId(url='') {
+  const s = String(url||'').trim();
+  const m = s.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : '';
+}
+function blastrWallFormatTime(ms) {
+  const secs = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function blastrWallGradient(slide, fallbackIndex=0) {
+  const defaults = [
+    ['#181818','#0b0b0b','#232323'],
+    ['#11212d','#0b0d10','#1b3444'],
+    ['#2a1522','#120f14','#3c2134'],
+    ['#211a0f','#0f0d08','#42311a'],
+    ['#10221b','#0c1011','#18392f']
+  ];
+  const d = defaults[fallbackIndex % defaults.length];
+  return {
+    start: blastrWallSafeText(slide?.gradient_start, d[0]),
+    middle: blastrWallSafeText(slide?.gradient_middle, d[1]),
+    end: blastrWallSafeText(slide?.gradient_end, d[2]),
+  };
+}
+function blastrWallAutoHeadline(slide, idx=0) {
+  const headlineType = blastrWallSafeText(slide?.headline_type);
+  if (headlineType) return headlineType;
+  if (slide?.show_sponsored) return blastrWallPick(BLASTR_WALL_HEADLINES, 'SPONSORED DISCOVERY');
+  if (slide?.media_type === 'youtube') return 'OFFICIAL VIDEO DROP';
+  if (slide?.media_type === 'video') return 'CINEMATIC TRAILER';
+  return blastrWallPick(BLASTR_WALL_HEADLINES, 'NEW HIT IN TOWN');
+}
+function blastrWallAutoSubline(slide, idx=0) {
+  const custom = blastrWallSafeText(slide?.subheadline);
+  if (custom) return custom;
+  const song = slide?.song;
+  const parts = [song?.title, song?.artist, song?.genre].filter(Boolean);
+  if (parts.length) return parts.join(' • ');
+  return blastrWallPick(BLASTR_WALL_SUBLINES, 'A cinematic spotlight built for discovery.');
+}
+function blastrWallEscapeHtml(str='') {
+  return esc(str);
+}
+
+async function blastrLoadWallCatalog() {
+  try {
+    const rows = await sbFetch('/rest/v1/blastr_tag_catalog?select=*&order=tag_name.asc');
+    const normalized = Array.isArray(rows) && rows.length
+      ? rows.map(r => ({ tag_name: String(r.tag_name || '').trim(), icon: String(r.icon || '').trim() }))
+      : BLASTR_WALL_DEFAULT_TAGS;
+    state.wallCatalog = normalized;
+    return normalized;
+  } catch (e) {
+    state.wallCatalog = BLASTR_WALL_DEFAULT_TAGS;
+    return BLASTR_WALL_DEFAULT_TAGS;
+  }
+}
+
+async function blastrFetchWallDeck(tracks = state.allTracks || []) {
+  const [wallRows, tagRows] = await Promise.all([
+    sbFetch('/rest/v1/blastr_wall?select=*&order=position.asc,created_at.desc'),
+    sbFetch('/rest/v1/blastr_wall_tags?select=*&order=tag_name.asc')
+  ]).catch(async () => [[], []]);
+
+  const trackMap = new Map((tracks || state.allTracks || []).map(t => [String(t.id), t]));
+  const tagsByWall = new Map();
+  (Array.isArray(tagRows) ? tagRows : []).forEach(row => {
+    const key = String(row.wall_id || '');
+    if (!key) return;
+    if (!tagsByWall.has(key)) tagsByWall.set(key, []);
+    tagsByWall.get(key).push(row);
+  });
+
+  const slides = (Array.isArray(wallRows) ? wallRows : []).map((row, idx) => {
+    const song = row.song_id ? (trackMap.get(String(row.song_id)) || null) : null;
+    const tags = (tagsByWall.get(String(row.id)) || []).map(t => String(t.tag_name || '').trim()).filter(Boolean);
+    return {
+      ...row,
+      song,
+      tags,
+      _index: idx
+    };
+  });
+
+  state.wallSlides = slides;
+  state.wallDeckLoadedAt = Date.now();
+  return slides;
+}
+
+function renderSmartWallSkeleton() {
+  return `
+    <div class="smart-wall-skeleton">
+      <div class="smart-wall-skeleton-inner">
+        <div class="wall-skel-copy">
+          <div class="wall-skel-block wall-skel-line" style="width:36%"></div>
+          <div class="wall-skel-block wall-skel-title"></div>
+          <div class="wall-skel-block wall-skel-sub"></div>
+          <div class="wall-skel-block wall-skel-line" style="width:82%"></div>
+        </div>
+        <div class="wall-skel-block wall-skel-media"></div>
+      </div>
+    </div>
+  `;
+}
+
+function blastrWallBuildTagHtml(tags = []) {
+  if (!tags.length) return '';
+  return tags.slice(0,8).map((tag, idx) => {
+    const cat = (state.wallCatalog || BLASTR_WALL_DEFAULT_TAGS).find(t => String(t.tag_name).toLowerCase() === String(tag).toLowerCase());
+    const icon = cat?.icon || ['⚡','🔥','💫','🎧','✨','🚀'][idx % 6];
+    return `<span class="smart-wall-tag"><span class="icon">${esc(icon)}</span>${esc(tag)}</span>`;
+  }).join('');
+}
+
+function blastrWallBuildMedia(slide, idx=0) {
+  const song = slide?.song || null;
+  const cover = song?.cover_url || '';
+  const url = blastrWallSafeText(slide?.media_url, '');
+  const youtube = blastrWallSafeText(slide?.youtube_url, '');
+  const mediaType = blastrWallSafeText(slide?.media_type, 'none');
+  const muted = slide?.video_muted !== false ? 'muted' : '';
+  const autoplayAttrs = 'autoplay playsinline preload="auto"';
+  const poster = cover ? `poster="${esc(cover)}"` : '';
+  const fallbackImg = cover ? `<img src="${esc(cover)}" loading="eager" decoding="async" referrerpolicy="no-referrer" alt="">` : `<div class="smart-wall-empty">NO COVER</div>`;
+
+  if (mediaType === 'youtube' && (youtube || url)) {
+    const ytId = blastrWallExtractYoutubeId(youtube || url);
+    if (!ytId) return `<div class="smart-wall-empty">INVALID YOUTUBE URL</div>`;
+    const muteParam = slide?.video_muted === false ? 0 : 1;
+    return `
+      <div style="position:absolute;inset:0">
+        <div id="wallYTHost" style="position:absolute;inset:0"></div>
+        <iframe
+          id="wallYTFrame"
+          data-yt-id="${esc(ytId)}"
+          src="https://www.youtube-nocookie.com/embed/${esc(ytId)}?autoplay=1&mute=${muteParam}&playsinline=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          referrerpolicy="origin-when-cross-origin"
+          allowfullscreen></iframe>
+      </div>
+    `;
+  }
+
+  if (mediaType === 'video' && url) {
+    return `
+      <video id="wallVideo" ${autoplayAttrs} ${muted} ${poster} webkit-playsinline playsinline>
+        <source src="${esc(url)}">
+      </video>
+    `;
+  }
+
+  return fallbackImg;
+}
+
+function blastrWallRenderSlide(slide, index = 0) {
+  const total = state.wallSlides.length || 0;
+  const g = blastrWallGradient(slide, index);
+  const song = slide?.song || null;
+  const cover = song?.cover_url || '';
+  const title = song?.title || 'Featured Drop';
+  const artist = song?.artist || 'Blastr';
+  const genre = song?.genre || 'Discovery';
+  const kicker = blastrWallAutoHeadline(slide, index);
+  const subline = blastrWallAutoSubline(slide, index);
+  const tags = blastrWallBuildTagHtml(slide?.tags || []);
+  const sponsor = slide?.show_sponsored ? `<div class="smart-wall-sponsor"><span class="spark"></span>Sponsored</div>` : '';
+  const media = blastrWallBuildMedia(slide, index);
+  const cta = blastrWallSafeText(slide?.cta_text, 'Listen Now');
+  const wallId = String(slide?.id || index);
+
+  return `
+    <div class="smart-wall-shell" id="smartWall" data-wall-id="${esc(wallId)}" style="background:linear-gradient(135deg, ${esc(g.start)} 0%, ${esc(g.middle)} 48%, ${esc(g.end)} 100%)">
+      ${sponsor}
+      <button class="smart-wall-nav prev" onclick="prevWallSlide()">‹</button>
+      <button class="smart-wall-nav next" onclick="nextWallSlide()">›</button>
+      <div class="smart-wall-stage">
+        <div class="smart-wall-copy">
+          <div class="smart-wall-kicker">
+            <span class="smart-wall-badge"><span class="dot"></span>${esc(kicker)}</span>
+            <span>${slide?.media_type === 'youtube' ? 'YouTube premiere' : slide?.media_type === 'video' ? 'Video spotlight' : 'Song cover spotlight'}</span>
+          </div>
+          <div class="smart-wall-headline">${esc(slide?.headline || blastrWallAutoHeadline(slide, index))}</div>
+          <div class="smart-wall-title"><span class="brand-text">${esc(title)}</span></div>
+          <div class="smart-wall-meta">
+            <div class="smart-wall-artist">${esc(artist)}${genre ? ` · ${esc(genre)}` : ''}</div>
+            <div class="smart-wall-sub">${esc(subline)}</div>
+          </div>
+          <div class="smart-wall-tags">${tags || `<span class="smart-wall-tag">BLASTR ORIGINAL</span>`}</div>
+          <div class="smart-wall-actions">
+            <button class="smart-wall-cta" onclick="initiateHandshake(${jsonAttr(song || slide?.song || null)})">${esc(cta)}</button>
+            <button class="smart-wall-cta ghost" onclick="openSongProfile(${jsonAttr(song || slide?.song || null)})">Open profile</button>
+          </div>
+        </div>
+        <div class="smart-wall-media">
+          ${media}
+          <div class="smart-wall-mini-note">${slide?.media_type === 'youtube' ? 'ORIGINAL ORIENTATION' : slide?.media_type === 'video' ? 'AUTO PLAY · MUTE OPTIONAL' : '10 SECOND IMAGE LOOP'}</div>
+          <div class="smart-wall-burst" id="wallBurst"><div class="burst-core">B</div></div>
+        </div>
+      </div>
+      <div class="smart-wall-footer">
+        <div class="smart-wall-progress"><div class="smart-wall-progress-fill" id="wallProgressFill"></div></div>
+        <div class="smart-wall-time" id="wallTimeLabel">${index + 1} / ${Math.max(total,1)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function blastrWallClearTimers() {
+  if (state.wallTimer) {
+    clearTimeout(state.wallTimer);
+    state.wallTimer = null;
+  }
+  if (state.wallRevealTimer) {
+    clearTimeout(state.wallRevealTimer);
+    state.wallRevealTimer = null;
+  }
+  if (state.wallRaf) {
+    cancelAnimationFrame(state.wallRaf);
+    state.wallRaf = null;
+  }
+  if (state.wallCurrentPlayer && typeof state.wallCurrentPlayer.destroy === 'function') {
+    try { state.wallCurrentPlayer.destroy(); } catch {}
+  }
+  state.wallCurrentPlayer = null;
+  state.wallCurrentPlayerType = null;
+}
+
+function blastrWallSetProgress(value = 0) {
+  const fill = document.getElementById('wallProgressFill');
+  if (fill) fill.style.width = `${Math.max(0, Math.min(100, value))}%`;
+}
+
+function blastrWallShowBurst() {
+  const burst = document.getElementById('wallBurst');
+  if (!burst) return;
+  const core = burst.querySelector('.burst-core');
+  if (!core) return;
+  burst.classList.add('show');
+  burst.classList.remove('expanded');
+  core.textContent = 'B';
+  window.setTimeout(() => {
+    core.textContent = 'BLASTR';
+    burst.classList.add('expanded');
+  }, 520);
+}
+
+function blastrWallHideBurst() {
+  const burst = document.getElementById('wallBurst');
+  if (!burst) return;
+  burst.classList.remove('show','expanded');
+  const core = burst.querySelector('.burst-core');
+  if (core) core.textContent = 'B';
+}
+
+function blastrWallShouldReveal(slide) {
+  return slide?.reveal_blastr !== false;
+}
+
+function blastrWallStartImageTimer(slide, index) {
+  const durationMs = Math.max(6000, blastrWallNumber(slide?.duration_seconds, 10) * 1000);
+  const started = performance.now();
+  blastrWallSetProgress(0);
+  const tick = (now) => {
+    const elapsed = now - started;
+    const pct = (elapsed / durationMs) * 100;
+    blastrWallSetProgress(pct);
+    const remaining = durationMs - elapsed;
+    if (remaining <= 7000 && !state.wallRevealTriggered && blastrWallShouldReveal(slide)) {
+      state.wallRevealTriggered = true;
+      blastrWallShowBurst();
+    }
+    if (elapsed < durationMs) {
+      state.wallRaf = requestAnimationFrame(tick);
+    } else {
+      blastrAdvanceWall(1, false);
+    }
+  };
+  state.wallRaf = requestAnimationFrame(tick);
+  state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), durationMs + 40);
+}
+
+function blastrWallSetVideoProgress(el) {
+  const dur = el?.duration || 0;
+  const pct = dur > 0 ? (el.currentTime / dur) * 100 : 0;
+  blastrWallSetProgress(pct);
+  if (dur > 0 && (dur - el.currentTime) <= 7 && !state.wallRevealTriggered) {
+    state.wallRevealTriggered = true;
+    blastrWallShowBurst();
+  }
+}
+
+
+  function blastrWallInitVideo(videoEl, slide) {
+    if (!videoEl) return;
+
+    state.wallCurrentPlayerType = 'video';
+    state.wallCurrentPlayer = videoEl;
+
+    const muted = blastrWallCoerceBool(slide?.video_muted, true);
+    videoEl.muted = muted;
+    videoEl.volume = muted ? 0 : (state.volume ?? 0.7);
+    videoEl.loop = false;
+    videoEl.autoplay = true;
+    videoEl.playsInline = true;
+    videoEl.preload = 'auto';
+    videoEl.setAttribute('playsinline', '');
+    videoEl.setAttribute('webkit-playsinline', '');
+    videoEl.disablePictureInPicture = true;
+
+    const shell = videoEl.closest('.smart-wall-media-shell');
+    const safeWatchdogMs = Math.max(10 * 60 * 1000, blastrWallNumber(slide?.duration_seconds, 18) * 6000);
+    let settled = false;
+
+    const clearFallback = () => {
+      if (state.wallTimer) {
+        clearTimeout(state.wallTimer);
+        state.wallTimer = null;
+      }
+    };
+
+    const settleReady = () => {
+      if (settled) return;
+      settled = true;
+      if (shell) shell.classList.add('ready');
+      videoEl.play().catch((err) => wallDiag('PLAYBACK', 'Video autoplay blocked.', err?.message || err));
+    };
+
+    const onTime = () => blastrWallSetVideoProgress(videoEl);
+    const onEnd = () => {
+      clearFallback();
+      blastrAdvanceWall(1, false);
+    };
+    const onMeta = () => blastrWallSetVideoProgress(videoEl);
+    const onError = (err) => {
+      wallDiag('PLAYBACK', 'Video load error.', err?.message || err);
+      if (shell) shell.classList.remove('ready');
+      clearFallback();
+      state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), safeWatchdogMs);
+    };
+
+    videoEl.addEventListener('timeupdate', onTime, { passive: true });
+    videoEl.addEventListener('ended', onEnd, { passive: true });
+    videoEl.addEventListener('loadedmetadata', onMeta, { passive: true });
+    videoEl.addEventListener('loadeddata', () => {
+      blastrWallSetVideoProgress(videoEl);
+      settleReady();
+    }, { passive: true, once: true });
+    videoEl.addEventListener('canplay', settleReady, { passive: true, once: true });
+    videoEl.addEventListener('playing', settleReady, { passive: true, once: true });
+    videoEl.addEventListener('error', onError, { passive: true, once: true });
+
+    state.wallRevealTriggered = false;
+    blastrWallSetProgress(videoEl.duration ? (videoEl.currentTime / videoEl.duration) * 100 : 0);
+
+    clearFallback();
+    state.wallTimer = setTimeout(() => {
+      wallDiag('PLAYBACK', 'Video watchdog reached; advancing to keep deck healthy.');
+      blastrAdvanceWall(1, false);
+    }, safeWatchdogMs);
+  }
+
+
+
+  function blastrWallInitYoutube(slide) {
+    const frame = document.getElementById('wallYTFrame');
+    if (!frame) {
+      const fallbackMs = Math.max(15000, blastrWallNumber(slide?.duration_seconds, 18) * 1000);
+      state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), fallbackMs);
+      return;
+    }
+
+    const durationMs = Math.max(15000, blastrWallNumber(slide?.duration_seconds, 18) * 1000);
+    const startedAt = performance.now();
+    state.wallCurrentPlayerType = 'youtube';
+    state.wallCurrentPlayer = null;
+    state.wallRevealTriggered = false;
+
+    if (state.wallRaf) cancelAnimationFrame(state.wallRaf);
+    if (state.wallTimer) {
+      clearTimeout(state.wallTimer);
+      state.wallTimer = null;
+    }
+
+    const tick = () => {
+      const elapsed = performance.now() - startedAt;
+      const pct = Math.min(100, (elapsed / durationMs) * 100);
+      blastrWallSetProgress(pct);
+
+      if ((durationMs - elapsed) <= 7000 && !state.wallRevealTriggered && blastrWallShouldReveal(slide)) {
+        state.wallRevealTriggered = true;
+        blastrWallShowBurst();
+      }
+
+      if (elapsed >= durationMs) {
+        state.wallRaf = null;
+        blastrAdvanceWall(1, false);
+        return;
+      }
+
+      state.wallRaf = requestAnimationFrame(tick);
+    };
+
+    state.wallRaf = requestAnimationFrame(tick);
+    state.wallTimer = setTimeout(() => {
+      wallDiag('PLAYBACK', 'YouTube wall watchdog reached; advancing.');
+      blastrAdvanceWall(1, false);
+    }, durationMs + 1000);
+  }
+
+
+  
+function blastrAdvanceWall(delta = 1, manual = false) {
+  const total = state.wallSlides?.length || 0;
+  if (!total) return;
+  state.wallIndex = (state.wallIndex + delta + total) % total;
+  blastrRenderSmartWall(state.allTracks || []);
+  if (manual) {
+    showToast('SMART WALL', `Slide ${state.wallIndex + 1} / ${total}`);
+  }
+}
+
+function prevWallSlide() {
+  blastrAdvanceWall(-1, true);
+}
+
+function nextWallSlide() {
+  blastrAdvanceWall(1, true);
+}
+
+function blastrWallToggleMute() {
+  const slide = state.wallSlides?.[state.wallIndex];
+  if (!slide) return;
+
+  const muted = !(slide.video_muted !== false);
+  slide.video_muted = muted;
+
+  const videoEl = document.getElementById('wallVideo');
+  if (videoEl) {
+    videoEl.muted = muted;
+    videoEl.volume = muted ? 0 : (state.volume ?? 0.7);
+    const btn = document.querySelector('[data-wall-mute="1"]');
+    if (btn) btn.textContent = muted ? 'UNMUTE' : 'MUTE';
+    return;
+  }
+
+  if (state.wallCurrentPlayerType === 'youtube') {
+    blastrRenderSmartWall(state.allTracks || []);
+    return;
+  }
+
+  const btn = document.querySelector('[data-wall-mute="1"]');
+  if (btn) btn.textContent = muted ? 'UNMUTE' : 'MUTE';
+}
+
+function blastrWallRenderSongResults(tracks = [], label = 'SEARCH RESULTS', open = true) {
+  const results = document.getElementById('wallSongResults');
+  if (!results) return;
+  if (!tracks.length) {
+    results.innerHTML = `
+      <div class="lab-result-item" style="cursor:default">
+        <div style="font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim)">${esc(label)}</div>
+        <div style="margin-top:4px;color:var(--dim)">No matching songs found.</div>
+      </div>
+    `;
+    results.classList.toggle('open', open);
+    return;
+  }
+  results.innerHTML = `
+    <div class="lab-result-item" style="cursor:default;background:rgba(255,255,255,.02)">
+      <div style="font-size:10px;font-family:var(--mono);letter-spacing:2px;color:var(--dim)">${esc(label)}</div>
+    </div>
+    ${tracks.slice(0, 10).map(track => `
+      <div class="search-row wall-song-result" onclick="selectWallSongFromSearch(${jsonAttr(track)})">
+        <div class="search-thumb">${track.cover_url ? `<img src="${esc(track.cover_url)}" loading="lazy">` : '♪'}</div>
+        <div class="meta">
+          <div class="title">${esc(track.title || 'Untitled')}</div>
+          <div class="sub">${esc(track.artist || 'Unknown Artist')}${track.genre ? ` • ${esc(track.genre)}` : ''}</div>
+        </div>
+        <button class="pick" onclick="event.stopPropagation(); selectWallSongFromSearch(${jsonAttr(track)})">LOCK</button>
+      </div>
+    `).join('')}
+  `;
+  results.classList.toggle('open', open);
+}
+
+function selectWallSongFromSearch(track) {
+  if (!track) return;
+  blastrWallSyncSelectedSong(track);
+  showToast('WALL SONG LOCKED', `${track.title || 'Track'} is ready for the wall.`);
+}
+
+function onWallSongSearch(val) {
+  const q = String(val || '').trim();
+  clearTimeout(wallSongSearchTimer);
+
+  const results = document.getElementById('wallSongResults');
+  if (!q) {
+    const tracks = (state.allTracks || []).slice(0, 8);
+    blastrWallRenderSongResults(tracks, tracks.length ? 'RECENT TRACKS' : 'SEARCH THE LIBRARY', true);
+    return;
+  }
+
+  if (q.length < 2) {
+    if (results) {
+      results.innerHTML = '<div class="lab-result-item" style="cursor:default"><div style="font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim)">TYPE 2+ CHARACTERS TO SEARCH</div></div>';
+      results.classList.add('open');
+    }
+    return;
+  }
+
+  wallSongSearchTimer = setTimeout(() => runWallSongSearch(q), 280);
+}
+
+async function runWallSongSearch(q) {
+  const results = document.getElementById('wallSongResults');
+  if (results) {
+    results.innerHTML = '<div class="lab-result-item" style="cursor:default"><span class="spinner"></span></div>';
+    results.classList.add('open');
+  }
+
+  try {
+    const tracks = await getTracks(q);
+    blastrWallRenderSongResults(tracks, 'MATCHING TRACKS', true);
+  } catch (err) {
+    if (results) {
+      results.innerHTML = '<div class="lab-result-item" style="cursor:default"><div style="font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim)">SEARCH FAILED — TRY AGAIN</div></div>';
+      results.classList.add('open');
+    }
+  }
+}
+
+async function loadWallAdmin() {
+  if (!state.isAdmin) return;
+  const tracks = state.allTracks?.length ? state.allTracks : await getTracks();
+  state.allTracks = tracks || [];
+  const slideRows = await blastrFetchWallDeck(tracks);
+  const select = document.getElementById('wallSongSelect');
+  if (select) {
+    select.innerHTML = '<option value="">SELECT FEATURED SONG...</option>' + (tracks || []).map(t => `<option value="${esc(t.id)}">${esc(t.title)} — ${esc(t.artist || '')}</option>`).join('');
+  }
+  const recent = (tracks || []).slice(0, 8);
+  if (document.getElementById('wallSongResults')) {
+    blastrWallRenderSongResults(recent, recent.length ? 'RECENT TRACKS' : 'NO SONGS FOUND', true);
+  }
+  await blastrLoadWallCatalog();
+  blastrRenderWallTagPicker();
+  renderWallRegistry(slideRows);
+  if (!state.wallSelectedTags) state.wallSelectedTags = [];
+  blastrWallMediaMode();
+  if (state.wallEditingId) {
+    const current = slideRows.find(s => String(s.id) === String(state.wallEditingId));
+    if (current) blastrPopulateWallEditor(current);
+  }
+}
+
+
+function renderWallRegistry(rows = state.wallSlides || []) {
+  const wrap = document.getElementById('wallRegistry');
+  if (!wrap) return;
+  const query = blastrWallSafeText(document.getElementById('wallRegistrySearch')?.value, '').toLowerCase();
+  const sorted = [...(Array.isArray(rows) ? rows : [])].sort((a, b) => {
+    const ap = blastrWallNumber(a?.position, 0);
+    const bp = blastrWallNumber(b?.position, 0);
+    if (ap !== bp) return ap - bp;
+    return blastrWallNumber(b?.created_at ? Date.parse(b.created_at) : 0, 0) - blastrWallNumber(a?.created_at ? Date.parse(a.created_at) : 0, 0);
+  });
+  const filtered = query ? sorted.filter(slide => {
+    const song = slide.song || {};
+    const hay = [
+      slide.headline,
+      slide.headline_type,
+      song.title,
+      song.artist,
+      slide.media_type,
+      String(slide.position ?? ''),
+      ...(Array.isArray(slide.tags) ? slide.tags : [])
+    ].join(' ').toLowerCase();
+    return hay.includes(query);
+  }) : sorted;
+
+  if (!filtered.length) {
+    wrap.innerHTML = '<div style="color:var(--dim);font-size:11px;padding:8px;font-family:var(--mono)">NO WALL SLIDES FOUND</div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(slide => {
+    const song = slide.song || {};
+    const tags = (slide.tags || []).slice(0,3).join(' • ') || 'No tags yet';
+    const slideJson = jsonAttr(slide);
+    const idJson = jsonAttr(String(slide.id || ''));
+    return `
+      <div class="wall-registry-card">
+        <div class="wall-registry-item" onclick="blastrPopulateWallEditor(${slideJson})">
+          <div class="meta">
+            <div class="title">${esc(slide.headline || blastrWallAutoHeadline(slide))}</div>
+            <div class="sub">${esc(song.title || 'No song linked')} · ${esc(song.artist || '')}</div>
+          </div>
+          <div class="wall-pill">POS ${esc(slide.position ?? 0)}</div>
+        </div>
+        <div class="wall-mini-actions">
+          <button class="wall-mini-link" onclick="event.stopPropagation(); blastrPopulateWallEditor(${slideJson})">EDIT</button>
+          <button class="wall-mini-link" onclick="event.stopPropagation(); blastrShiftWallSlide(${idJson}, -1)">▲ UP</button>
+          <button class="wall-mini-link" onclick="event.stopPropagation(); blastrShiftWallSlide(${idJson}, 1)">▼ DOWN</button>
+          <button class="wall-mini-link" style="border-color:rgba(255,49,49,.22);color:var(--red)" onclick="event.stopPropagation(); deleteWallSlide(${idJson})">DELETE</button>
+        </div>
+        <div style="padding:0 12px 12px;color:var(--dim);font-size:10px;font-family:var(--mono);letter-spacing:1px">${esc(tags)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+
+async function blastrShiftWallSlide(slideId, direction = 0) {
+  if (!state.isAdmin) {
+    showToast('RESTRICTED', 'Admin access required.');
+    return;
+  }
+  const id = String(slideId || '').trim();
+  const step = direction < 0 ? -1 : 1;
+  if (!id || !step) return;
+
+  const slides = [...(state.wallSlides || [])].sort((a, b) => {
+    const ap = blastrWallNumber(a?.position, 0);
+    const bp = blastrWallNumber(b?.position, 0);
+    if (ap !== bp) return ap - bp;
+    return blastrWallNumber(a?._index, 0) - blastrWallNumber(b?._index, 0);
+  });
+
+  const currentIdx = slides.findIndex(s => String(s.id) === id);
+  if (currentIdx < 0) return;
+
+  const targetIdx = currentIdx + step;
+  if (targetIdx < 0 || targetIdx >= slides.length) {
+    showToast('WALL ORDER', step < 0 ? 'Already at the top.' : 'Already at the bottom.');
+    return;
+  }
+
+  const current = slides[currentIdx];
+  const target = slides[targetIdx];
+  const currentPos = blastrWallNumber(current.position, currentIdx);
+  const targetPos = blastrWallNumber(target.position, targetIdx);
+
+  const headers = new Headers();
+  headers.set('apikey', SUPABASE_KEY);
+  headers.set('Authorization', `Bearer ${blastrGetAuthToken()}`);
+  headers.set('Accept', 'application/json');
+  headers.set('Content-Type', 'application/json');
+  headers.set('Prefer', 'return=representation');
+
+  const patchRow = async (rowId, position) => {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/blastr_wall?id=eq.${encodeURIComponent(String(rowId))}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ position }),
+      credentials: 'omit'
+    });
+    if (!res.ok) {
+      const payload = await res.text().catch(() => '');
+      throw new Error(payload || `Supabase ${res.status} ${res.statusText}`);
+    }
+    return res.json().catch(() => []);
+  };
+
+  const blastBtn = document.getElementById('btnWallBlast');
+  if (blastBtn) blastBtn.disabled = true;
+
+  try {
+    await patchRow(current.id, targetPos);
+    await patchRow(target.id, currentPos);
+    await loadWallAdmin();
+    await loadHomeContent().catch(() => {});
+    showToast('WALL ORDER UPDATED', step < 0 ? 'Moved up successfully.' : 'Moved down successfully.');
+  } catch (err) {
+    showToast('WALL ORDER ERROR', err?.message || 'Could not update order.');
+  } finally {
+    if (blastBtn) blastBtn.disabled = false;
+  }
+}
+
+
+async function blastrShuffleWallSlides() {
+  if (!state.isAdmin) {
+    showToast('RESTRICTED', 'Admin access required.');
+    return;
+  }
+  const slides = [...(state.wallSlides || [])];
+  if (slides.length < 2) {
+    showToast('WALL ORDER', 'Need at least two slides to shuffle.');
+    return;
+  }
+
+  const shuffled = slides
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+
+  const headers = new Headers();
+  headers.set('apikey', SUPABASE_KEY);
+  headers.set('Authorization', `Bearer ${blastrGetAuthToken()}`);
+  headers.set('Accept', 'application/json');
+  headers.set('Content-Type', 'application/json');
+  headers.set('Prefer', 'return=representation');
+
+  const patchRow = async (rowId, position) => {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/blastr_wall?id=eq.${encodeURIComponent(String(rowId))}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ position }),
+      credentials: 'omit'
+    });
+    if (!res.ok) {
+      const payload = await res.text().catch(() => '');
+      throw new Error(payload || `Supabase ${res.status} ${res.statusText}`);
+    }
+  };
+
+  const blastBtn = document.getElementById('btnWallBlast');
+  if (blastBtn) blastBtn.disabled = true;
+  try {
+    await Promise.all(shuffled.map((slide, index) => patchRow(slide.id, index)));
+    await loadWallAdmin();
+    await loadHomeContent().catch(() => {});
+    showToast('WALL ORDER SHUFFLED', 'Slides were reshuffled successfully.');
+  } catch (err) {
+    showToast('WALL ORDER ERROR', err?.message || 'Could not shuffle wall order.');
+  } finally {
+    if (blastBtn) blastBtn.disabled = false;
+  }
+}
+
+
+function blastrPopulateWallEditor(slide) {
+  if (!slide) return;
+  state.wallEditingId = slide.id;
+  const fields = {
+    wallSongSelect: slide.song_id || '',
+    wallHeadline: slide.headline || '',
+    wallHeadlineType: slide.headline_type || '',
+    wallSubheadline: slide.subheadline || '',
+    wallCtaText: slide.cta_text || 'Listen Now',
+    wallMediaType: slide.media_type === 'video' || slide.media_type === 'youtube' ? slide.media_type : 'none',
+    wallMediaUrl: slide.media_url || slide.youtube_url || '',
+    wallDuration: slide.duration_seconds || 10,
+    wallPosition: slide.position || 0,
+    wallGradientStart: slide.gradient_start || '#1a1a1a',
+    wallGradientMiddle: slide.gradient_middle || '#0d0d0d',
+    wallGradientEnd: slide.gradient_end || '#202020'
+  };
+  Object.entries(fields).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  });
+  const matchedTrack = (state.allTracks || []).find(t => String(t.id) === String(slide.song_id)) || null;
+  blastrWallSyncSelectedSong(matchedTrack || (slide.song_id ? { id: slide.song_id, title: 'Selected song', artist: '' } : null));
+  state.wallSelectedTags = Array.isArray(slide.tags) ? [...slide.tags] : [];
+  const sponsoredOn = !!slide.show_sponsored;
+  const mutedOn = slide.video_muted !== false;
+  const revealOn = slide.reveal_blastr !== false;
+  const sponsoredToggle = document.getElementById('wallSponsoredToggle');
+  const mutedToggle = document.getElementById('wallMutedToggle');
+  const revealToggle = document.getElementById('wallRevealToggle');
+  [ [sponsoredToggle, 'wallSponsoredCheck', sponsoredOn, 'SPONSORED BADGE ON', 'SPONSORED BADGE OFF'],
+    [mutedToggle, 'wallMutedCheck', mutedOn, 'VIDEO MUTES ON START', 'VIDEO UNMUTED ON START'],
+    [revealToggle, 'wallRevealCheck', revealOn, 'BLASTR REVEAL ON', 'BLASTR REVEAL OFF']
+  ].forEach(([toggle, checkId, on, onLabel, offLabel]) => {
+    if (!toggle) return;
+    toggle.classList.toggle('on', on);
+    const check = document.getElementById(checkId);
+    if (check) check.textContent = on ? '✓' : '';
+    const span = toggle.querySelector('span');
+    if (span) span.textContent = on ? onLabel : offLabel;
+  });
+  blastrRenderWallTagPicker();
+  blastrWallMediaMode();
+  const btn = document.getElementById('btnWallBlast');
+  if (btn) btn.textContent = 'UPDATE SMART WALL';
+  const delBtn = document.getElementById('btnWallDelete');
+  if (delBtn) { delBtn.disabled = false; delBtn.textContent = '🗑 DELETE CURRENT SLIDE'; }
+}
+
+
+function blastrResetWallEditor() {
+  state.wallEditingId = null;
+  state.wallSelectedTags = [];
+  wallMediaFile = null;
+  const btn = document.getElementById('btnWallMedia');
+  if (btn) {
+    btn.textContent = '⬆ LOAD_VIDEO: choose local video file';
+    btn.classList.remove('loaded');
+  }
+  ['wallHeadline','wallHeadlineType','wallSubheadline','wallMediaUrl'].forEach(id => { const el=document.getElementById(id); if (el) el.value = ''; });
+  ['wallDuration','wallPosition'].forEach(id => { const el=document.getElementById(id); if (el) el.value = id === 'wallDuration' ? '10' : '0'; });
+  ['wallGradientStart','wallGradientMiddle','wallGradientEnd'].forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (el) el.value = ['#1a1a1a','#0d0d0d','#202020'][idx];
+  });
+  const select = document.getElementById('wallSongSelect'); if (select) select.value = '';
+  const searchInput = document.getElementById('wallSongSearchInput'); if (searchInput) searchInput.value = '';
+  const searchResults = document.getElementById('wallSongResults'); if (searchResults) searchResults.classList.remove('open');
+  const selectedText = document.getElementById('wallSelectedSongText'); if (selectedText) selectedText.textContent = 'No featured song selected yet.';
+  const media = document.getElementById('wallMediaType');
+  if (media) media.value = 'none';
+  const blastBtn = document.getElementById('btnWallBlast');
+  if (blastBtn) blastBtn.textContent = 'DEPLOY SMART WALL';
+  const delBtn = document.getElementById('btnWallDelete');
+  if (delBtn) { delBtn.disabled = true; delBtn.textContent = '🗑 DELETE CURRENT SLIDE'; }
+  blastrWallMediaMode();
+  blastrRenderWallTagPicker();
+}
+
+async function executeWallBlast() {
+  if (!state.isAdmin) {
+    showToast('RESTRICTED', 'Admin access required.');
+    return;
+  }
+  const songId = document.getElementById('wallSongSelect')?.value || document.getElementById('wallSongSearchInput')?.dataset?.songId || '';
+  const headline = blastrWallSafeText(document.getElementById('wallHeadline')?.value, '');
+  const headlineType = blastrWallSafeText(document.getElementById('wallHeadlineType')?.value, '');
+  const subheadline = blastrWallSafeText(document.getElementById('wallSubheadline')?.value, '');
+  const ctaText = blastrWallSafeText(document.getElementById('wallCtaText')?.value, 'Listen Now');
+  const mediaType = blastrWallSafeText(document.getElementById('wallMediaType')?.value, 'none');
+  const mediaUrl = blastrWallSafeText(document.getElementById('wallMediaUrl')?.value, '');
+  const duration_seconds = Math.max(6, Math.min(30, blastrWallNumber(document.getElementById('wallDuration')?.value, 10)));
+  const position = blastrWallNumber(document.getElementById('wallPosition')?.value, 0);
+  const gradient_start = blastrWallSafeText(document.getElementById('wallGradientStart')?.value, '#1a1a1a');
+  const gradient_middle = blastrWallSafeText(document.getElementById('wallGradientMiddle')?.value, '#0d0d0d');
+  const gradient_end = blastrWallSafeText(document.getElementById('wallGradientEnd')?.value, '#202020');
+  const show_sponsored = blastrWallFlagState('wallSponsoredToggle');
+  const video_muted = blastrWallFlagState('wallMutedToggle');
+  const reveal_blastr = blastrWallFlagState('wallRevealToggle');
+  const selectedTags = (state.wallSelectedTags || []).slice(0,8);
+
+  if (!songId) {
+    showToast('WALL ERROR', 'Pick one featured song first.');
+    return;
+  }
+
+  const song = (state.allTracks || []).find(t => String(t.id) === String(songId)) || null;
+  if (!song) {
+    showToast('WALL ERROR', 'Selected song was not found in the library.');
+    return;
+  }
+
+  let uploadedVideo = null;
+  let youtube_url = '';
+  let finalMediaUrl = '';
+
+  const btn = document.getElementById('btnWallBlast');
+  const editing = !!state.wallEditingId;
+
+  btn.disabled = true;
+  btn.textContent = editing ? 'UPDATING...' : 'DEPLOYING...';
+
+  try {
+    if (mediaType === 'youtube') {
+      youtube_url = mediaUrl;
+      if (!youtube_url) throw new Error('Paste a YouTube URL for this wall slide.');
+    } else if (mediaType === 'video') {
+      if (wallMediaFile) {
+        const safeStem = blastrCleanFileStem(`${song.title || 'wall'}-${Date.now()}`);
+        const objectName = blastrNormalizeObjectName(`${safeStem}-wall.${blastrGuessExtension(wallMediaFile, 'mp4')}`, safeStem);
+        uploadedVideo = await blastrUploadStorageFile(BLASTR_WALL_MEDIA_BUCKET, objectName, wallMediaFile, {
+          fallbackBase: `${safeStem}-wall`,
+          reason: 'uploading the wall video'
+        });
+        finalMediaUrl = uploadedVideo.url;
+      } else if (mediaUrl) {
+        finalMediaUrl = mediaUrl;
+      } else {
+        throw new Error('Add a video URL or choose a local video file.');
+      }
+    }
+
+    const payload = {
+      headline,
+      headline_type: headlineType,
+      subheadline,
+      song_id: song.id,
+      media_type: mediaType,
+      media_url: finalMediaUrl || null,
+      youtube_url: youtube_url || null,
+      duration_seconds,
+      show_sponsored,
+      cta_text: ctaText,
+      gradient_start,
+      gradient_middle,
+      gradient_end,
+      video_muted,
+      reveal_blastr,
+      position,
+      active: true
+    };
+
+    let saved;
+    if (editing) {
+      saved = await sbFetch(`/rest/v1/blastr_wall?id=eq.${encodeURIComponent(state.wallEditingId)}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=representation' },
+        body: payload
+      });
+    } else {
+      saved = await sbFetch('/rest/v1/blastr_wall', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation' },
+        body: payload
+      });
+    }
+
+    const row = Array.isArray(saved) ? saved[0] : saved;
+    if (!row?.id) throw new Error('Wall save failed.');
+
+    await sbFetch(`/rest/v1/blastr_wall_tags?wall_id=eq.${encodeURIComponent(row.id)}`, { method: 'DELETE' }).catch(() => {});
+    if (selectedTags.length) {
+      await sbFetch('/rest/v1/blastr_wall_tags', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation' },
+        body: selectedTags.map(tag_name => ({ wall_id: row.id, tag_name }))
+      });
+    }
+
+    showToast('SMART WALL SAVED', editing ? 'Wall slide updated.' : 'Wall slide deployed.');
+    blastrResetWallEditor();
+    await loadWallAdmin();
+    await loadHomeContent();
+  } catch (e) {
+    console.error('[BLASTR WALL ERROR]', e);
+    if (uploadedVideo?.bucket && uploadedVideo?.objectName) {
+      await blastrDeleteStorageObject(uploadedVideo.bucket, uploadedVideo.objectName).catch(() => {});
+    }
+    showToast('WALL ERROR', String(e?.message || e || 'Could not save wall slide.'));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'DEPLOY SMART WALL';
+  }
+}
+
+
+
+
+function deleteCurrentWallSlide() {
+  if (!state.wallEditingId) {
+    showToast('WALL DELETE', 'Select a wall slide first.');
+    return;
+  }
+  deleteWallSlide(state.wallEditingId);
+}
+
+async function deleteWallSlide(slideId) {
+  const id = String(slideId || '').trim();
+  if (!id) {
+    showToast('WALL DELETE', 'No slide selected.');
+    return;
+  }
+
+  const slide = (state.wallSlides || []).find(s => String(s.id) === id) || null;
+  const label = slide?.headline || slide?.song?.title || 'this wall slide';
+  const confirmed = window.confirm(`Delete ${label}? This cannot be undone.`);
+  if (!confirmed) return;
+
+  const delBtn = document.getElementById('btnWallDelete');
+  const blastBtn = document.getElementById('btnWallBlast');
+  const prevDelText = delBtn?.textContent || '';
+  const prevBlastText = blastBtn?.textContent || '';
+
+  try {
+    if (delBtn) {
+      delBtn.disabled = true;
+      delBtn.textContent = 'DELETING...';
+    }
+    if (blastBtn) blastBtn.disabled = true;
+
+    const headers = new Headers();
+    headers.set('apikey', SUPABASE_KEY);
+    headers.set('Authorization', `Bearer ${blastrGetAuthToken()}`);
+    headers.set('Accept', 'application/json');
+
+    const wallRes = await fetch(`${SUPABASE_URL}/rest/v1/blastr_wall?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers,
+      credentials: 'omit'
+    });
+    if (!wallRes.ok) {
+      const payload = await wallRes.text().catch(() => '');
+      throw new Error(payload || `Supabase ${wallRes.status} ${wallRes.statusText}`);
+    }
+
+    await fetch(`${SUPABASE_URL}/rest/v1/blastr_wall_tags?wall_id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers,
+      credentials: 'omit'
+    }).catch(() => {});
+
+    if (String(state.wallEditingId || '') === id) {
+      blastrResetWallEditor();
+    }
+
+    await loadWallAdmin();
+    await loadHomeContent();
+    showToast('WALL DELETED', 'Slide removed successfully.');
+  } catch (err) {
+    console.error('[BLASTR WALL DELETE ERROR]', err);
+    showToast('DELETE FAILED', String(err?.message || err || 'Could not delete wall slide.'));
+  } finally {
+    if (delBtn) {
+      delBtn.disabled = !state.wallEditingId;
+      delBtn.textContent = prevDelText || '🗑 DELETE CURRENT SLIDE';
+    }
+    if (blastBtn) {
+      blastBtn.disabled = false;
+      blastBtn.textContent = prevBlastText || 'DEPLOY SMART WALL';
+    }
+  }
+}
+
+/* ── BLASTR SMART WALL OVERRIDES ── */
+(() => {
+  const WALL_CACHE_LIMIT = 4;
+  const WALL_PRELOAD_BATCH = 3;
+
+  window.__blastrWallSingleton = window.__blastrWallSingleton || {
+    renderSeq: 0,
+    lastMountedId: null,
+    cache: new Map(),
+    ytLoader: null,
+    ytReady: false
+  };
+
+  function wallDiag(tag, msg, extra) {
+    try {
+      const ts = new Date().toISOString().slice(11, 23);
+      console.debug(`[BLASTR ${ts}] [WALL:${tag}] ${msg}`, extra ?? '');
+    } catch {}
+  }
+
+  function blastrWallCoerceBool(value, fallback = false) {
+    if (value === true || value === false) return value;
+    if (value == null) return fallback;
+    const s = String(value).trim().toLowerCase();
+    if (['1', 'true', 'yes', 'on', 'y'].includes(s)) return true;
+    if (['0', 'false', 'no', 'off', 'n'].includes(s)) return false;
+    return fallback;
+  }
+
+  function blastrWallSanitizeRow(row = {}) {
+    const songId = String(row.song_id ?? '').trim();
+    const duration = Math.max(6, Math.min(30, Number(row.duration_seconds ?? 10) || 10));
+    const position = Math.max(0, Number.parseInt(row.position ?? 0, 10) || 0);
+    const headline = blastrWallSafeText(row.headline, '');
+    const headlineType = blastrWallSafeText(row.headline_type, '');
+    const subheadline = blastrWallSafeText(row.subheadline, '');
+    const normalizedMediaType = String(row.media_type || 'image').trim().toLowerCase();
+    const mediaType = ['video', 'youtube'].includes(normalizedMediaType) ? normalizedMediaType : 'image';
+    const mediaUrl = blastrWallSafeText(row.media_url, '') || null;
+    const youtubeUrl = blastrWallSafeText(row.youtube_url, '') || null;
+    const ctaText = blastrWallSafeText(row.cta_text, 'Listen Now');
+    const gradientStart = blastrWallSafeText(row.gradient_start, '#1a1a1a');
+    const gradientMiddle = blastrWallSafeText(row.gradient_middle, '#0d0d0d');
+    const gradientEnd = blastrWallSafeText(row.gradient_end, '#202020');
+
+    return {
+      headline,
+      headline_type: headlineType,
+      subheadline,
+      song_id: songId || null,
+      media_type: mediaType,
+      media_url: mediaType === 'video' ? mediaUrl : null,
+      youtube_url: mediaType === 'youtube' ? youtubeUrl : null,
+      duration_seconds: duration,
+      show_sponsored: blastrWallCoerceBool(row.show_sponsored, false),
+      cta_text: ctaText,
+      gradient_start: gradientStart,
+      gradient_middle: gradientMiddle,
+      gradient_end: gradientEnd,
+      video_muted: blastrWallCoerceBool(row.video_muted, true),
+      reveal_blastr: blastrWallCoerceBool(row.reveal_blastr, true),
+      position,
+      active: blastrWallCoerceBool(row.active, true)
+    };
+  }
+
+  function blastrWallRequiredUuid(value) {
+    const v = String(value || '').trim();
+    if (!v) return '';
+    const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidLike.test(v) ? v : v;
+  }
+
+  function blastrWallExtractSupabaseError(payload, res) {
+    if (!payload) return `Supabase ${res?.status || 'unknown'} ${res?.statusText || 'error'}`.trim();
+    if (typeof payload === 'string') return payload.trim();
+    const parts = [
+      payload.message,
+      payload.details,
+      payload.hint,
+      payload.error_description,
+      payload.error
+    ].filter(Boolean);
+    if (parts.length) return parts.join(' | ');
+    try {
+      return JSON.stringify(payload);
+    } catch {
+      return `Supabase ${res?.status || 'unknown'} error`;
+    }
+  }
+
+  async function blastrSupabaseRequest(path, opts = {}) {
+    const method = String(opts.method || 'GET').toUpperCase();
+    const headers = new Headers(opts.headers || {});
+    headers.set('apikey', SUPABASE_KEY);
+    headers.set('Authorization', `Bearer ${blastrGetAuthToken()}`);
+    headers.set('Accept', 'application/json');
+    if (opts.body != null && !headers.has('Content-Type') && !(opts.body instanceof FormData) && !(opts.body instanceof Blob)) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    const body = opts.body == null ? undefined : (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body));
+    wallDiag('FETCH', `${method} ${path}`);
+
+    const res = await fetch(`${SUPABASE_URL}${path}`, {
+      method,
+      headers,
+      body,
+      credentials: 'omit'
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+    let payload = null;
+    try {
+      payload = contentType.includes('application/json') ? await res.json() : await res.text();
+    } catch (err) {
+      payload = null;
+    }
+
+    if (!res.ok) {
+      const message = blastrWallExtractSupabaseError(payload, res);
+      const error = new Error(message || `Supabase ${res.status}`);
+      error.status = res.status;
+      error.statusText = res.statusText || '';
+      error.payload = payload;
+      error.path = path;
+      error.method = method;
+      wallDiag('ERROR', `${method} ${path} failed`, payload);
+      throw error;
+    }
+
+    wallDiag('OK', `${method} ${path} succeeded`, payload);
+    return payload;
+  }
+
+  async function blastrWallRequestWithFallback(path, opts, variants = []) {
+    let lastError = null;
+    const tried = [];
+
+    for (const variant of variants) {
+      try {
+        const payload = await blastrSupabaseRequest(path, { ...opts, body: variant });
+        return payload;
+      } catch (err) {
+        lastError = err;
+        tried.push(err?.message || 'unknown error');
+      }
+    }
+
+    const error = lastError || new Error('Supabase request failed.');
+    error.tried = tried;
+    throw error;
+  }
+
+  function blastrWallBuildPayloadFromForm(song, selectedTags) {
+    const headline = blastrWallSafeText(document.getElementById('wallHeadline')?.value, '');
+    const headlineType = blastrWallSafeText(document.getElementById('wallHeadlineType')?.value, '');
+    const subheadline = blastrWallSafeText(document.getElementById('wallSubheadline')?.value, '');
+    const ctaText = blastrWallSafeText(document.getElementById('wallCtaText')?.value, 'Listen Now');
+    const mediaTypeUi = blastrWallSafeText(document.getElementById('wallMediaType')?.value, 'none');
+    const mediaType = blastrWallDbMediaType(mediaTypeUi);
+    const mediaUrl = blastrWallSafeText(document.getElementById('wallMediaUrl')?.value, '');
+    const duration_seconds = Math.max(6, Math.min(30, blastrWallNumber(document.getElementById('wallDuration')?.value, 10)));
+    const position = Math.max(0, blastrWallNumber(document.getElementById('wallPosition')?.value, 0));
+    const gradient_start = blastrWallSafeText(document.getElementById('wallGradientStart')?.value, '#1a1a1a');
+    const gradient_middle = blastrWallSafeText(document.getElementById('wallGradientMiddle')?.value, '#0d0d0d');
+    const gradient_end = blastrWallSafeText(document.getElementById('wallGradientEnd')?.value, '#202020');
+    const show_sponsored = blastrWallFlagState('wallSponsoredToggle');
+    const video_muted = blastrWallFlagState('wallMutedToggle');
+    const reveal_blastr = blastrWallFlagState('wallRevealToggle');
+
+    const media_url = mediaType === 'video' ? (mediaUrl || null) : null;
+    const youtube_url = mediaType === 'youtube' ? (mediaUrl || null) : null;
+
+    const raw = {
+      headline,
+      headline_type: headlineType,
+      subheadline,
+      song_id: blastrWallRequiredUuid(song?.id),
+      media_type: mediaType,
+      media_url,
+      youtube_url,
+      duration_seconds,
+      show_sponsored,
+      cta_text: ctaText,
+      gradient_start,
+      gradient_middle,
+      gradient_end,
+      video_muted,
+      reveal_blastr,
+      position,
+      active: true
+    };
+
+    const core = {
+      headline: raw.headline,
+      song_id: raw.song_id,
+      media_type: raw.media_type,
+      media_url: raw.media_url,
+      youtube_url: raw.youtube_url,
+      position: raw.position,
+      active: raw.active
+    };
+
+    const style = {
+      headline_type: raw.headline_type,
+      subheadline: raw.subheadline,
+      duration_seconds: raw.duration_seconds,
+      show_sponsored: raw.show_sponsored,
+      cta_text: raw.cta_text,
+      gradient_start: raw.gradient_start,
+      gradient_middle: raw.gradient_middle,
+      gradient_end: raw.gradient_end,
+      video_muted: raw.video_muted,
+      reveal_blastr: raw.reveal_blastr
+    };
+
+    return { raw, core, style, variants: [raw, core] };
+  }
+
+  function blastrWallPrimeAssets(slides = [], currentIndex = 0) {
+    try {
+      const cache = window.__blastrWallSingleton.cache;
+      const nextIndexes = [];
+      for (let i = 0; i < Math.min(WALL_PRELOAD_BATCH, slides.length); i += 1) {
+        nextIndexes.push((currentIndex + i) % slides.length);
+      }
+      nextIndexes.forEach((idx) => {
+        const slide = slides[idx];
+        if (!slide) return;
+        const song = slide.song || {};
+        const candidates = [
+          song.cover_url,
+          slide.media_type === 'video' ? slide.media_url : null,
+          slide.media_type === 'youtube' ? `https://www.youtube-nocookie.com/embed/${blastrWallExtractYoutubeId(slide.youtube_url || slide.media_url || '')}` : null
+        ].filter(Boolean);
+
+        candidates.forEach((url) => {
+          if (!url || cache.has(url)) return;
+          cache.set(url, true);
+          if (cache.size > WALL_CACHE_LIMIT * 20) {
+            const first = cache.keys().next().value;
+            if (first) cache.delete(first);
+          }
+          if (slide.media_type === 'youtube') return;
+          if (/^https?:\/\//i.test(url) || url.startsWith('data:')) {
+            if (/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url)) {
+              const link = document.createElement('link');
+              link.rel = 'preload';
+              link.as = 'video';
+              link.href = url;
+              document.head.appendChild(link);
+            } else {
+              const img = new Image();
+              img.decoding = 'async';
+              img.referrerPolicy = 'no-referrer';
+              img.src = url;
+            }
+          }
+        });
+      });
+      wallDiag('PRELOAD', `Primed ${Math.min(WALL_PRELOAD_BATCH, slides.length)} wall asset(s).`);
+    } catch (err) {
+      wallDiag('PRELOAD_ERROR', err?.message || err);
+    }
+  }
+
+  function blastrWallRenderFallbackImage(slide, index = 0) {
+    const song = slide?.song || {};
+    const cover = song?.cover_url || '';
+    const title = song?.title || 'Featured Drop';
+    const artist = song?.artist || 'Blastr';
+    const initials = String(title || artist || 'B').trim().slice(0, 1).toUpperCase() || 'B';
+    const accent = ['#39FF14', '#00C6FF', '#FF6B9D', '#FFD166', '#9D78FF'][index % 5];
+    return `
+      <div class="smart-wall-fallback" style="background:linear-gradient(135deg, ${accent}22, ${accent}08)">
+        ${cover ? `<img src="${esc(cover)}" loading="eager" decoding="async" alt="${esc(title)}" onerror="this.remove();this.parentElement.classList.add('image-error')">` : ''}
+        <div class="smart-wall-fallback-art" aria-hidden="true">
+          <div class="smart-wall-fallback-letter">${esc(initials)}</div>
+          <div class="smart-wall-fallback-copy">BLASTR</div>
+        </div>
+      </div>
+    `;
+  }
+
+  
+  function blastrWallBuildMedia(slide, idx = 0) {
+    const song = slide?.song || null;
+    const cover = song?.cover_url || '';
+    const url = blastrWallSafeText(slide?.media_url, '');
+    const youtube = blastrWallSafeText(slide?.youtube_url, '');
+    const mediaType = blastrWallSafeText(slide?.media_type, 'none');
+    const muted = slide?.video_muted !== false ? 'muted' : '';
+    const autoplayAttrs = 'autoplay playsinline preload="metadata"';
+    const poster = cover ? `poster="${esc(cover)}"` : '';
+
+    if (mediaType === 'youtube' && (youtube || url)) {
+      const ytId = blastrWallExtractYoutubeId(youtube || url);
+      if (!ytId) return `<div class="smart-wall-empty">INVALID YOUTUBE URL</div>`;
+      const muteParam = slide?.video_muted === false ? 0 : 1;
+      return `
+        <div style="position:absolute;inset:0">
+          <iframe
+            id="wallYTFrame"
+            data-yt-id="${esc(ytId)}"
+            src="https://www.youtube-nocookie.com/embed/${esc(ytId)}?autoplay=1&mute=${muteParam}&playsinline=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            referrerpolicy="origin-when-cross-origin"
+            allowfullscreen></iframe>
+        </div>
+      `;
+    }
+
+    if (mediaType === 'video' && url) {
+      return `
+        <div class="smart-wall-media-shell" data-wall-media-kind="video">
+          <div class="smart-wall-media-placeholder" aria-hidden="true">
+            <div class="smart-wall-media-placeholder-art">
+              <div class="smart-wall-media-placeholder-core">B</div>
+              <div class="smart-wall-media-placeholder-text">BLASTR</div>
+            </div>
+          </div>
+          <video
+            id="wallVideo"
+            ${autoplayAttrs}
+            ${muted}
+            ${poster}
+            webkit-playsinline
+            playsinline
+            preload="auto">
+            <source src="${esc(url)}" type="video/mp4">
+          </video>
+        </div>
+      `;
+    }
+
+    if (cover) {
+      return `
+        <div class="smart-wall-image-wrap">
+          <img src="${esc(cover)}" loading="eager" decoding="async" referrerpolicy="no-referrer" alt="${esc(song?.title || 'Featured song')}" onerror="this.remove();this.parentElement.outerHTML='${blastrWallEscapeHtml(blastrWallRenderFallbackImage(slide, idx))}'">
+        </div>
+      `;
+    }
+
+    return blastrWallRenderFallbackImage(slide, idx);
+  }
+
+
+function blastrWallClearTimers() {
+    try {
+      if (state.wallTimer) {
+        clearTimeout(state.wallTimer);
+        clearInterval(state.wallTimer);
+        state.wallTimer = null;
+      }
+      if (state.wallRevealTimer) {
+        clearTimeout(state.wallRevealTimer);
+        state.wallRevealTimer = null;
+      }
+      if (state.wallRaf) {
+        cancelAnimationFrame(state.wallRaf);
+        state.wallRaf = null;
+      }
+      if (state.wallCurrentPlayer && typeof state.wallCurrentPlayer.destroy === 'function') {
+        try { state.wallCurrentPlayer.destroy(); } catch {}
+      }
+      state.wallCurrentPlayer = null;
+      state.wallCurrentPlayerType = null;
+      wallDiag('RESET', 'Wall timers cleared.');
+    } catch (err) {
+      wallDiag('RESET_ERROR', err?.message || err);
+    }
+  }
+
+  async function blastrFetchWallDeck(tracks = state.allTracks || []) {
+    try {
+      const [wallRows, tagRows] = await Promise.all([
+        blastrSupabaseRequest('/rest/v1/blastr_wall?select=*&order=position.asc,created_at.desc'),
+        blastrSupabaseRequest('/rest/v1/blastr_wall_tags?select=*&order=tag_name.asc')
+      ]);
+
+      const trackMap = new Map((tracks || state.allTracks || []).map(t => [String(t.id), t]));
+      const tagsByWall = new Map();
+      (Array.isArray(tagRows) ? tagRows : []).forEach((row) => {
+        const key = String(row.wall_id || '');
+        if (!key) return;
+        if (!tagsByWall.has(key)) tagsByWall.set(key, []);
+        tagsByWall.get(key).push(String(row.tag_name || '').trim());
+      });
+
+      const slides = (Array.isArray(wallRows) ? wallRows : []).map((row, idx) => {
+        const song = row.song_id ? (trackMap.get(String(row.song_id)) || null) : null;
+        const tags = (tagsByWall.get(String(row.id)) || []).filter(Boolean);
+        return { ...row, song, tags, _index: idx };
+      });
+
+      state.wallSlides = slides;
+      state.wallDeckLoadedAt = Date.now();
+      wallDiag('FETCH', `Loaded ${slides.length} wall slide(s).`);
+      return slides;
+    } catch (err) {
+      wallDiag('FETCH_ERROR', err?.message || err);
+      state.wallSlides = [];
+      return [];
+    }
+  }
+
+  function blastrWallEnsureMount() {
+    const mount = document.getElementById('smartWallMount');
+    if (!mount) return null;
+    const pageHome = document.getElementById('page-home');
+    if (pageHome) {
+      const allMounts = pageHome.querySelectorAll('#smartWallMount');
+      if (allMounts.length > 1) {
+        allMounts.forEach((node, index) => {
+          if (index > 0) node.remove();
+        });
+      }
+    }
+    return mount;
+  }
+
+  async function blastrRenderSmartWall(tracks = state.allTracks || []) {
+    const mount = blastrWallEnsureMount();
+    if (!mount) return;
+
+    const seq = ++window.__blastrWallSingleton.renderSeq;
+    const slides = await blastrFetchWallDeck(tracks);
+    if (seq !== window.__blastrWallSingleton.renderSeq) return;
+
+    if (!slides.length) {
+      mount.innerHTML = `
+        <div class="smart-wall-shell smart-wall-empty-shell">
+          <div class="smart-wall-stage smart-wall-empty-stage">
+            <div class="smart-wall-copy">
+              <div class="smart-wall-kicker">
+                <span class="smart-wall-badge"><span class="dot"></span>WELCOME TO THE WALL</span>
+                <span class="smart-wall-pill">EMPTY FOR NOW</span>
+              </div>
+              <div class="smart-wall-title">Your first spotlight is waiting.</div>
+              <div class="smart-wall-subtitle">
+                Admins can add one featured song plus an image, a local video, or a YouTube trailer.
+                Until then, this banner keeps the home page alive and cinematic.
+              </div>
+              <div class="smart-wall-actions">
+                <button class="smart-wall-cta" onclick="showPage('admin', document.querySelector('.sidebar-btn.admin-btn'))">OPEN ADMIN MATRIX</button>
+                <button class="smart-wall-cta ghost" onclick="loadHomeContent()">REFRESH WALL</button>
+              </div>
+            </div>
+            <div class="smart-wall-media smart-wall-empty-media">
+              <div class="smart-wall-empty-art">
+                <div class="burst-core" style="position:static;transform:none;animation:none">B</div>
+                <div style="margin-top:10px;font-size:11px;letter-spacing:4px;font-family:var(--mono);color:rgba(255,255,255,.6)">BLASTR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      blastrWallClearTimers();
+      return;
+    }
+
+    if (state.wallIndex >= slides.length) state.wallIndex = 0;
+    if (state.wallIndex < 0) state.wallIndex = slides.length - 1;
+
+    const slide = slides[state.wallIndex];
+    mount.innerHTML = blastrWallRenderSlide(slide, state.wallIndex);
+    blastrWallPrimeAssets(slides, state.wallIndex);
+    requestAnimationFrame(() => {
+      if (seq !== window.__blastrWallSingleton.renderSeq) return;
+      blastrBindWallCurrent();
+    });
+  }
+
+  async function loadSmartWall(tracks = state.allTracks || []) {
+    wallDiag('INIT', 'Rendering smart wall.');
+    try {
+      return await blastrRenderSmartWall(tracks);
+    } catch (err) {
+      wallDiag('ERROR', err?.message || err);
+      const mount = blastrWallEnsureMount();
+      if (mount && !mount.innerHTML.trim()) {
+        mount.innerHTML = `
+          <div class="smart-wall-shell smart-wall-empty-shell">
+            <div class="smart-wall-stage smart-wall-empty-stage">
+              <div class="smart-wall-copy">
+                <div class="smart-wall-kicker">
+                  <span class="smart-wall-badge"><span class="dot"></span>BLASTR DISCOVERY</span>
+                  <span class="smart-wall-pill">FALLBACK MODE</span>
+                </div>
+                <div class="smart-wall-title">Discovery stays on, even when the wall takes a hit.</div>
+                <div class="smart-wall-subtitle">
+                  The rest of the home feed continues to load independently while the Smart Wall recovers.
+                </div>
+              </div>
+              <div class="smart-wall-media smart-wall-empty-media">
+                <div class="smart-wall-empty-art">
+                  <div class="burst-core" style="position:static;transform:none;animation:none">B</div>
+                  <div style="margin-top:10px;font-size:11px;letter-spacing:4px;font-family:var(--mono);color:rgba(255,255,255,.6)">BLASTR</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  function blastrBindWallCurrent() {
+    const slide = state.wallSlides?.[state.wallIndex];
+    if (!slide) return;
+    blastrWallClearTimers();
+    blastrWallHideBurst();
+    state.wallRevealTriggered = false;
+
+    const wall = document.getElementById('smartWall');
+    const timeLabel = document.getElementById('wallTimeLabel');
+    if (timeLabel) timeLabel.textContent = `${(state.wallIndex || 0) + 1} / ${Math.max(state.wallSlides.length, 1)}`;
+
+    const muteBtn = document.createElement('button');
+    muteBtn.className = 'smart-wall-cta ghost';
+    muteBtn.style.marginLeft = 'auto';
+    muteBtn.textContent = (slide.video_muted !== false) ? 'UNMUTE' : 'MUTE';
+    muteBtn.onclick = () => blastrWallToggleMute();
+    const actions = wall?.querySelector('.smart-wall-actions');
+    if (actions && !actions.querySelector('[data-wall-mute="1"]')) {
+      muteBtn.dataset.wallMute = '1';
+      actions.appendChild(muteBtn);
+    }
+
+    const videoEl = document.getElementById('wallVideo');
+    if (videoEl) {
+      wallDiag('PLAYBACK', 'Initializing HTML5 video slide.');
+      blastrWallInitVideo(videoEl, slide, state.wallIndex);
+      return;
+    }
+
+    if (document.getElementById('wallYTFrame')) {
+      wallDiag('PLAYBACK', 'Initializing YouTube slide.');
+      blastrWallInitYoutube(slide, state.wallIndex);
+      return;
+    }
+
+    wallDiag('PLAYBACK', 'Starting image timer slide.');
+    blastrWallStartImageTimer(slide, state.wallIndex);
+  }
+
+  function blastrWallSetProgress(value = 0) {
+    const fill = document.getElementById('wallProgressFill');
+    if (fill) fill.style.width = `${Math.max(0, Math.min(100, value))}%`;
+  }
+
+  function blastrWallShowBurst() {
+    const burst = document.getElementById('wallBurst');
+    if (!burst) return;
+    const core = burst.querySelector('.burst-core');
+    if (!core) return;
+    burst.classList.add('show');
+    burst.classList.remove('expanded');
+    core.textContent = 'B';
+    window.setTimeout(() => {
+      core.textContent = 'BLASTR';
+      burst.classList.add('expanded');
+    }, 520);
+  }
+
+  function blastrWallHideBurst() {
+    const burst = document.getElementById('wallBurst');
+    if (!burst) return;
+    burst.classList.remove('show', 'expanded');
+    const core = burst.querySelector('.burst-core');
+    if (core) core.textContent = 'B';
+  }
+
+  function blastrWallShouldReveal(slide) {
+    return blastrWallCoerceBool(slide?.reveal_blastr, true);
+  }
+
+  function blastrWallStartImageTimer(slide, index) {
+    const durationMs = Math.max(6000, blastrWallNumber(slide?.duration_seconds, 10) * 1000);
+    const started = performance.now();
+    blastrWallSetProgress(0);
+
+    const tick = (now) => {
+      const elapsed = now - started;
+      const pct = (elapsed / durationMs) * 100;
+      blastrWallSetProgress(pct);
+      const remaining = durationMs - elapsed;
+      if (remaining <= 7000 && !state.wallRevealTriggered && blastrWallShouldReveal(slide)) {
+        state.wallRevealTriggered = true;
+        blastrWallShowBurst();
+      }
+      if (elapsed < durationMs) {
+        state.wallRaf = requestAnimationFrame(tick);
+      } else {
+        blastrAdvanceWall(1, false);
+      }
+    };
+
+    state.wallRaf = requestAnimationFrame(tick);
+    state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), durationMs + 40);
+  }
+
+  function blastrWallSetVideoProgress(el) {
+    const dur = el?.duration || 0;
+    const pct = dur > 0 ? (el.currentTime / dur) * 100 : 0;
+    blastrWallSetProgress(pct);
+    if (dur > 0 && (dur - el.currentTime) <= 7 && !state.wallRevealTriggered) {
+      state.wallRevealTriggered = true;
+      blastrWallShowBurst();
+    }
+  }
+
+  function blastrWallInitVideo(videoEl, slide) {
+    if (!videoEl) return;
+    state.wallCurrentPlayerType = 'video';
+    state.wallCurrentPlayer = videoEl;
+
+    const muted = blastrWallCoerceBool(slide?.video_muted, true);
+    videoEl.muted = muted;
+    videoEl.volume = muted ? 0 : (state.volume ?? 0.7);
+    videoEl.loop = false;
+    videoEl.autoplay = true;
+    videoEl.playsInline = true;
+    videoEl.preload = 'metadata';
+
+    const shell = videoEl.closest('.smart-wall-media-shell');
+    const durationMs = Math.max(10000, blastrWallNumber(slide?.duration_seconds, 18) * 1000);
+    let settled = false;
+
+    const settleReady = () => {
+      if (settled) return;
+      settled = true;
+      if (shell) shell.classList.add('ready');
+      videoEl.play().catch((err) => wallDiag('PLAYBACK', 'Video autoplay blocked.', err?.message || err));
+    };
+
+    const clearFallback = () => {
+      if (state.wallTimer) {
+        clearTimeout(state.wallTimer);
+        state.wallTimer = null;
+      }
+    };
+
+    const onTime = () => blastrWallSetVideoProgress(videoEl);
+    const onEnd = () => {
+      clearFallback();
+      blastrAdvanceWall(1, false);
+    };
+    const onMeta = () => blastrWallSetVideoProgress(videoEl);
+    const onError = (err) => {
+      wallDiag('PLAYBACK', 'Video load error.', err?.message || err);
+      if (shell) shell.classList.remove('ready');
+      clearFallback();
+      state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), safeWatchdogMs);
+    };
+
+    videoEl.addEventListener('timeupdate', onTime, { passive: true });
+    videoEl.addEventListener('ended', onEnd, { passive: true });
+    videoEl.addEventListener('loadedmetadata', onMeta, { passive: true });
+    videoEl.addEventListener('loadeddata', () => {
+      blastrWallSetVideoProgress(videoEl);
+      settleReady();
+    }, { passive: true, once: true });
+    videoEl.addEventListener('canplay', settleReady, { passive: true, once: true });
+    videoEl.addEventListener('error', onError, { passive: true, once: true });
+
+    state.wallRevealTriggered = false;
+    blastrWallSetProgress(videoEl.duration ? (videoEl.currentTime / videoEl.duration) * 100 : 0);
+
+    state.wallTimer = setTimeout(() => {
+      wallDiag('PLAYBACK', 'Video fallback timeout reached.');
+      blastrAdvanceWall(1, false);
+    }, safeWatchdogMs);
+  }
+
+function blastrWallLoadYoutubeApi() {
+    window.__blastrWallSingleton = window.__blastrWallSingleton || {};
+    window.__blastrWallSingleton.ytReady = true;
+    return Promise.resolve();
+  }
+
+  
+  function blastrWallInitYoutube(slide) {
+    const frame = document.getElementById('wallYTFrame');
+    if (!frame) {
+      const fallbackMs = Math.max(15000, blastrWallNumber(slide?.duration_seconds, 18) * 1000);
+      state.wallTimer = setTimeout(() => blastrAdvanceWall(1, false), fallbackMs);
+      return;
+    }
+
+    const durationMs = Math.max(15000, blastrWallNumber(slide?.duration_seconds, 18) * 1000);
+    const startedAt = performance.now();
+    state.wallCurrentPlayerType = 'youtube';
+    state.wallCurrentPlayer = null;
+    state.wallRevealTriggered = false;
+
+    if (state.wallRaf) cancelAnimationFrame(state.wallRaf);
+    if (state.wallTimer) {
+      clearTimeout(state.wallTimer);
+      state.wallTimer = null;
+    }
+
+    const tick = () => {
+      const elapsed = performance.now() - startedAt;
+      const pct = Math.min(100, (elapsed / durationMs) * 100);
+      blastrWallSetProgress(pct);
+
+      if ((durationMs - elapsed) <= 7000 && !state.wallRevealTriggered && blastrWallShouldReveal(slide)) {
+        state.wallRevealTriggered = true;
+        blastrWallShowBurst();
+      }
+
+      if (elapsed >= durationMs) {
+        state.wallRaf = null;
+        blastrAdvanceWall(1, false);
+        return;
+      }
+
+      state.wallRaf = requestAnimationFrame(tick);
+    };
+
+    state.wallRaf = requestAnimationFrame(tick);
+    state.wallTimer = setTimeout(() => {
+      wallDiag('PLAYBACK', 'YouTube wall watchdog reached; advancing.');
+      blastrAdvanceWall(1, false);
+    }, durationMs + 1000);
+  }
+
+
+  function blastrWallRenderSongResults(tracks = [], label = 'SEARCH RESULTS', open = true) {
+    const results = document.getElementById('wallSongResults');
+    if (!results) return;
+    if (!tracks.length) {
+      results.innerHTML = `
+        <div class="lab-result-item" style="cursor:default">
+          <div style="font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim)">${esc(label)}</div>
+          <div style="margin-top:4px;color:var(--dim)">No matching songs found.</div>
+        </div>
+      `;
+      results.classList.toggle('open', open);
+      return;
+    }
+
+    results.innerHTML = `
+      <div class="lab-result-item" style="cursor:default;background:rgba(255,255,255,.02)">
+        <div style="font-size:10px;font-family:var(--mono);letter-spacing:2px;color:var(--dim)">${esc(label)}</div>
+      </div>
+      ${tracks.slice(0, 10).map(track => `
+        <div class="search-row wall-song-result" onclick="selectWallSongFromSearch(${jsonAttr(track)})">
+          <div class="search-thumb">${track.cover_url ? `<img src="${esc(track.cover_url)}" loading="lazy" decoding="async">` : '♪'}</div>
+          <div class="meta">
+            <div class="title">${esc(track.title || 'Untitled')}</div>
+            <div class="sub">${esc(track.artist || 'Unknown Artist')}${track.genre ? ` • ${esc(track.genre)}` : ''}</div>
+          </div>
+          <button class="pick" onclick="event.stopPropagation(); selectWallSongFromSearch(${jsonAttr(track)})">LOCK</button>
+        </div>
+      `).join('')}
+    `;
+    results.classList.toggle('open', open);
+  }
+
+  function blastrWallSyncSelectedSong(track) {
+    const select = document.getElementById('wallSongSelect');
+    const text = document.getElementById('wallSelectedSongText');
+    const input = document.getElementById('wallSongSearchInput');
+    if (select && track?.id != null) select.value = String(track.id);
+    if (input && track?.id != null) input.dataset.songId = String(track.id);
+    if (text) {
+      text.textContent = track
+        ? `Selected: ${track.title || 'Untitled'}${track.artist ? ` — ${track.artist}` : ''}`
+        : 'No featured song selected yet.';
+    }
+    if (input && track) {
+      input.value = `${track.title || 'Untitled'}${track.artist ? ` — ${track.artist}` : ''}`;
+    }
+    const results = document.getElementById('wallSongResults');
+    if (results) results.classList.remove('open');
+  }
+
+  function blastrRenderWallTagPicker() {
+    const picker = document.getElementById('wallTagPicker');
+    if (!picker) return;
+    const catalog = state.wallCatalog?.length ? state.wallCatalog : BLASTR_WALL_DEFAULT_TAGS;
+    picker.innerHTML = catalog.map((t) => {
+      const name = String(t.tag_name || t.name || '').trim();
+      const icon = String(t.icon || '').trim();
+      const active = state.wallSelectedTags.includes(name);
+      return `<div class="tag-chip${active ? ' active' : ''}" onclick="toggleWallTag(${jsonAttr(name)})">${icon ? `<span class="icon">${esc(icon)}</span>` : ''}${esc(name)}</div>`;
+    }).join('');
+  }
+
+  async function loadWallAdmin() {
+    if (!state.isAdmin) return;
+    wallDiag('INIT', 'Loading wall admin.');
+    try {
+      const tracks = state.allTracks?.length ? state.allTracks : await getTracks();
+      state.allTracks = tracks || [];
+      const slideRows = await blastrFetchWallDeck(tracks);
+      const select = document.getElementById('wallSongSelect');
+      if (select) {
+        select.innerHTML = '<option value="">SELECT FEATURED SONG...</option>' + (tracks || []).map(t => `<option value="${esc(t.id)}">${esc(t.title)} — ${esc(t.artist || '')}</option>`).join('');
+      }
+      const recent = (tracks || []).slice(0, 8);
+      if (document.getElementById('wallSongResults')) {
+        blastrWallRenderSongResults(recent, recent.length ? 'RECENT TRACKS' : 'NO SONGS FOUND', true);
+      }
+      try { await blastrLoadWallCatalog(); } catch {}
+      blastrRenderWallTagPicker();
+      if (!state.wallSelectedTags) state.wallSelectedTags = [];
+      if (state.wallEditingId) {
+        const current = slideRows.find(s => String(s.id) === String(state.wallEditingId));
+        if (current) blastrPopulateWallEditor(current);
+      }
+      renderWallRegistry(slideRows);
+      const delBtn = document.getElementById('btnWallDelete');
+      if (delBtn) delBtn.disabled = !state.wallEditingId;
+      blastrWallMediaMode();
+    } catch (err) {
+      wallDiag('ADMIN_ERROR', err?.message || err);
+    }
+  }
+
+  function blastrWallBuildTagHtml(tags = []) {
+    if (!tags.length) return '';
+    return tags.slice(0, 8).map((tag, idx) => {
+      const cat = (state.wallCatalog || BLASTR_WALL_DEFAULT_TAGS).find(t => String(t.tag_name).toLowerCase() === String(tag).toLowerCase());
+      const icon = cat?.icon || ['⚡', '🔥', '💫', '🎧', '✨', '🚀'][idx % 6];
+      return `<span class="smart-wall-tag">${icon ? `${esc(icon)} ` : ''}${esc(tag)}</span>`;
+    }).join('');
+  }
+
+  function blastrWallBuildTagTags(rows = []) {
+    return rows.map(r => String(r.tag_name || '').trim()).filter(Boolean);
+  }
+
+  function blastrWallBuildPayloadForSubmit(song, selectedTags) {
+    return blastrWallBuildPayloadFromForm(song, selectedTags);
+  }
+
+  function blastrWallUpdateEditorLabels(on = true) {
+    const btn = document.getElementById('btnWallBlast');
+    if (btn) btn.textContent = on ? 'UPDATE SMART WALL' : 'DEPLOY SMART WALL';
+  }
+
+  async function executeWallBlast() {
+    if (!state.isAdmin) {
+      showToast('RESTRICTED', 'Admin access required.');
+      return;
+    }
+
+    const songId = document.getElementById('wallSongSelect')?.value || document.getElementById('wallSongSearchInput')?.dataset?.songId || '';
+    const selectedTags = (state.wallSelectedTags || []).slice(0, 8);
+
+    if (!songId) {
+      showToast('WALL ERROR', 'Pick one featured song first.');
+      return;
+    }
+
+    const song = (state.allTracks || []).find(t => String(t.id) === String(songId)) || null;
+    if (!song) {
+      showToast('WALL ERROR', 'Selected song was not found in the library.');
+      return;
+    }
+
+    const btn = document.getElementById('btnWallBlast');
+    const editing = !!state.wallEditingId;
+    const uploadedVideo = { bucket: null, objectName: null };
+    let savedRow = null;
+    let lastError = null;
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = editing ? 'UPDATING...' : 'DEPLOYING...';
+    }
+
+    try {
+      const mediaTypeUi = blastrWallSafeText(document.getElementById('wallMediaType')?.value, 'none');
+      const mediaType = blastrWallDbMediaType(mediaTypeUi);
+      const mediaUrl = blastrWallSafeText(document.getElementById('wallMediaUrl')?.value, '');
+      let youtube_url = null;
+      let media_url = null;
+
+      if (mediaTypeUi === 'youtube') {
+        youtube_url = mediaUrl || null;
+        if (!youtube_url) throw new Error('Paste a YouTube URL for this wall slide.');
+      } else if (mediaTypeUi === 'video') {
+        if (wallMediaFile) {
+          const safeStem = blastrCleanFileStem(`${song.title || 'wall'}-${Date.now()}`);
+          const objectName = blastrNormalizeObjectName(`${safeStem}-wall.${blastrGuessExtension(wallMediaFile, 'mp4')}`, safeStem);
+          const uploaded = await blastrUploadStorageFile(BLASTR_WALL_MEDIA_BUCKET, objectName, wallMediaFile, {
+            fallbackBase: `${safeStem}-wall`,
+            reason: 'uploading the wall video'
+          });
+          uploadedVideo.bucket = uploaded.bucket;
+          uploadedVideo.objectName = uploaded.objectName;
+          media_url = uploaded.url;
+        } else if (mediaUrl) {
+          media_url = mediaUrl;
+        } else {
+          throw new Error('Add a video URL or choose a local video file.');
+        }
+      }
+
+      const formPack = blastrWallBuildPayloadFromForm(song, selectedTags);
+      const strictPayload = {
+        ...formPack.raw,
+        media_type: mediaType,
+        media_url: mediaType === 'video' ? media_url : null,
+        youtube_url: mediaType === 'youtube' ? youtube_url : null
+      };
+      const corePayload = {
+        ...formPack.core,
+        media_type: mediaType,
+        media_url: mediaType === 'video' ? media_url : null,
+        youtube_url: mediaType === 'youtube' ? youtube_url : null
+      };
+      const stylePayload = {
+        ...formPack.style
+      };
+
+      wallDiag('SAVE', `${editing ? 'Updating' : 'Creating'} wall slide`, strictPayload);
+
+      const variants = [
+        strictPayload,
+        corePayload,
+        {
+          headline: strictPayload.headline,
+          song_id: strictPayload.song_id,
+          media_type: strictPayload.media_type,
+          media_url: strictPayload.media_url,
+          youtube_url: strictPayload.youtube_url,
+          active: strictPayload.active
+        }
+      ];
+
+      if (editing) {
+        for (const [idx, variant] of variants.entries()) {
+          try {
+            savedRow = await blastrSupabaseRequest(`/rest/v1/blastr_wall?id=eq.${encodeURIComponent(state.wallEditingId)}`, {
+              method: 'PATCH',
+              headers: { Prefer: 'return=representation' },
+              body: variant
+            });
+            wallDiag('SAVE_VARIANT_OK', `PATCH variant ${idx + 1} succeeded`, variant);
+            break;
+          } catch (err) {
+            lastError = err;
+            wallDiag('SAVE_VARIANT_ERROR', `PATCH variant ${idx + 1} failed`, err?.payload || err?.message || err);
+          }
+        }
+        if (!savedRow) {
+          throw lastError || new Error('Wall update failed. Supabase rejected the update payload.');
+        }
+      } else {
+        for (const [idx, variant] of variants.entries()) {
+          try {
+            savedRow = await blastrSupabaseRequest('/rest/v1/blastr_wall', {
+              method: 'POST',
+              headers: { Prefer: 'return=representation' },
+              body: variant
+            });
+            wallDiag('SAVE_VARIANT_OK', `POST variant ${idx + 1} succeeded`, variant);
+            break;
+          } catch (err) {
+            lastError = err;
+            wallDiag('SAVE_VARIANT_ERROR', `POST variant ${idx + 1} failed`, err?.payload || err?.message || err);
+          }
+        }
+        if (!savedRow) {
+          throw lastError || new Error('Wall save failed. Supabase rejected the insert payload.');
+        }
+      }
+
+      const row = Array.isArray(savedRow) ? savedRow[0] : savedRow;
+      if (!row?.id) {
+        throw new Error('Supabase did not return a saved wall row.');
+      }
+
+      if (Object.keys(stylePayload).length) {
+        try {
+          const styleUpdate = await blastrSupabaseRequest(`/rest/v1/blastr_wall?id=eq.${encodeURIComponent(row.id)}`, {
+            method: 'PATCH',
+            headers: { Prefer: 'return=representation' },
+            body: stylePayload
+          });
+          wallDiag('STYLE_PATCH_OK', 'Optional Smart Wall styling saved.', styleUpdate);
+        } catch (styleErr) {
+          wallDiag('STYLE_PATCH_SKIPPED', styleErr?.message || styleErr, styleErr?.payload || '');
+        }
+      }
+
+      await blastrSupabaseRequest(`/rest/v1/blastr_wall_tags?wall_id=eq.${encodeURIComponent(row.id)}`, {
+        method: 'DELETE'
+      }).catch(() => {});
+
+      if (selectedTags.length) {
+        const tagPayload = selectedTags.map(tag_name => ({ wall_id: row.id, tag_name }));
+        await blastrSupabaseRequest('/rest/v1/blastr_wall_tags', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: tagPayload
+        }).catch((tagErr) => wallDiag('TAG_SAVE_WARN', tagErr?.message || tagErr, tagErr?.payload || ''));
+      }
+
+      wallDiag('SAVE_OK', `Wall slide ${editing ? 'updated' : 'created'} successfully.`, row);
+      showToast('SMART WALL SAVED', editing ? 'Wall slide updated.' : 'Wall slide deployed.');
+      blastrResetWallEditor();
+      await loadWallAdmin();
+      void loadHomeContent().catch((err) => wallDiag('HOME_REFRESH_ERROR', err?.message || err));
+    } catch (err) {
+      wallDiag('SAVE_ERROR', err?.message || err, err?.payload || '');
+      if (uploadedVideo?.bucket && uploadedVideo?.objectName) {
+        await blastrDeleteStorageObject(uploadedVideo.bucket, uploadedVideo.objectName).catch(() => {});
+      }
+      showToast('WALL ERROR', err?.message || 'Could not save wall slide.');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = editing ? 'UPDATE SMART WALL' : 'DEPLOY SMART WALL';
+      }
+    }
+  }
+
+  async function loadHomeContent() {
+    const home = document.getElementById('homeContent');
+    if (!home) return;
+
+    blastrUpdateTimeBasedCopy();
+
+    const token = ++window.__blastrWallSingleton.renderSeq;
+    home.innerHTML = renderSkeletons();
+
+    try {
+      const tracks = await getTracks();
+      if (token !== window.__blastrWallSingleton.renderSeq) return;
+      state.allTracks = Array.isArray(tracks) ? tracks : [];
+
+      const genres = {};
+      (state.allTracks || []).forEach(t => {
+        const g = t.genre || 'Uncategorized';
+        if (!genres[g]) genres[g] = [];
+        genres[g].push(t);
+      });
+
+      let html = '';
+      if (!state.allTracks.length) {
+        html += `<div style="color:var(--dim);padding:20px 4px 6px;font-family:var(--mono);font-size:12px;letter-spacing:1px">NO TRACKS IN THE GRID YET.</div>`;
+      } else {
+        html += `<div class="songs-section"><div class="section-header"><div class="section-name">All Tracks</div><button class="section-more" onclick="showAllTracks()">VIEW ALL →</button></div><div class="song-grid">`;
+        state.allTracks.slice(0, 12).forEach((t, i) => { html += songTileHTML(t, i); });
+        html += `</div></div>`;
+
+        Object.entries(genres).slice(0, 5).forEach(([genre, songs]) => {
+          if (songs.length < 2) return;
+          html += `<div class="songs-section"><div class="section-header"><div class="section-name">${esc(genre)}</div><button class="section-more" onclick="genreShuffle('${esc(genre)}')">⇌ SHUFFLE</button></div><div class="song-grid">`;
+          songs.slice(0, 8).forEach((t, i) => { html += songTileHTML(t, i); });
+          html += `</div></div>`;
+        });
+      }
+
+      home.innerHTML = html;
+      renderBecauseSection();
+      void loadSmartWall(state.allTracks).catch((err) => wallDiag('HOME_WALL_ERROR', err?.message || err));
+      wallDiag('HOME', `Rendered ${state.allTracks.length} track(s) to the home page.`);
+    } catch (err) {
+      home.innerHTML = `<div style="padding:24px;color:var(--dim);font-family:var(--mono)">Home content failed to load. ${esc(err?.message || 'Unknown error')}</div>`;
+      wallDiag('HOME_ERROR', err?.message || err);
+      void loadSmartWall(state.allTracks || []).catch(() => {});
+    }
+  }
+
+  async function loadSmartWallHomeOnly(tracks = state.allTracks || []) {
+    return loadSmartWall(tracks);
+  }
+
+  // Replace the old globals with the hardened versions.
+  window.blastrFetchWallDeck = blastrFetchWallDeck;
+  window.blastrRenderSmartWall = blastrRenderSmartWall;
+  window.loadSmartWall = loadSmartWallHomeOnly;
+  window.loadHomeContent = loadHomeContent;
+  window.executeWallBlast = executeWallBlast;
+  window.loadWallAdmin = loadWallAdmin;
+  window.blastrWallBuildMedia = blastrWallBuildMedia;
+  window.blastrWallClearTimers = blastrWallClearTimers;
+  window.blastrWallInitVideo = blastrWallInitVideo;
+  window.blastrWallInitYoutube = blastrWallInitYoutube;
+  window.blastrWallRenderSongResults = blastrWallRenderSongResults;
+  window.blastrRenderWallTagPicker = blastrRenderWallTagPicker;
+  window.blastrWallSyncSelectedSong = blastrWallSyncSelectedSong;
+
+  wallDiag('BOOT', 'Smart Wall overrides installed.');
+})();
+
+</script>
+
+
+<script>
+let wallMediaFile = null;
+function selectWallMediaFile() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'video/*';
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    wallMediaFile = f;
+    const btn = document.getElementById('btnWallMedia');
+    if (btn) {
+      btn.textContent = '✓ LOCAL VIDEO: ' + f.name;
+      btn.classList.add('loaded');
+    }
+    const mediaType = document.getElementById('wallMediaType');
+    if (mediaType) mediaType.value = 'video';
+    if (typeof blastrWallMediaMode === 'function') blastrWallMediaMode();
+  };
+  inp.click();
+}
 </script>
 
 </body>
