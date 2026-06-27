@@ -194,8 +194,650 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #appScreen .admin-door{margin:10px 10px 4px}
 #appScreen .admin-code-wrap.open{max-height:92px}
 #appScreen .admin-code-input{font-size:16px;letter-spacing:5px}
+/* ═══════════════════════════════════════════════
+   THEATRE MODE — Cinema-grade hero stage
+   ═══════════════════════════════════════════════ */
+
+/* Breathing animation for the whole stage */
+@keyframes th-breathe {
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.008)}
+}
+/* Glass sweep reflection */
+@keyframes th-sweep {
+  0%{transform:translateX(-120%) skewX(-18deg);opacity:0}
+  10%{opacity:.7}
+  90%{opacity:.7}
+  100%{transform:translateX(220%) skewX(-18deg);opacity:0}
+}
+/* Diagonal line pulse */
+@keyframes th-divider-glow {
+  0%,100%{opacity:.4}
+  50%{opacity:1}
+}
+/* Slice fade-in */
+@keyframes th-slice-in {
+  from{opacity:0;transform:translateY(12px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+/* Cover art entrance */
+@keyframes th-cover-in {
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+/* Meta text entrance */
+@keyframes th-meta-in {
+  from{opacity:0;transform:translateX(-16px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+#theatreStage {
+  position:relative;
+  width:100%;
+  /* Height is fluid — 38vw clamped */
+  height:clamp(240px,38vw,520px);
+  overflow:hidden;
+  margin-bottom:28px;
+  border-radius:0 0 24px 24px;
+  /* Seamless fade into page below */
+  -webkit-mask-image:linear-gradient(to bottom, #000 70%, transparent 100%);
+  mask-image:linear-gradient(to bottom, #000 70%, transparent 100%);
+  contain:layout paint style;
+  will-change:transform;
+}
+
+/* Breathing wrapper */
+.th-breath {
+  position:absolute;
+  inset:0;
+  animation:th-breathe 5s ease-in-out infinite;
+  transform-origin:center;
+}
+
+/* Glass sweep overlay */
+.th-sweep {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:20;
+  overflow:hidden;
+}
+.th-sweep::after {
+  content:'';
+  position:absolute;
+  top:0;bottom:0;
+  width:60px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);
+  animation:th-sweep 9s ease-in-out infinite 3s;
+}
+
+/* Stage inner flex */
+.th-inner {
+  position:relative;
+  display:flex;
+  height:100%;
+  width:100%;
+}
+
+/* ── LEFT: HERO SIDE ── */
+.th-left {
+  position:relative;
+  flex:0 0 44%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:32px 28px 36px 32px;
+  overflow:hidden;
+  z-index:2;
+}
+/* Blurred cover art as bg */
+.th-left-bg {
+  position:absolute;
+  inset:-20px;
+  background-size:cover;
+  background-position:center;
+  filter:blur(28px) brightness(.45) saturate(1.4);
+  transform:scale(1.1);
+  transition:background-image .6s ease;
+  z-index:0;
+}
+/* Dark gradient overlay */
+.th-left::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(6,6,14,.6) 0%, rgba(6,6,14,.85) 100%);
+  z-index:1;
+}
+.th-left-content {
+  position:relative;
+  z-index:2;
+}
+
+/* Cover art */
+.th-cover-wrap {
+  position:relative;
+  width:clamp(80px,10vw,130px);
+  aspect-ratio:1;
+  margin-bottom:16px;
+  flex-shrink:0;
+  animation:th-cover-in .5s cubic-bezier(.2,0,.2,1) forwards;
+}
+.th-cover-wrap img {
+  width:100%;height:100%;
+  object-fit:cover;
+  border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);
+}
+.th-cover-placeholder {
+  width:100%;height:100%;
+  border-radius:12px;
+  background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;
+  border:1px solid var(--border);
+}
+
+/* Collection tag */
+.th-collection-tag {
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--accent);
+  font-family:var(--mono);
+  text-transform:uppercase;
+  margin-bottom:6px;
+  opacity:.9;
+  animation:th-meta-in .4s .1s ease both;
+}
+
+/* Song title */
+.th-title {
+  font-size:clamp(18px,2.8vw,38px);
+  font-weight:900;
+  line-height:1.08;
+  color:#fff;
+  text-shadow:0 2px 20px rgba(0,0,0,.6);
+  animation:th-meta-in .4s .18s ease both;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+/* Artist */
+.th-artist {
+  font-size:clamp(12px,1.4vw,17px);
+  color:rgba(255,255,255,.65);
+  margin-top:6px;
+  font-weight:500;
+  animation:th-meta-in .4s .25s ease both;
+}
+
+/* Meta pills */
+.th-meta-row {
+  display:flex;gap:8px;align-items:center;
+  margin-top:10px;flex-wrap:wrap;
+  animation:th-meta-in .4s .32s ease both;
+}
+.th-pill {
+  padding:3px 10px;
+  border-radius:20px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.13);
+  font-size:10px;
+  font-family:var(--mono);
+  letter-spacing:1.5px;
+  color:rgba(255,255,255,.6);
+  text-transform:uppercase;
+}
+
+/* Play button */
+.th-play-btn {
+  margin-top:16px;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;
+  border-radius:100px;
+  background:var(--accent);
+  color:#000;
+  font-size:12px;
+  font-weight:900;
+  font-family:var(--mono);
+  letter-spacing:2px;
+  border:none;cursor:pointer;
+  transition:transform .15s,box-shadow .2s;
+  animation:th-meta-in .4s .38s ease both;
+  white-space:nowrap;
+}
+.th-play-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(57,255,20,.4);
+}
+.th-play-btn:active{transform:none}
+
+/* ── DIAGONAL DIVIDER ── */
+.th-divider {
+  position:absolute;
+  left:calc(44% - 2px);
+  top:0;bottom:0;
+  width:60px;
+  z-index:10;
+  pointer-events:none;
+  overflow:visible;
+}
+.th-divider svg {
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  overflow:visible;
+}
+.th-divider-line {
+  stroke:rgba(57,255,20,.35);
+  stroke-width:1.2;
+  filter:drop-shadow(0 0 6px rgba(57,255,20,.5));
+  animation:th-divider-glow 3s ease-in-out infinite;
+}
+
+/* ── RIGHT: GALLERY SIDE ── */
+.th-right {
+  position:relative;
+  flex:0 0 56%;
+  overflow:hidden;
+  display:flex;
+}
+
+/* Three slices — each is absolutely positioned */
+.th-gallery {
+  position:relative;
+  width:100%;
+  height:100%;
+}
+.th-slice {
+  position:absolute;
+  top:0;bottom:0;
+  overflow:hidden;
+  /* clip via clip-path instead of overflow+skew so images stay rectangular */
+}
+.th-slice:nth-child(1){
+  left:0;
+  width:36%;
+  clip-path:polygon(0 0, calc(100% + 30px) 0, calc(100% - 20px) 100%, 0 100%);
+}
+.th-slice:nth-child(2){
+  left:33%;
+  width:37%;
+  clip-path:polygon(20px 0, calc(100% + 30px) 0, calc(100% - 20px) 100%, -10px 100%);
+}
+.th-slice:nth-child(3){
+  left:66%;
+  width:calc(34% + 40px);
+  clip-path:polygon(20px 0, 100% 0, 100% 100%, -10px 100%);
+}
+
+/* Thin glowing lines between slices */
+.th-slice-divider {
+  position:absolute;
+  top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(180deg,transparent,rgba(57,255,20,.4),rgba(0,198,255,.3),transparent);
+  pointer-events:none;
+  z-index:5;
+  filter:blur(.5px);
+}
+.th-slice-divider:nth-of-type(1){left:calc(33% + 20px)}
+.th-slice-divider:nth-of-type(2){left:calc(66% + 12px)}
+
+/* Image inside each slice */
+.th-slice-img {
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  transition:transform .5s cubic-bezier(.2,0,.2,1);
+  /* Will be overridden by inline position vars */
+}
+/* Empty slice placeholder */
+.th-slice-empty {
+  position:absolute;
+  inset:0;
+  background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--dim);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+/* Slice entrance stagger */
+.th-slice:nth-child(1) .th-slice-img { animation:th-slice-in .5s .05s cubic-bezier(.2,0,.2,1) both }
+.th-slice:nth-child(2) .th-slice-img { animation:th-slice-in .5s .15s cubic-bezier(.2,0,.2,1) both }
+.th-slice:nth-child(3) .th-slice-img { animation:th-slice-in .5s .25s cubic-bezier(.2,0,.2,1) both }
+
+/* Subtle dark vignette on right side */
+.th-right::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to right,rgba(6,6,14,.5) 0%, transparent 25%, transparent 80%, rgba(6,6,14,.3) 100%);
+  pointer-events:none;
+  z-index:3;
+}
+
+/* ── NAVIGATION ── */
+.th-nav {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  display:flex;align-items:center;gap:10px;
+  z-index:30;
+}
+.th-nav-btn {
+  width:34px;height:34px;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:13px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,transform .15s;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.th-nav-btn:hover{background:rgba(57,255,20,.2);transform:scale(1.08)}
+.th-nav-btn:active{transform:scale(.95)}
+
+/* Dot indicators */
+.th-dots {
+  display:flex;gap:5px;align-items:center;
+}
+.th-dot {
+  width:5px;height:5px;
+  border-radius:50%;
+  background:rgba(255,255,255,.3);
+  transition:all .3s;
+  cursor:pointer;
+}
+.th-dot.active {
+  background:var(--accent);
+  width:18px;
+  border-radius:3px;
+  box-shadow:0 0 8px rgba(57,255,20,.5);
+}
+
+/* ── TRANSITION STATES ── */
+/* Outgoing: slices fly off, then hero fades */
+.th-exiting .th-slice:nth-child(1){animation:th-slice-out .3s .0s cubic-bezier(.4,0,1,1) both}
+.th-exiting .th-slice:nth-child(2){animation:th-slice-out .3s .06s cubic-bezier(.4,0,1,1) both}
+.th-exiting .th-slice:nth-child(3){animation:th-slice-out .3s .12s cubic-bezier(.4,0,1,1) both}
+.th-exiting .th-left-content{animation:th-hero-out .35s .1s cubic-bezier(.4,0,1,1) both}
+
+@keyframes th-slice-out {
+  to{opacity:0;transform:translateY(-18px) scale(.95)}
+}
+@keyframes th-hero-out {
+  to{opacity:0;transform:scale(.97) translateX(-10px)}
+}
+
+/* ── PROGRESS BAR ── */
+.th-progress {
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:2px;
+  background:rgba(255,255,255,.07);
+  z-index:25;
+}
+.th-progress-fill {
+  height:100%;
+  background:var(--accent);
+  width:0%;
+  transition:width .25s linear;
+  box-shadow:0 0 6px rgba(57,255,20,.5);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  #theatreStage{height:clamp(200px,70vw,360px);border-radius:0 0 18px 18px;margin-bottom:18px}
+  .th-left{flex:0 0 100%;padding:20px 18px 24px 18px}
+  .th-right{display:none}
+  .th-divider{display:none}
+  .th-cover-wrap{width:72px;margin-bottom:10px}
+  .th-play-btn{padding:8px 18px;font-size:11px}
+}
+
+/* ═══════════════════════════════════════════════
+   STAGE MANAGER — Admin UI
+   ═══════════════════════════════════════════════ */
+.sm-wrap{padding:4px 0}
+.sm-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.sm-tab{
+  padding:8px 18px;border-radius:20px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--dim);font-size:11px;font-family:var(--mono);
+  letter-spacing:2px;cursor:pointer;transition:all .2s;
+}
+.sm-tab.active,.sm-tab:hover{
+  background:rgba(57,255,20,.08);
+  border-color:var(--accent);color:var(--accent);
+}
+
+/* Stage list item */
+.sm-stage-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:14px;
+  background:var(--panel2);border:1px solid var(--border);
+  margin-bottom:10px;cursor:grab;
+  transition:background .2s,border-color .2s;
+}
+.sm-stage-item:hover{background:rgba(255,255,255,.04);border-color:rgba(57,255,20,.2)}
+.sm-stage-item.dragging{opacity:.5;border-style:dashed}
+.sm-stage-thumb{
+  width:52px;height:52px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);
+  overflow:hidden;flex-shrink:0;
+}
+.sm-stage-thumb img{width:100%;height:100%;object-fit:cover}
+.sm-stage-info{flex:1;min-width:0}
+.sm-stage-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm-stage-sub{font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:3px}
+.sm-stage-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.sm-badge{
+  padding:2px 8px;border-radius:10px;font-size:9px;
+  font-family:var(--mono);letter-spacing:1px;
+}
+.sm-badge.active{background:rgba(57,255,20,.12);color:var(--accent);border:1px solid rgba(57,255,20,.25)}
+.sm-badge.inactive{background:rgba(255,255,255,.05);color:var(--dim);border:1px solid var(--border)}
+.sm-stage-actions{display:flex;gap:6px;flex-shrink:0}
+.sm-icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);
+  color:var(--text);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.sm-icon-btn:hover{background:rgba(57,255,20,.1);border-color:var(--accent);color:var(--accent)}
+.sm-icon-btn.danger:hover{background:rgba(255,49,49,.12);border-color:var(--red);color:var(--red)}
+
+/* Create / edit form */
+.sm-form{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px}
+.sm-form-title{font-size:11px;letter-spacing:2.5px;color:var(--accent);font-family:var(--mono);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.sm-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.sm-full{margin-bottom:14px}
+.sm-label{font-size:10px;letter-spacing:2px;color:var(--dim);margin-bottom:5px;display:block;font-family:var(--mono)}
+.sm-input,.sm-select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:10px 14px;
+  color:var(--text);font-size:13px;font-family:var(--font);
+  transition:border-color .2s;outline:none;
+}
+.sm-input:focus,.sm-select:focus{border-color:var(--accent)}
+.sm-select option{background:#111122;color:var(--text)}
+
+/* Song picker */
+.sm-song-search{position:relative;margin-bottom:14px}
+.sm-song-input{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:10px 14px 10px 38px;
+  color:var(--text);font-size:13px;
+  outline:none;transition:border-color .2s;
+}
+.sm-song-input:focus{border-color:var(--accent)}
+.sm-song-search-icon{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--dim);font-size:14px;pointer-events:none;
+}
+.sm-song-results{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;z-index:50;overflow:hidden;
+  max-height:220px;overflow-y:auto;
+}
+.sm-song-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;cursor:pointer;transition:background .15s;
+}
+.sm-song-row:hover{background:rgba(255,255,255,.05)}
+.sm-song-thumb{
+  width:36px;height:36px;border-radius:6px;
+  background:var(--panel2);flex-shrink:0;overflow:hidden;
+}
+.sm-song-thumb img{width:100%;height:100%;object-fit:cover}
+.sm-song-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm-song-artist{font-size:10px;color:var(--dim);font-family:var(--mono)}
+.sm-selected-song{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:rgba(57,255,20,.06);border:1px solid rgba(57,255,20,.2);
+  border-radius:10px;margin-bottom:14px;
+}
+.sm-selected-song-art{width:40px;height:40px;border-radius:8px;overflow:hidden;background:var(--panel2);flex-shrink:0}
+.sm-selected-song-art img{width:100%;height:100%;object-fit:cover}
+.sm-clear-song{margin-left:auto;background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;transition:color .2s}
+.sm-clear-song:hover{color:var(--red)}
+
+/* Image uploaders */
+.sm-images-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.sm-img-slot{
+  position:relative;border-radius:12px;overflow:hidden;
+  aspect-ratio:16/10;background:var(--panel);border:2px dashed var(--border);
+  cursor:pointer;transition:border-color .2s;display:flex;
+  align-items:center;justify-content:center;flex-direction:column;
+  gap:6px;color:var(--dim);font-size:11px;font-family:var(--mono);
+}
+.sm-img-slot:hover{border-color:rgba(57,255,20,.4);color:var(--accent)}
+.sm-img-slot.loaded{border-style:solid;border-color:rgba(57,255,20,.3)}
+.sm-img-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sm-img-slot-label{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:6px;background:rgba(0,0,0,.7);
+  font-size:9px;letter-spacing:1.5px;color:var(--dim);font-family:var(--mono);
+  text-align:center;
+}
+.sm-img-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  opacity:0;transition:opacity .2s;
+}
+.sm-img-slot:hover .sm-img-overlay{opacity:1}
+.sm-img-overlay-btn{
+  padding:6px 12px;border-radius:8px;
+  background:rgba(255,255,255,.15);border:none;color:#fff;
+  font-size:10px;cursor:pointer;font-family:var(--mono);
+  transition:background .15s;
+}
+.sm-img-overlay-btn:hover{background:rgba(255,255,255,.3)}
+
+/* Position editor (inline) */
+.sm-pos-editor{
+  background:rgba(0,0,0,.4);border:1px solid var(--border);
+  border-radius:10px;padding:12px;margin-top:8px;
+}
+.sm-pos-label{font-size:9px;letter-spacing:2px;color:var(--dim);font-family:var(--mono);margin-bottom:8px}
+.sm-pos-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sm-pos-field{display:flex;flex-direction:column;gap:4px}
+.sm-pos-field label{font-size:9px;color:var(--dim);font-family:var(--mono)}
+.sm-pos-field input[type=range]{
+  width:100%;accent-color:var(--accent);cursor:pointer;
+}
+.sm-pos-val{font-size:10px;color:var(--accent);font-family:var(--mono);text-align:center}
+
+/* Live preview */
+.sm-preview{
+  width:100%;margin-bottom:16px;
+  border-radius:16px;overflow:hidden;
+  aspect-ratio:16/7;position:relative;
+  background:var(--bg);border:1px solid var(--border);
+}
+.sm-preview-label{
+  position:absolute;top:10px;left:10px;
+  font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.4);font-family:var(--mono);
+  background:rgba(0,0,0,.5);padding:3px 8px;border-radius:4px;z-index:10;
+}
+/* Reuse th-* classes for preview */
+
+.sm-form-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.sm-btn{
+  padding:10px 22px;border-radius:10px;
+  font-size:11px;font-family:var(--mono);letter-spacing:2px;
+  cursor:pointer;transition:all .2s;border:1px solid;
+}
+.sm-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.sm-btn.primary:hover{box-shadow:0 6px 24px rgba(57,255,20,.4);transform:translateY(-1px)}
+.sm-btn.secondary{background:transparent;color:var(--text);border-color:var(--border)}
+.sm-btn.secondary:hover{border-color:rgba(255,255,255,.3)}
+.sm-btn.danger{background:transparent;color:var(--red);border-color:rgba(255,49,49,.3)}
+.sm-btn.danger:hover{background:rgba(255,49,49,.08)}
+
+/* Empty states */
+.sm-empty{
+  text-align:center;padding:48px 20px;color:var(--dim);
+  font-family:var(--mono);font-size:12px;letter-spacing:1.5px;
+  border:1px dashed var(--border);border-radius:16px;
+}
+.sm-empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+
+/* Collection chips */
+.sm-coll-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.sm-coll-chip{
+  padding:5px 14px;border-radius:20px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  font-size:10px;font-family:var(--mono);letter-spacing:1.5px;cursor:pointer;
+  transition:all .2s;
+}
+.sm-coll-chip:hover,.sm-coll-chip.sel{
+  background:rgba(57,255,20,.1);border-color:rgba(57,255,20,.3);color:var(--accent);
+}
+.sm-new-coll{
+  display:flex;gap:8px;align-items:center;margin-bottom:14px;
+}
+.sm-new-coll input{flex:1}
+
+/* Toggle */
+.sm-toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sm-toggle{position:relative;width:36px;height:20px;cursor:pointer}
+.sm-toggle input{opacity:0;width:0;height:0}
+.sm-toggle-track{
+  position:absolute;inset:0;border-radius:20px;
+  background:var(--border);transition:background .2s;
+}
+.sm-toggle input:checked + .sm-toggle-track{background:var(--accent)}
+.sm-toggle-thumb{
+  position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;transition:transform .2s;
+}
+.sm-toggle input:checked ~ .sm-toggle-thumb{transform:translateX(16px)}
+.sm-toggle-label{font-size:11px;color:var(--dim);font-family:var(--mono);letter-spacing:1px}
+
+@media(max-width:768px){
+  .sm-row{grid-template-columns:1fr}
+  .sm-images-grid{grid-template-columns:1fr 1fr}
+  .sm-pos-row{grid-template-columns:1fr}
+}
+
 .vibing-lyrics-wrap,.zen-lyrics-scroll{scroll-behavior:auto}
-.vibing-lyric-line,.zen-lyric-line{
+.vibing-lyric-line{
   position:relative;
   transform:translate3d(0,0,0);
   opacity:.92;
@@ -209,13 +851,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   will-change:transform,opacity,color,background-color,text-shadow,filter;
   backface-visibility:hidden;
 }
-.vibing-lyric-line::before,.zen-lyric-line::before{
+.vibing-lyric-line::before{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(57,255,20,.05),transparent);
   opacity:0;transform:scaleX(.92);
   transition:opacity .72s cubic-bezier(.22,1,.36,1),transform .72s cubic-bezier(.22,1,.36,1);
 }
-.vibing-lyric-line.active::before,.zen-lyric-line.active::before{opacity:1;transform:scaleX(1)}
+.vibing-lyric-line.active::before{opacity:1;transform:scaleX(1)}
 .vibing-lyric-line.active{
   color:#fff;font-size:16px;font-weight:900;
   background:rgba(57,255,20,.08);
@@ -225,14 +867,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .vibing-lyric-line.near-prev{color:rgba(255,255,255,.42);font-size:14px;opacity:.82;transform:translate3d(1px,0,0) scale(.99)}
 .vibing-lyric-line.near-next{color:rgba(255,255,255,.36);font-size:13.5px;opacity:.78;transform:translate3d(1px,0,0) scale(.985)}
-.zen-lyric-line{padding:14px 18px;border-radius:12px;contain:content}
-.zen-lyric-line.active{
-  color:#fff;font-size:34px;font-weight:900;
-  text-shadow:0 0 40px rgba(255,255,255,.30);
-  transform:translate3d(0,-1px,0) scale(1.02);
-  filter:brightness(1.08);
-}
-.zen-lyric-line.near{color:rgba(255,255,255,.5);font-size:28px;opacity:.86;transform:translate3d(0,0,0) scale(1.005)}
 
 
 /* ═══════════════════════════ MAIN APP ═══════════════════════════ */
@@ -726,68 +1360,442 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   color:var(--dim);
 }
 
-/* ── ZEN STAGE ── */
+/* ══════════════════════════════════════════
+   ZEN STAGE V2.1 — REFINED LYRIC ENGINE
+   Zero layout shifts · Synchronized highlight+scroll
+   ══════════════════════════════════════════ */
+
+/* ── ZEN STAGE SHELL ── */
 .zen-stage{
   position:fixed;inset:0;z-index:500;
   background:linear-gradient(135deg,#08021A 0%,#040210 50%,#020104 100%);
   display:none;flex-direction:column;align-items:center;overflow:hidden;
+  --zen-accent:rgba(57,255,20,1);
+  --zen-glow:rgba(57,255,20,.22);
+  --zen-transition-dur:380ms;
 }
-.zen-stage.open{display:flex;animation:zen-in .4s ease}
-@keyframes zen-in{from{opacity:0}to{opacity:1}}
-.zen-bg-canvas{position:absolute;inset:0;opacity:.6}
-.zen-header{position:relative;z-index:10;width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
-.zen-title{font-size:12px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.3);font-family:var(--mono)}
+.zen-stage.open{
+  display:flex;
+  animation:zenStageIn .45s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes zenStageIn{
+  from{opacity:0;transform:scale(.98)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* Ambient background canvas */
+.zen-bg-canvas{position:absolute;inset:0;opacity:.55;pointer-events:none;z-index:0}
+
+/* Album art environmental bleed */
+.zen-art-env{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  opacity:0;transition:opacity 2s ease;
+  overflow:hidden;
+}
+.zen-art-env.visible{opacity:1}
+.zen-art-env-img{
+  position:absolute;inset:-30%;
+  width:160%;height:160%;
+  object-fit:cover;
+  filter:blur(90px) saturate(1.2);
+  opacity:.08;
+}
+/* Chorus bloom */
+.zen-chorus-bloom{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 40%, var(--zen-glow) 0%, transparent 60%);
+  opacity:0;
+  transition:opacity 1.4s cubic-bezier(.4,0,.2,1);
+  will-change:opacity;
+}
+.zen-chorus-bloom.active{opacity:1}
+
+/* ── HEADER ── */
+.zen-header{
+  position:relative;z-index:20;width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;
+  flex-shrink:0;
+}
+.zen-title{
+  font-size:10px;font-weight:700;letter-spacing:4px;
+  color:rgba(255,255,255,.2);font-family:var(--mono);
+  text-transform:uppercase;
+}
+.zen-header-right{display:flex;align-items:center;gap:8px}
 .zen-exit{
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.55);border-radius:20px;padding:7px 16px;
-  font-size:11px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:all .15s;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.4);border-radius:20px;padding:6px 14px;
+  font-size:10px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;
+  transition:background .15s,color .15s;
 }
-.zen-exit:hover{background:rgba(255,255,255,.13);color:#fff}
+.zen-exit:hover{background:rgba(255,255,255,.11);color:#fff}
+
+/* Layout + Effects selectors */
+.zen-mode-pill{
+  display:flex;align-items:center;gap:2px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:3px;
+}
+.zen-mode-btn{
+  padding:4px 10px;border-radius:16px;
+  font-size:9px;letter-spacing:1.2px;font-weight:700;
+  color:rgba(255,255,255,.32);background:transparent;border:none;cursor:pointer;
+  transition:background .18s,color .18s;
+  font-family:var(--mono);text-transform:uppercase;
+}
+.zen-mode-btn.active{
+  background:rgba(255,255,255,.11);color:rgba(255,255,255,.88);
+}
+.zen-effect-btn{
+  padding:4px 11px;border-radius:16px;
+  font-size:9px;letter-spacing:1px;font-weight:700;
+  color:rgba(57,255,20,.55);
+  background:rgba(57,255,20,.05);
+  border:1px solid rgba(57,255,20,.15);
+  cursor:pointer;transition:all .18s;
+  font-family:var(--mono);text-transform:uppercase;
+}
+.zen-effect-btn.active{
+  color:rgba(57,255,20,1);
+  background:rgba(57,255,20,.12);
+  border-color:rgba(57,255,20,.35);
+}
+
+/* ── MAIN BODY AREA ── */
+.zen-body{
+  position:relative;z-index:10;
+  flex:1;width:100%;
+  display:flex;align-items:stretch;
+  overflow:hidden;
+  min-height:0;
+}
+
+/* ── LYRICS SCROLL ── */
 .zen-lyrics-scroll{
-  position:relative;z-index:10;flex:1;overflow-y:auto;
-  width:100%;max-width:780px;padding:70px 36px;text-align:center;scrollbar-width:none;
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:none;-ms-overflow-style:none;
+  position:relative;
+  /* Hardware-accelerate the scroll container */
+  -webkit-overflow-scrolling:touch;
 }
 .zen-lyrics-scroll::-webkit-scrollbar{display:none}
+
+/* ══ CENTER MODE ══ */
+.zen-stage[data-layout="center"] .zen-lyrics-scroll{
+  display:flex;flex-direction:column;align-items:center;
+  padding:clamp(100px,18vh,150px) clamp(24px,8vw,120px) clamp(100px,18vh,150px);
+  text-align:center;
+}
+
+/* ══ SIDE MODE ══ */
+.zen-stage[data-layout="side"] .zen-body{
+  flex-direction:row;
+}
+.zen-stage[data-layout="side"] .zen-side-art{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:clamp(180px,26vw,300px);flex-shrink:0;
+  padding:24px 20px;gap:16px;
+  border-right:1px solid rgba(255,255,255,.05);
+}
+.zen-stage[data-layout="side"] .zen-lyrics-scroll{
+  padding:clamp(50px,8vh,90px) clamp(24px,4vw,52px) clamp(50px,8vh,90px);
+  text-align:left;
+}
+
+/* ══ SPATIAL MODE ══ */
+.zen-stage[data-layout="spatial"] .zen-lyrics-scroll{
+  display:flex;flex-direction:column;align-items:center;
+  padding:clamp(100px,18vh,150px) clamp(24px,8vw,140px) clamp(100px,18vh,150px);
+  text-align:center;
+  perspective:1000px;
+  perspective-origin:50% 50%;
+}
+
+/* ── SIDE ART PANEL ── */
+.zen-side-art{display:none}
+.zen-side-cover{
+  width:clamp(120px,16vw,200px);
+  height:clamp(120px,16vw,200px);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 8px 50px rgba(0,0,0,.7),0 0 30px var(--zen-glow);
+  flex-shrink:0;
+}
+.zen-side-cover img{width:100%;height:100%;object-fit:cover}
+.zen-side-meta{text-align:center}
+.zen-side-title{
+  font-size:clamp(11px,1.3vw,14px);font-weight:700;color:rgba(255,255,255,.85);
+  letter-spacing:.2px;line-height:1.3;
+}
+.zen-side-artist{
+  font-size:clamp(9px,.95vw,11px);color:rgba(255,255,255,.36);
+  font-family:var(--mono);letter-spacing:1px;margin-top:4px;
+}
+
+/* ─────────────────────────────────────────────
+   LYRIC LINE — ZERO LAYOUT SHIFT
+   Fixed padding · NO font-size change ever
+   Only GPU props: transform, opacity, filter, color, text-shadow
+   ───────────────────────────────────────────── */
 .zen-lyric-line{
-  font-size:24px;font-weight:700;
-  padding:12px 18px;margin:2px 0;
-  color:rgba(255,255,255,.2);border-radius:8px;
-  cursor:default;line-height:1.4;font-family:var(--font);
-  transition:color .5s cubic-bezier(.4,0,.2,1),font-size .45s cubic-bezier(.34,1.56,.64,1),transform .4s cubic-bezier(.34,1.56,.64,1),text-shadow .5s;
-  will-change:color,font-size,transform;
+  display:block;
+  width:100%;
+  /* Stable vertical rhythm — NEVER changes */
+  padding:13px 0;
+  margin:0;
+  /* Fixed type size — NEVER animates */
+  font-size:clamp(17px,2.2vw,24px);
+  font-weight:600;
+  line-height:1.5;
+  letter-spacing:.01em;
+  font-family:var(--font);
+  /* Default: dim and receded */
+  color:rgba(255,255,255,.16);
+  opacity:1;
+  /* ALL transitions GPU-only — no layout props */
+  transition:
+    color      var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94),
+    opacity    var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94),
+    transform  var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94),
+    filter     var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94),
+    text-shadow var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94),
+    font-weight var(--zen-transition-dur) cubic-bezier(.25,.46,.45,.94);
+  will-change:transform,opacity,filter;
+  cursor:default;
+  /* Isolate each line from reflow */
+  contain:layout style;
+  word-break:break-word;
+  /* Prevent subpixel flicker */
+  -webkit-font-smoothing:antialiased;
+  backface-visibility:hidden;
+  transform:translate3d(0,0,0);
 }
+
+/* Near lines — softly visible */
+.zen-lyric-line.near-prev{
+  color:rgba(255,255,255,.40);
+  opacity:.88;
+  transform:translate3d(0,0,0);
+  filter:none;
+}
+.zen-lyric-line.near-next{
+  color:rgba(255,255,255,.34);
+  opacity:.78;
+  transform:translate3d(0,0,0);
+  filter:none;
+}
+
+/* ── ACTIVE LYRIC — pure typography and light ── */
 .zen-lyric-line.active{
-  color:#fff;font-size:34px;font-weight:900;
-  text-shadow:0 0 50px rgba(255,255,255,.35);
-  transform:scale(1.02);
+  color:#ffffff;
+  font-weight:800;
+  opacity:1;
+  text-shadow:
+    0 0 24px rgba(255,255,255,.5),
+    0 0 60px var(--zen-glow);
+  transform:translate3d(0,0,0) scale(1.012);
+  filter:none;
 }
-.zen-lyric-line.near{color:rgba(255,255,255,.5);font-size:28px}
-.zen-cover-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
-.zen-cover-art{width:220px;height:220px;border-radius:22px;overflow:hidden;box-shadow:0 0 100px rgba(147,51,234,.3)}
+
+/* Spatial mode */
+.zen-stage[data-layout="spatial"] .zen-lyric-line{
+  transform-style:preserve-3d;
+}
+.zen-stage[data-layout="spatial"] .zen-lyric-line.near-prev{
+  transform:translate3d(0,0,-18px) scale(.96);
+  filter:blur(.6px);
+  opacity:.52;
+}
+.zen-stage[data-layout="spatial"] .zen-lyric-line.near-next{
+  transform:translate3d(0,0,-24px) scale(.93);
+  filter:blur(1.2px);
+  opacity:.42;
+}
+.zen-stage[data-layout="spatial"] .zen-lyric-line.active{
+  transform:translate3d(0,0,22px) scale(1.04);
+  text-shadow:
+    0 0 28px rgba(255,255,255,.65),
+    0 0 72px var(--zen-glow),
+    0 2px 18px rgba(0,0,0,.4);
+}
+.zen-stage[data-layout="spatial"] .zen-lyric-line.far-prev{
+  opacity:.3;transform:translate3d(0,0,-36px) scale(.9);filter:blur(2px);
+}
+.zen-stage[data-layout="spatial"] .zen-lyric-line.far-next{
+  opacity:.22;transform:translate3d(0,0,-42px) scale(.87);filter:blur(3px);
+}
+
+/* Lyric Magnetism — restrained gravitational pull */
+.zen-stage[data-effect-magnet="true"] .zen-lyric-line.near-prev{
+  transform:translate3d(0,2px,0);
+}
+.zen-stage[data-effect-magnet="true"] .zen-lyric-line.near-next{
+  transform:translate3d(0,-2px,0);
+}
+.zen-stage[data-layout="spatial"][data-effect-magnet="true"] .zen-lyric-line.near-prev{
+  transform:translate3d(0,3px,-14px) scale(.97);
+}
+.zen-stage[data-layout="spatial"][data-effect-magnet="true"] .zen-lyric-line.near-next{
+  transform:translate3d(0,-3px,-20px) scale(.94);
+}
+
+/* No-lyrics fallback */
+.zen-cover-fallback{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:60vh;gap:20px;
+}
+.zen-cover-art{
+  width:clamp(160px,20vw,240px);height:clamp(160px,20vw,240px);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 0 70px rgba(57,255,20,.15),0 8px 50px rgba(0,0,0,.7);
+}
 .zen-cover-art img{width:100%;height:100%;object-fit:cover}
-.zen-no-lyrics{color:rgba(255,255,255,.25);font-size:14px;margin-top:16px;font-family:var(--mono);letter-spacing:1px}
+.zen-no-lyrics{
+  color:rgba(255,255,255,.2);font-size:11px;
+  font-family:var(--mono);letter-spacing:2px;text-align:center;
+}
+
+/* ── NOW PLAYING ── */
+.zen-now-playing{
+  position:relative;z-index:20;
+  font-size:10px;color:rgba(255,255,255,.22);
+  font-family:var(--mono);letter-spacing:1.5px;
+  margin-bottom:5px;text-align:center;
+  flex-shrink:0;padding:0 24px;
+}
+
+/* ── CONTROLS ── */
 .zen-controls{
-  position:relative;z-index:10;width:100%;padding:18px 28px;
-  display:flex;align-items:center;justify-content:center;gap:14px;
+  position:relative;z-index:20;width:100%;
+  padding:12px 24px 16px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
   border-top:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
 }
 .zen-ctrl{
-  width:44px;height:44px;border-radius:50%;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-  color:rgba(255,255,255,.65);font-size:15px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all .15s;
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.58);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s,transform .15s;
 }
-.zen-ctrl:hover{background:rgba(255,255,255,.14);color:#fff}
-.zen-ctrl.play{width:54px;height:54px;font-size:18px;background:var(--accent);color:#000;border:none}
-.zen-ctrl.play:hover{transform:scale(1.07)}
-.zen-now-playing{font-size:11px;color:rgba(255,255,255,.3);font-family:var(--mono);letter-spacing:1px;margin-bottom:7px;text-align:center}
-.zen-gradient-btn{
-  position:absolute;right:28px;top:50%;transform:translateY(-50%);
-  background:rgba(57,255,20,.07);color:var(--accent);
-  border:1px solid rgba(57,255,20,.25);border-radius:12px;
-  padding:6px 12px;font-size:10px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:all .15s;
+.zen-ctrl:hover{background:rgba(255,255,255,.11);color:#fff;transform:scale(1.06)}
+.zen-ctrl.play{
+  width:52px;height:52px;font-size:16px;
+  background:var(--accent);color:#000;border:none;
+  box-shadow:0 0 18px rgba(57,255,20,.25);
 }
-.zen-gradient-btn:hover{background:rgba(57,255,20,.13)}
+.zen-ctrl.play:hover{transform:scale(1.08);box-shadow:0 0 26px rgba(57,255,20,.4)}
+.zen-gradient-btn{display:none}
+
+/* ── PROGRESS BAR ── */
+.zen-progress-wrap{
+  position:relative;z-index:20;
+  width:100%;padding:0 24px 3px;flex-shrink:0;
+}
+.zen-progress-track{
+  width:100%;height:2px;
+  background:rgba(255,255,255,.1);
+  border-radius:2px;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.zen-progress-fill{
+  height:100%;background:var(--zen-accent);
+  border-radius:2px;
+  transition:width .25s linear;
+  will-change:width;
+}
+.zen-progress-time{
+  display:flex;justify-content:space-between;
+  font-size:9px;font-family:var(--mono);
+  color:rgba(255,255,255,.18);letter-spacing:.5px;
+  margin-top:4px;
+}
+
+/* ══════════════════════
+   CURATED BACKGROUND THEMES
+   ══════════════════════ */
+/* Each theme: ultra-dark, nighttime, restrained */
+:root{
+  /* Theme 0 — Blastr Default: deep violet night */
+  --zth0-a:#08021A;--zth0-b:#040210;--zth0-c:#020104;
+  --zth0-ga:rgba(57,255,20,.10);--zth0-gb:rgba(0,198,255,.08);--zth0-gc:rgba(255,20,147,.06);
+
+  /* Theme 1 — Midnight Blue */
+  --zth1-a:#020814;--zth1-b:#010610;--zth1-c:#01030A;
+  --zth1-ga:rgba(0,120,255,.12);--zth1-gb:rgba(0,198,255,.08);--zth1-gc:rgba(100,80,255,.07);
+
+  /* Theme 2 — Obsidian Rose */
+  --zth2-a:#140608;--zth2-b:#0E0405;--zth2-c:#060202;
+  --zth2-ga:rgba(255,40,80,.11);--zth2-gb:rgba(200,0,80,.07);--zth2-gc:rgba(80,0,40,.06);
+
+  /* Theme 3 — Forest Noir */
+  --zth3-a:#03100A;--zth3-b:#020B06;--zth3-c:#010502;
+  --zth3-ga:rgba(30,180,80,.10);--zth3-gb:rgba(0,130,60,.07);--zth3-gc:rgba(20,80,20,.06);
+
+  /* Theme 4 — Deep Amber */
+  --zth4-a:#120A02;--zth4-b:#0D0701;--zth4-c:#060300;
+  --zth4-ga:rgba(220,120,0,.10);--zth4-gb:rgba(180,80,0,.07);--zth4-gc:rgba(100,40,0,.06);
+
+  /* Theme 5 — Arctic Dusk */
+  --zth5-a:#030E14;--zth5-b:#020A10;--zth5-c:#01050A;
+  --zth5-ga:rgba(0,180,220,.10);--zth5-gb:rgba(0,140,200,.07);--zth5-gc:rgba(0,80,140,.06);
+
+  /* Theme 6 — Velvet Purple */
+  --zth6-a:#0C0416;--zth6-b:#080210;--zth6-c:#040108;
+  --zth6-ga:rgba(140,0,220,.11);--zth6-gb:rgba(100,0,180,.07);--zth6-gc:rgba(60,0,120,.06);
+
+  /* Theme 7 — Charcoal Silver */
+  --zth7-a:#0C0C12;--zth7-b:#080810;--zth7-c:#040408;
+  --zth7-ga:rgba(180,180,220,.08);--zth7-gb:rgba(120,120,180,.06);--zth7-gc:rgba(60,60,100,.05);
+}
+
+/* Theme applied via data-zen-theme attribute */
+.zen-stage[data-zen-theme="0"]{background:radial-gradient(circle at 12% 16%,var(--zth0-ga),transparent 22%),radial-gradient(circle at 82% 18%,var(--zth0-gb),transparent 18%),radial-gradient(circle at 50% 78%,var(--zth0-gc),transparent 24%),linear-gradient(135deg,var(--zth0-a),var(--zth0-b) 48%,var(--zth0-c))}
+.zen-stage[data-zen-theme="1"]{background:radial-gradient(circle at 20% 20%,var(--zth1-ga),transparent 24%),radial-gradient(circle at 78% 15%,var(--zth1-gb),transparent 20%),radial-gradient(circle at 45% 80%,var(--zth1-gc),transparent 26%),linear-gradient(145deg,var(--zth1-a),var(--zth1-b) 50%,var(--zth1-c))}
+.zen-stage[data-zen-theme="2"]{background:radial-gradient(circle at 15% 20%,var(--zth2-ga),transparent 22%),radial-gradient(circle at 80% 22%,var(--zth2-gb),transparent 18%),radial-gradient(circle at 50% 82%,var(--zth2-gc),transparent 24%),linear-gradient(125deg,var(--zth2-a),var(--zth2-b) 48%,var(--zth2-c))}
+.zen-stage[data-zen-theme="3"]{background:radial-gradient(circle at 10% 18%,var(--zth3-ga),transparent 22%),radial-gradient(circle at 85% 20%,var(--zth3-gb),transparent 18%),radial-gradient(circle at 48% 80%,var(--zth3-gc),transparent 24%),linear-gradient(140deg,var(--zth3-a),var(--zth3-b) 48%,var(--zth3-c))}
+.zen-stage[data-zen-theme="4"]{background:radial-gradient(circle at 18% 16%,var(--zth4-ga),transparent 22%),radial-gradient(circle at 80% 18%,var(--zth4-gb),transparent 18%),radial-gradient(circle at 52% 78%,var(--zth4-gc),transparent 24%),linear-gradient(130deg,var(--zth4-a),var(--zth4-b) 48%,var(--zth4-c))}
+.zen-stage[data-zen-theme="5"]{background:radial-gradient(circle at 14% 20%,var(--zth5-ga),transparent 22%),radial-gradient(circle at 82% 16%,var(--zth5-gb),transparent 18%),radial-gradient(circle at 50% 80%,var(--zth5-gc),transparent 24%),linear-gradient(150deg,var(--zth5-a),var(--zth5-b) 48%,var(--zth5-c))}
+.zen-stage[data-zen-theme="6"]{background:radial-gradient(circle at 16% 18%,var(--zth6-ga),transparent 22%),radial-gradient(circle at 80% 18%,var(--zth6-gb),transparent 18%),radial-gradient(circle at 50% 80%,var(--zth6-gc),transparent 24%),linear-gradient(138deg,var(--zth6-a),var(--zth6-b) 48%,var(--zth6-c))}
+.zen-stage[data-zen-theme="7"]{background:radial-gradient(circle at 12% 16%,var(--zth7-ga),transparent 22%),radial-gradient(circle at 82% 18%,var(--zth7-gb),transparent 18%),radial-gradient(circle at 50% 78%,var(--zth7-gc),transparent 24%),linear-gradient(135deg,var(--zth7-a),var(--zth7-b) 48%,var(--zth7-c))}
+
+/* ── ZEN V2.1 RESPONSIVE ── */
+@media (max-width: 768px) {
+  .zen-header { padding: 10px 14px; }
+  .zen-header-right { gap: 5px; }
+  .zen-mode-btn { padding: 3px 7px; font-size: 8px; }
+  .zen-effect-btn { padding: 3px 8px; font-size: 8px; }
+  .zen-exit { padding: 5px 10px; font-size: 9px; }
+  .zen-stage[data-layout="center"] .zen-lyrics-scroll {
+    padding: clamp(60px,10vh,90px) clamp(16px,4vw,28px) clamp(60px,10vh,90px);
+  }
+  .zen-stage[data-layout="side"] .zen-body { flex-direction: column; }
+  .zen-stage[data-layout="side"] .zen-side-art {
+    width: 100%; flex-direction: row; padding: 10px 14px; gap: 10px;
+    border-right: none; border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .zen-side-cover { width: 48px; height: 48px; border-radius: 10px; }
+  .zen-side-meta { text-align: left; }
+  .zen-stage[data-layout="side"] .zen-lyrics-scroll {
+    padding: 20px 14px clamp(50px,8vh,80px);
+  }
+  .zen-lyric-line { padding: 10px 0; font-size: clamp(15px,4.5vw,20px); }
+  .zen-controls { padding: 10px 14px 12px; gap: 10px; }
+  .zen-ctrl { width: 38px; height: 38px; }
+  .zen-ctrl.play { width: 46px; height: 46px; }
+  .zen-progress-wrap { padding: 0 14px 2px; }
+}
+@media (max-width: 420px) {
+  .zen-mode-btn { padding: 3px 5px; font-size: 7px; }
+  .zen-effect-btn { display: none; }
+  .zen-lyric-line { font-size: clamp(14px,4.2vw,18px); padding: 8px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zen-lyric-line { transition: color .1s, opacity .1s !important; animation: none !important; }
+  .zen-chorus-bloom { transition: opacity .2s !important; }
+  .zen-art-env { transition: opacity .2s !important; }
+}
 
 /* ── PLAYER BAR ── */
 .player-bar{
@@ -1134,10 +2142,6 @@ body.light .search-input{color:var(--text)}
   transform:translateZ(0);
   backface-visibility:hidden;
 }
-.zen-lyric-line.active{
-  background:rgba(57,255,20,.08);
-  box-shadow:0 0 0 1px rgba(57,255,20,.08) inset;
-}
 .vibing-lyric-line.active{
   box-shadow:0 0 0 1px rgba(57,255,20,.06) inset;
 }
@@ -1310,12 +2314,6 @@ body.light .search-input{color:var(--text)}
 .vibing-lyric-line.near-next{
   transform:translate3d(1px,0,0) scale(.99);
 }
-.zen-lyric-line.active{
-  transform:translate3d(0,-1px,0) scale(1.025);
-}
-.zen-lyric-line.near{
-  transform:translate3d(0,0,0) scale(1.008);
-}
 
 @media (max-width: 860px){
   #appScreen{
@@ -1449,16 +2447,6 @@ body.light .search-input{color:var(--text)}
 .vibing-lyric-line.near-prev{font-size:12px;}
 .vibing-lyric-line.near-next{font-size:11.8px;}
 
-.zen-lyrics-scroll{
-  padding:58px 24px 26px;
-}
-.zen-lyric-line{
-  font-size:clamp(18px,2.25vw,26px);
-  padding:10px 14px;
-}
-.zen-lyric-line.active{
-  font-size:clamp(24px,3vw,30px);
-}
 
 .up-next-toast{
   position:fixed;
@@ -1529,9 +2517,6 @@ body.light .search-input{color:var(--text)}
   .vol-wrap{display:none;}
   .btn-zen,.btn-vibing{display:inline-flex !important;align-items:center;justify-content:center;min-width:0;padding:5px 8px;font-size:9px;letter-spacing:.8px;}
   .vibing-panel{width:100vw;}
-  .zen-lyrics-scroll{padding:50px 16px 18px;}
-  .zen-lyric-line{font-size:clamp(17px,5vw,22px);}
-  .zen-lyric-line.active{font-size:clamp(22px,6vw,28px);}
   .modal-card{padding:24px;width:min(94vw,430px);}
   .up-next-toast{right:14px;left:14px;max-width:none;bottom:calc(var(--player-h) + 12px);width:auto;}
 }
@@ -1617,34 +2602,7 @@ body.light .search-input{color:var(--text)}
     radial-gradient(circle at 50% 78%, var(--zen-glow-c), transparent 24%),
     linear-gradient(135deg, var(--zen-bg-a), var(--zen-bg-b) 48%, var(--zen-bg-c));
 }
-.zen-bg-canvas{opacity:.7}
-.zen-lyrics-scroll{
-  max-width:none;
-  padding:72px clamp(16px, 3vw, 42px) 92px;
-}
-.zen-lyric-line{
-  padding:10px 0 10px 16px;
-  margin:1px 0;
-  font-size:clamp(16px, 2.1vw, 24px);
-  line-height:1.42;
-  background:transparent;
-  border-radius:0;
-  border-left:2px solid transparent;
-  text-align:left;
-  letter-spacing:.01em;
-}
-.zen-lyric-line::before{
-  border-radius:0;
-}
-.zen-lyric-line.active{
-  font-size:clamp(18px, 2.6vw, 28px);
-  text-shadow:0 0 30px rgba(255,255,255,.28);
-  border-left-color:rgba(255,255,255,.24);
-}
-.zen-lyric-line.near{
-  font-size:clamp(15px, 2.0vw, 20px);
-  opacity:.9;
-}
+.zen-bg-canvas{opacity:.65}
 
 .up-next-toast{
   position:fixed;
@@ -1908,16 +2866,6 @@ body.light .search-input{color:var(--text)}
   .vibing-lyric-line.active{
     font-size:13.5px;
   }
-  .zen-lyrics-scroll{
-    padding:66px 14px 88px;
-  }
-  .zen-lyric-line{
-    padding-left:12px;
-    font-size:clamp(15px, 4.6vw, 20px);
-  }
-  .zen-lyric-line.active{
-    font-size:clamp(18px, 5.5vw, 24px);
-  }
   .up-next-toast{
     left:12px;
     right:12px;
@@ -1931,9 +2879,60 @@ body.light .search-input{color:var(--text)}
     width:100%;
   }
 }
+/* ── ZEN STAGE V2 RESPONSIVE ── */
+@media (max-width: 768px) {
+  .zen-header { padding: 12px 16px; }
+  .zen-header-right { gap: 6px; }
+  .zen-mode-btn { padding: 3px 8px; font-size: 8px; letter-spacing: .8px; }
+  .zen-effect-btn { padding: 3px 9px; font-size: 8px; }
+  .zen-exit { padding: 5px 11px; font-size: 9px; }
+
+  /* Center mode mobile — tighter padding */
+  .zen-stage[data-layout="center"] .zen-lyrics-scroll {
+    padding: clamp(60px,12vh,100px) clamp(16px,5vw,32px) clamp(60px,12vh,100px);
+  }
+  /* Side mode mobile — stack vertically */
+  .zen-stage[data-layout="side"] .zen-body { flex-direction: column; }
+  .zen-stage[data-layout="side"] .zen-side-art {
+    width: 100%; flex-direction: row; padding: 12px 16px; gap: 12px;
+    border-right: none; border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .zen-side-cover { width: 52px; height: 52px; border-radius: 12px; }
+  .zen-side-meta { text-align: left; }
+  .zen-stage[data-layout="side"] .zen-lyrics-scroll {
+    padding: 24px 16px clamp(60px,10vh,90px);
+    text-align: left;
+  }
+  /* Spatial mode mobile — reduce blur */
+  .zen-stage[data-layout="spatial"] .zen-lyric-line.far-prev { filter: blur(1.5px); }
+  .zen-stage[data-layout="spatial"] .zen-lyric-line.far-next { filter: blur(2px); }
+
+  .zen-lyric-line { padding: 10px 0; font-size: clamp(16px,4.8vw,22px); }
+  .zen-controls { padding: 10px 16px 14px; gap: 10px; }
+  .zen-ctrl { width: 40px; height: 40px; }
+  .zen-ctrl.play { width: 48px; height: 48px; }
+  .zen-progress-wrap { padding: 0 16px 2px; }
+}
+
+@media (max-width: 420px) {
+  .zen-mode-btn { padding: 3px 6px; font-size: 7px; }
+  .zen-effect-btn { display: none; } /* hide on tiny screens */
+  .zen-lyric-line { font-size: clamp(15px,4.5vw,20px); padding: 8px 0; }
+}
+
+/* Reduced-motion: disable all ZEN animations */
+@media (prefers-reduced-motion: reduce) {
+  .zen-lyric-line {
+    transition: color .15s, opacity .15s !important;
+    animation: none !important;
+  }
+  .zen-lyric-line.entering, .zen-lyric-line.exiting { animation: none !important; }
+  .zen-lyric-line.active.breathe { animation: none !important; }
+  .zen-chorus-bloom { transition: opacity .3s !important; }
+  .zen-art-env { transition: opacity .3s !important; }
+}
 
 </style>
-</head>
 <body>
 
 <!-- ═══════════════════ LOGIN — SPLIT SCREEN ═══════════════════ -->
@@ -2073,8 +3072,50 @@ body.light .search-input{color:var(--text)}
 
     <div class="pages-container">
       <!-- HOME PAGE -->
+      <!-- HOME PAGE -->
       <div class="page active" id="page-home">
-        <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> ⚡</div>
+        <!-- THEATRE STAGE -->
+        <div id="theatreStage" style="display:none">
+          <div class="th-breath">
+            <div class="th-inner">
+              <div class="th-left" id="thLeft">
+                <div class="th-left-bg" id="thLeftBg"></div>
+                <div class="th-left-content" id="thLeftContent">
+                  <div class="th-cover-wrap">
+                    <div class="th-cover-placeholder" id="thCoverPlaceholder">♪</div>
+                  </div>
+                  <div class="th-collection-tag" id="thCollTag">FEATURED</div>
+                  <div class="th-title" id="thTitle">—</div>
+                  <div class="th-artist" id="thArtist">—</div>
+                  <div class="th-meta-row" id="thMetaRow"></div>
+                  <button class="th-play-btn" id="thPlayBtn" onclick="thPlayCurrent()">&#9654; PLAY</button>
+                </div>
+              </div>
+              <div class="th-divider">
+                <svg viewBox="0 0 60 600" preserveAspectRatio="none">
+                  <line x1="30" y1="0" x2="30" y2="600" class="th-divider-line"/>
+                </svg>
+              </div>
+              <div class="th-right">
+                <div class="th-gallery" id="thGallery">
+                  <div class="th-slice" id="thSlice0"><div class="th-slice-img" id="thSliceImg0"></div></div>
+                  <div class="th-slice" id="thSlice1"><div class="th-slice-img" id="thSliceImg1"></div></div>
+                  <div class="th-slice" id="thSlice2"><div class="th-slice-img" id="thSliceImg2"></div></div>
+                  <div class="th-slice-divider"></div>
+                  <div class="th-slice-divider"></div>
+                </div>
+                <div class="th-sweep"></div>
+              </div>
+            </div>
+          </div>
+          <div class="th-nav">
+            <button class="th-nav-btn" onclick="thPrev()" title="Previous stage">&#8249;</button>
+            <div class="th-dots" id="thDots"></div>
+            <button class="th-nav-btn" onclick="thNext()" title="Next stage">&#8250;</button>
+          </div>
+          <div class="th-progress"><div class="th-progress-fill" id="thProgressFill"></div></div>
+        </div>
+        <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> &#9889;</div>
         <div id="becauseSection"></div>
         <div id="homeContent"></div>
       </div>
@@ -2151,6 +3192,11 @@ body.light .search-input{color:var(--text)}
       <!-- ADMIN PAGE -->
       <div class="page" id="page-admin">
         <div class="section-title">Admin <span>Matrix</span></div>
+        <div class="sm-tabs" style="margin-bottom:16px">
+          <button class="sm-tab active" onclick="smShowTab('matrix',this)">&#9649; UPLOAD / DELETE</button>
+          <button class="sm-tab" onclick="smShowTab('stage',this)">&#9698; STAGE MANAGER</button>
+        </div>
+        <div id="smTabMatrix">
         <div class="admin-grid">
           <div class="admin-card">
             <div class="admin-card-title">⬆ DUAL_BLAST() — UPLOAD TRACK</div>
@@ -2183,6 +3229,12 @@ body.light .search-input{color:var(--text)}
               </div>
             </div>
           </div>
+        </div>
+        </div><!-- /smTabMatrix -->
+
+        <!-- STAGE MANAGER TAB -->
+        <div id="smTabStage" style="display:none">
+          <div class="sm-wrap" id="stageManagerWrap"></div>
         </div>
       </div>
     </div>
@@ -2263,15 +3315,63 @@ body.light .search-input{color:var(--text)}
   </div>
 </div>
 
-<!-- ZEN STAGE -->
-<div class="zen-stage" id="zenStage">
+<!-- ZEN STAGE V2 -->
+<div class="zen-stage" id="zenStage" data-layout="side" data-effect-magnet="false" data-effect-cinematic="true">
   <canvas class="zen-bg-canvas" id="zenCanvas"></canvas>
-  <div class="zen-header">
-    <div class="zen-title">ZEN STAGE — BLASTR</div>
-    <button class="zen-exit" onclick="toggleZen()">ESC / EXIT ZEN</button>
+  <!-- Album art environmental bleed -->
+  <div class="zen-art-env" id="zenArtEnv">
+    <img class="zen-art-env-img" id="zenArtEnvImg" src="" alt="" referrerpolicy="no-referrer">
   </div>
-  <div class="zen-lyrics-scroll" id="zenLyricsScroll"></div>
+  <!-- Chorus bloom -->
+  <div class="zen-chorus-bloom" id="zenChorusBloom"></div>
+
+  <!-- HEADER -->
+  <div class="zen-header">
+    <div class="zen-title">✦ ZEN STAGE</div>
+    <div class="zen-header-right">
+      <!-- Layout Switcher -->
+      <div class="zen-mode-pill" id="zenLayoutPill">
+        <button class="zen-mode-btn" data-layout="center" onclick="zenSetLayout('center',this)">CENTER</button>
+        <button class="zen-mode-btn active" data-layout="side" onclick="zenSetLayout('side',this)">SIDE</button>
+        <button class="zen-mode-btn" data-layout="spatial" onclick="zenSetLayout('spatial',this)">SPATIAL</button>
+      </div>
+      <!-- Effects -->
+      <button class="zen-effect-btn active" id="zenMagnetBtn" onclick="zenToggleMagnet(this)" title="Lyric Magnetism">✦ MAGNET</button>
+      <button class="zen-exit" onclick="toggleZen()">ESC</button>
+    </div>
+  </div>
+
+  <!-- BODY (flex row for side mode) -->
+  <div class="zen-body" id="zenBody">
+    <!-- Side art panel (visible in side mode only) -->
+    <div class="zen-side-art" id="zenSideArt">
+      <div class="zen-side-cover" id="zenSideCover">
+        <img id="zenSideImg" src="" alt="" referrerpolicy="no-referrer">
+      </div>
+      <div class="zen-side-meta">
+        <div class="zen-side-title" id="zenSideTitle">—</div>
+        <div class="zen-side-artist" id="zenSideArtist">—</div>
+      </div>
+    </div>
+    <!-- Lyrics scroll -->
+    <div class="zen-lyrics-scroll" id="zenLyricsScroll"></div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="zen-progress-wrap" id="zenProgressWrap">
+    <div class="zen-progress-track" id="zenProgressTrack" onclick="zenSeek(event)">
+      <div class="zen-progress-fill" id="zenProgressFill"></div>
+    </div>
+    <div class="zen-progress-time">
+      <span id="zenTimeCurrent">0:00</span>
+      <span id="zenTimeDuration">0:00</span>
+    </div>
+  </div>
+
+  <!-- NOW PLAYING -->
   <div class="zen-now-playing" id="zenNowPlaying">Nothing playing</div>
+
+  <!-- CONTROLS -->
   <div class="zen-controls">
     <button class="zen-ctrl" onclick="prevTrack()">⏮</button>
     <button class="zen-ctrl play" id="zenPlayBtn" onclick="togglePlayback()">▶</button>
@@ -3582,17 +4682,74 @@ function syncVibingLyric(posMs) {
   if(el) blastrSmoothScrollToLine(el);
 }
 
-// ── ZEN STAGE ──
+// ══════════════════════════════════════════════════════════
+// ZEN STAGE V2 — Cinematic Lyric Engine
+// No layout shifts · GPU-only animations · Smart auto-scroll
+// ══════════════════════════════════════════════════════════
 let zenCanvasCtx=null,zenHue=0;
-function toggleZen() {
-  state.inZen=!state.inZen;
-  const z=document.getElementById('zenStage');
-  z.classList.toggle('open',state.inZen);
-  document.getElementById('btnZen').classList.toggle('active',state.inZen);
-  document.getElementById('btnZenTop').classList.toggle('active',state.inZen);
-  if(state.inZen){loadZenLyrics(state.currentTrack);startZenCanvas();}
-  else{stopZenCanvas();}
+
+// ── LAYOUT & EFFECT PERSISTENCE ──
+const ZEN_STORAGE_LAYOUT = 'blastr_zen_layout_v2';
+const ZEN_STORAGE_MAGNET = 'blastr_zen_magnet_v2';
+
+function zenLoadPrefs() {
+  const z = document.getElementById('zenStage');
+  const savedLayout = localStorage.getItem(ZEN_STORAGE_LAYOUT) || 'side';
+  const savedMagnet = localStorage.getItem(ZEN_STORAGE_MAGNET) !== 'false';
+  z.setAttribute('data-layout', savedLayout);
+  z.setAttribute('data-effect-magnet', savedMagnet ? 'true' : 'false');
+  // Sync UI buttons
+  document.querySelectorAll('.zen-mode-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-layout') === savedLayout);
+  });
+  const mb = document.getElementById('zenMagnetBtn');
+  if (mb) mb.classList.toggle('active', savedMagnet);
 }
+
+function zenSetLayout(layout, btn) {
+  const z = document.getElementById('zenStage');
+  z.setAttribute('data-layout', layout);
+  localStorage.setItem(ZEN_STORAGE_LAYOUT, layout);
+  document.querySelectorAll('.zen-mode-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Re-center after layout switch
+  setTimeout(() => {
+    const idx = state.lastZenIdx;
+    if (idx >= 0 && state.zenLineEls[idx]) {
+      zenSmartScrollTo(state.zenLineEls[idx], true);
+    }
+  }, 80);
+}
+
+function zenToggleMagnet(btn) {
+  const z = document.getElementById('zenStage');
+  const cur = z.getAttribute('data-effect-magnet') === 'true';
+  const next = !cur;
+  z.setAttribute('data-effect-magnet', next ? 'true' : 'false');
+  if (btn) btn.classList.toggle('active', next);
+  localStorage.setItem(ZEN_STORAGE_MAGNET, next ? 'true' : 'false');
+}
+
+// ── OPEN / CLOSE ──
+function toggleZen() {
+  state.inZen = !state.inZen;
+  const z = document.getElementById('zenStage');
+  z.classList.toggle('open', state.inZen);
+  document.getElementById('btnZen').classList.toggle('active', state.inZen);
+  document.getElementById('btnZenTop').classList.toggle('active', state.inZen);
+  if (state.inZen) {
+    zenLoadPrefs();
+    loadZenLyrics(state.currentTrack);
+    startZenCanvas();
+    zenUpdateArtEnv(state.currentTrack);
+    zenUpdateProgress();
+  } else {
+    stopZenCanvas();
+    zenCancelScrollRaf();
+  }
+}
+
+// ── CANVAS AMBIENT BACKGROUND ──
 function startZenCanvas(){
   const c=document.getElementById('zenCanvas');
   zenCanvasCtx=c.getContext('2d');
@@ -3604,11 +4761,11 @@ function animateZenCanvas(){
   if(!state.inZen||!state.zenGradient) return;
   const c=document.getElementById('zenCanvas');const ctx=zenCanvasCtx;if(!ctx) return;
   ctx.clearRect(0,0,c.width,c.height);
-  zenHue=(zenHue+.25)%360;
-  const g=ctx.createRadialGradient(c.width*.4,c.height*.35,0,c.width*.5,c.height*.5,c.width*.85);
-  g.addColorStop(0,`hsla(${zenHue},70%,25%,.55)`);
-  g.addColorStop(.5,`hsla(${(zenHue+90)%360},60%,15%,.35)`);
-  g.addColorStop(1,`hsla(${(zenHue+170)%360},50%,5%,.15)`);
+  zenHue=(zenHue+.18)%360;
+  const g=ctx.createRadialGradient(c.width*.38,c.height*.32,0,c.width*.5,c.height*.5,c.width*.9);
+  g.addColorStop(0,`hsla(${zenHue},65%,22%,.42)`);
+  g.addColorStop(.5,`hsla(${(zenHue+100)%360},55%,12%,.28)`);
+  g.addColorStop(1,`hsla(${(zenHue+180)%360},45%,4%,.12)`);
   ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
   state.zenAnimFrame=requestAnimationFrame(animateZenCanvas);
 }
@@ -3617,92 +4774,275 @@ function toggleZenGradient(){
   document.getElementById('zenGradBtn').textContent=state.zenGradient?'GRADIENT ON':'FOCUS MODE';
   if(state.zenGradient) animateZenCanvas();
 }
+
+// ── ALBUM ART ENVIRONMENTAL BLEED ──
+function zenUpdateArtEnv(track) {
+  const env = document.getElementById('zenArtEnv');
+  const img = document.getElementById('zenArtEnvImg');
+  const sideImg = document.getElementById('zenSideImg');
+  const sideCover = document.getElementById('zenSideCover');
+  if (!track || !track.cover_url) { env.classList.remove('visible'); return; }
+  img.src = track.cover_url;
+  if (sideImg) sideImg.src = track.cover_url;
+  if (document.getElementById('zenSideTitle')) document.getElementById('zenSideTitle').textContent = track.title || '—';
+  if (document.getElementById('zenSideArtist')) document.getElementById('zenSideArtist').textContent = track.artist || '—';
+  img.onload = () => env.classList.add('visible');
+  // Extract dominant accent from art
+  zenExtractAccent(track.cover_url);
+}
+
+// Simple accent extraction via canvas sampling
+function zenExtractAccent(url) {
+  try {
+    const tmp = new Image();
+    tmp.crossOrigin = 'anonymous';
+    tmp.onload = () => {
+      try {
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = 16;
+        const cx = cv.getContext('2d');
+        cx.drawImage(tmp, 0, 0, 16, 16);
+        const d = cx.getImageData(4, 4, 8, 8).data;
+        let r=0,g=0,b=0,n=0;
+        for (let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++;}
+        r=Math.round(r/n);g=Math.round(g/n);b=Math.round(b/n);
+        // Boost saturation, clamp brightness
+        const max=Math.max(r,g,b)||1;
+        const scale=Math.min(255,180)/max;
+        r=Math.round(r*scale);g=Math.round(g*scale);b=Math.round(b*scale);
+        const accent=`rgb(${r},${g},${b})`;
+        const glow=`rgba(${r},${g},${b},.25)`;
+        document.getElementById('zenStage').style.setProperty('--zen-accent',accent);
+        document.getElementById('zenStage').style.setProperty('--zen-glow',glow);
+      } catch(e){}
+    };
+    tmp.src = url;
+  } catch(e){}
+}
+
+// ── PROGRESS BAR ──
+function zenUpdateProgress() {
+  if (!state.inZen) return;
+  const fill = document.getElementById('zenProgressFill');
+  const cur = document.getElementById('zenTimeCurrent');
+  const dur = document.getElementById('zenTimeDuration');
+  const pos = audio.currentTime || 0;
+  const d = audio.duration || 0;
+  if (fill) fill.style.width = d > 0 ? ((pos/d)*100)+'%' : '0%';
+  if (cur) cur.textContent = fmtTime(pos);
+  if (dur) dur.textContent = fmtTime(d);
+}
+function zenSeek(e) {
+  const track = document.getElementById('zenProgressTrack');
+  if (!track || !audio.duration) return;
+  const rect = track.getBoundingClientRect();
+  const pct = Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+  audio.currentTime = pct * audio.duration;
+}
+
+// ── LYRIC RENDERING ──
 function loadZenLyrics(track) {
-  const scroll=document.getElementById('zenLyricsScroll');
-  if(!track){scroll.innerHTML='<div class="zen-lyric-line active">No track playing</div>';return;}
-  document.getElementById('zenNowPlaying').textContent=`${track.title} — ${track.artist||''}`;
-  state.parsedLyrics=parseLyricRaw(track.lyrics||'');
-  if(!state.parsedLyrics.length){
-    scroll.innerHTML=`<div class="zen-cover-fallback">${track.cover_url?`<div class="zen-cover-art"><img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'"></div>`:'<div style="font-size:80px">♪</div>'}<div class="zen-no-lyrics">NO LYRICS AVAILABLE</div></div>`;
+  const scroll = document.getElementById('zenLyricsScroll');
+  if (!track) {
+    scroll.innerHTML = '<div class="zen-lyric-line active" style="text-align:center;opacity:.4">No track playing</div>';
     return;
   }
-  scroll.innerHTML=state.parsedLyrics.map((l,i)=>`<div class="zen-lyric-line" id="zenLine${i}">${esc(l.text)}</div>`).join('');
-  state.zenLineEls = Array.from(scroll.querySelectorAll('.zen-lyric-line'));
-  scroll.scrollTop = 0;
-  state.lastZenIdx=-1;
-}
-
-let lyricScrollRaf = 0;
-let lyricScrollTarget = 0;
-
-function blastrSmoothScrollToLine(el) {
-  try {
-    if (!el) return;
-    const container = el.closest('.zen-lyrics-scroll, .vibing-lyrics-wrap');
-    if (!container) {
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      return;
-    }
-
-    const c = container.getBoundingClientRect();
-    const e = el.getBoundingClientRect();
-    const offset = (e.top - c.top) - (container.clientHeight * 0.42);
-    const target = Math.max(0, container.scrollTop + offset);
-
-    if (Math.abs(target - container.scrollTop) < 4) return;
-    lyricScrollTarget = target;
-
-    if (lyricScrollRaf) return;
-
-    const step = () => {
-      const current = container.scrollTop;
-      const diff = lyricScrollTarget - current;
-      if (Math.abs(diff) < 0.8) {
-        container.scrollTop = lyricScrollTarget;
-        lyricScrollRaf = 0;
-        return;
-      }
-      container.scrollTop = current + (diff * 0.18);
-      lyricScrollRaf = requestAnimationFrame(step);
-    };
-
-    lyricScrollRaf = requestAnimationFrame(step);
-  } catch (err) {
-    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(e) {}
+  document.getElementById('zenNowPlaying').textContent = `${track.title}${track.artist?' — '+track.artist:''}`;
+  zenUpdateArtEnv(track);
+  state.parsedLyrics = parseLyricRaw(track.lyrics || '');
+  if (!state.parsedLyrics.length) {
+    scroll.innerHTML = `<div class="zen-cover-fallback">${
+      track.cover_url
+        ? `<div class="zen-cover-art"><img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='♪'"></div>`
+        : '<div style="font-size:72px;opacity:.3">♪</div>'
+    }<div class="zen-no-lyrics">NO LYRICS AVAILABLE</div></div>`;
+    return;
   }
+  // Build lyric DOM — fixed sizing, no containers
+  scroll.innerHTML = state.parsedLyrics.map((l,i) =>
+    `<div class="zen-lyric-line" id="zenLine${i}" data-idx="${i}">${esc(l.text)}</div>`
+  ).join('');
+  state.zenLineEls = Array.from(scroll.querySelectorAll('.zen-lyric-line'));
+  zenScrollState.isManual = false;
+  zenScrollState.lastManualTime = 0;
+  scroll.scrollTop = 0;
+  state.lastZenIdx = -1;
 }
 
-function blastrSetLyricFocus(lines, idx, extraClassMap={}) {
-  try {
-    if (!lines || !lines.length) return;
-    for (let i = 0; i < lines.length; i++) {
-      const l = lines[i];
-      l.classList.remove('active','near','near-prev','near-next');
-      if (i === idx) {
-        l.classList.add('active');
-      } else if (extraClassMap.prev && i === idx - 1) {
-        l.classList.add(extraClassMap.prev);
-      } else if (extraClassMap.next && i === idx + 1) {
-        l.classList.add(extraClassMap.next);
-      } else if (Math.abs(i - idx) === 1 && !extraClassMap.prev && !extraClassMap.next) {
-        l.classList.add('near');
-      }
+// ── SMART AUTO-SCROLL ENGINE ──
+const zenScrollState = {
+  isManual: false,
+  lastManualTime: 0,
+  resumeDelay: 3200,   // ms after last manual scroll before auto-resume
+  rafId: 0,
+  targetY: 0,
+};
+
+function zenCancelScrollRaf() {
+  if (zenScrollState.rafId) { cancelAnimationFrame(zenScrollState.rafId); zenScrollState.rafId = 0; }
+}
+
+function zenSmartScrollTo(el, force = false) {
+  const container = document.getElementById('zenLyricsScroll');
+  if (!container || !el) return;
+  // Respect manual scroll unless forced
+  const now = performance.now();
+  if (!force && zenScrollState.isManual && (now - zenScrollState.lastManualTime) < zenScrollState.resumeDelay) return;
+  zenScrollState.isManual = false;
+  const cRect = container.getBoundingClientRect();
+  const eRect = el.getBoundingClientRect();
+  const offset = (eRect.top - cRect.top) - (container.clientHeight * 0.44);
+  const target = Math.max(0, container.scrollTop + offset);
+  if (Math.abs(target - container.scrollTop) < 3) return;
+  zenScrollState.targetY = target;
+  zenCancelScrollRaf();
+  const start = container.scrollTop;
+  const dist = target - start;
+  const dur = Math.min(900, Math.max(420, Math.abs(dist) * 1.1));
+  const t0 = performance.now();
+  function step(now) {
+    const elapsed = now - t0;
+    const progress = Math.min(1, elapsed / dur);
+    // Ease out cubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    container.scrollTop = start + dist * ease;
+    if (progress < 1) {
+      zenScrollState.rafId = requestAnimationFrame(step);
+    } else {
+      zenScrollState.rafId = 0;
     }
-  } catch (err) {}
+  }
+  zenScrollState.rafId = requestAnimationFrame(step);
+}
+
+// Detect manual scroll
+(function() {
+  let setupDone = false;
+  function setupZenScrollListeners() {
+    if (setupDone) return;
+    const container = document.getElementById('zenLyricsScroll');
+    if (!container) return;
+    setupDone = true;
+    let scrollTimer = 0;
+    container.addEventListener('scroll', () => {
+      // Only mark manual if we didn't trigger it
+      if (zenScrollState.rafId === 0) {
+        zenScrollState.isManual = true;
+        zenScrollState.lastManualTime = performance.now();
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          // Grace period expired: auto-resume if active line is far out of view
+          const idx = state.lastZenIdx;
+          if (idx >= 0 && state.zenLineEls && state.zenLineEls[idx]) {
+            const el = state.zenLineEls[idx];
+            const c = container.getBoundingClientRect();
+            const e = el.getBoundingClientRect();
+            const distFromCenter = Math.abs((e.top + e.height/2) - (c.top + c.height/2));
+            if (distFromCenter > c.height * 0.35) {
+              zenScrollState.isManual = false;
+              zenSmartScrollTo(el);
+            }
+          }
+        }, zenScrollState.resumeDelay);
+      }
+    }, { passive: true });
+    container.addEventListener('touchstart', () => {
+      zenScrollState.isManual = true;
+      zenScrollState.lastManualTime = performance.now();
+      zenCancelScrollRaf();
+    }, { passive: true });
+  }
+  // Setup once ZEN opens
+  const orig = window.toggleZen;
+  // Re-hook after first open
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(setupZenScrollListeners, 200);
+  });
+  window.addEventListener('load', () => setTimeout(setupZenScrollListeners, 400));
+})();
+
+// ── LYRIC SYNC ENGINE ──
+// Chorus detection heuristic: track high-density lyric sections
+let zenChorusState = { active: false, lastTriggerIdx: -1 };
+
+function zenDetectChorus(idx, total) {
+  // Simple heuristic: assume chorus when repeating blocks appear (idx near 1/3, 2/3 of song)
+  const ratio = idx / Math.max(1, total - 1);
+  const isChorusZone = (ratio > 0.28 && ratio < 0.45) || (ratio > 0.62 && ratio < 0.82);
+  if (isChorusZone && !zenChorusState.active && idx !== zenChorusState.lastTriggerIdx) {
+    zenChorusState.active = true;
+    zenChorusState.lastTriggerIdx = idx;
+    const bloom = document.getElementById('zenChorusBloom');
+    if (bloom) {
+      bloom.classList.add('active');
+      setTimeout(() => bloom.classList.remove('active'), 3800);
+    }
+  } else if (!isChorusZone) {
+    zenChorusState.active = false;
+  }
 }
 
 function syncZenLyric(posMs) {
-  if(!state.parsedLyrics.length) return;
-  let idx=-1;
-  for(let i=0;i<state.parsedLyrics.length;i++){if(posMs>=state.parsedLyrics[i].ms) idx=i; else break;}
-  if(idx===state.lastZenIdx||idx<0) return;
-  state.lastZenIdx=idx;
-  const lines = state.zenLineEls && state.zenLineEls.length ? state.zenLineEls : Array.from(document.querySelectorAll('.zen-lyric-line'));
-  blastrSetLyricFocus(lines, idx, { near: 'near' });
-  const el=document.getElementById(`zenLine${idx}`);
-  if(el) blastrSmoothScrollToLine(el);
+  if (!state.parsedLyrics.length) return;
+  let idx = -1;
+  for (let i = 0; i < state.parsedLyrics.length; i++) {
+    if (posMs >= state.parsedLyrics[i].ms) idx = i; else break;
+  }
+  if (idx === state.lastZenIdx || idx < 0) {
+    zenUpdateProgress();
+    return;
+  }
+  const prevIdx = state.lastZenIdx;
+  state.lastZenIdx = idx;
+  const lines = state.zenLineEls && state.zenLineEls.length
+    ? state.zenLineEls
+    : Array.from(document.querySelectorAll('.zen-lyric-line'));
+  const total = lines.length;
+  // Apply classes to every line
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    const diff = i - idx;
+    l.classList.remove('active','near-prev','near-next','far-prev','far-next','entering','exiting','breathe');
+    if (i === idx) {
+      l.classList.add('active');
+      // Cinematic enter animation
+      if (l._zenFirstActive !== true) {
+        l._zenFirstActive = true;
+        l.classList.add('entering');
+        // Remove entering class after animation
+        setTimeout(() => l.classList.remove('entering'), 700);
+      }
+      // Breathe animation
+      setTimeout(() => {
+        if (l.classList.contains('active')) l.classList.add('breathe');
+      }, 700);
+    } else if (diff === -1) {
+      l.classList.add('near-prev');
+      // Mark prev as exiting (once)
+      if (i === prevIdx) {
+        l.classList.add('exiting');
+        setTimeout(() => l.classList.remove('exiting'), 520);
+      }
+    } else if (diff === 1) {
+      l.classList.add('near-next');
+    } else if (diff < -1 && diff >= -3) {
+      l.classList.add('far-prev');
+    } else if (diff > 1 && diff <= 3) {
+      l.classList.add('far-next');
+    }
+    // Reset firstActive for non-active lines
+    if (i !== idx) l._zenFirstActive = false;
+  }
+  // Scroll to active
+  const el = lines[idx];
+  if (el) zenSmartScrollTo(el);
+  // Chorus detection
+  zenDetectChorus(idx, total);
+  // Update progress
+  zenUpdateProgress();
 }
-window.addEventListener('resize',resizeZenCanvas);
+
+window.addEventListener('resize', resizeZenCanvas);
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&state.inZen) toggleZen();
   if(e.code==='Space'&&state.inZen){e.preventDefault();togglePlayback();}
@@ -5736,6 +7076,847 @@ body.blastr-lite-mode .account-row{transition:none !important}
   window.addEventListener('resize', () => setPerfClass());
 
   window.blastrRefreshPrefs = autoApplyPrefs;
+})();
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// THEATRE MODE ENGINE
+// ═══════════════════════════════════════════════════════════════════════
+(function() {
+'use strict';
+
+// ── State ──
+const TH = {
+  stages: [],
+  current: 0,
+  timer: null,
+  progress: null,
+  progressStart: null,
+  duration: 8000,
+  paused: false,
+  transitioning: false,
+  collections: {}
+};
+
+// ── Supabase helpers (reuse existing sbFetch) ──
+async function thFetch(path) {
+  return typeof sbFetch === 'function' ? sbFetch(path) : null;
+}
+
+// ── Load stages from DB ──
+async function thLoad() {
+  try {
+    // Load active stages with song info and images
+    const stages = await thFetch(
+      '/rest/v1/theatre_stages?select=*,songs(*),theatre_images(*),theatre_collections(name)&is_active=eq.true&order=display_order.asc,created_at.desc'
+    );
+    if (!Array.isArray(stages) || !stages.length) {
+      thHide();
+      return;
+    }
+    TH.stages = stages;
+    thInit();
+  } catch(e) {
+    thHide();
+  }
+}
+
+function thHide() {
+  const el = document.getElementById('theatreStage');
+  if (el) el.style.display = 'none';
+}
+
+function thInit() {
+  if (!TH.stages.length) { thHide(); return; }
+  const el = document.getElementById('theatreStage');
+  if (el) el.style.display = '';
+  thBuildDots();
+  thRender(0, false);
+  thStartAuto();
+  // Pause on hover
+  el.addEventListener('mouseenter', () => { TH.paused = true; thPauseProgress(); });
+  el.addEventListener('mouseleave', () => { TH.paused = false; if (!TH.transitioning) thStartAuto(); });
+}
+
+function thBuildDots() {
+  const wrap = document.getElementById('thDots');
+  if (!wrap) return;
+  wrap.innerHTML = TH.stages.map((_, i) =>
+    `<div class="th-dot${i===0?' active':''}" onclick="thGoTo(${i})"></div>`
+  ).join('');
+}
+
+function thUpdateDots(idx) {
+  document.querySelectorAll('.th-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+
+// ── Render a stage ──
+function thRender(idx, animate) {
+  const stage = TH.stages[idx];
+  if (!stage) return;
+  TH.current = idx;
+  const song = stage.songs || {};
+  const images = Array.isArray(stage.theatre_images) ? stage.theatre_images.sort((a,b)=>(a.position||0)-(b.position||0)) : [];
+  const collName = stage.theatre_collections?.name || 'FEATURED';
+  const dur = (stage.duration_seconds || 8) * 1000;
+  TH.duration = dur;
+
+  // Hero left
+  const leftBg = document.getElementById('thLeftBg');
+  const collTag = document.getElementById('thCollTag');
+  const titleEl = document.getElementById('thTitle');
+  const artistEl = document.getElementById('thArtist');
+  const metaRow = document.getElementById('thMetaRow');
+  const coverPh = document.getElementById('thCoverPlaceholder');
+
+  if (leftBg && song.cover_url) leftBg.style.backgroundImage = `url('${esc(song.cover_url)}')`;
+  if (collTag) collTag.textContent = collName.toUpperCase();
+  if (titleEl) titleEl.textContent = song.title || '—';
+  if (artistEl) artistEl.textContent = song.artist || '—';
+  if (metaRow) {
+    const pills = [];
+    if (song.genre) pills.push(`<span class="th-pill">${esc(song.genre)}</span>`);
+    if (song.is_verified) pills.push(`<span class="th-pill">&#10003; VERIFIED</span>`);
+    metaRow.innerHTML = pills.join('');
+  }
+  // Cover art
+  if (coverPh) {
+    if (song.cover_url) {
+      coverPh.outerHTML = `<img src="${esc(song.cover_url)}" alt="${esc(song.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.7)" id="thCoverImg">`;
+    } else {
+      coverPh.textContent = '&#9834;';
+    }
+  }
+
+  // Gallery slices
+  for (let i = 0; i < 3; i++) {
+    const img = images[i];
+    const sliceImg = document.getElementById(`thSliceImg${i}`);
+    if (!sliceImg) continue;
+    if (img && img.image_url) {
+      const px = img.pos_x || 50;
+      const py = img.pos_y || 50;
+      const zoom = img.zoom || 1;
+      sliceImg.style.backgroundImage = `url('${esc(img.image_url)}')`;
+      sliceImg.style.backgroundSize = `${Math.round(zoom * 100)}%`;
+      sliceImg.style.backgroundPosition = `${px}% ${py}%`;
+      sliceImg.innerHTML = '';
+    } else {
+      sliceImg.style.backgroundImage = '';
+      sliceImg.innerHTML = '<div class="th-slice-empty">NO IMAGE</div>';
+    }
+  }
+
+  // Store current song for play button
+  TH._currentSong = song;
+
+  // Animate entrance
+  if (animate) {
+    const inner = document.querySelector('.th-breath');
+    if (inner) {
+      inner.style.animation = 'none';
+      void inner.offsetWidth;
+      inner.style.animation = '';
+    }
+  }
+
+  thUpdateDots(idx);
+}
+
+// ── Play current song ──
+window.thPlayCurrent = function() {
+  const song = TH._currentSong;
+  if (!song || !song.id) return;
+  if (typeof initiateHandshake === 'function') initiateHandshake(song);
+};
+
+// ── Navigation ──
+window.thNext = function() { thGoTo((TH.current + 1) % TH.stages.length); };
+window.thPrev = function() { thGoTo((TH.current - 1 + TH.stages.length) % TH.stages.length); };
+window.thGoTo = function(idx) {
+  if (TH.transitioning || idx === TH.current) return;
+  thTransition(idx);
+};
+
+// ── Cinematic transition ──
+function thTransition(nextIdx) {
+  if (TH.transitioning) return;
+  TH.transitioning = true;
+  thStopAuto();
+
+  const inner = document.querySelector('.th-breath');
+  if (inner) inner.classList.add('th-exiting');
+
+  setTimeout(() => {
+    if (inner) inner.classList.remove('th-exiting');
+    thRender(nextIdx, true);
+    TH.transitioning = false;
+    if (!TH.paused) thStartAuto();
+  }, 460);
+}
+
+// ── Auto-rotation ──
+function thStartAuto() {
+  thStopAuto();
+  if (TH.stages.length < 2) return;
+  TH.progressStart = performance.now();
+  thTickProgress();
+}
+function thStopAuto() {
+  if (TH.timer) { clearTimeout(TH.timer); TH.timer = null; }
+  if (TH.progress) { cancelAnimationFrame(TH.progress); TH.progress = null; }
+}
+function thPauseProgress() {
+  thStopAuto();
+  const fill = document.getElementById('thProgressFill');
+  if (fill) fill.style.width = '0%';
+}
+function thTickProgress() {
+  const fill = document.getElementById('thProgressFill');
+  const now = performance.now();
+  const elapsed = now - (TH.progressStart || now);
+  const pct = Math.min(100, (elapsed / TH.duration) * 100);
+  if (fill) fill.style.width = pct + '%';
+  if (elapsed >= TH.duration) {
+    if (fill) fill.style.width = '0%';
+    TH.progressStart = performance.now();
+    thTransition((TH.current + 1) % TH.stages.length);
+    return;
+  }
+  TH.progress = requestAnimationFrame(thTickProgress);
+}
+
+// Pause when current song is actively playing
+audio && audio.addEventListener('play', () => {
+  const song = TH._currentSong;
+  if (song && window.state?.currentTrack?.id === song.id) {
+    TH.paused = true; thPauseProgress();
+  }
+});
+audio && audio.addEventListener('pause', () => {
+  if (!TH.paused) return;
+  const song = TH._currentSong;
+  if (song && window.state?.currentTrack?.id === song.id) {
+    TH.paused = false; if (!TH.transitioning) thStartAuto();
+  }
+});
+
+// ── Hook into home load ──
+const _origLoadHome = window.loadHomeContent;
+window.loadHomeContent = async function() {
+  await thLoad();
+  return _origLoadHome ? _origLoadHome.call(this, ...arguments) : undefined;
+};
+
+// ── Also hook into showPage to refresh when returning home ──
+const _origShowPage = window.showPage;
+window.showPage = function(name, btn) {
+  if (_origShowPage) _origShowPage.call(this, name, btn);
+  if (name === 'home' && TH.stages.length && !TH.paused && !TH.transitioning) {
+    thStartAuto();
+  } else if (name !== 'home') {
+    thPauseProgress();
+  }
+};
+
+// Export for Stage Manager
+window.TH = TH;
+window.thLoad = thLoad;
+
+})();
+
+// ═══════════════════════════════════════════════════════════════════════
+// STAGE MANAGER — Admin UI
+// ═══════════════════════════════════════════════════════════════════════
+(function() {
+'use strict';
+
+// ── State ──
+const SM = {
+  stages: [],
+  collections: [],
+  editingId: null,
+  form: {
+    song: null,
+    collectionId: null,
+    newColl: '',
+    images: [null, null, null],
+    pos: [{x:50,y:50,zoom:1},{x:50,y:50,zoom:1},{x:50,y:50,zoom:1}],
+    isActive: true,
+    durationSec: 8,
+    displayOrder: 0
+  },
+  songSearchTimer: null,
+  dragSrc: null
+};
+
+// ── Tab switching ──
+window.smShowTab = function(tab, btn) {
+  document.querySelectorAll('.sm-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('smTabMatrix').style.display = tab === 'matrix' ? '' : 'none';
+  document.getElementById('smTabStage').style.display = tab === 'stage' ? '' : 'none';
+  if (tab === 'stage') smRender();
+};
+
+// ── Main render ──
+async function smRender() {
+  const wrap = document.getElementById('stageManagerWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="sm-empty"><div class="sm-empty-icon">&#9698;</div>LOADING STAGES...</div>';
+  await smLoadData();
+  smRenderList();
+}
+
+async function smLoadData() {
+  try {
+    const [stages, colls] = await Promise.all([
+      sbFetch('/rest/v1/theatre_stages?select=*,songs(*),theatre_images(*),theatre_collections(id,name)&order=display_order.asc,created_at.desc'),
+      sbFetch('/rest/v1/theatre_collections?select=*&order=name.asc')
+    ]);
+    SM.stages = Array.isArray(stages) ? stages : [];
+    SM.collections = Array.isArray(colls) ? colls : [];
+  } catch(e) {
+    SM.stages = []; SM.collections = [];
+  }
+}
+
+function smRenderList() {
+  const wrap = document.getElementById('stageManagerWrap');
+  if (!wrap) return;
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--dim);font-family:var(--mono)">${SM.stages.length} STAGE${SM.stages.length!==1?'S':''} CONFIGURED</div>
+      <button class="sm-btn primary" onclick="smShowCreate()">+ NEW STAGE</button>
+    </div>
+    <div id="smStageList">
+      ${SM.stages.length ? SM.stages.map(smStageItemHTML).join('') : `
+        <div class="sm-empty">
+          <div class="sm-empty-icon">&#9698;</div>
+          NO STAGES YET — CREATE YOUR FIRST THEATRE STAGE
+        </div>
+      `}
+    </div>
+    <div id="smCreateForm" style="display:none;margin-top:20px"></div>
+  `;
+  smInitDrag();
+}
+
+function smStageItemHTML(s, idx) {
+  const song = s.songs || {};
+  const collName = s.theatre_collections?.name || '—';
+  const imgs = Array.isArray(s.theatre_images) ? s.theatre_images : [];
+  const thumb = song.cover_url || (imgs[0]?.image_url) || '';
+  return `
+    <div class="sm-stage-item" draggable="true" data-id="${s.id}" data-order="${s.display_order||idx}" 
+         ondragstart="smDragStart(event,${s.id})" ondragover="smDragOver(event)" ondrop="smDrop(event,${s.id})">
+      <div style="color:var(--dim);cursor:grab;font-size:16px;flex-shrink:0">&#8597;</div>
+      <div class="sm-stage-thumb">
+        ${thumb ? `<img src="${esc(thumb)}" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px">&#9834;</div>'}
+      </div>
+      <div class="sm-stage-info">
+        <div class="sm-stage-title">${esc(song.title || 'Untitled')}</div>
+        <div class="sm-stage-sub">${esc(song.artist || '—')} &bull; ${esc(collName)}</div>
+        <div class="sm-stage-badges">
+          <span class="sm-badge ${s.is_active?'active':'inactive'}">${s.is_active?'&#9679; ACTIVE':'&#9675; HIDDEN'}</span>
+          <span class="sm-badge inactive">${imgs.length}/3 IMAGES</span>
+          <span class="sm-badge inactive">${s.duration_seconds||8}s</span>
+        </div>
+      </div>
+      <div class="sm-stage-actions">
+        <button class="sm-icon-btn" onclick="smToggleActive(${s.id},${!s.is_active})" title="${s.is_active?'Deactivate':'Activate'}">
+          ${s.is_active?'&#9680;':'&#9899;'}
+        </button>
+        <button class="sm-icon-btn" onclick="smShowEdit(${s.id})" title="Edit">&#9998;</button>
+        <button class="sm-icon-btn danger" onclick="smDeleteStage(${s.id})" title="Delete">&#10005;</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── Drag & drop reorder ──
+function smInitDrag() {}
+window.smDragStart = function(e, id) {
+  SM.dragSrc = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+};
+window.smDragOver = function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+window.smDrop = async function(e, targetId) {
+  e.preventDefault();
+  if (!SM.dragSrc || SM.dragSrc === targetId) return;
+  const srcIdx = SM.stages.findIndex(s => s.id === SM.dragSrc);
+  const tgtIdx = SM.stages.findIndex(s => s.id === targetId);
+  if (srcIdx < 0 || tgtIdx < 0) return;
+  const moved = SM.stages.splice(srcIdx, 1)[0];
+  SM.stages.splice(tgtIdx, 0, moved);
+  // Update display_order
+  await Promise.all(SM.stages.map((s, i) =>
+    sbFetch(`/rest/v1/theatre_stages?id=eq.${s.id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({display_order: i})
+    })
+  ));
+  smRenderList();
+  if (typeof showToast === 'function') showToast('STAGES REORDERED', 'Display order saved.');
+};
+
+// ── Create / Edit form ──
+window.smShowCreate = function() {
+  SM.editingId = null;
+  SM.form = {song:null,collectionId:null,newColl:'',images:[null,null,null],pos:[{x:50,y:50,zoom:1},{x:50,y:50,zoom:1},{x:50,y:50,zoom:1}],isActive:true,durationSec:8,displayOrder:SM.stages.length};
+  smRenderForm();
+};
+
+window.smShowEdit = function(id) {
+  const s = SM.stages.find(x => x.id === id);
+  if (!s) return;
+  SM.editingId = id;
+  const song = s.songs || {};
+  const imgs = Array.isArray(s.theatre_images) ? s.theatre_images.sort((a,b)=>(a.position||0)-(b.position||0)) : [];
+  SM.form = {
+    song: song.id ? song : null,
+    collectionId: s.collection_id || null,
+    newColl: '',
+    images: [imgs[0]||null, imgs[1]||null, imgs[2]||null],
+    pos: [
+      {x: imgs[0]?.pos_x||50, y: imgs[0]?.pos_y||50, zoom: imgs[0]?.zoom||1},
+      {x: imgs[1]?.pos_x||50, y: imgs[1]?.pos_y||50, zoom: imgs[1]?.zoom||1},
+      {x: imgs[2]?.pos_x||50, y: imgs[2]?.pos_y||50, zoom: imgs[2]?.zoom||1}
+    ],
+    isActive: s.is_active !== false,
+    durationSec: s.duration_seconds || 8,
+    displayOrder: s.display_order || 0
+  };
+  smRenderForm();
+};
+
+function smRenderForm() {
+  const container = document.getElementById('smCreateForm');
+  if (!container) return;
+  const isEdit = !!SM.editingId;
+  const collChips = SM.collections.map(c =>
+    `<div class="sm-coll-chip${SM.form.collectionId===c.id?' sel':''}" onclick="smSelColl(${c.id})">${esc(c.name)}</div>`
+  ).join('');
+
+  container.style.display = '';
+  container.innerHTML = `
+    <div class="sm-form">
+      <div class="sm-form-title">&#9698; ${isEdit?'EDIT STAGE':'CREATE NEW STAGE'}</div>
+      
+      <!-- Song search -->
+      <div class="sm-label">SONG *</div>
+      ${SM.form.song ? `
+        <div class="sm-selected-song" id="smSelSong">
+          <div class="sm-selected-song-art">
+            ${SM.form.song.cover_url ? `<img src="${esc(SM.form.song.cover_url)}" loading="lazy">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--dim)">&#9834;</div>'}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700">${esc(SM.form.song.title)}</div>
+            <div style="font-size:11px;color:var(--dim);font-family:var(--mono)">${esc(SM.form.song.artist||'')}</div>
+          </div>
+          <button class="sm-clear-song" onclick="smClearSong()">&#10005;</button>
+        </div>
+      ` : `
+        <div class="sm-song-search sm-full" id="smSongSearchWrap">
+          <span class="sm-song-search-icon">&#9881;</span>
+          <input class="sm-song-input" id="smSongSearchInput" placeholder="Search songs..." oninput="smSongSearch(this.value)">
+          <div class="sm-song-results" id="smSongResults" style="display:none"></div>
+        </div>
+      `}
+      
+      <!-- Collection -->
+      <div class="sm-label" style="margin-top:4px">COLLECTION</div>
+      <div class="sm-coll-chips">${collChips}</div>
+      <div class="sm-new-coll">
+        <input class="sm-input" id="smNewCollInput" placeholder="Or create new collection..." style="flex:1">
+        <button class="sm-btn secondary" onclick="smCreateCollection()" style="white-space:nowrap;padding:8px 14px;font-size:10px">+ CREATE</button>
+      </div>
+
+      <!-- Settings row -->
+      <div class="sm-row">
+        <div>
+          <label class="sm-label">DURATION (SECONDS)</label>
+          <input class="sm-input" id="smDuration" type="number" min="4" max="30" value="${SM.form.durationSec}">
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end">
+          <div class="sm-toggle-row">
+            <label class="sm-toggle">
+              <input type="checkbox" id="smIsActive" ${SM.form.isActive?'checked':''}>
+              <div class="sm-toggle-track"></div>
+              <div class="sm-toggle-thumb"></div>
+            </label>
+            <span class="sm-toggle-label">ACTIVE (VISIBLE ON HOME)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery images -->
+      <div class="sm-label">GALLERY IMAGES (UP TO 3)</div>
+      <div class="sm-images-grid">
+        ${[0,1,2].map(i => smImgSlotHTML(i)).join('')}
+      </div>
+
+      <!-- Live preview -->
+      <div class="sm-label">LIVE PREVIEW</div>
+      <div class="sm-preview" id="smPreview">
+        <div class="sm-preview-label">PREVIEW</div>
+        ${smPreviewHTML()}
+      </div>
+
+      <!-- Actions -->
+      <div class="sm-form-actions">
+        <button class="sm-btn secondary" onclick="smCancelForm()">CANCEL</button>
+        <button class="sm-btn primary" onclick="smSaveStage()">${isEdit?'SAVE CHANGES':'CREATE STAGE'}</button>
+      </div>
+    </div>
+  `;
+  // Scroll into view
+  container.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function smImgSlotHTML(i) {
+  const img = SM.form.images[i];
+  const p = SM.form.pos[i];
+  const hasImg = img && (img.image_url || img._local);
+  const src = img?._local || img?.image_url || '';
+  return `
+    <div>
+      <div class="sm-img-slot${hasImg?' loaded':''}" onclick="smPickImage(${i})">
+        ${hasImg ? `<img src="${esc(src)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${p.x}% ${p.y}%">` : `<span style="font-size:22px;opacity:.4">&#43;</span>`}
+        <div class="sm-img-slot-label">SLICE ${i+1}</div>
+        ${hasImg ? `
+          <div class="sm-img-overlay">
+            <button class="sm-img-overlay-btn" onclick="event.stopPropagation();smPickImage(${i})">CHANGE</button>
+            <button class="sm-img-overlay-btn" onclick="event.stopPropagation();smRemoveImg(${i})">REMOVE</button>
+          </div>
+        ` : ''}
+      </div>
+      ${hasImg ? `
+        <div class="sm-pos-editor">
+          <div class="sm-pos-label">POSITION &amp; ZOOM</div>
+          <div class="sm-pos-row">
+            <div class="sm-pos-field">
+              <label>X POSITION</label>
+              <input type="range" min="0" max="100" value="${p.x}" oninput="smPosChange(${i},'x',this.value)">
+              <div class="sm-pos-val" id="smPosX${i}">${p.x}%</div>
+            </div>
+            <div class="sm-pos-field">
+              <label>Y POSITION</label>
+              <input type="range" min="0" max="100" value="${p.y}" oninput="smPosChange(${i},'y',this.value)">
+              <div class="sm-pos-val" id="smPosY${i}">${p.y}%</div>
+            </div>
+            <div class="sm-pos-field">
+              <label>ZOOM</label>
+              <input type="range" min="1" max="3" step="0.05" value="${p.zoom}" oninput="smPosChange(${i},'zoom',this.value)">
+              <div class="sm-pos-val" id="smPosZ${i}">${p.zoom}x</div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function smPreviewHTML() {
+  const song = SM.form.song || {};
+  const collId = SM.form.collectionId;
+  const collName = (SM.collections.find(c=>c.id===collId)||{}).name || 'FEATURED';
+  const coverUrl = song.cover_url || '';
+  const imgs = SM.form.images;
+  const pos = SM.form.pos;
+
+  const slicesHTML = [0,1,2].map(i => {
+    const img = imgs[i];
+    const p = pos[i];
+    const src = img?._local || img?.image_url || '';
+    return `<div class="th-slice">
+      <div class="th-slice-img" style="${src?`background-image:url('${esc(src)}');background-size:${Math.round((p.zoom||1)*100)}%;background-position:${p.x||50}% ${p.y||50}%`:''}">
+        ${!src?'<div class="th-slice-empty" style="font-size:9px">EMPTY</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="th-inner" style="height:100%">
+      <div class="th-left" style="flex:0 0 44%">
+        <div class="th-left-bg" style="${coverUrl?`background-image:url('${esc(coverUrl)}')`:''}"></div>
+        <div class="th-left-content">
+          <div class="th-cover-wrap" style="width:clamp(50px,6vw,80px)">
+            ${coverUrl?`<img src="${esc(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:'<div class="th-cover-placeholder" style="font-size:1.5rem">&#9834;</div>'}
+          </div>
+          <div class="th-collection-tag" style="font-size:8px">${esc(collName.toUpperCase())}</div>
+          <div class="th-title" style="font-size:clamp(12px,1.8vw,22px)">${esc(song.title||'Song Title')}</div>
+          <div class="th-artist" style="font-size:clamp(10px,1vw,13px)">${esc(song.artist||'Artist Name')}</div>
+          <div style="margin-top:10px">
+            <span class="th-play-btn" style="font-size:9px;padding:7px 14px;margin-top:0">&#9654; PLAY</span>
+          </div>
+        </div>
+      </div>
+      <div class="th-divider">
+        <svg viewBox="0 0 60 600" preserveAspectRatio="none">
+          <line x1="30" y1="0" x2="30" y2="600" class="th-divider-line"/>
+        </svg>
+      </div>
+      <div class="th-right">
+        <div class="th-gallery">${slicesHTML}</div>
+        <div class="th-slice-divider"></div>
+        <div class="th-slice-divider"></div>
+      </div>
+    </div>
+  `;
+}
+
+function smRefreshPreview() {
+  const prev = document.getElementById('smPreview');
+  if (!prev) return;
+  const label = prev.querySelector('.sm-preview-label');
+  prev.innerHTML = '';
+  if (label) prev.appendChild(label);
+  prev.insertAdjacentHTML('beforeend', smPreviewHTML());
+}
+
+// ── Position change ──
+window.smPosChange = function(i, axis, val) {
+  const v = parseFloat(val);
+  SM.form.pos[i][axis] = v;
+  const label = document.getElementById(`smPos${axis.toUpperCase()}${i}`);
+  if (label) label.textContent = axis === 'zoom' ? `${v.toFixed(2)}x` : `${Math.round(v)}%`;
+  smRefreshPreview();
+  // Update img slot preview
+  const img = SM.form.images[i];
+  if (img) {
+    const src = img._local || img.image_url || '';
+    const p = SM.form.pos[i];
+    const slotImg = document.querySelector(`#smCreateForm .sm-img-slot:nth-child(${i+1}) img`);
+    if (slotImg) slotImg.style.objectPosition = `${p.x}% ${p.y}%`;
+  }
+};
+
+// ── Song search ──
+window.smSongSearch = function(val) {
+  clearTimeout(SM.songSearchTimer);
+  const results = document.getElementById('smSongResults');
+  if (!results) return;
+  if (val.length < 2) { results.style.display = 'none'; return; }
+  results.style.display = '';
+  results.innerHTML = '<div style="padding:10px;text-align:center"><div class="spinner" style="width:16px;height:16px;border-width:2px"></div></div>';
+  SM.songSearchTimer = setTimeout(async () => {
+    const tracks = await sbFetch(`/rest/v1/tracks?select=*&or=(title.ilike.*${encodeURIComponent(val)}*,artist.ilike.*${encodeURIComponent(val)}*)&limit=8`);
+    if (!Array.isArray(tracks) || !tracks.length) {
+      results.innerHTML = `<div style="padding:12px;color:var(--dim);font-size:11px;font-family:var(--mono);text-align:center">NO RESULTS</div>`;
+      return;
+    }
+    results.innerHTML = tracks.map(t => `
+      <div class="sm-song-row" onclick="smSelectSong(${jsonAttr(t)})">
+        <div class="sm-song-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:var(--dim)">&#9834;</div>'}</div>
+        <div style="min-width:0">
+          <div class="sm-song-name">${esc(t.title)}</div>
+          <div class="sm-song-artist">${esc(t.artist||'')}</div>
+        </div>
+      </div>
+    `).join('');
+  }, 280);
+};
+
+window.smSelectSong = function(track) {
+  SM.form.song = track;
+  smRenderForm();
+  smRefreshPreview();
+};
+
+window.smClearSong = function() {
+  SM.form.song = null;
+  smRenderForm();
+};
+
+window.smSelColl = function(id) {
+  SM.form.collectionId = SM.form.collectionId === id ? null : id;
+  document.querySelectorAll('.sm-coll-chip').forEach((c, i) => {
+    c.classList.toggle('sel', SM.collections[i]?.id === SM.form.collectionId);
+  });
+};
+
+window.smCreateCollection = async function() {
+  const input = document.getElementById('smNewCollInput');
+  if (!input) return;
+  const name = input.value.trim();
+  if (!name) return;
+  const res = await sbFetch('/rest/v1/theatre_collections', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Prefer':'return=representation'},
+    body: JSON.stringify({name})
+  });
+  const coll = Array.isArray(res) ? res[0] : res;
+  if (coll?.id) {
+    SM.collections.push(coll);
+    SM.form.collectionId = coll.id;
+    input.value = '';
+    smRenderForm();
+    if (typeof showToast === 'function') showToast('COLLECTION CREATED', name);
+  }
+};
+
+// ── Image picking ──
+window.smPickImage = function(slotIdx) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      SM.form.images[slotIdx] = { _file: file, _local: ev.target.result, image_url: '', pos_x:50, pos_y:50, zoom:1, position: slotIdx };
+      smRenderForm();
+      smRefreshPreview();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+};
+
+window.smRemoveImg = function(i) {
+  SM.form.images[i] = null;
+  SM.form.pos[i] = {x:50,y:50,zoom:1};
+  smRenderForm();
+  smRefreshPreview();
+};
+
+// ── Toggle active ──
+window.smToggleActive = async function(id, val) {
+  await sbFetch(`/rest/v1/theatre_stages?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+    body: JSON.stringify({is_active: val})
+  });
+  await smLoadData();
+  smRenderList();
+  if (typeof showToast === 'function') showToast('STAGE UPDATED', val ? 'Stage activated' : 'Stage hidden');
+  if (typeof thLoad === 'function') thLoad();
+};
+
+// ── Delete ──
+window.smDeleteStage = async function(id) {
+  if (!confirm('Delete this Theatre Stage? This cannot be undone.')) return;
+  // Delete images first
+  await sbFetch(`/rest/v1/theatre_images?stage_id=eq.${id}`, {method:'DELETE'});
+  await sbFetch(`/rest/v1/theatre_stages?id=eq.${id}`, {method:'DELETE'});
+  await smLoadData();
+  smRenderList();
+  if (typeof showToast === 'function') showToast('STAGE DELETED', 'Theatre stage removed.');
+  if (typeof thLoad === 'function') thLoad();
+};
+
+// ── Save stage ──
+window.smSaveStage = async function() {
+  const song = SM.form.song;
+  if (!song?.id) {
+    if (typeof showToast === 'function') showToast('ERROR', 'Please select a song first.');
+    return;
+  }
+  const dur = parseInt(document.getElementById('smDuration')?.value) || 8;
+  const active = document.getElementById('smIsActive')?.checked !== false;
+
+  const stagePayload = {
+    song_id: song.id,
+    collection_id: SM.form.collectionId || null,
+    is_active: active,
+    duration_seconds: dur,
+    display_order: SM.form.displayOrder
+  };
+
+  let stageId = SM.editingId;
+  if (stageId) {
+    await sbFetch(`/rest/v1/theatre_stages?id=eq.${stageId}`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify(stagePayload)
+    });
+  } else {
+    const res = await sbFetch('/rest/v1/theatre_stages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify(stagePayload)
+    });
+    const created = Array.isArray(res) ? res[0] : res;
+    stageId = created?.id;
+  }
+
+  if (!stageId) {
+    if (typeof showToast === 'function') showToast('ERROR', 'Failed to save stage.');
+    return;
+  }
+
+  // Upload images
+  for (let i = 0; i < 3; i++) {
+    const img = SM.form.images[i];
+    if (!img) continue;
+    const pos = SM.form.pos[i];
+    let url = img.image_url || '';
+
+    if (img._file) {
+      // Upload to storage
+      const ext = img._file.name.split('.').pop().toLowerCase() || 'jpg';
+      const fname = `th_${stageId}_${i}_${Date.now()}.${ext}`;
+      try {
+        const up = await blastrUploadStorageFile('theatre-images', fname, img._file);
+        url = up?.url || '';
+      } catch(e) { continue; }
+    }
+
+    if (!url) continue;
+
+    const imgPayload = {
+      stage_id: stageId,
+      image_url: url,
+      position: i,
+      pos_x: pos.x,
+      pos_y: pos.y,
+      zoom: pos.zoom
+    };
+
+    // Check if existing image record
+    const existing = img.id;
+    if (existing) {
+      await sbFetch(`/rest/v1/theatre_images?id=eq.${existing}`, {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+        body: JSON.stringify(imgPayload)
+      });
+    } else {
+      await sbFetch('/rest/v1/theatre_images', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+        body: JSON.stringify(imgPayload)
+      });
+    }
+  }
+
+  if (typeof showToast === 'function') showToast('STAGE SAVED', stageId ? 'Theatre stage updated.' : 'New stage created.');
+  await smLoadData();
+  smRenderList();
+  if (typeof thLoad === 'function') thLoad();
+};
+
+window.smCancelForm = function() {
+  SM.editingId = null;
+  const form = document.getElementById('smCreateForm');
+  if (form) form.style.display = 'none';
+};
+
+// ── Hook showPage to trigger SM render ──
+const _smOrigShowPage = window.showPage;
+window.showPage = function(name, btn) {
+  if (_smOrigShowPage) _smOrigShowPage.call(this, name, btn);
+};
+
+// Expose
+window.SM = SM;
+
 })();
 
 </script>
