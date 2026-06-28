@@ -1166,6 +1166,144 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .related-title{font-size:17px;font-weight:800;margin-bottom:12px}
 
+/* ── EDIT SONG ── */
+.es-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.es-card{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:0}
+.es-card-title{font-size:11px;letter-spacing:2.5px;font-family:var(--mono);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.es-card-title.search-accent{color:var(--accent2)}
+.es-card-title.edit-accent{color:var(--accent)}
+.es-search-wrap{position:relative;margin-bottom:0}
+.es-search{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(0,198,255,.18);border-radius:12px;
+  padding:11px 42px 11px 14px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;transition:border-color .2s;
+}
+.es-search:focus{border-color:var(--accent2)}
+.es-search-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;pointer-events:none}
+.es-results{
+  position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:100;
+  background:rgba(8,8,20,.98);border:1px solid var(--accent2);
+  border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto;display:none;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.es-results.open{display:block}
+.es-result-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 13px;cursor:pointer;transition:background .12s;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.es-result-row:hover{background:rgba(0,198,255,.07)}
+.es-result-row:last-child{border:none}
+.es-result-thumb{
+  width:36px;height:36px;border-radius:7px;
+  background:var(--panel);flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--dim);
+}
+.es-result-thumb img{width:100%;height:100%;object-fit:cover}
+.es-result-info{flex:1;min-width:0}
+.es-result-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.es-result-artist{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:1px}
+/* Locked song chip */
+.es-locked-chip{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:rgba(0,198,255,.06);border:1px solid rgba(0,198,255,.22);
+  border-radius:12px;margin-bottom:16px;
+}
+.es-locked-thumb{
+  width:42px;height:42px;border-radius:8px;overflow:hidden;
+  background:var(--panel);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dim);
+}
+.es-locked-thumb img{width:100%;height:100%;object-fit:cover}
+.es-locked-info{flex:1;min-width:0}
+.es-locked-name{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.es-locked-sub{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:2px}
+.es-chip-badge{
+  padding:3px 9px;border-radius:10px;font-size:9px;font-family:var(--mono);letter-spacing:1px;
+  background:rgba(0,198,255,.1);color:var(--accent2);border:1px solid rgba(0,198,255,.3);
+  white-space:nowrap;
+}
+.es-unlock-btn{
+  background:none;border:none;color:var(--dim);cursor:pointer;font-size:15px;
+  margin-left:4px;transition:color .15s;flex-shrink:0;
+}
+.es-unlock-btn:hover{color:var(--red)}
+/* Cover preview */
+.es-cover-preview{
+  position:relative;width:100%;padding-bottom:100%;
+  border-radius:16px;overflow:hidden;background:var(--panel);
+  border:1.5px dashed rgba(57,255,20,.18);margin-bottom:14px;
+  flex-shrink:0;
+}
+.es-cover-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;border-radius:15px;
+  display:block;
+}
+.es-cover-placeholder{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  color:var(--dim);
+}
+.es-cover-placeholder svg{opacity:.3}
+.es-cover-placeholder span{font-size:10px;font-family:var(--mono);letter-spacing:1.5px;opacity:.5}
+.es-cover-new-badge{
+  position:absolute;top:10px;right:10px;
+  padding:4px 10px;border-radius:10px;font-size:9px;font-family:var(--mono);letter-spacing:1px;
+  background:rgba(57,255,20,.85);color:#000;font-weight:700;
+}
+.es-replace-btn{
+  width:100%;padding:9px;background:rgba(57,255,20,.06);
+  border:1.5px dashed rgba(57,255,20,.25);border-radius:10px;
+  color:var(--accent);font-size:10px;font-family:var(--mono);letter-spacing:1.5px;
+  cursor:pointer;transition:all .15s;margin-bottom:14px;
+}
+.es-replace-btn:hover{background:rgba(57,255,20,.12);border-style:solid}
+/* Fields */
+.es-field{margin-bottom:11px}
+.es-label{font-size:10px;letter-spacing:2px;color:var(--dim);margin-bottom:5px;display:block;font-family:var(--mono)}
+.es-input,.es-select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);border-radius:10px;
+  padding:10px 13px;color:var(--text);font-size:13px;font-family:var(--font);
+  outline:none;transition:border-color .2s;
+}
+.es-input:focus,.es-select:focus{border-color:var(--accent)}
+.es-select option{background:#111122;color:var(--text)}
+/* Verify toggle — reuse verify-toggle but scoped */
+.es-verify{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;background:rgba(255,255,255,.03);
+  border-radius:10px;cursor:pointer;margin-bottom:14px;
+  border:1.5px solid var(--border);transition:all .15s;
+}
+.es-verify:hover,.es-verify.on{background:rgba(57,255,20,.06);border-color:var(--accent)}
+.es-verify-dot{
+  width:18px;height:18px;border-radius:50%;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:9px;
+  transition:background .15s;flex-shrink:0;
+}
+.es-verify.on .es-verify-dot{background:var(--accent);color:#000}
+.es-verify-label{font-size:11px;font-family:var(--mono);letter-spacing:.5px;color:var(--dim);transition:color .15s}
+.es-verify.on .es-verify-label{color:var(--accent)}
+/* Save button */
+.es-save-btn{
+  width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#20c020);
+  color:#000;font-size:12px;font-weight:900;letter-spacing:2px;
+  border:none;border-radius:12px;cursor:pointer;font-family:var(--mono);
+  transition:transform .15s,box-shadow .2s;
+}
+.es-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(57,255,20,.28)}
+.es-save-btn:disabled{background:#1e1e30;color:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
+/* Empty state */
+.es-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:10px;padding:40px 20px;
+  color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-align:center;
+}
+.es-empty-icon{font-size:32px;opacity:.25;margin-bottom:4px}
+
 /* ── LYRIC LAB ── */
 .lab-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;height:calc(100vh - 175px)}
 .lab-panel{
@@ -1981,7 +2119,7 @@ body.light .search-input{color:var(--text)}
   .sidebar-btn{padding:12px;justify-content:center}
   .sidebar-btn .icon{min-width:unset;font-size:20px}
   .user-chip{justify-content:center;padding:8px}.user-avatar{margin:0}
-  .admin-grid{grid-template-columns:1fr}.lab-layout{grid-template-columns:1fr;height:auto}
+  .admin-grid,.es-layout{grid-template-columns:1fr}.lab-layout{grid-template-columns:1fr;height:auto}
   .profile-hero{flex-direction:column;align-items:flex-start}
   .vibing-panel{width:280px}
 }
@@ -3194,6 +3332,7 @@ body.light .search-input{color:var(--text)}
         <div class="section-title">Admin <span>Matrix</span></div>
         <div class="sm-tabs" style="margin-bottom:16px">
           <button class="sm-tab active" onclick="smShowTab('matrix',this)">&#9649; UPLOAD / DELETE</button>
+          <button class="sm-tab" onclick="smShowTab('edit',this)">✎ EDIT SONG</button>
           <button class="sm-tab" onclick="smShowTab('stage',this)">&#9698; STAGE MANAGER</button>
         </div>
         <div id="smTabMatrix">
@@ -3232,7 +3371,86 @@ body.light .search-input{color:var(--text)}
         </div>
         </div><!-- /smTabMatrix -->
 
-        <!-- STAGE MANAGER TAB -->
+        <!-- EDIT SONG TAB -->
+        <div id="smTabEdit" style="display:none">
+          <div class="es-layout">
+            <!-- LEFT: Search + lock -->
+            <div class="es-card">
+              <div class="es-card-title search-accent">⬡ LOCATE TRACK</div>
+              <!-- Locked chip (shown when a song is selected) -->
+              <div id="esLockedChip" class="es-locked-chip" style="display:none">
+                <div class="es-locked-thumb" id="esChipThumb">♪</div>
+                <div class="es-locked-info">
+                  <div class="es-locked-name" id="esChipName">—</div>
+                  <div class="es-locked-sub" id="esChipSub">—</div>
+                </div>
+                <span class="es-chip-badge" id="esChipVerified">—</span>
+                <button class="es-unlock-btn" onclick="esClearSong()" title="Clear selection">✕</button>
+              </div>
+              <!-- Search (hidden when song locked) -->
+              <div id="esSearchWrap" class="es-search-wrap">
+                <input type="text" class="es-search" id="esSearchInput" placeholder="Search by title or artist…" oninput="esOnSearch(this.value)" autocomplete="off">
+                <span class="es-search-icon">⌕</span>
+                <div class="es-results" id="esResults"></div>
+              </div>
+              <!-- Empty / prompt state -->
+              <div class="es-empty" id="esPromptEmpty">
+                <div class="es-empty-icon">✎</div>
+                <div>SEARCH FOR A TRACK ABOVE</div>
+                <div style="opacity:.5;font-size:10px;margin-top:4px">SELECT TO OPEN THE EDITOR</div>
+              </div>
+            </div>
+            <!-- RIGHT: Editor (hidden until song locked) -->
+            <div class="es-card" id="esEditorCard">
+              <div class="es-card-title edit-accent">✦ PATCH INTERFACE</div>
+              <div class="es-empty" id="esEditorEmpty">
+                <div class="es-empty-icon">⬡</div>
+                <div>NO TRACK SELECTED</div>
+                <div style="opacity:.5;font-size:10px;margin-top:4px">LOCK A TRACK TO EDIT</div>
+              </div>
+              <div id="esEditorFields" style="display:none">
+                <!-- Cover preview -->
+                <div class="es-cover-preview" id="esCoverPreviewWrap">
+                  <img class="es-cover-img" id="esCoverImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+                  <div class="es-cover-placeholder" id="esCoverPlaceholder">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="14" cy="15" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 27l9-8 6 6 5-4 12 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    <span>NO COVER</span>
+                  </div>
+                  <div class="es-cover-new-badge" id="esCoverNewBadge" style="display:none">NEW</div>
+                </div>
+                <button class="es-replace-btn" onclick="esPickCover()">⬆ REPLACE COVER IMAGE</button>
+                <!-- Fields -->
+                <div class="es-field">
+                  <label class="es-label">TITLE</label>
+                  <input type="text" class="es-input" id="esTitle" placeholder="Track title">
+                </div>
+                <div class="es-field">
+                  <label class="es-label">ARTIST</label>
+                  <input type="text" class="es-input" id="esArtist" placeholder="Artist name">
+                </div>
+                <div class="es-field">
+                  <label class="es-label">DESCRIPTION</label>
+                  <input type="text" class="es-input" id="esDesc" placeholder="Optional description">
+                </div>
+                <div class="es-field">
+                  <label class="es-label">GENRE</label>
+                  <select class="es-select" id="esGenre">
+                    <option value="">— SELECT GENRE —</option>
+                    <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+                    <option>Electronic</option><option>Rock</option><option>Jazz</option>
+                    <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
+                    <option>Latin</option><option>Country</option><option>Indie</option>
+                  </select>
+                </div>
+                <div class="es-verify" id="esVerifyToggle" onclick="esToggleVerify()">
+                  <div class="es-verify-dot" id="esVerifyDot"></div>
+                  <span class="es-verify-label" id="esVerifyLabel">BLASTR CERTIFIED ORIGINAL</span>
+                </div>
+                <button class="es-save-btn" id="esSaveBtn" onclick="esSaveChanges()">SAVE CHANGES</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /smTabEdit -->
         <div id="smTabStage" style="display:none">
           <div class="sm-wrap" id="stageManagerWrap"></div>
         </div>
@@ -7357,7 +7575,8 @@ window.smShowTab = function(tab, btn) {
   document.querySelectorAll('.sm-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
   document.getElementById('smTabMatrix').style.display = tab === 'matrix' ? '' : 'none';
-  document.getElementById('smTabStage').style.display = tab === 'stage' ? '' : 'none';
+  document.getElementById('smTabEdit').style.display   = tab === 'edit'   ? '' : 'none';
+  document.getElementById('smTabStage').style.display  = tab === 'stage'  ? '' : 'none';
   if (tab === 'stage') smRender();
 };
 
@@ -7916,6 +8135,282 @@ window.showPage = function(name, btn) {
 
 // Expose
 window.SM = SM;
+
+})();
+
+// ═══════════════════════════════════════════════════════
+// EDIT SONG — Patch Interface
+// Reuses: sbFetch, blastrUploadStorageFile, blastrDeleteStorageObject,
+//         blastrCleanFileStem, blastrGuessExtension, blastrNormalizeObjectName,
+//         getTracks, showToast, jsonAttr, esc, loadHomeContent, loadAdminTracks
+// ═══════════════════════════════════════════════════════
+(function(){
+
+  const ES = {
+    track: null,        // currently locked track object
+    newCoverFile: null, // pending replacement cover File
+    newCoverPreviewURL: null,
+    searchTimer: null,
+    isVerified: false,
+  };
+
+  // ── SEARCH ──
+  window.esOnSearch = function(val) {
+    clearTimeout(ES.searchTimer);
+    const res = document.getElementById('esResults');
+    if (val.length < 2) { res.classList.remove('open'); return; }
+    ES.searchTimer = setTimeout(() => esRunSearch(val), 260);
+  };
+
+  async function esRunSearch(q) {
+    const tracks = await getTracks(q);
+    const res = document.getElementById('esResults');
+    if (!tracks || !tracks.length) { res.classList.remove('open'); return; }
+    res.innerHTML = tracks.slice(0, 8).map(t => `
+      <div class="es-result-row" onclick="esSelectSong(${jsonAttr(t)})">
+        <div class="es-result-thumb">${t.cover_url ? `<img src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">` : '♪'}</div>
+        <div class="es-result-info">
+          <div class="es-result-title">${esc(t.title)}</div>
+          <div class="es-result-artist">${esc(t.artist || '—')}</div>
+        </div>
+      </div>`).join('');
+    res.classList.add('open');
+  }
+
+  // ── SELECT / LOCK ──
+  window.esSelectSong = function(track) {
+    ES.track = track;
+    ES.newCoverFile = null;
+    ES.newCoverPreviewURL = null;
+    ES.isVerified = !!track.is_verified;
+
+    // Close search dropdown
+    document.getElementById('esResults').classList.remove('open');
+    document.getElementById('esSearchInput').value = '';
+    document.getElementById('esSearchWrap').style.display = 'none';
+    document.getElementById('esPromptEmpty').style.display = 'none';
+
+    // Show locked chip
+    const chip = document.getElementById('esLockedChip');
+    chip.style.display = 'flex';
+    const thumb = document.getElementById('esChipThumb');
+    thumb.innerHTML = track.cover_url
+      ? `<img src="${esc(track.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" referrerpolicy="no-referrer">`
+      : '♪';
+    document.getElementById('esChipName').textContent = track.title || '—';
+    document.getElementById('esChipSub').textContent = track.artist || '—';
+    document.getElementById('esChipVerified').textContent = track.is_verified ? '✓ VERIFIED' : 'UNVERIFIED';
+    document.getElementById('esChipVerified').style.color = track.is_verified ? 'var(--accent)' : 'var(--dim)';
+
+    // Populate editor
+    document.getElementById('esEditorEmpty').style.display = 'none';
+    const fields = document.getElementById('esEditorFields');
+    fields.style.display = 'block';
+
+    // Cover
+    esRenderCoverPreview(track.cover_url, null);
+
+    document.getElementById('esTitle').value  = track.title || '';
+    document.getElementById('esArtist').value = track.artist || '';
+    document.getElementById('esDesc').value   = track.description || '';
+    document.getElementById('esGenre').value  = track.genre || '';
+
+    // Verify toggle
+    esSetVerify(ES.isVerified);
+
+    document.getElementById('esSaveBtn').disabled = false;
+  };
+
+  window.esClearSong = function() {
+    ES.track = null;
+    ES.newCoverFile = null;
+    if (ES.newCoverPreviewURL) { URL.revokeObjectURL(ES.newCoverPreviewURL); ES.newCoverPreviewURL = null; }
+    document.getElementById('esLockedChip').style.display = 'none';
+    document.getElementById('esSearchWrap').style.display = '';
+    document.getElementById('esPromptEmpty').style.display = '';
+    document.getElementById('esEditorEmpty').style.display = '';
+    document.getElementById('esEditorFields').style.display = 'none';
+    document.getElementById('esSearchInput').value = '';
+    document.getElementById('esCoverNewBadge').style.display = 'none';
+  };
+
+  // ── COVER PREVIEW ──
+  function esRenderCoverPreview(existingUrl, newUrl) {
+    const img = document.getElementById('esCoverImg');
+    const placeholder = document.getElementById('esCoverPlaceholder');
+    const src = newUrl || existingUrl;
+    if (src) {
+      img.src = src;
+      img.style.display = 'block';
+      img.onerror = () => { img.style.display = 'none'; placeholder.style.display = ''; };
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = '';
+    }
+    document.getElementById('esCoverNewBadge').style.display = newUrl ? 'block' : 'none';
+  }
+
+  // ── PICK COVER ──
+  window.esPickCover = function() {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.onchange = e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      ES.newCoverFile = f;
+      if (ES.newCoverPreviewURL) URL.revokeObjectURL(ES.newCoverPreviewURL);
+      ES.newCoverPreviewURL = URL.createObjectURL(f);
+      esRenderCoverPreview(ES.track?.cover_url, ES.newCoverPreviewURL);
+    };
+    inp.click();
+  };
+
+  // ── VERIFY TOGGLE ──
+  window.esToggleVerify = function() {
+    ES.isVerified = !ES.isVerified;
+    esSetVerify(ES.isVerified);
+  };
+  function esSetVerify(val) {
+    const tog = document.getElementById('esVerifyToggle');
+    const dot = document.getElementById('esVerifyDot');
+    const lbl = document.getElementById('esVerifyLabel');
+    tog.classList.toggle('on', val);
+    dot.textContent = val ? '✓' : '';
+    lbl.textContent = val ? '✓ BLASTR CERTIFIED' : 'BLASTR CERTIFIED ORIGINAL';
+  }
+
+  // ── SAVE ──
+  window.esSaveChanges = async function() {
+    if (!ES.track) return;
+    const btn = document.getElementById('esSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'SAVING…';
+
+    const title  = document.getElementById('esTitle').value.trim();
+    const artist = document.getElementById('esArtist').value.trim();
+    const desc   = document.getElementById('esDesc').value.trim();
+    const genre  = document.getElementById('esGenre').value;
+
+    if (!title || !artist) {
+      showToast('ERROR', 'Title and Artist are required.');
+      btn.disabled = false;
+      btn.textContent = 'SAVE CHANGES';
+      return;
+    }
+
+    let newCoverUrl = null;
+    let newCoverObjectName = null;
+    let oldCoverObjectName = null;
+
+    try {
+      // ── 1. Upload new cover if selected ──
+      if (ES.newCoverFile) {
+        btn.textContent = 'UPLOADING COVER…';
+        const safeStem = blastrCleanFileStem(title);
+        const ext = blastrGuessExtension(ES.newCoverFile, 'jpg');
+        const objName = blastrNormalizeObjectName(`${safeStem}-cover.${ext}`, `${safeStem}-cover`);
+        const uploaded = await blastrUploadStorageFile('covers', objName, ES.newCoverFile, {
+          fallbackBase: `${safeStem}-cover`,
+          reason: 'uploading replacement cover'
+        });
+        if (!uploaded || !uploaded.url) throw new Error('Cover upload failed.');
+        newCoverUrl = uploaded.url;
+        newCoverObjectName = uploaded.objectName;
+
+        // Determine old cover object name for deletion
+        if (ES.track.cover_url) {
+          try {
+            const u = new URL(ES.track.cover_url);
+            const parts = u.pathname.split('/covers/');
+            if (parts.length > 1) oldCoverObjectName = decodeURIComponent(parts[1]);
+          } catch(_) {}
+        }
+      }
+
+      // ── 2. Build patch payload (only changed fields) ──
+      btn.textContent = 'PATCHING METADATA…';
+      const patch = {};
+      if (title  !== (ES.track.title       || '')) patch.title       = title;
+      if (artist !== (ES.track.artist      || '')) patch.artist      = artist;
+      if (desc   !== (ES.track.description || '')) patch.description = desc;
+      if (genre  !== (ES.track.genre       || '')) patch.genre       = genre;
+      if (ES.isVerified !== !!ES.track.is_verified) patch.is_verified = ES.isVerified;
+      if (newCoverUrl) patch.cover_url = newCoverUrl;
+
+      if (!Object.keys(patch).length) {
+        showToast('NO CHANGES', 'Nothing to update.');
+        btn.disabled = false;
+        btn.textContent = 'SAVE CHANGES';
+        return;
+      }
+
+      const result = await sbFetch(
+        `/rest/v1/tracks?id=eq.${ES.track.id}`,
+        { method: 'PATCH', headers: { 'Prefer': 'return=representation' }, body: patch }
+      );
+      if (result === null) throw new Error('Patch failed — no response from server.');
+
+      // ── 3. Delete old cover after successful patch ──
+      if (newCoverUrl && oldCoverObjectName) {
+        blastrDeleteStorageObject('covers', oldCoverObjectName).catch(() => {});
+      }
+
+      // ── 4. Update local track state and chip ──
+      const updated = Array.isArray(result) ? result[0] : result;
+      if (updated) {
+        ES.track = { ...ES.track, ...updated };
+      } else {
+        ES.track = { ...ES.track, ...patch };
+      }
+      if (newCoverUrl) {
+        ES.newCoverFile = null;
+        if (ES.newCoverPreviewURL) { URL.revokeObjectURL(ES.newCoverPreviewURL); ES.newCoverPreviewURL = null; }
+        document.getElementById('esCoverNewBadge').style.display = 'none';
+        esRenderCoverPreview(ES.track.cover_url, null);
+      }
+
+      // Refresh chip
+      document.getElementById('esChipName').textContent = ES.track.title || '—';
+      document.getElementById('esChipSub').textContent  = ES.track.artist || '—';
+      const vBadge = document.getElementById('esChipVerified');
+      vBadge.textContent = ES.track.is_verified ? '✓ VERIFIED' : 'UNVERIFIED';
+      vBadge.style.color = ES.track.is_verified ? 'var(--accent)' : 'var(--dim)';
+
+      showToast('PATCHED ✓', `"${ES.track.title}" updated successfully.`);
+
+      // ── 5. Refresh all relevant views ──
+      loadHomeContent();
+      loadAdminTracks();
+      // Refresh search dropdown if open
+      const si = document.getElementById('searchInput');
+      if (si && si.value.length >= 2) runSearch && runSearch(si.value);
+      // Refresh song profile if open
+      if (typeof openSongProfile === 'function' && state.currentProfileTrack?.id === ES.track.id) {
+        openSongProfile(ES.track);
+      }
+
+    } catch (err) {
+      console.error('[ES SAVE ERROR]', err);
+      // Rollback: delete newly uploaded cover if patch failed
+      if (newCoverObjectName) {
+        blastrDeleteStorageObject('covers', newCoverObjectName).catch(() => {});
+      }
+      showToast('SAVE FAILED', String(err?.message || err || 'Unknown error'));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'SAVE CHANGES';
+    }
+  };
+
+  // Close dropdown on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#esSearchWrap')) {
+      const r = document.getElementById('esResults');
+      if (r) r.classList.remove('open');
+    }
+  });
 
 })();
 
