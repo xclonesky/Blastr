@@ -3073,35 +3073,35 @@ body.light .search-input{color:var(--text)}
 /* ══════════════════════════════════════════
    ARTIST ERA — CSS
    ══════════════════════════════════════════ */
-.artist-hero{position:relative;width:100%;height:400px;overflow:hidden;flex-shrink:0}
+.artist-hero{position:relative;width:100%;height:382px;overflow:hidden;flex-shrink:0}
 .artist-banner{position:absolute;inset:0;overflow:hidden}
 .artist-banner-gradient{position:absolute;inset:0} /* CSS gradient fallback */
 .artist-banner img{width:100%;height:100%;object-fit:cover;object-position:center top}
 /* Left-to-right fade — avatar side dark, right side crisp */
 .artist-banner-fade{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,8,20,1) 0%,rgba(8,8,20,.82) 22%,rgba(8,8,20,.35) 52%,rgba(8,8,20,0) 100%);pointer-events:none}
-/* Bottom bleed into page */
-.artist-banner-bottom{position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,transparent 0%,rgba(8,8,20,.6) 60%,var(--bg) 100%);pointer-events:none}
-/* Avatar overlapping bottom-left of banner */
-.artist-avatar-wrap{position:absolute;bottom:-56px;left:32px;z-index:10}
+/* Bottom bleed into page — strengthened for smoother transition */
+.artist-banner-bottom{position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to bottom,transparent 0%,rgba(8,8,20,.55) 38%,rgba(8,8,20,.85) 70%,var(--bg) 100%);pointer-events:none}
+/* Avatar sitting inside the banner with intentional depth overlap */
+.artist-avatar-wrap{position:absolute;bottom:28px;left:32px;z-index:10}
 .artist-avatar{
   width:160px;height:160px;border-radius:50%;
-  border:4px solid rgba(255,255,255,.12);
+  border:4px solid rgba(255,255,255,.14);
   background:linear-gradient(135deg,#1c1c2e,#0f0f1a);
   overflow:hidden;
-  box-shadow:0 12px 60px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06),0 0 60px rgba(57,255,20,.06);
+  box-shadow:0 12px 60px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08),0 0 60px rgba(57,255,20,.06);
   display:flex;align-items:center;justify-content:center;
   font-size:52px;color:rgba(255,255,255,.25);
   flex-shrink:0;
 }
 .artist-avatar img{width:100%;height:100%;object-fit:cover}
-/* Info section */
-.artist-info-row{display:flex;flex-direction:column;padding:76px 32px 24px}
+/* Info section — more breathing room */
+.artist-info-row{display:flex;flex-direction:column;padding:28px 32px 28px}
 .artist-name-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
 .artist-name{font-size:clamp(28px,5vw,52px);font-weight:900;line-height:1.05;letter-spacing:-.5px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
 .artist-realname{font-size:14px;color:rgba(255,255,255,.45);margin-bottom:8px;letter-spacing:.3px}
 .artist-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:20px;font-size:9px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(57,255,20,.1);color:var(--accent);border:1px solid rgba(57,255,20,.3);font-weight:700;white-space:nowrap;align-self:flex-start;margin-top:6px}
 .artist-badge.gold{background:rgba(255,209,102,.1);color:#FFD166;border-color:rgba(255,209,102,.3)}
-.artist-bio{font-size:14px;line-height:1.8;color:rgba(255,255,255,.5);max-width:680px;margin-bottom:20px;white-space:pre-line}
+.artist-bio{font-size:14px;line-height:1.8;color:rgba(255,255,255,.5);max-width:680px;margin:16px 0 22px;white-space:pre-line}
 .artist-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .artist-genre-tag{padding:4px 13px;border-radius:20px;font-size:10px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
 .artist-actions{display:flex;gap:10px;align-items:center;margin-bottom:8px}
@@ -3124,12 +3124,12 @@ body.light .search-input{color:var(--text)}
 .artist-track-like{background:none;border:none;color:var(--dim);cursor:pointer;font-size:15px;padding:4px 6px;transition:color .14s;border-radius:6px}
 .artist-track-like:hover{color:var(--red);background:rgba(255,60,60,.08)}
 .artist-verified-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#000;font-size:9px;font-weight:900;margin-left:4px;flex-shrink:0;vertical-align:middle}
-/* Artist cards — home row */
+/* Artist cards — home row — slightly larger (+18px) */
 .artist-row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-ms-overflow-style:none}
 .artist-row-scroll::-webkit-scrollbar{display:none}
-.artist-card{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;width:130px;padding:14px 8px;border-radius:16px;transition:background .15s,transform .18s}
+.artist-card{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;width:148px;padding:14px 8px;border-radius:16px;transition:background .15s,transform .18s}
 .artist-card:hover{background:rgba(255,255,255,.06);transform:translateY(-4px)}
-.artist-card-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#0f0f1a);display:flex;align-items:center;justify-content:center;font-size:30px;color:rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.07);flex-shrink:0;transition:box-shadow .18s}
+.artist-card-avatar{width:118px;height:118px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#0f0f1a);display:flex;align-items:center;justify-content:center;font-size:34px;color:rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.07);flex-shrink:0;transition:box-shadow .18s}
 .artist-card:hover .artist-card-avatar{box-shadow:0 10px 40px rgba(0,0,0,.65),0 0 0 2px rgba(57,255,20,.2)}
 .artist-card-avatar img{width:100%;height:100%;object-fit:cover}
 .artist-card-name{font-size:12px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;color:#fff}
@@ -3150,20 +3150,17 @@ body.light .search-input{color:var(--text)}
 .am-input:focus,.am-select:focus,.am-textarea:focus{border-color:var(--accent)}
 .am-textarea{resize:vertical;min-height:80px;line-height:1.5}
 .am-select option{background:#111122}
-/* Banner: Spotify-proportioned 3:1 */
-.am-banner-preview{
-  width:100%;height:180px;border-radius:12px;overflow:hidden;
-  background:linear-gradient(135deg,#0d0d1a,#1a0d26,#0a1a1a);
-  border:1.5px dashed rgba(57,255,20,.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-family:var(--mono);color:var(--dim);
-  cursor:pointer;margin-bottom:0;transition:border-color .2s;letter-spacing:1px;
-  position:relative;
-}
-.am-banner-preview:hover{border-color:var(--accent)}
-.am-banner-preview img{width:100%;height:100%;object-fit:cover;border-radius:10px}
-.am-banner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);border-radius:10px;opacity:0;transition:opacity .15s}
-.am-banner-preview:hover .am-banner-overlay{opacity:1}
+/* Banner drag-to-position wrapper */
+.am-banner-drag-wrap{position:relative;width:100%;height:180px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#0d0d1a,#1a0d26,#0a1a1a);border:1.5px dashed rgba(57,255,20,.2);cursor:ns-resize;user-select:none;-webkit-user-select:none;margin-bottom:0;transition:border-color .2s}
+.am-banner-drag-wrap:hover{border-color:var(--accent)}
+.am-banner-drag-wrap.has-image{border-style:solid;border-color:rgba(57,255,20,.3)}
+.am-banner-drag-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;font-family:var(--mono);color:var(--dim);letter-spacing:1px;flex-direction:column;gap:6px;cursor:pointer}
+.am-banner-drag-img{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;object-fit:cover;object-position:center 50%;display:block}
+.am-banner-drag-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9px;font-family:var(--mono);color:rgba(255,255,255,.4);letter-spacing:1px;background:rgba(0,0,0,.4);padding:4px 0;pointer-events:none}
+.am-banner-change-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);opacity:0;transition:opacity .15s;gap:8px}
+.am-banner-drag-wrap:hover .am-banner-change-overlay{opacity:1}
+.am-banner-change-btn{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:10px;cursor:pointer;font-family:var(--mono);transition:background .15s}
+.am-banner-change-btn:hover{background:rgba(255,255,255,.28)}
 /* Avatar overlapping banner bottom-left */
 .am-hero-wrap{position:relative;margin-bottom:14px}
 .am-avatar-on-banner{
@@ -3220,10 +3217,11 @@ body.light .search-input{color:var(--text)}
   .am-layout{grid-template-columns:1fr}
   .artist-hero{height:260px}
   .artist-avatar{width:110px;height:110px}
-  .artist-avatar-wrap{left:14px;bottom:-36px}
-  .artist-info-row{padding:50px 14px 16px}
+  .artist-avatar-wrap{left:14px;bottom:18px}
+  .artist-info-row{padding:24px 14px 16px}
   .artist-name{font-size:24px}
   .artist-content{padding:0 12px 32px}
+  .artist-bio{margin:12px 0 18px}
 }
 
 </style>
@@ -3545,7 +3543,7 @@ body.light .search-input{color:var(--text)}
             <input type="text" class="admin-input" id="adminDesc" placeholder="Description (optional)">
             <select class="admin-select" id="adminGenre">
               <option value="">SELECT GENRE...</option>
-              <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+              <option>Pop</option><option>Hip-Hop</option><option>Rap</option><option>R&B</option>
               <option>Electronic</option><option>Rock</option><option>Jazz</option>
               <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
               <option>Latin</option><option>Country</option><option>Indie</option>
@@ -3637,7 +3635,7 @@ body.light .search-input{color:var(--text)}
                   <label class="es-label">GENRE</label>
                   <select class="es-select" id="esGenre">
                     <option value="">— SELECT GENRE —</option>
-                    <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+                    <option>Pop</option><option>Hip-Hop</option><option>Rap</option><option>R&B</option>
                     <option>Electronic</option><option>Rock</option><option>Jazz</option>
                     <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
                     <option>Latin</option><option>Country</option><option>Indie</option>
@@ -3675,9 +3673,18 @@ body.light .search-input{color:var(--text)}
               <div id="amEditorFields" style="display:none">
                 <!-- Banner + Avatar hero -->
                 <div class="am-hero-wrap">
-                  <div class="am-banner-preview" id="amBannerPreview" onclick="amPickBanner()">
-                    <span>⬆ UPLOAD BANNER (3:1 recommended)</span>
-                    <div class="am-banner-overlay">⬆ CHANGE BANNER</div>
+                  <div class="am-banner-drag-wrap" id="amBannerPreview">
+                    <div class="am-banner-drag-empty" id="amBannerEmpty" onclick="amPickBanner()">
+                      <span style="font-size:22px;opacity:.3">⬆</span>
+                      <span>UPLOAD BANNER (3:1 recommended)</span>
+                      <span style="font-size:9px;opacity:.5">Drag image vertically to set focal point</span>
+                    </div>
+                    <img class="am-banner-drag-img" id="amBannerDragImg" style="display:none">
+                    <div class="am-banner-drag-hint" id="amBannerDragHint" style="display:none">↕ DRAG TO REPOSITION · CLICK TO CHANGE</div>
+                    <div class="am-banner-change-overlay" id="amBannerChangeOverlay" style="display:none">
+                      <button class="am-banner-change-btn" onclick="event.stopPropagation();amPickBanner()">⬆ CHANGE</button>
+                      <button class="am-banner-change-btn" onclick="event.stopPropagation();amClearBanner()">✕ REMOVE</button>
+                    </div>
                   </div>
                   <div class="am-avatar-on-banner" id="amAvatarPreview" onclick="amPickAvatar()">★</div>
                 </div>
@@ -3696,7 +3703,7 @@ body.light .search-input{color:var(--text)}
                     <label class="am-label">GENRE *</label>
                     <select class="am-select" id="amGenre">
                       <option value="">— SELECT —</option>
-                      <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+                      <option>Pop</option><option>Hip-Hop</option><option>Rap</option><option>R&B</option>
                       <option>Electronic</option><option>Rock</option><option>Jazz</option>
                       <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
                       <option>Latin</option><option>Country</option><option>Indie</option>
@@ -7884,7 +7891,7 @@ window.smShowTab = function(tab, btn) {
   document.getElementById('smTabArtists').style.display = tab === 'artists' ? '' : 'none';
   document.getElementById('smTabStage').style.display   = tab === 'stage'   ? '' : 'none';
   if (tab === 'stage') smRender();
-  if (tab === 'artists') amLoadArtists();
+  if (tab === 'artists') { amLoadArtists(); setTimeout(amInitBannerDrag, 100); }
 };
 
 // ── Main render ──
@@ -8745,17 +8752,14 @@ async function getArtistById(id) {
 
 async function getFeaturedTracks(artistId) {
   if (!artistId) return [];
-  console.log('[getFeaturedTracks] artistId:', artistId);
   // Two-query approach: avoids PostgREST FK join (400 if FK not formally defined)
   const rows = await sbFetch(
     `/rest/v1/artist_featured_tracks?select=track_id,display_order&artist_id=eq.${artistId}&order=display_order.asc&limit=5`
   );
-  console.log('[getFeaturedTracks] rows from DB:', rows);
   if (!Array.isArray(rows) || !rows.length) return [];
   const ids = rows.map(r => r.track_id).filter(Boolean);
   if (!ids.length) return [];
   const tracks = await sbFetch(`/rest/v1/tracks?select=*&id=in.(${ids.join(',')})`);
-  console.log('[getFeaturedTracks] tracks fetched:', tracks?.length);
   if (!Array.isArray(tracks)) return [];
   return ids.map(id => tracks.find(t => t.id === id)).filter(Boolean);
 }
@@ -8791,6 +8795,9 @@ window.openArtistProfile = async function(artist) {
     banner.style.background = artistGradient(artist.id);
     bannerImg.src = artist.banner_url;
     bannerImg.style.display = 'block';
+    // Apply saved focal point if stored
+    const pos = artist.banner_style && artist.banner_style.includes('%') ? artist.banner_style : 'center 30%';
+    bannerImg.style.objectPosition = pos;
     bannerImg.onerror = () => { bannerImg.style.display = 'none'; };
   } else {
     bannerImg.style.display = 'none';
@@ -8877,40 +8884,94 @@ window.artistPlayFeatured = function() {
   else if (state.currentArtist) showToast('ARTIST', 'No featured tracks set yet.');
 };
 
-// ── FEATURED ARTISTS ROW (Homepage) ──
+// ── FEATURED ARTISTS ROW (Homepage — dynamic random insertion) ──
 async function loadFeaturedArtistsRow() {
   const wrap = document.getElementById('featuredArtistsRow');
   if (!wrap) return;
+  wrap.innerHTML = ''; // clear dedicated slot (we inject inline now)
   try {
-    // Get all artists, rotate by genre each session
     const all = await getArtists();
-    if (!all.length) { wrap.innerHTML=''; return; }
-    // Collect unique genres
+    if (!all.length) return;
+
+    // Shuffle artists using time-based seed
+    const seed = Math.floor(Math.random() * 999983); // random every refresh
+    const shuffled = all.slice().sort(() => {
+      const r = Math.sin(seed * 9301 + all.indexOf(all[0]) * 49297 + 233) * 10000;
+      return (r - Math.floor(r)) - 0.5;
+    });
+
+    // Decide how many artist rows this session: 1, 2, or 3 (random)
+    const rowCount = Math.floor(Math.random() * 3) + 1;
+
+    // Build genre-grouped rows
     const genres = [...new Set(all.map(a=>a.genre).filter(Boolean))];
-    let artists = all;
-    if (genres.length > 0) {
-      // Pick genre by session-based rotation
-      const genreIdx = Math.floor(Date.now() / 3600000) % genres.length;
-      const genre = genres[genreIdx];
-      const filtered = all.filter(a => a.genre === genre);
-      artists = filtered.length ? filtered : all;
+    const rows = [];
+    for (let r = 0; r < rowCount; r++) {
+      const genre = genres[(seed + r) % Math.max(genres.length,1)];
+      const pool = genre ? all.filter(a=>a.genre===genre) : all;
+      const artists = (pool.length ? pool : all).slice(0, 10);
+      const label = genre ? `${genre} Artists` : 'Featured Artists';
+      rows.push({ label, artists });
     }
-    if (!artists.length) { wrap.innerHTML=''; return; }
-    const label = artists[0]?.genre ? `${artists[0].genre} Artists` : 'Featured Artists';
-    wrap.innerHTML = `<div class="songs-section">
-      <div class="section-header">
-        <div class="section-name">${esc(label)}</div>
-      </div>
-      <div class="artist-row-scroll">
-        ${artists.slice(0,10).map(a=>`
-          <div class="artist-card" onclick="openArtistProfile(${jsonAttr(a)})">
-            <div class="artist-card-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
-            <div class="artist-card-name">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
-            <div class="artist-card-type">${esc(a.genre||'ARTIST')}</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-  } catch(e) { wrap.innerHTML=''; }
+
+    // Get the homeContent container to inject rows between existing sections
+    const homeContent = document.getElementById('homeContent');
+    if (!homeContent) return;
+    const sections = Array.from(homeContent.querySelectorAll('.songs-section'));
+    if (!sections.length) {
+      // Fallback: append to dedicated slot
+      wrap.innerHTML = rows.map(row => buildArtistRowHTML(row.label, row.artists)).join('');
+      return;
+    }
+
+    // Build injection positions — spread rows between sections, never stack
+    const totalSlots = sections.length + 1; // slots: before first, between each, after last
+    const usedSlots = new Set();
+    // Deterministic slot selection per row
+    rows.forEach((row, i) => {
+      let slot = ((seed * (i + 7) * 13) % totalSlots + totalSlots) % totalSlots;
+      while (usedSlots.has(slot)) slot = (slot + 1) % totalSlots;
+      usedSlots.add(slot);
+      row.slot = slot;
+    });
+
+    // Inject: remove any previously injected artist rows first
+    homeContent.querySelectorAll('.blastr-artist-era-row').forEach(el=>el.remove());
+
+    // Sort rows by slot and insert
+    const sorted = rows.slice().sort((a,b)=>a.slot-b.slot);
+    sorted.forEach(row => {
+      const el = document.createElement('div');
+      el.className = 'blastr-artist-era-row';
+      el.innerHTML = buildArtistRowHTML(row.label, row.artists);
+      if (row.slot === 0) {
+        homeContent.insertBefore(el, homeContent.firstChild);
+      } else {
+        const ref = sections[Math.min(row.slot - 1, sections.length - 1)];
+        if (ref && ref.nextSibling) {
+          homeContent.insertBefore(el, ref.nextSibling);
+        } else {
+          homeContent.appendChild(el);
+        }
+      }
+    });
+  } catch(e) { console.warn('[featuredArtists]', e); wrap.innerHTML=''; }
+}
+
+function buildArtistRowHTML(label, artists) {
+  return `<div class="songs-section">
+    <div class="section-header">
+      <div class="section-name">${esc(label)}</div>
+    </div>
+    <div class="artist-row-scroll">
+      ${artists.map(a=>`
+        <div class="artist-card" onclick="openArtistProfile(${jsonAttr(a)})">
+          <div class="artist-card-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
+          <div class="artist-card-name">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
+          <div class="artist-card-type">${esc(a.genre||'ARTIST')}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
 }
 window.loadFeaturedArtistsRow = loadFeaturedArtistsRow;
 
@@ -8949,7 +9010,7 @@ window.amFilterArtists = function(val) {
 window.amNewArtist = function() {
   AM.selected = null; AM.isNew = true;
   AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null; AM.featTracks=[];
-  AM.isVerified = false;
+  AM.isVerified = false; AM.bannerPosY = 50;
   amShowEditor();
   amClearEditor();
   document.getElementById('amDeleteBtn').style.display='none';
@@ -8959,6 +9020,10 @@ window.amSelectArtist = async function(a) {
   AM.selected = a; AM.isNew = false;
   AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null;
   AM.isVerified = !!a.verified;
+  // Restore saved banner position
+  const savedPos = (a.banner_style && a.banner_style.includes('%')) ? a.banner_style : 'center 50%';
+  const matchY = savedPos.match(/(\d+(?:\.\d+)?)%/);
+  AM.bannerPosY = matchY ? parseFloat(matchY[1]) : 50;
   // Load featured tracks (two-query: no FK join)
   const featRowsAM = await sbFetch(`/rest/v1/artist_featured_tracks?select=track_id,display_order&artist_id=eq.${a.id}&order=display_order.asc&limit=5`);
   if (Array.isArray(featRowsAM) && featRowsAM.length) {
@@ -8984,7 +9049,8 @@ function amClearEditor() {
   const g=document.getElementById('amGenre');if(g)g.value='';
   const b=document.getElementById('amBadge');if(b)b.value='';
   const ap=document.getElementById('amAvatarPreview');if(ap)ap.innerHTML='★';
-  amSetBannerPreview(null);
+  AM.bannerPosY=50;
+  amUpdateBannerPreview();
   amSetVerify(false);
   amRenderFeatSlots();
 }
@@ -8993,23 +9059,17 @@ function amPopulateEditor(a) {
   document.getElementById('amBio').value = a.bio||'';
   document.getElementById('amGenre').value = a.genre||'';
   document.getElementById('amBadge').value = a.badge||'';
-  // Avatar preview (am-avatar-on-banner element)
+  // Avatar preview
   const ap = document.getElementById('amAvatarPreview');
   if(ap) ap.innerHTML = a.avatar_url ? `<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
-  // Banner preview
-  amSetBannerPreview(a.banner_url);
+  // Banner preview with saved position
+  amUpdateBannerPreview();
   amSetVerify(!!a.verified);
   amRenderFeatSlots();
 }
 function amSetBannerPreview(url) {
-  const bp = document.getElementById('amBannerPreview');
-  if (!bp) return;
-  if (url) {
-    bp.innerHTML=`<img src="${esc(url)}" referrerpolicy="no-referrer"><div class="am-banner-overlay">⬆ CHANGE BANNER</div>`;
-  } else {
-    bp.innerHTML='<span>⬆ UPLOAD BANNER (3:1 recommended)</span><div class="am-banner-overlay">⬆ CHANGE BANNER</div>';
-    bp.style.background='linear-gradient(135deg,#0d0d1a,#1a0d26,#0a1a1a)';
-  }
+  // Legacy wrapper — delegates to amUpdateBannerPreview
+  amUpdateBannerPreview();
 }
 function amSetVerify(v) {
   AM.isVerified=v;
@@ -9083,10 +9143,102 @@ window.amPickBanner=function(){
     AM.newBannerFile=f;
     if(AM.newBannerUrl) URL.revokeObjectURL(AM.newBannerUrl);
     AM.newBannerUrl=URL.createObjectURL(f);
-    const bp=document.getElementById('amBannerPreview');
-    bp.innerHTML=`<img src="${AM.newBannerUrl}">`;
+    AM.bannerPosY=50; // reset to center on new upload
+    amUpdateBannerPreview();
   };inp.click();
 };
+
+window.amClearBanner=function(){
+  AM.newBannerFile=null;
+  if(AM.newBannerUrl){URL.revokeObjectURL(AM.newBannerUrl);AM.newBannerUrl=null;}
+  AM.selected&&(AM.selected.banner_url=null);
+  AM.bannerPosY=50;
+  amUpdateBannerPreview();
+};
+
+function amUpdateBannerPreview(){
+  const wrap=document.getElementById('amBannerPreview');
+  const img=document.getElementById('amBannerDragImg');
+  const empty=document.getElementById('amBannerEmpty');
+  const hint=document.getElementById('amBannerDragHint');
+  const overlay=document.getElementById('amBannerChangeOverlay');
+  const src=AM.newBannerUrl||(AM.selected?.banner_url||null);
+  if(src&&img){
+    img.src=src;
+    img.style.display='block';
+    img.style.objectPosition=`center ${AM.bannerPosY||50}%`;
+    if(empty)empty.style.display='none';
+    if(hint){hint.style.display='block';hint.textContent=`↕ DRAG TO REPOSITION · Y: ${Math.round(AM.bannerPosY||50)}%`;}
+    if(overlay)overlay.style.display='';
+    if(wrap){wrap.classList.add('has-image');wrap.style.cursor='ns-resize';}
+  } else {
+    if(img)img.style.display='none';
+    if(empty)empty.style.display='flex';
+    if(hint)hint.style.display='none';
+    if(overlay)overlay.style.display='none';
+    if(wrap){wrap.classList.remove('has-image');wrap.style.cursor='pointer';}
+  }
+}
+
+// Drag-to-position logic — attached directly to wrap after DOM ready
+function amInitBannerDrag(){
+  const wrap=document.getElementById('amBannerPreview');
+  if(!wrap||wrap._dragInit) return;
+  wrap._dragInit=true;
+  let dragging=false,startY=0,startPosY=50,moved=false;
+
+  function getImg(){return document.getElementById('amBannerDragImg');}
+  function getHint(){return document.getElementById('amBannerDragHint');}
+  function hasImage(){return !!(AM.newBannerUrl||(AM.selected&&AM.selected.banner_url));}
+
+  function onStart(clientY){
+    if(!hasImage()) return false;
+    dragging=true; moved=false;
+    startY=clientY;
+    startPosY=AM.bannerPosY!=null?AM.bannerPosY:50;
+    wrap.style.cursor='grabbing';
+    return true;
+  }
+  function onMove(clientY){
+    if(!dragging) return;
+    const dy=clientY-startY;
+    if(Math.abs(dy)>3) moved=true;
+    const newPosY=Math.max(0,Math.min(100,startPosY+dy*0.4));
+    AM.bannerPosY=newPosY;
+    const img=getImg();
+    if(img) img.style.objectPosition=`center ${newPosY.toFixed(1)}%`;
+    const hint=getHint();
+    if(hint) hint.textContent=`↕ DRAG TO REPOSITION  ·  ${Math.round(newPosY)}%`;
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging=false;
+    wrap.style.cursor='ns-resize';
+  }
+
+  // Mouse
+  wrap.addEventListener('mousedown',function(e){
+    if(!hasImage()){amPickBanner();return;}
+    if(e.button!==0) return;
+    if(onStart(e.clientY)) e.preventDefault();
+  });
+  document.addEventListener('mousemove',function(e){onMove(e.clientY);});
+  document.addEventListener('mouseup',function(){onEnd();});
+
+  // Touch
+  wrap.addEventListener('touchstart',function(e){
+    if(!hasImage()){amPickBanner();return;}
+    onStart(e.touches[0].clientY);
+  },{passive:true});
+  wrap.addEventListener('touchmove',function(e){
+    if(dragging){e.preventDefault();onMove(e.touches[0].clientY);}
+  },{passive:false});
+  wrap.addEventListener('touchend',onEnd,{passive:true});
+}
+// Init on page load and re-init when admin tab opens
+document.addEventListener('DOMContentLoaded', amInitBannerDrag);
+// Also call after a short delay to handle SPA navigation
+setTimeout(amInitBannerDrag, 800);
 
 // ── SAVE ──
 window.amSaveArtist=async function(){
@@ -9126,6 +9278,7 @@ window.amSaveArtist=async function(){
       verified: AM.isVerified,
       avatar_url: avatarUrl,
       banner_url: bannerUrl,
+      banner_style: `center ${Math.round(AM.bannerPosY||50)}%`,
     };
 
     let artistId;
@@ -9146,14 +9299,10 @@ window.amSaveArtist=async function(){
 
     // Save featured tracks (delete old, insert new)
     btn.textContent='SAVING TRACKS…';
-    console.log('[AM SAVE] featTracks to save:', AM.featTracks.length, AM.featTracks.map(t=>({id:t.id,title:t.title})));
-    const delRes = await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${artistId}`,{method:'DELETE'});
-    console.log('[AM SAVE] DELETE featured tracks result:', delRes);
+    await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${artistId}`,{method:'DELETE'});
     if(AM.featTracks.length){
       const rows=AM.featTracks.map((t,i)=>({artist_id:artistId,track_id:t.id,display_order:i+1}));
-      console.log('[AM SAVE] Inserting featured rows:', JSON.stringify(rows));
-      const postRes = await sbFetch('/rest/v1/artist_featured_tracks',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:rows});
-      console.log('[AM SAVE] POST featured tracks result:', postRes);
+      await sbFetch('/rest/v1/artist_featured_tracks',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:rows});
     }
 
     // Re-fetch fresh artist data from DB to ensure profile reflects saved state
