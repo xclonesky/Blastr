@@ -3070,8 +3070,164 @@ body.light .search-input{color:var(--text)}
   .zen-art-env { transition: opacity .3s !important; }
 }
 
+/* ══════════════════════════════════════════
+   ARTIST ERA — CSS
+   ══════════════════════════════════════════ */
+.artist-hero{position:relative;width:100%;height:400px;overflow:hidden;flex-shrink:0}
+.artist-banner{position:absolute;inset:0;overflow:hidden}
+.artist-banner-gradient{position:absolute;inset:0} /* CSS gradient fallback */
+.artist-banner img{width:100%;height:100%;object-fit:cover;object-position:center top}
+/* Left-to-right fade — avatar side dark, right side crisp */
+.artist-banner-fade{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,8,20,1) 0%,rgba(8,8,20,.82) 22%,rgba(8,8,20,.35) 52%,rgba(8,8,20,0) 100%);pointer-events:none}
+/* Bottom bleed into page */
+.artist-banner-bottom{position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,transparent 0%,rgba(8,8,20,.6) 60%,var(--bg) 100%);pointer-events:none}
+/* Avatar overlapping bottom-left of banner */
+.artist-avatar-wrap{position:absolute;bottom:-56px;left:32px;z-index:10}
+.artist-avatar{
+  width:160px;height:160px;border-radius:50%;
+  border:4px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,#1c1c2e,#0f0f1a);
+  overflow:hidden;
+  box-shadow:0 12px 60px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06),0 0 60px rgba(57,255,20,.06);
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;color:rgba(255,255,255,.25);
+  flex-shrink:0;
+}
+.artist-avatar img{width:100%;height:100%;object-fit:cover}
+/* Info section */
+.artist-info-row{display:flex;flex-direction:column;padding:76px 32px 24px}
+.artist-name-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.artist-name{font-size:clamp(28px,5vw,52px);font-weight:900;line-height:1.05;letter-spacing:-.5px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.artist-realname{font-size:14px;color:rgba(255,255,255,.45);margin-bottom:8px;letter-spacing:.3px}
+.artist-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:20px;font-size:9px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(57,255,20,.1);color:var(--accent);border:1px solid rgba(57,255,20,.3);font-weight:700;white-space:nowrap;align-self:flex-start;margin-top:6px}
+.artist-badge.gold{background:rgba(255,209,102,.1);color:#FFD166;border-color:rgba(255,209,102,.3)}
+.artist-bio{font-size:14px;line-height:1.8;color:rgba(255,255,255,.5);max-width:680px;margin-bottom:20px;white-space:pre-line}
+.artist-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.artist-genre-tag{padding:4px 13px;border-radius:20px;font-size:10px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.artist-actions{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+/* Section headers */
+.artist-section-title{font-size:20px;font-weight:800;letter-spacing:.2px;margin:28px 0 14px;color:#fff}
+/* Popular track rows */
+.artist-track-row{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:12px;transition:background .14s;cursor:pointer;position:relative}
+.artist-track-row:hover{background:rgba(255,255,255,.06)}
+.artist-track-num{width:24px;text-align:center;font-size:13px;font-family:var(--mono);color:rgba(255,255,255,.3);flex-shrink:0;transition:opacity .14s}
+.artist-track-row:hover .artist-track-num{opacity:0}
+.artist-track-play-icon{position:absolute;left:12px;width:24px;text-align:center;font-size:14px;color:var(--accent);display:none;flex-shrink:0}
+.artist-track-row:hover .artist-track-play-icon{display:block}
+.artist-track-thumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dim)}
+.artist-track-thumb img{width:100%;height:100%;object-fit:cover}
+.artist-track-info{flex:1;min-width:0}
+.artist-track-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist-track-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.artist-track-actions{display:flex;gap:6px;opacity:0;transition:opacity .14s}
+.artist-track-row:hover .artist-track-actions{opacity:1}
+.artist-track-like{background:none;border:none;color:var(--dim);cursor:pointer;font-size:15px;padding:4px 6px;transition:color .14s;border-radius:6px}
+.artist-track-like:hover{color:var(--red);background:rgba(255,60,60,.08)}
+.artist-verified-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#000;font-size:9px;font-weight:900;margin-left:4px;flex-shrink:0;vertical-align:middle}
+/* Artist cards — home row */
+.artist-row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-ms-overflow-style:none}
+.artist-row-scroll::-webkit-scrollbar{display:none}
+.artist-card{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;width:130px;padding:14px 8px;border-radius:16px;transition:background .15s,transform .18s}
+.artist-card:hover{background:rgba(255,255,255,.06);transform:translateY(-4px)}
+.artist-card-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#0f0f1a);display:flex;align-items:center;justify-content:center;font-size:30px;color:rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.07);flex-shrink:0;transition:box-shadow .18s}
+.artist-card:hover .artist-card-avatar{box-shadow:0 10px 40px rgba(0,0,0,.65),0 0 0 2px rgba(57,255,20,.2)}
+.artist-card-avatar img{width:100%;height:100%;object-fit:cover}
+.artist-card-name{font-size:12px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;color:#fff}
+.artist-card-type{font-size:10px;color:var(--dim);font-family:var(--mono);text-align:center}
+/* Search artist rows */
+.search-artist-row{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s}
+.search-artist-row:hover{background:rgba(0,198,255,.06)}
+.search-artist-avatar{width:38px;height:38px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--dim)}
+.search-artist-avatar img{width:100%;height:100%;object-fit:cover}
+.search-section-label{padding:8px 14px 3px;font-size:9px;letter-spacing:2px;color:var(--dim);font-family:var(--mono)}
+/* Artist Manager admin */
+.am-layout{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:8px}
+.am-card{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:20px;display:flex;flex-direction:column}
+.am-card-title{font-size:11px;letter-spacing:2.5px;font-family:var(--mono);margin-bottom:14px;color:var(--accent2)}
+.am-field{margin-bottom:10px}
+.am-label{font-size:10px;letter-spacing:2px;color:var(--dim);margin-bottom:5px;display:block;font-family:var(--mono)}
+.am-input,.am-select,.am-textarea{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .2s}
+.am-input:focus,.am-select:focus,.am-textarea:focus{border-color:var(--accent)}
+.am-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.am-select option{background:#111122}
+/* Banner: Spotify-proportioned 3:1 */
+.am-banner-preview{
+  width:100%;height:180px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,#0d0d1a,#1a0d26,#0a1a1a);
+  border:1.5px dashed rgba(57,255,20,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-family:var(--mono);color:var(--dim);
+  cursor:pointer;margin-bottom:0;transition:border-color .2s;letter-spacing:1px;
+  position:relative;
+}
+.am-banner-preview:hover{border-color:var(--accent)}
+.am-banner-preview img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.am-banner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);border-radius:10px;opacity:0;transition:opacity .15s}
+.am-banner-preview:hover .am-banner-overlay{opacity:1}
+/* Avatar overlapping banner bottom-left */
+.am-hero-wrap{position:relative;margin-bottom:14px}
+.am-avatar-on-banner{
+  position:absolute;bottom:-20px;left:12px;
+  width:64px;height:64px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.14);
+  background:var(--panel);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--dim);cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+}
+.am-avatar-on-banner:hover::after{content:'CHANGE';position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:8px;font-family:var(--mono);color:#fff;letter-spacing:1px;border-radius:50%}
+.am-avatar-on-banner img{width:100%;height:100%;object-fit:cover}
+.am-verify{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:10px;cursor:pointer;margin-bottom:10px;border:1.5px solid var(--border);transition:all .15s}
+.am-verify:hover,.am-verify.on{background:rgba(57,255,20,.06);border-color:var(--accent)}
+.am-verify-dot{width:16px;height:16px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;transition:background .15s;flex-shrink:0}
+.am-verify.on .am-verify-dot{background:var(--accent);color:#000}
+.am-verify-label{font-size:11px;font-family:var(--mono);color:var(--dim);transition:color .15s}
+.am-verify.on .am-verify-label{color:var(--accent)}
+.am-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),#20c020);color:#000;font-size:11px;font-weight:900;letter-spacing:2px;border:none;border-radius:12px;cursor:pointer;font-family:var(--mono);transition:transform .15s,box-shadow .2s;margin-top:5px}
+.am-save-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(57,255,20,.25)}
+.am-save-btn:disabled{background:#1e1e30;color:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
+.am-delete-btn{width:100%;padding:9px;background:rgba(255,60,60,.05);color:var(--red);font-size:10px;font-weight:700;letter-spacing:1.5px;border:1.5px solid rgba(255,60,60,.18);border-radius:12px;cursor:pointer;font-family:var(--mono);transition:all .15s;margin-top:5px}
+.am-delete-btn:hover{background:rgba(255,60,60,.12)}
+.am-track-search-wrap{position:relative;margin-bottom:8px}
+.am-track-results{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:100;background:rgba(8,8,20,.98);border:1px solid var(--accent);border-radius:10px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.am-track-results.open{display:block}
+.am-track-result-row{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s}
+.am-track-result-row:hover{background:rgba(57,255,20,.07)}
+.am-track-result-thumb{width:30px;height:30px;border-radius:6px;background:var(--panel);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--dim);flex-shrink:0}
+.am-track-result-thumb img{width:100%;height:100%;object-fit:cover}
+.am-featured-slots{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.am-feat-slot{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid rgba(255,255,255,.07)}
+.am-feat-slot-num{font-size:10px;font-family:var(--mono);color:var(--dim);width:14px;flex-shrink:0}
+.am-feat-slot-title{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am-feat-slot-remove{background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:2px 4px;transition:color .14s}
+.am-feat-slot-remove:hover{color:var(--red)}
+.am-feat-empty{font-size:10px;font-family:var(--mono);color:var(--dim);opacity:.5;padding:4px 0}
+.am-artist-list{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;scrollbar-width:none;min-height:0}
+.am-artist-list::-webkit-scrollbar{display:none}
+.am-artist-item{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:11px;cursor:pointer;transition:background .14s;border:1.5px solid transparent}
+.am-artist-item:hover{background:rgba(255,255,255,.05)}
+.am-artist-item.selected{background:rgba(0,198,255,.07);border-color:rgba(0,198,255,.2)}
+.am-artist-item-avatar{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);flex-shrink:0}
+.am-artist-item-avatar img{width:100%;height:100%;object-fit:cover}
+.am-new-btn{width:100%;padding:9px;background:rgba(0,198,255,.06);color:var(--accent2);border:1.5px dashed rgba(0,198,255,.22);border-radius:11px;cursor:pointer;font-size:10px;font-family:var(--mono);letter-spacing:1.5px;transition:all .15s;margin-bottom:10px}
+.am-new-btn:hover{background:rgba(0,198,255,.12)}
+.am-search-input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 12px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;transition:border-color .2s;margin-bottom:8px}
+.am-search-input:focus{border-color:var(--accent2)}
+.am-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;padding:28px 0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-align:center}
+#page-artist{padding:0 !important}
+.artist-content{padding:0 24px 40px}
+@media(max-width:768px){
+  .am-layout{grid-template-columns:1fr}
+  .artist-hero{height:260px}
+  .artist-avatar{width:110px;height:110px}
+  .artist-avatar-wrap{left:14px;bottom:-36px}
+  .artist-info-row{padding:50px 14px 16px}
+  .artist-name{font-size:24px}
+  .artist-content{padding:0 12px 32px}
+}
+
 </style>
-<body>
+</head>
 
 <!-- ═══════════════════ LOGIN — SPLIT SCREEN ═══════════════════ -->
 <div id="loginScreen" class="screen">
@@ -3164,6 +3320,7 @@ body.light .search-input{color:var(--text)}
     <div class="sidebar-section-label">NAVIGATE</div>
     <button class="sidebar-btn active" id="nav-home" onclick="showPage('home',this)"><span class="icon">⌂</span><span>Home</span></button>
     <button class="sidebar-btn" id="nav-profile" onclick="showPage('profile',this)"><span class="icon">◉</span><span>Song Profile</span></button>
+    <button class="sidebar-btn" id="nav-artist" onclick="showPage('artist',this)"><span class="icon">★</span><span>Artist</span></button>
     <button class="sidebar-btn" id="nav-favorites" onclick="showPage('favorites',this)"><span class="icon">♥</span><span>Favorites</span></button>
     <button class="sidebar-btn" id="nav-lab" onclick="showPage('lab',this)"><span class="icon">⚗</span><span>Lyric Lab</span></button>
     <div class="sidebar-section-label" style="margin-top:14px">ADMIN</div>
@@ -3256,6 +3413,7 @@ body.light .search-input{color:var(--text)}
         <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> &#9889;</div>
         <div id="becauseSection"></div>
         <div id="homeContent"></div>
+        <div id="featuredArtistsRow" style="margin-top:0"></div>
       </div>
 
       <!-- SONG PROFILE PAGE -->
@@ -3280,6 +3438,48 @@ body.light .search-input{color:var(--text)}
         <div class="profile-desc" id="profDesc">No description available.</div>
         <div class="related-title">Related Tracks</div>
         <div class="song-grid" id="relatedGrid"></div>
+      </div>
+
+      <!-- ARTIST PROFILE PAGE -->
+      <div class="page" id="page-artist">
+        <!-- Hero banner -->
+        <div class="artist-hero">
+          <div class="artist-banner" id="artistBanner">
+            <img id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+          </div>
+          <div class="artist-banner-fade"></div>
+          <div class="artist-banner-bottom"></div>
+          <div class="artist-avatar-wrap">
+            <div class="artist-avatar" id="artistAvatar">★</div>
+          </div>
+        </div>
+        <!-- Info section -->
+        <div class="artist-content">
+          <div class="artist-info-row">
+            <div class="artist-name-row">
+              <div class="artist-name" id="artistName">Artist</div>
+              <span class="artist-badge" id="artistBadge" style="display:none"></span>
+            </div>
+            <div class="artist-meta-row">
+              <span class="artist-genre-tag" id="artistGenreTag" style="display:none"></span>
+            </div>
+            <div class="artist-bio" id="artistBio"></div>
+            <div class="artist-actions">
+              <button class="btn-play-big" onclick="artistPlayFeatured()">▶ PLAY</button>
+              <button class="btn-outline" onclick="showToast('ARTIST','Following feature coming soon!')">+ FOLLOW</button>
+            </div>
+          </div>
+          <!-- Popular Tracks -->
+          <div id="artistPopularSection" style="display:none">
+            <div class="artist-section-title">Popular Tracks</div>
+            <div id="artistPopularList"></div>
+          </div>
+          <!-- Discography -->
+          <div id="artistDiscogSection" style="display:none">
+            <div class="artist-section-title">Discography</div>
+            <div class="song-grid" id="artistDiscogGrid"></div>
+          </div>
+        </div>
       </div>
 
       <!-- FAVORITES PAGE -->
@@ -3333,6 +3533,7 @@ body.light .search-input{color:var(--text)}
         <div class="sm-tabs" style="margin-bottom:16px">
           <button class="sm-tab active" onclick="smShowTab('matrix',this)">&#9649; UPLOAD / DELETE</button>
           <button class="sm-tab" onclick="smShowTab('edit',this)">✎ EDIT SONG</button>
+          <button class="sm-tab" onclick="smShowTab('artists',this)">★ ARTIST MANAGER</button>
           <button class="sm-tab" onclick="smShowTab('stage',this)">&#9698; STAGE MANAGER</button>
         </div>
         <div id="smTabMatrix">
@@ -3451,6 +3652,85 @@ body.light .search-input{color:var(--text)}
             </div>
           </div>
         </div><!-- /smTabEdit -->
+
+        <!-- ARTIST MANAGER TAB -->
+        <div id="smTabArtists" style="display:none">
+          <div class="am-layout">
+            <!-- LEFT: Artist Library -->
+            <div class="am-card">
+              <div class="am-card-title">⬡ ARTIST LIBRARY</div>
+              <button class="am-new-btn" onclick="amNewArtist()">+ CREATE NEW ARTIST</button>
+              <input type="text" class="am-search-input" id="amArtistSearch" placeholder="Search artists…" oninput="amFilterArtists(this.value)">
+              <div class="am-artist-list" id="amArtistList">
+                <div class="am-empty"><div style="font-size:28px;opacity:.2">★</div>NO ARTISTS YET</div>
+              </div>
+            </div>
+            <!-- RIGHT: Editor -->
+            <div class="am-card" id="amEditorCard" style="overflow-y:auto;max-height:80vh">
+              <div class="am-card-title">✦ ARTIST EDITOR</div>
+              <div class="am-empty" id="amEditorEmpty">
+                <div style="font-size:28px;opacity:.2">★</div>
+                SELECT OR CREATE AN ARTIST
+              </div>
+              <div id="amEditorFields" style="display:none">
+                <!-- Banner + Avatar hero -->
+                <div class="am-hero-wrap">
+                  <div class="am-banner-preview" id="amBannerPreview" onclick="amPickBanner()">
+                    <span>⬆ UPLOAD BANNER (3:1 recommended)</span>
+                    <div class="am-banner-overlay">⬆ CHANGE BANNER</div>
+                  </div>
+                  <div class="am-avatar-on-banner" id="amAvatarPreview" onclick="amPickAvatar()">★</div>
+                </div>
+                <div style="height:28px"></div>
+                <!-- Fields -->
+                <div class="am-field">
+                  <label class="am-label">ARTIST NAME *</label>
+                  <input type="text" class="am-input" id="amName" placeholder="Artist name">
+                </div>
+                <div class="am-field">
+                  <label class="am-label">BIOGRAPHY</label>
+                  <textarea class="am-textarea" id="amBio" placeholder="Artist biography…" style="min-height:90px"></textarea>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="am-field" style="margin-bottom:0">
+                    <label class="am-label">GENRE *</label>
+                    <select class="am-select" id="amGenre">
+                      <option value="">— SELECT —</option>
+                      <option>Pop</option><option>Hip-Hop</option><option>R&B</option>
+                      <option>Electronic</option><option>Rock</option><option>Jazz</option>
+                      <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
+                      <option>Latin</option><option>Country</option><option>Indie</option>
+                    </select>
+                  </div>
+                  <div class="am-field" style="margin-bottom:0">
+                    <label class="am-label">BADGE</label>
+                    <select class="am-select" id="amBadge">
+                      <option value="">— NONE —</option>
+                      <option value="VERIFIED">VERIFIED</option>
+                      <option value="GOLD">GOLD</option>
+                      <option value="FEATURED">FEATURED</option>
+                      <option value="NEW">NEW</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="am-verify" id="amVerifyToggle" onclick="amToggleVerify()" style="margin-top:10px">
+                  <div class="am-verify-dot" id="amVerifyDot"></div>
+                  <span class="am-verify-label" id="amVerifyLabel">BLASTR CERTIFIED ARTIST</span>
+                </div>
+                <!-- Popular Tracks -->
+                <div class="am-label" style="margin-bottom:6px;margin-top:4px">POPULAR TRACKS (up to 5)</div>
+                <div class="am-featured-slots" id="amFeatSlots"></div>
+                <div class="am-track-search-wrap">
+                  <input type="text" class="am-input" id="amTrackSearch" placeholder="Search tracks to add as popular…" oninput="amOnTrackSearch(this.value)" autocomplete="off">
+                  <div class="am-track-results" id="amTrackResults"></div>
+                </div>
+                <!-- Actions -->
+                <button class="am-save-btn" id="amSaveBtn" onclick="amSaveArtist()">SAVE ARTIST</button>
+                <button class="am-delete-btn" id="amDeleteBtn" onclick="amDeleteArtist()" style="display:none">DELETE ARTIST</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /smTabArtists -->
         <div id="smTabStage" style="display:none">
           <div class="sm-wrap" id="stageManagerWrap"></div>
         </div>
@@ -4495,13 +4775,35 @@ async function runSearch(q) {
   const dd=document.getElementById('searchDropdown');
   dd.innerHTML='<div style="padding:16px;text-align:center"><div class="spinner"></div></div>';
   dd.classList.add('open');
-  const tracks=await getTracks(q);
-  if(!tracks||!tracks.length){
-    dd.innerHTML=`<div style="padding:16px;color:var(--dim);text-align:center;font-family:var(--mono);font-size:12px">No results for "${esc(q)}"</div>`;
+  const [tracks, artists] = await Promise.all([
+    getTracks(q),
+    getArtists(q)
+  ]);
+  let html = '';
+  // Artist results first
+  if (artists && artists.length) {
+    html += `<div class="search-section-label">ARTISTS</div>`;
+    html += artists.slice(0,4).map(a => `
+      <div class="search-artist-row" onclick="openArtistProfile(${jsonAttr(a)})">
+        <div class="search-artist-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:'★'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
+          <div style="font-size:10px;color:var(--dim);font-family:var(--mono)">${esc(a.genre||'ARTIST')}</div>
+        </div>
+        <button style="padding:4px 10px;background:rgba(0,198,255,.1);color:var(--accent2);border:1px solid rgba(0,198,255,.2);border-radius:8px;font-size:9px;font-family:var(--mono);cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();openArtistProfile(${jsonAttr(a)})">↗ PROFILE</button>
+      </div>`).join('');
+  }
+  if (!tracks || !tracks.length) {
+    if (!artists || !artists.length) {
+      dd.innerHTML=`<div style="padding:16px;color:var(--dim);text-align:center;font-family:var(--mono);font-size:12px">No results for "${esc(q)}"</div>`;
+      return;
+    }
+    dd.innerHTML = html;
     return;
   }
   const accents=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
-  dd.innerHTML=tracks.slice(0,10).map((t,i)=>`
+  if (artists && artists.length) html += `<div class="search-section-label">TRACKS</div>`;
+  html += tracks.slice(0,10).map((t,i)=>`
     <div class="search-row" onclick="playTrackFromSearch(${jsonAttr(t)})">
       <div class="search-bar-accent" style="background:${accents[i%accents.length]}"></div>
       <div class="search-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
@@ -4513,6 +4815,7 @@ async function runSearch(q) {
       <button class="search-play-btn" style="background:${accents[i%accents.length]};color:#000" onclick="event.stopPropagation();playTrackFromSearch(${jsonAttr(t)})">▶</button>
     </div>
   `).join('');
+  dd.innerHTML = html;
 }
 function closeSearch(){document.getElementById('searchDropdown').classList.remove('open');}
 function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('searchClear').classList.remove('visible');closeSearch();}
@@ -4547,6 +4850,8 @@ async function loadHomeContent() {
 
   home.innerHTML=html;
   renderBecauseSection();
+  // Load featured artists row
+  loadFeaturedArtistsRow();
 }
 
 function renderBecauseSection() {
@@ -7574,10 +7879,12 @@ const SM = {
 window.smShowTab = function(tab, btn) {
   document.querySelectorAll('.sm-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  document.getElementById('smTabMatrix').style.display = tab === 'matrix' ? '' : 'none';
-  document.getElementById('smTabEdit').style.display   = tab === 'edit'   ? '' : 'none';
-  document.getElementById('smTabStage').style.display  = tab === 'stage'  ? '' : 'none';
+  document.getElementById('smTabMatrix').style.display  = tab === 'matrix'  ? '' : 'none';
+  document.getElementById('smTabEdit').style.display    = tab === 'edit'    ? '' : 'none';
+  document.getElementById('smTabArtists').style.display = tab === 'artists' ? '' : 'none';
+  document.getElementById('smTabStage').style.display   = tab === 'stage'   ? '' : 'none';
   if (tab === 'stage') smRender();
+  if (tab === 'artists') amLoadArtists();
 };
 
 // ── Main render ──
@@ -8411,6 +8718,471 @@ window.SM = SM;
       if (r) r.classList.remove('open');
     }
   });
+
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// ARTIST ERA — Core JS
+// Tables: artists, artist_featured_tracks
+// Buckets: avatars, banners (reuse covers fallback)
+// ═══════════════════════════════════════════════════════════════
+(function(){
+
+// ── DATA LAYER ──
+async function getArtists(q='') {
+  let url = '/rest/v1/artists?select=*&order=name.asc';
+  if (q) url += `&name=ilike.*${encodeURIComponent(q)}*`;
+  const d = await sbFetch(url);
+  return Array.isArray(d) ? d : [];
+}
+window.getArtists = getArtists;
+
+async function getArtistById(id) {
+  if (!id) return null;
+  const d = await sbFetch(`/rest/v1/artists?select=*&id=eq.${id}`);
+  return Array.isArray(d) && d.length ? d[0] : null;
+}
+
+async function getFeaturedTracks(artistId) {
+  if (!artistId) return [];
+  const rows = await sbFetch(
+    `/rest/v1/artist_featured_tracks?select=track_id,display_order,tracks(*)&artist_id=eq.${artistId}&order=display_order.asc&limit=5`
+  );
+  if (!Array.isArray(rows)) return [];
+  return rows.map(r => r.tracks).filter(Boolean);
+}
+
+async function getArtistDiscog(artistId) {
+  if (!artistId) return [];
+  const d = await sbFetch(`/rest/v1/tracks?select=*&artist_id=eq.${artistId}&order=id.desc`);
+  return Array.isArray(d) ? d : [];
+}
+
+// ── GRADIENT FALLBACK BANNERS (no external image needed) ──
+const BANNER_GRADIENTS = [
+  'linear-gradient(135deg,#0d0d1a 0%,#1a0d26 50%,#0d1a1a 100%)',
+  'linear-gradient(135deg,#0a1628 0%,#1a0828 60%,#0a0a18 100%)',
+  'linear-gradient(135deg,#0d1a0d 0%,#0a1a28 60%,#080810 100%)',
+  'linear-gradient(135deg,#1a0a0a 0%,#280a18 60%,#0a0a18 100%)',
+  'linear-gradient(135deg,#0a0a1a 0%,#1a1a0a 55%,#0a180a 100%)',
+];
+function artistGradient(id) {
+  if (!id) return BANNER_GRADIENTS[0];
+  let h = 0; for (let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) >>> 0;
+  return BANNER_GRADIENTS[h % BANNER_GRADIENTS.length];
+}
+
+// ── ARTIST PROFILE PAGE ──
+window.openArtistProfile = async function(artist) {
+  if (!artist || !artist.id) return;
+  state.currentArtist = artist;
+  // Banner
+  const banner = document.getElementById('artistBanner');
+  const bannerImg = document.getElementById('artistBannerImg');
+  if (artist.banner_url) {
+    banner.style.background = artistGradient(artist.id);
+    bannerImg.src = artist.banner_url;
+    bannerImg.style.display = 'block';
+    bannerImg.onerror = () => { bannerImg.style.display = 'none'; };
+  } else {
+    bannerImg.style.display = 'none';
+    banner.style.background = artistGradient(artist.id);
+  }
+  // Avatar
+  const avatarEl = document.getElementById('artistAvatar');
+  if (artist.avatar_url) {
+    avatarEl.innerHTML = `<img src="${esc(artist.avatar_url)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='★'">`;
+  } else {
+    avatarEl.textContent = (artist.name || 'A')[0].toUpperCase();
+  }
+  // Name + badge
+  document.getElementById('artistName').textContent = artist.name || 'Artist';
+  const badgeEl = document.getElementById('artistBadge');
+  if (artist.badge) {
+    badgeEl.textContent = artist.badge;
+    badgeEl.className = 'artist-badge' + (artist.badge === 'GOLD' ? ' gold' : '');
+    badgeEl.style.display = '';
+  } else if (artist.verified) {
+    badgeEl.textContent = '✓ VERIFIED';
+    badgeEl.className = 'artist-badge';
+    badgeEl.style.display = '';
+  } else {
+    badgeEl.style.display = 'none';
+  }
+  // Genre + bio
+  const genreTag = document.getElementById('artistGenreTag');
+  if (artist.genre) { genreTag.textContent = artist.genre; genreTag.style.display = ''; }
+  else genreTag.style.display = 'none';
+  document.getElementById('artistBio').textContent = artist.bio || '';
+
+  showPage('artist', document.getElementById('nav-artist'));
+
+  // Load popular + discog in parallel
+  const [featured, discog] = await Promise.all([
+    getFeaturedTracks(artist.id),
+    getArtistDiscog(artist.id)
+  ]);
+
+  // Popular Tracks
+  const popSec = document.getElementById('artistPopularSection');
+  const popList = document.getElementById('artistPopularList');
+  if (featured.length) {
+    popList.innerHTML = featured.map((t,i) => artistTrackRowHTML(t, i)).join('');
+    popSec.style.display = '';
+    state.artistFeaturedTracks = featured;
+  } else {
+    popSec.style.display = 'none';
+    state.artistFeaturedTracks = [];
+  }
+
+  // Discography
+  const discogSec = document.getElementById('artistDiscogSection');
+  const discogGrid = document.getElementById('artistDiscogGrid');
+  if (discog.length) {
+    discogGrid.innerHTML = discog.map((t,i) => songTileHTML(t,i)).join('');
+    discogSec.style.display = '';
+  } else {
+    discogSec.style.display = 'none';
+  }
+};
+
+function artistTrackRowHTML(t, i) {
+  const liked = state.favorites.some(f => f.id === t.id);
+  return `<div class="artist-track-row" onclick="initiateHandshake(${jsonAttr(t)})">
+    <span class="artist-track-num">${i+1}</span>
+    <span class="artist-track-play-icon">▶</span>
+    <div class="artist-track-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
+    <div class="artist-track-info">
+      <div class="artist-track-title">${esc(t.title)}</div>
+      <div class="artist-track-artist">${esc(t.artist||'')}</div>
+    </div>
+    <div class="artist-track-actions">
+      <button class="artist-track-like" onclick="event.stopPropagation();toggleLike(${jsonAttr(t)})">${liked?'♥':'♡'}</button>
+      <button class="artist-track-like" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})" title="Profile">↗</button>
+    </div>
+  </div>`;
+}
+
+window.artistPlayFeatured = function() {
+  const tracks = state.artistFeaturedTracks;
+  if (tracks && tracks.length) initiateHandshake(tracks[0]);
+  else if (state.currentArtist) showToast('ARTIST', 'No featured tracks set yet.');
+};
+
+// ── FEATURED ARTISTS ROW (Homepage) ──
+async function loadFeaturedArtistsRow() {
+  const wrap = document.getElementById('featuredArtistsRow');
+  if (!wrap) return;
+  try {
+    // Get all artists, rotate by genre each session
+    const all = await getArtists();
+    if (!all.length) { wrap.innerHTML=''; return; }
+    // Collect unique genres
+    const genres = [...new Set(all.map(a=>a.genre).filter(Boolean))];
+    let artists = all;
+    if (genres.length > 0) {
+      // Pick genre by session-based rotation
+      const genreIdx = Math.floor(Date.now() / 3600000) % genres.length;
+      const genre = genres[genreIdx];
+      const filtered = all.filter(a => a.genre === genre);
+      artists = filtered.length ? filtered : all;
+    }
+    if (!artists.length) { wrap.innerHTML=''; return; }
+    const label = artists[0]?.genre ? `${artists[0].genre} Artists` : 'Featured Artists';
+    wrap.innerHTML = `<div class="songs-section">
+      <div class="section-header">
+        <div class="section-name">${esc(label)}</div>
+      </div>
+      <div class="artist-row-scroll">
+        ${artists.slice(0,10).map(a=>`
+          <div class="artist-card" onclick="openArtistProfile(${jsonAttr(a)})">
+            <div class="artist-card-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
+            <div class="artist-card-name">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
+            <div class="artist-card-type">${esc(a.genre||'ARTIST')}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  } catch(e) { wrap.innerHTML=''; }
+}
+window.loadFeaturedArtistsRow = loadFeaturedArtistsRow;
+
+// ── ARTIST MANAGER (Admin) ──
+const AM = { artists:[], selected:null, newAvatarFile:null, newBannerFile:null, newAvatarUrl:null, newBannerUrl:null, featTracks:[], isVerified:false, isNew:false };
+
+window.amLoadArtists = async function() {
+  const list = document.getElementById('amArtistList');
+  if (!list) return;
+  list.innerHTML = '<div style="padding:12px;text-align:center"><div class="spinner"></div></div>';
+  AM.artists = await getArtists();
+  amRenderArtistList(AM.artists);
+};
+
+function amRenderArtistList(artists) {
+  const list = document.getElementById('amArtistList');
+  if (!list) return;
+  if (!artists.length) {
+    list.innerHTML = '<div class="am-empty"><div style="font-size:28px;opacity:.2">★</div>NO ARTISTS YET</div>';
+    return;
+  }
+  list.innerHTML = artists.map(a=>`
+    <div class="am-artist-item${AM.selected?.id===a.id?' selected':''}" onclick="amSelectArtist(${jsonAttr(a)})">
+      <div class="am-artist-item-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:(a.name||'A')[0]}</div>
+      <div class="am-artist-item-name">${esc(a.name)}</div>
+      ${a.verified?'<span style="font-size:10px;color:var(--accent)">✓</span>':''}
+    </div>`).join('');
+}
+
+window.amFilterArtists = function(val) {
+  if (!val.trim()) { amRenderArtistList(AM.artists); return; }
+  const q = val.toLowerCase();
+  amRenderArtistList(AM.artists.filter(a => a.name?.toLowerCase().includes(q)));
+};
+
+window.amNewArtist = function() {
+  AM.selected = null; AM.isNew = true;
+  AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null; AM.featTracks=[];
+  AM.isVerified = false;
+  amShowEditor();
+  amClearEditor();
+  document.getElementById('amDeleteBtn').style.display='none';
+};
+
+window.amSelectArtist = async function(a) {
+  AM.selected = a; AM.isNew = false;
+  AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null;
+  AM.isVerified = !!a.verified;
+  // Load featured tracks
+  const featRows = await sbFetch(`/rest/v1/artist_featured_tracks?select=track_id,display_order,tracks(*)&artist_id=eq.${a.id}&order=display_order.asc&limit=5`);
+  AM.featTracks = Array.isArray(featRows) ? featRows.map(r=>({id:r.track_id,title:r.tracks?.title||'Track',...r.tracks})).filter(x=>x.id) : [];
+  amShowEditor();
+  amPopulateEditor(a);
+  document.getElementById('amDeleteBtn').style.display='';
+  // Re-render list to show selection
+  document.querySelectorAll('.am-artist-item').forEach(el=>el.classList.remove('selected'));
+  const items = document.querySelectorAll('.am-artist-item');
+  items.forEach(el=>{ if(el.querySelector('.am-artist-item-name')?.textContent===a.name) el.classList.add('selected'); });
+};
+
+function amShowEditor() {
+  document.getElementById('amEditorEmpty').style.display='none';
+  document.getElementById('amEditorFields').style.display='block';
+}
+function amClearEditor() {
+  ['amName','amBio'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const g=document.getElementById('amGenre');if(g)g.value='';
+  const b=document.getElementById('amBadge');if(b)b.value='';
+  const ap=document.getElementById('amAvatarPreview');if(ap)ap.innerHTML='★';
+  amSetBannerPreview(null);
+  amSetVerify(false);
+  amRenderFeatSlots();
+}
+function amPopulateEditor(a) {
+  document.getElementById('amName').value = a.name||'';
+  document.getElementById('amBio').value = a.bio||'';
+  document.getElementById('amGenre').value = a.genre||'';
+  document.getElementById('amBadge').value = a.badge||'';
+  // Avatar preview (am-avatar-on-banner element)
+  const ap = document.getElementById('amAvatarPreview');
+  if(ap) ap.innerHTML = a.avatar_url ? `<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
+  // Banner preview
+  amSetBannerPreview(a.banner_url);
+  amSetVerify(!!a.verified);
+  amRenderFeatSlots();
+}
+function amSetBannerPreview(url) {
+  const bp = document.getElementById('amBannerPreview');
+  if (!bp) return;
+  if (url) {
+    bp.innerHTML=`<img src="${esc(url)}" referrerpolicy="no-referrer"><div class="am-banner-overlay">⬆ CHANGE BANNER</div>`;
+  } else {
+    bp.innerHTML='<span>⬆ UPLOAD BANNER (3:1 recommended)</span><div class="am-banner-overlay">⬆ CHANGE BANNER</div>';
+    bp.style.background='linear-gradient(135deg,#0d0d1a,#1a0d26,#0a1a1a)';
+  }
+}
+function amSetVerify(v) {
+  AM.isVerified=v;
+  const tog=document.getElementById('amVerifyToggle');
+  const dot=document.getElementById('amVerifyDot');
+  const lbl=document.getElementById('amVerifyLabel');
+  if(tog) tog.classList.toggle('on',v);
+  if(dot) dot.textContent=v?'✓':'';
+  if(lbl) lbl.textContent=v?'✓ BLASTR CERTIFIED':'BLASTR CERTIFIED ARTIST';
+}
+window.amToggleVerify=function(){amSetVerify(!AM.isVerified);};
+
+function amRenderFeatSlots() {
+  const el=document.getElementById('amFeatSlots');
+  if(!el) return;
+  if (!AM.featTracks.length) { el.innerHTML='<div class="am-feat-empty">No featured tracks yet — search below</div>'; return; }
+  el.innerHTML=AM.featTracks.map((t,i)=>`
+    <div class="am-feat-slot">
+      <span class="am-feat-slot-num">${i+1}</span>
+      <span class="am-feat-slot-title">${esc(t.title||'Track')}</span>
+      <button class="am-feat-slot-remove" onclick="amRemoveFeat(${i})">✕</button>
+    </div>`).join('');
+}
+window.amRemoveFeat=function(i){AM.featTracks.splice(i,1);amRenderFeatSlots();};
+
+// Track search for featured tracks
+let amTrackTimer=null;
+window.amOnTrackSearch=function(val){
+  clearTimeout(amTrackTimer);
+  const res=document.getElementById('amTrackResults');
+  if(val.length<2){res.classList.remove('open');return;}
+  amTrackTimer=setTimeout(async()=>{
+    const tracks=await getTracks(val);
+    if(!tracks.length){res.classList.remove('open');return;}
+    res.innerHTML=tracks.slice(0,6).map(t=>`
+      <div class="am-track-result-row" onclick="amAddFeat(${jsonAttr(t)})">
+        <div class="am-track-result-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>
+          <div style="font-size:10px;color:var(--dim)">${esc(t.artist||'')}</div>
+        </div>
+      </div>`).join('');
+    res.classList.add('open');
+  },240);
+};
+window.amAddFeat=function(t){
+  if(AM.featTracks.length>=5){showToast('LIMIT','Max 5 featured tracks');return;}
+  if(AM.featTracks.some(x=>x.id===t.id)) return;
+  AM.featTracks.push(t);
+  amRenderFeatSlots();
+  document.getElementById('amTrackSearch').value='';
+  document.getElementById('amTrackResults').classList.remove('open');
+};
+
+// Avatar/Banner pickers
+window.amPickAvatar=function(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    AM.newAvatarFile=f;
+    if(AM.newAvatarUrl) URL.revokeObjectURL(AM.newAvatarUrl);
+    AM.newAvatarUrl=URL.createObjectURL(f);
+    const el=document.getElementById('amAvatarPreview');
+    if(el) el.innerHTML=`<img src="${AM.newAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  };inp.click();
+};
+window.amPickBanner=function(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    AM.newBannerFile=f;
+    if(AM.newBannerUrl) URL.revokeObjectURL(AM.newBannerUrl);
+    AM.newBannerUrl=URL.createObjectURL(f);
+    const bp=document.getElementById('amBannerPreview');
+    bp.innerHTML=`<img src="${AM.newBannerUrl}">`;
+  };inp.click();
+};
+
+// ── SAVE ──
+window.amSaveArtist=async function(){
+  const btn=document.getElementById('amSaveBtn');
+  const name=document.getElementById('amName').value.trim();
+  if(!name){showToast('ERROR','Artist name is required.');return;}
+  btn.disabled=true;btn.textContent='SAVING…';
+
+  try {
+    let avatarUrl = AM.selected?.avatar_url || null;
+    let bannerUrl = AM.selected?.banner_url || null;
+
+    // Upload avatar
+    if(AM.newAvatarFile){
+      btn.textContent='UPLOADING AVATAR…';
+      const stem=blastrCleanFileStem(name);
+      const ext=blastrGuessExtension(AM.newAvatarFile,'jpg');
+      const objName=blastrNormalizeObjectName(`${stem}-avatar.${ext}`,`${stem}-avatar`);
+      const up=await blastrUploadStorageFile('avatars',objName,AM.newAvatarFile,{fallbackBase:`${stem}-avatar`,reason:'artist avatar'});
+      if(up?.url) avatarUrl=up.url;
+    }
+    // Upload banner
+    if(AM.newBannerFile){
+      btn.textContent='UPLOADING BANNER…';
+      const stem=blastrCleanFileStem(name);
+      const ext=blastrGuessExtension(AM.newBannerFile,'jpg');
+      const objName=blastrNormalizeObjectName(`${stem}-banner.${ext}`,`${stem}-banner`);
+      const up=await blastrUploadStorageFile('covers',objName,AM.newBannerFile,{fallbackBase:`${stem}-banner`,reason:'artist banner'});
+      if(up?.url) bannerUrl=up.url;
+    }
+
+    const payload={
+      name,
+      bio: document.getElementById('amBio').value.trim()||null,
+      genre: document.getElementById('amGenre').value||null,
+      badge: document.getElementById('amBadge').value||null,
+      verified: AM.isVerified,
+      avatar_url: avatarUrl,
+      banner_url: bannerUrl,
+    };
+
+    let artistId;
+    btn.textContent='SAVING ARTIST…';
+    if(AM.isNew){
+      const res=await sbFetch('/rest/v1/artists',{method:'POST',headers:{Prefer:'return=representation'},body:payload});
+      const created=Array.isArray(res)?res[0]:res;
+      if(!created?.id) throw new Error('Artist creation failed.');
+      artistId=created.id;
+      AM.selected=created; AM.isNew=false;
+    } else {
+      const patchRes=await sbFetch(`/rest/v1/artists?id=eq.${AM.selected.id}`,{method:'PATCH',headers:{Prefer:'return=representation'},body:payload});
+      artistId=AM.selected.id;
+      // Use DB-confirmed data if available, otherwise merge manually
+      const patchedRow=Array.isArray(patchRes)?patchRes[0]:patchRes;
+      AM.selected=patchedRow?.id ? patchedRow : {...AM.selected,...payload,id:artistId};
+    }
+
+    // Save featured tracks (delete old, insert new)
+    btn.textContent='SAVING TRACKS…';
+    await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${artistId}`,{method:'DELETE'});
+    if(AM.featTracks.length){
+      const rows=AM.featTracks.map((t,i)=>({artist_id:artistId,track_id:t.id,display_order:i+1}));
+      await sbFetch('/rest/v1/artist_featured_tracks',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:rows});
+    }
+
+    // Re-fetch fresh artist data from DB to ensure profile reflects saved state
+    btn.textContent='REFRESHING…';
+    const freshArtist = await getArtistById(artistId);
+    if(freshArtist) AM.selected = freshArtist;
+
+    showToast('ARTIST SAVED ✓',`"${name}" saved successfully.`);
+    await amLoadArtists();
+    loadFeaturedArtistsRow();
+
+    // Automatically open/refresh the artist profile page with fresh data
+    if(freshArtist) openArtistProfile(freshArtist);
+  } catch(e){
+    console.error('[AM SAVE]',e);
+    showToast('SAVE FAILED',String(e?.message||e));
+  } finally {
+    btn.disabled=false;btn.textContent='SAVE ARTIST';
+  }
+};
+
+// ── DELETE ──
+window.amDeleteArtist=function(){
+  if(!AM.selected) return;
+  showConfirm(`Delete "${AM.selected.name}"?`,'This removes the artist profile only. Songs are not deleted.',async()=>{
+    try{
+      await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${AM.selected.id}`,{method:'DELETE'});
+      await sbFetch(`/rest/v1/artists?id=eq.${AM.selected.id}`,{method:'DELETE'});
+      AM.selected=null;
+      document.getElementById('amEditorEmpty').style.display='';
+      document.getElementById('amEditorFields').style.display='none';
+      showToast('DELETED','Artist removed.');
+      await amLoadArtists();
+      loadFeaturedArtistsRow();
+    }catch(e){showToast('ERROR',String(e?.message||e));}
+  });
+};
+
+// ── Close track results on outside click ──
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#amTrackSearch')&&!e.target.closest('#amTrackResults')){
+    const r=document.getElementById('amTrackResults');
+    if(r) r.classList.remove('open');
+  }
+});
 
 })();
 
