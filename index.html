@@ -8745,11 +8745,19 @@ async function getArtistById(id) {
 
 async function getFeaturedTracks(artistId) {
   if (!artistId) return [];
+  console.log('[getFeaturedTracks] artistId:', artistId);
+  // Two-query approach: avoids PostgREST FK join (400 if FK not formally defined)
   const rows = await sbFetch(
-    `/rest/v1/artist_featured_tracks?select=track_id,display_order,tracks(*)&artist_id=eq.${artistId}&order=display_order.asc&limit=5`
+    `/rest/v1/artist_featured_tracks?select=track_id,display_order&artist_id=eq.${artistId}&order=display_order.asc&limit=5`
   );
-  if (!Array.isArray(rows)) return [];
-  return rows.map(r => r.tracks).filter(Boolean);
+  console.log('[getFeaturedTracks] rows from DB:', rows);
+  if (!Array.isArray(rows) || !rows.length) return [];
+  const ids = rows.map(r => r.track_id).filter(Boolean);
+  if (!ids.length) return [];
+  const tracks = await sbFetch(`/rest/v1/tracks?select=*&id=in.(${ids.join(',')})`);
+  console.log('[getFeaturedTracks] tracks fetched:', tracks?.length);
+  if (!Array.isArray(tracks)) return [];
+  return ids.map(id => tracks.find(t => t.id === id)).filter(Boolean);
 }
 
 async function getArtistDiscog(artistId) {
@@ -8951,9 +8959,13 @@ window.amSelectArtist = async function(a) {
   AM.selected = a; AM.isNew = false;
   AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null;
   AM.isVerified = !!a.verified;
-  // Load featured tracks
-  const featRows = await sbFetch(`/rest/v1/artist_featured_tracks?select=track_id,display_order,tracks(*)&artist_id=eq.${a.id}&order=display_order.asc&limit=5`);
-  AM.featTracks = Array.isArray(featRows) ? featRows.map(r=>({id:r.track_id,title:r.tracks?.title||'Track',...r.tracks})).filter(x=>x.id) : [];
+  // Load featured tracks (two-query: no FK join)
+  const featRowsAM = await sbFetch(`/rest/v1/artist_featured_tracks?select=track_id,display_order&artist_id=eq.${a.id}&order=display_order.asc&limit=5`);
+  if (Array.isArray(featRowsAM) && featRowsAM.length) {
+    const amIds = featRowsAM.map(r=>r.track_id).filter(Boolean);
+    const amTracks = amIds.length ? await sbFetch(`/rest/v1/tracks?select=*&id=in.(${amIds.join(',')})`) : [];
+    AM.featTracks = Array.isArray(amTracks) ? amIds.map(id=>amTracks.find(t=>t.id===id)).filter(Boolean) : [];
+  } else { AM.featTracks = []; }
   amShowEditor();
   amPopulateEditor(a);
   document.getElementById('amDeleteBtn').style.display='';
@@ -9134,10 +9146,14 @@ window.amSaveArtist=async function(){
 
     // Save featured tracks (delete old, insert new)
     btn.textContent='SAVING TRACKS…';
-    await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${artistId}`,{method:'DELETE'});
+    console.log('[AM SAVE] featTracks to save:', AM.featTracks.length, AM.featTracks.map(t=>({id:t.id,title:t.title})));
+    const delRes = await sbFetch(`/rest/v1/artist_featured_tracks?artist_id=eq.${artistId}`,{method:'DELETE'});
+    console.log('[AM SAVE] DELETE featured tracks result:', delRes);
     if(AM.featTracks.length){
       const rows=AM.featTracks.map((t,i)=>({artist_id:artistId,track_id:t.id,display_order:i+1}));
-      await sbFetch('/rest/v1/artist_featured_tracks',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:rows});
+      console.log('[AM SAVE] Inserting featured rows:', JSON.stringify(rows));
+      const postRes = await sbFetch('/rest/v1/artist_featured_tracks',{method:'POST',headers:{Prefer:'return=representation,resolution=merge-duplicates'},body:rows});
+      console.log('[AM SAVE] POST featured tracks result:', postRes);
     }
 
     // Re-fetch fresh artist data from DB to ensure profile reflects saved state
