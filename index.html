@@ -992,6 +992,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   transition:transform .15s;flex-shrink:0;
 }
 .search-play-btn:hover{transform:scale(1.1)}
+.search-loading-row{padding:14px 16px;display:flex;align-items:center;gap:10px;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:1px}
+.search-loading-row .spinner{width:13px;height:13px;border-width:2px}
+.search-row.external{opacity:.88}
+.search-row.external:hover{background:rgba(157,120,255,.08)}
+.search-row.external .search-thumb{background:linear-gradient(135deg,#1A1A2E,#201A30);position:relative}
+.search-ext-tag{margin-left:auto;flex-shrink:0;padding:4px 9px;font-size:8.5px;letter-spacing:1px;font-family:var(--mono);color:#9D78FF;border:1px solid rgba(157,120,255,.3);background:rgba(157,120,255,.08);border-radius:7px;white-space:nowrap}
+.search-row.external .search-meta .sub{color:rgba(157,120,255,.7)}
+.discover-hero{position:relative;border-radius:24px;overflow:hidden;padding:54px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;margin-top:6px}
+.discover-hero-bg{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(38px) brightness(.4) saturate(1.3);transform:scale(1.15);z-index:0}
+.discover-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(6,6,14,.55) 0%,rgba(6,6,14,.88) 100%);z-index:1}
+.discover-art-wrap{position:relative;z-index:2;width:168px;height:168px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#1A1A2E,#252540);display:flex;align-items:center;justify-content:center;font-size:46px;color:#9D78FF;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.08)}
+.discover-art-wrap img{width:100%;height:100%;object-fit:cover}
+.discover-text{position:relative;z-index:2;max-width:560px}
+.discover-text .dt-title{font-size:21px;font-weight:800;line-height:1.4}
+.discover-text .dt-title b{color:#9D78FF}
+.discover-text .dt-sub{margin-top:6px;font-size:12px;color:var(--dim);font-family:var(--mono);letter-spacing:.3px}
+.discover-rec-title{font-size:17px;font-weight:800;margin:28px 0 12px}
+.discover-rec-reason{font-size:11px;color:var(--dim);font-family:var(--mono);letter-spacing:.5px;margin:-6px 0 14px}
 
 /* ── PAGES ── */
 .pages-container{flex:1;overflow:hidden;position:relative}
@@ -1012,11 +1030,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .section-more:hover{border-color:var(--accent);color:var(--accent)}
 .song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.genre-page-header{margin-bottom:20px}
+.genre-back-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:8px 16px;border-radius:999px;cursor:pointer;margin-bottom:14px;transition:all .18s}
+.genre-back-btn:hover{background:rgba(57,255,20,.08);border-color:rgba(57,255,20,.25);color:var(--accent)}
+.genre-page-meta{color:var(--dim);font-size:12px;font-family:var(--mono);letter-spacing:.5px;margin-top:4px}
 .song-tile{
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
   border-radius:16px;overflow:hidden;cursor:pointer;
   transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .18s,box-shadow .18s;
-  position:relative;
+  position:relative;content-visibility:auto;contain-intrinsic-size:0 210px;
 }
 .song-tile:hover{transform:translateY(-5px) scale(1.01);border-color:rgba(57,255,20,.35);box-shadow:0 10px 35px rgba(57,255,20,.09)}
 .tile-cover{
@@ -3224,6 +3246,176 @@ body.light .search-input{color:var(--text)}
   .artist-bio{margin:12px 0 18px}
 }
 
+/* ══════ EXPLORE — TOP BAR BUTTON ══════ */
+.explore-btn{padding:10px 20px;border-radius:999px;border:1px solid rgba(0,198,255,.35);background:linear-gradient(135deg,rgba(0,198,255,.10),rgba(57,255,20,.06));color:#fff;font:700 11px/1 var(--mono);letter-spacing:1.7px;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;white-space:nowrap;box-shadow:0 0 0 1px rgba(0,198,255,.12) inset,0 8px 22px rgba(0,0,0,.2);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,border-color .2s ease,background .22s ease}
+.explore-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.14) 50%,transparent 70%);transform:translateX(-120%)}
+.explore-btn:hover::before{transform:translateX(120%);transition:transform .5s ease}
+.explore-btn:hover{transform:translateY(-2px) scale(1.03);background:linear-gradient(135deg,rgba(0,198,255,.22),rgba(57,255,20,.14));border-color:rgba(0,198,255,.7);box-shadow:0 0 0 1px rgba(0,198,255,.2) inset,0 14px 36px rgba(0,198,255,.18),0 4px 12px rgba(0,0,0,.3)}
+.explore-btn:active{transform:translateY(0) scale(.98)}
+.explore-btn .xbtn-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent2);margin-right:8px;vertical-align:middle;box-shadow:0 0 8px rgba(0,198,255,.6);animation:xbtn-blink 1.8s ease-in-out infinite}
+@keyframes xbtn-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ══════ EXPLORE — HERO ══════ */
+#page-explore .section-title{margin-bottom:18px}
+.explore-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(240px,.75fr);gap:16px;margin-bottom:16px}
+.explore-hero-card{position:relative;overflow:hidden;border-radius:24px;padding:26px;border:1px solid rgba(255,255,255,.09);background:radial-gradient(circle at 20% 20%,rgba(0,198,255,.20),transparent 26%),radial-gradient(circle at 80% 15%,rgba(57,255,20,.18),transparent 22%),radial-gradient(circle at 50% 90%,rgba(255,20,147,.08),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.03));box-shadow:0 20px 60px rgba(0,0,0,.28);min-height:190px}
+.explore-hero-card::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.04) 50%,transparent 70%);background-size:200% 100%;animation:hero-sheen 5s linear infinite;pointer-events:none}
+@keyframes hero-sheen{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.explore-hero-kicker{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.48);text-transform:uppercase}
+.explore-hero-title{margin-top:10px;font-size:clamp(24px,3vw,38px);line-height:1.05;font-weight:900}
+.explore-hero-sub{margin-top:10px;color:var(--dim);line-height:1.6;max-width:62ch;font-size:14px}
+.explore-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.explore-stat{padding:16px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.explore-stat:hover{transform:translateY(-2px);border-color:rgba(57,255,20,.18);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.explore-stat .k{font-size:10px;letter-spacing:2px;font-family:var(--mono);color:var(--dim);text-transform:uppercase}
+.explore-stat .v{margin-top:6px;font-size:20px;font-weight:900}
+
+/* ══════ EXPLORE — WALL GRID ══════ */
+.explore-wall{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;align-items:stretch}
+.explore-tile{position:relative;border-radius:22px;overflow:hidden;min-height:150px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);box-shadow:0 12px 34px rgba(0,0,0,.24);opacity:0;transform:translateY(18px) scale(.98);transition:opacity .4s ease,transform .4s ease,box-shadow .25s ease,border-color .25s ease;content-visibility:auto;contain-intrinsic-size:0 220px}
+.explore-tile.visible{opacity:1;transform:translateY(0) scale(1)}
+.explore-tile:hover{box-shadow:0 18px 38px rgba(0,0,0,.32);border-color:rgba(255,255,255,.16)}
+.explore-card-inner{position:absolute;inset:0}
+.explore-tile.flip .explore-card-front,.explore-tile:hover .explore-card-front{opacity:0;transform:scale(.97)}
+.explore-tile.flip .explore-card-back,.explore-tile:hover .explore-card-back{opacity:1;transform:scale(1);pointer-events:auto}
+.explore-tile:hover::before{content:'';position:absolute;inset:0;border-radius:22px;box-shadow:inset 0 0 0 1px rgba(57,255,20,.14);pointer-events:none;z-index:2}
+.explore-card-face{position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;transition:opacity .32s ease,transform .32s ease;will-change:opacity}
+.explore-card-front{background:radial-gradient(circle at 15% 20%,rgba(255,255,255,.12),transparent 24%),linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.03));opacity:1;transform:scale(1)}
+.explore-card-back{background:radial-gradient(circle at 85% 10%,rgba(57,255,20,.14),transparent 26%),linear-gradient(145deg,rgba(16,16,28,.98),rgba(8,8,16,.98));opacity:0;transform:scale(1.02);pointer-events:none}
+.explore-tile.visible:hover{transform:translateY(-4px) scale(1.01)}
+.explore-tile.large{grid-column:span 7;min-height:240px}
+.explore-tile.medium{grid-column:span 5;min-height:240px}
+.explore-tile.square{grid-column:span 4;min-height:200px}
+.explore-tile.wide{grid-column:span 8;min-height:180px}
+.explore-tile.tall{grid-column:span 4;min-height:320px}
+.explore-tile.slim{grid-column:span 3;min-height:160px}
+.explore-tile.row{grid-column:span 12;min-height:120px}
+
+.explore-cover{position:absolute;inset:0;background:linear-gradient(145deg,#121223,#090914)}
+.explore-cover img{width:100%;height:100%;object-fit:cover;filter:saturate(1.06) contrast(1.03)}
+.explore-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.70))}
+.explore-badge{align-self:flex-start;padding:6px 12px;border-radius:999px;background:rgba(20,20,30,.65);border:1px solid rgba(255,255,255,.10);font-size:10px;font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase}
+.explore-title{font-size:18px;font-weight:900;line-height:1.08;max-width:16ch}
+.explore-sub{color:rgba(255,255,255,.74);font-size:12px;line-height:1.55;max-width:32ch}
+.explore-mini{display:flex;flex-wrap:wrap;gap:8px}
+.explore-mini span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:10px;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.explore-source{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.explore-source .meta{min-width:0}
+.explore-source .meta .artist{font-size:12px;color:rgba(255,255,255,.68)}
+.explore-source .meta .genre{margin-top:2px;font-size:10px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase}
+.explore-source .action{padding:8px 13px;border-radius:999px;font-size:10px;font-family:var(--mono);letter-spacing:1.2px;border:1px solid rgba(57,255,20,.22);background:rgba(57,255,20,.07);color:var(--accent);transition:background .18s,transform .18s,box-shadow .18s;cursor:pointer}
+.explore-source .action:hover{background:rgba(57,255,20,.18);transform:scale(1.05);box-shadow:0 4px 12px rgba(57,255,20,.18)}
+.explore-quote .quote-text{font-size:clamp(18px,2.6vw,30px);line-height:1.15;font-weight:900;margin-top:8px}
+.explore-quote .quote-sub{color:var(--dim);font-size:12px;line-height:1.5;margin-top:auto}
+.explore-quote .quote-arrow{margin-top:10px;display:inline-flex;align-items:center;gap:8px;color:var(--accent2);font-family:var(--mono);letter-spacing:1.2px;font-size:10px;text-transform:uppercase}
+.explore-neon-badge{align-self:flex-start;padding:6px 12px;border-radius:999px;font-size:10px;font-family:var(--mono);letter-spacing:1.4px;text-transform:uppercase;border:1px solid}
+.explore-artist{display:flex;flex-direction:column;justify-content:space-between;min-height:100%}
+.explore-artist .artist-chip{align-self:flex-start;padding:6px 12px;border-radius:999px;background:rgba(0,198,255,.10);border:1px solid rgba(0,198,255,.20);font-size:10px;font-family:var(--mono);letter-spacing:1.4px;text-transform:uppercase;color:var(--accent2)}
+.explore-artist .artist-name{margin-top:auto;font-size:clamp(22px,3vw,32px);line-height:1.05;font-weight:900}
+.explore-artist .artist-note{margin-top:8px;color:var(--dim);font-size:13px;line-height:1.6}
+.explore-genre{min-height:220px}
+.explore-genre .genre-name{font-size:clamp(20px,3vw,30px);line-height:1.02;font-weight:900}
+.explore-genre .genre-note{color:rgba(255,255,255,.74);font-size:12px;line-height:1.6;max-width:28ch}
+.explore-genre .genre-pill{align-self:flex-start;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);font-size:10px;font-family:var(--mono);letter-spacing:1.4px;text-transform:uppercase}
+.explore-mood{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px}
+.explore-mood .mood-icon{font-size:clamp(32px,6vw,52px);line-height:1}
+.explore-mood .mood-label{font-size:clamp(16px,2.4vw,22px);font-weight:900;letter-spacing:2px}
+.explore-mood .mood-sub{color:var(--dim);font-size:12px}
+.explore-trending-row{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:18px 20px}
+.explore-trending-row .tr-label{font-size:10px;font-family:var(--mono);letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+.explore-trending-row .tr-items{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.explore-trending-row .tr-pill{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;transition:all .18s ease;white-space:nowrap}
+.explore-trending-row .tr-pill:hover{background:rgba(57,255,20,.12);border-color:rgba(57,255,20,.3);color:var(--accent);transform:translateY(-2px)}
+.explore-spotlight{display:flex;flex-direction:column;background:linear-gradient(135deg,rgba(255,20,147,.08),rgba(0,198,255,.06));border-color:rgba(255,20,147,.14)!important}
+.explore-spotlight .spot-tag{align-self:flex-start;padding:6px 12px;border-radius:999px;background:rgba(255,20,147,.10);border:1px solid rgba(255,20,147,.22);font-size:10px;font-family:var(--mono);letter-spacing:1.4px;text-transform:uppercase;color:var(--accent3)}
+.explore-spotlight .spot-title{font-size:clamp(20px,2.8vw,30px);font-weight:900;line-height:1.08;margin-top:8px}
+.explore-spotlight .spot-note{color:rgba(255,255,255,.7);font-size:12px;line-height:1.6;margin-top:auto}
+.explore-live-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:10px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(255,49,49,.12);border:1px solid rgba(255,77,77,.25);color:#FF6B6B;text-transform:uppercase}
+.explore-live-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:#FF4D4D;box-shadow:0 0 8px rgba(255,77,77,.6);animation:hot-blink 1.1s ease-in-out infinite}
+@keyframes hot-blink{0%,100%{opacity:1}50%{opacity:.35}}
+.explore-empty{padding:24px;border-radius:18px;border:1px dashed rgba(255,255,255,.1);color:var(--dim);font-family:var(--mono);letter-spacing:1px;font-size:11px;text-align:center}
+.explore-section-divider{grid-column:span 12;display:flex;align-items:center;gap:14px;padding:8px 0}
+.explore-section-divider .div-label{font-size:10px;font-family:var(--mono);letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.36);white-space:nowrap}
+.explore-section-divider::before,.explore-section-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.explore-tile[data-glow]:hover{box-shadow:0 24px 56px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.1),0 0 40px var(--t-glow,rgba(47,232,110,.08))}
+.ticker-text{font-size:15px;font-weight:800;line-height:1.4;color:#fff}
+.ticker-song{color:var(--dim);font-size:11px;font-family:var(--mono)}
+@keyframes explore-wave{0%{height:6px}100%{height:20px}}
+
+/* ══════ EXPLORE — MITOSIS LOADER (real fission/fusion) ══════ */
+.explore-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:90px 20px;min-height:340px}
+.mitosis-wrap{position:relative;width:160px;height:100px;filter:drop-shadow(0 0 22px rgba(57,255,20,.18))}
+.mitosis-membrane{position:absolute;top:50%;left:50%;height:30px;border-radius:999px;background:radial-gradient(circle,rgba(57,255,20,.55),rgba(0,198,255,.25));transform-origin:center;animation:mito-membrane 5.4s cubic-bezier(.65,0,.35,1) infinite}
+.mitosis-cell{position:absolute;top:50%;left:50%;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#eafff0,rgba(57,255,20,.96) 38%,rgba(0,198,255,.6) 100%);box-shadow:0 0 16px rgba(57,255,20,.5),0 0 38px rgba(0,198,255,.22),inset -4px -4px 10px rgba(0,0,0,.25);animation:mito-cell-a 5.4s cubic-bezier(.65,0,.35,1) infinite}
+.mitosis-cell.b{animation-name:mito-cell-b}
+.mitosis-cell::after{content:'';position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 65% 70%,rgba(0,198,255,.35),transparent 60%)}
+
+@keyframes mito-membrane{
+  0%{width:38px;transform:translate(-50%,-50%) scaleY(1);opacity:.9}
+  18%{width:60px;transform:translate(-50%,-50%) scaleY(.55);opacity:.85}
+  32%{width:18px;transform:translate(-50%,-50%) scaleY(.32);opacity:.5}
+  42%{width:2px;transform:translate(-50%,-50%) scaleY(.08);opacity:0}
+  58%{width:2px;transform:translate(-50%,-50%) scaleY(.08);opacity:0}
+  68%{width:18px;transform:translate(-50%,-50%) scaleY(.32);opacity:.5}
+  82%{width:60px;transform:translate(-50%,-50%) scaleY(.55);opacity:.85}
+  100%{width:38px;transform:translate(-50%,-50%) scaleY(1);opacity:.9}
+}
+@keyframes mito-cell-a{
+  0%{transform:translate(-50%,-50%) scale(1);border-radius:50%}
+  14%{transform:translate(calc(-50% - 6px),-50%) scale(1.08,.92);border-radius:46% 54% 54% 46%/58% 58% 42% 42%}
+  28%{transform:translate(calc(-50% - 18px),-50%) scale(.86,1.06);border-radius:50%}
+  42%{transform:translate(calc(-50% - 40px),-50%) scale(.72);border-radius:50%}
+  50%{transform:translate(calc(-50% - 44px),-50%) scale(.7);border-radius:50%}
+  58%{transform:translate(calc(-50% - 40px),-50%) scale(.72);border-radius:50%}
+  72%{transform:translate(calc(-50% - 18px),-50%) scale(.88,1.05);border-radius:50%}
+  86%{transform:translate(calc(-50% - 6px),-50%) scale(1.06,.94);border-radius:46% 54% 54% 46%/58% 58% 42% 42%}
+  100%{transform:translate(-50%,-50%) scale(1);border-radius:50%}
+}
+@keyframes mito-cell-b{
+  0%{transform:translate(-50%,-50%) scale(1);border-radius:50%;opacity:1}
+  14%{transform:translate(calc(-50% + 6px),-50%) scale(1.08,.92);border-radius:54% 46% 46% 54%/58% 58% 42% 42%;opacity:1}
+  28%{transform:translate(calc(-50% + 18px),-50%) scale(.86,1.06);border-radius:50%;opacity:1}
+  42%{transform:translate(calc(-50% + 40px),-50%) scale(.72);border-radius:50%;opacity:1}
+  50%{transform:translate(calc(-50% + 44px),-50%) scale(.7);border-radius:50%;opacity:1}
+  58%{transform:translate(calc(-50% + 40px),-50%) scale(.72);border-radius:50%;opacity:1}
+  72%{transform:translate(calc(-50% + 18px),-50%) scale(.88,1.05);border-radius:50%;opacity:1}
+  86%{transform:translate(calc(-50% + 6px),-50%) scale(1.06,.94);border-radius:54% 46% 46% 54%/58% 58% 42% 42%;opacity:1}
+  100%{transform:translate(-50%,-50%) scale(1);border-radius:50%;opacity:0}
+}
+.explore-loader-text{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;animation:loader-text-pulse 2.2s ease-in-out infinite}
+@keyframes loader-text-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+@media (max-width:1180px){
+  .explore-hero{grid-template-columns:1fr}
+  .explore-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .explore-tile.large,.explore-tile.medium,.explore-tile.square,.explore-tile.wide,.explore-tile.tall{grid-column:span 6}
+  .explore-tile.slim{grid-column:span 4}
+}
+@media (max-width:920px){
+  .explore-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .explore-tile.large,.explore-tile.medium,.explore-tile.square,.explore-tile.wide,.explore-tile.tall,.explore-tile.slim,.explore-tile.row{grid-column:span 12}
+}
+@media (max-width:640px){
+  .explore-hero-card{padding:18px}
+  .explore-stat{padding:14px}
+  .explore-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .explore-tile{min-height:190px}
+  .explore-genre{min-height:190px}
+  .explore-hero-title{font-size:28px}
+  .explore-title{max-width:18ch}
+}
+@media (prefers-reduced-motion: reduce){
+  .explore-hero-card::after,.xbtn-dot,.explore-live-badge::before,.mitosis-cell,.mitosis-membrane,.explore-loader-text{animation:none!important}
+  .explore-tile{transition:opacity .15s ease!important;transform:none!important}
+  .explore-card-face{transition:opacity .15s ease!important}
+}
+@media (hover:none){
+  .explore-tile:hover{box-shadow:0 12px 34px rgba(0,0,0,.24);border-color:rgba(255,255,255,.08)}
+  .explore-tile:hover .explore-card-front,.explore-tile:hover .explore-card-back{opacity:inherit;transform:none}
+  .song-tile:hover{transform:none;box-shadow:none}
+  .artist-card:hover{transform:none;background:transparent}
+}
+
 </style>
 </head>
 
@@ -3317,6 +3509,7 @@ body.light .search-input{color:var(--text)}
     <div class="sidebar-mobile-hint">Swipe from the left edge to open this panel.</div>
     <div class="sidebar-section-label">NAVIGATE</div>
     <button class="sidebar-btn active" id="nav-home" onclick="showPage('home',this)"><span class="icon">⌂</span><span>Home</span></button>
+    <button class="sidebar-btn" id="nav-explore" onclick="showPage('explore',this)"><span class="icon">✦</span><span>Explore</span></button>
     <button class="sidebar-btn" id="nav-profile" onclick="showPage('profile',this)"><span class="icon">◉</span><span>Song Profile</span></button>
     <button class="sidebar-btn" id="nav-artist" onclick="showPage('artist',this)"><span class="icon">★</span><span>Artist</span></button>
     <button class="sidebar-btn" id="nav-favorites" onclick="showPage('favorites',this)"><span class="icon">♥</span><span>Favorites</span></button>
@@ -3357,6 +3550,7 @@ body.light .search-input{color:var(--text)}
         <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
+      <button class="explore-btn" id="exploreTopBtn" onclick="showPage('explore', document.getElementById('nav-explore') || this)"><span class="xbtn-dot"></span>Explore</button>
       <div class="topbar-actions">
         <button class="icon-btn" id="btnZenTop" onclick="toggleZen()" title="Zen Stage">✦</button>
         <button class="icon-btn" onclick="toggleMiniPlayer()" title="Mini Player">⊡</button>
@@ -3412,6 +3606,37 @@ body.light .search-input{color:var(--text)}
         <div id="becauseSection"></div>
         <div id="homeContent"></div>
         <div id="featuredArtistsRow" style="margin-top:0"></div>
+      </div>
+
+      <!-- EXPLORE PAGE -->
+      <div class="page" id="page-explore">
+        <div class="section-title">Explore <span>Mode</span></div>
+        <div id="exploreContent"></div>
+      </div>
+
+      <!-- GENRE PAGE -->
+      <div class="page" id="page-genre">
+        <div class="genre-page-header">
+          <button class="genre-back-btn" onclick="showPage('explore',document.getElementById('nav-explore'))">← BACK TO EXPLORE</button>
+          <div class="section-title" id="genrePageTitle">Genre <span>Songs</span></div>
+          <div class="genre-page-meta" id="genrePageMeta"></div>
+        </div>
+        <div class="song-grid" id="genrePageGrid"></div>
+      </div>
+
+      <!-- DISCOVER PAGE (external / not-yet-on-Blastr songs) -->
+      <div class="page" id="page-discover">
+        <div class="discover-hero">
+          <div class="discover-hero-bg" id="discBg"></div>
+          <div class="discover-art-wrap" id="discArt">♪</div>
+          <div class="discover-text">
+            <div class="dt-title" id="discMsg">Sorry, we don't have this song yet.</div>
+            <div class="dt-sub">SOURCED VIA MUSICBRAINZ · NOT YET PLAYABLE ON BLASTR</div>
+          </div>
+        </div>
+        <div class="discover-rec-title">You might also like</div>
+        <div class="discover-rec-reason" id="discRecReason"></div>
+        <div class="song-grid" id="discRecGrid"></div>
       </div>
 
       <!-- SONG PROFILE PAGE -->
@@ -4767,6 +4992,8 @@ function showPage(name, btn) {
   if(name==='favorites') renderFavorites();
   if(name==='account') blastrRenderAccountPage();
   if(name==='home') blastrUpdateTimeBasedCopy();
+  if(name==='explore' && typeof loadExploreContent==='function') loadExploreContent();
+  else if(window.__blastrExploreInterval){ clearInterval(window.__blastrExploreInterval); window.__blastrExploreInterval=null; }
   if(blastrIsCompactViewport()) closeSidebarDrawer(true);
 }
 
@@ -4778,7 +5005,9 @@ function onSearchType(val) {
   if(val.length<2){closeSearch();return;}
   searchTimer=setTimeout(()=>runSearch(val),280);
 }
+let searchRequestToken=0;
 async function runSearch(q) {
+  const myToken=++searchRequestToken;
   const dd=document.getElementById('searchDropdown');
   dd.innerHTML='<div style="padding:16px;text-align:center"><div class="spinner"></div></div>';
   dd.classList.add('open');
@@ -4786,6 +5015,7 @@ async function runSearch(q) {
     getTracks(q),
     getArtists(q)
   ]);
+  if (myToken!==searchRequestToken) return; // stale — newer keystroke superseded this
   let html = '';
   // Artist results first
   if (artists && artists.length) {
@@ -4800,33 +5030,142 @@ async function runSearch(q) {
         <button style="padding:4px 10px;background:rgba(0,198,255,.1);color:var(--accent2);border:1px solid rgba(0,198,255,.2);border-radius:8px;font-size:9px;font-family:var(--mono);cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();openArtistProfile(${jsonAttr(a)})">↗ PROFILE</button>
       </div>`).join('');
   }
-  if (!tracks || !tracks.length) {
-    if (!artists || !artists.length) {
-      dd.innerHTML=`<div style="padding:16px;color:var(--dim);text-align:center;font-family:var(--mono);font-size:12px">No results for "${esc(q)}"</div>`;
-      return;
-    }
-    dd.innerHTML = html;
-    return;
-  }
   const accents=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
-  if (artists && artists.length) html += `<div class="search-section-label">TRACKS</div>`;
-  html += tracks.slice(0,10).map((t,i)=>`
-    <div class="search-row" onclick="playTrackFromSearch(${jsonAttr(t)})">
-      <div class="search-bar-accent" style="background:${accents[i%accents.length]}"></div>
-      <div class="search-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
-      <div class="search-meta">
-        <div class="title">${esc(t.title)}</div>
-        <div class="sub">${esc(t.artist||'')}${t.genre?' · '+esc(t.genre):''}</div>
+  if (tracks && tracks.length) {
+    if (artists && artists.length) html += `<div class="search-section-label">TRACKS</div>`;
+    html += tracks.slice(0,10).map((t,i)=>`
+      <div class="search-row" onclick="playTrackFromSearch(${jsonAttr(t)})">
+        <div class="search-bar-accent" style="background:${accents[i%accents.length]}"></div>
+        <div class="search-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
+        <div class="search-meta">
+          <div class="title">${esc(t.title)}</div>
+          <div class="sub">${esc(t.artist||'')}${t.genre?' · '+esc(t.genre):''}</div>
+        </div>
+        <button class="search-go-profile" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})">↗ PROFILE</button>
+        <button class="search-play-btn" style="background:${accents[i%accents.length]};color:#000" onclick="event.stopPropagation();playTrackFromSearch(${jsonAttr(t)})">▶</button>
       </div>
-      <button class="search-go-profile" onclick="event.stopPropagation();openSongProfile(${jsonAttr(t)})">↗ PROFILE</button>
-      <button class="search-play-btn" style="background:${accents[i%accents.length]};color:#000" onclick="event.stopPropagation();playTrackFromSearch(${jsonAttr(t)})">▶</button>
-    </div>
-  `).join('');
-  dd.innerHTML = html;
+    `).join('');
+  }
+  // Render whatever we have locally first so the UI never feels stuck
+  dd.innerHTML = html || mitosisLoaderHTML('Searching the global catalog…',true);
+  // Only hit MusicBrainz if local tracks came up empty — keeps local search instant
+  if (!tracks || !tracks.length) {
+    const ext = await mbSearchRecordings(q);
+    if (myToken!==searchRequestToken) return;
+    if (document.getElementById('searchInput').value.trim() !== q.trim()) return;
+    if (ext && ext.length) {
+      let extHtml = `<div class="search-section-label">FROM THE GLOBAL CATALOG</div>`;
+      extHtml += ext.slice(0,6).map(r=>`
+        <div class="search-row external" onclick="openExternalSong(${jsonAttr(r)})">
+          <div class="search-thumb">${r.coverUrl?`<img src="${esc(r.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
+          <div class="search-meta">
+            <div class="title">${esc(r.title)}</div>
+            <div class="sub">${esc(r.artist||'')}</div>
+          </div>
+          <span class="search-ext-tag">NOT ON BLASTR</span>
+        </div>
+      `).join('');
+      dd.innerHTML = (html || '') + extHtml;
+    } else if (!html) {
+      dd.innerHTML=`<div style="padding:16px;color:var(--dim);text-align:center;font-family:var(--mono);font-size:12px">No results for "${esc(q)}"</div>`;
+    }
+  }
 }
 function closeSearch(){document.getElementById('searchDropdown').classList.remove('open');}
 function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('searchClear').classList.remove('visible');closeSearch();}
 function playTrackFromSearch(track){closeSearch();clearSearch();initiateHandshake(track);}
+
+// ── MUSICBRAINZ / COVER ART ARCHIVE (smart search fallback) ──
+const MB_BASE = 'https://musicbrainz.org/ws/2';
+const CAA_BASE = 'https://coverartarchive.org';
+const mbCoverCache = new Map();
+async function mbFetchCover(releaseId) {
+  if (!releaseId) return null;
+  if (mbCoverCache.has(releaseId)) return mbCoverCache.get(releaseId);
+  try {
+    const res = await fetch(`${CAA_BASE}/release/${releaseId}`, { headers:{Accept:'application/json'} });
+    if (!res.ok) { mbCoverCache.set(releaseId,null); return null; }
+    const data = await res.json();
+    const front = (data.images||[]).find(im=>im.front) || (data.images||[])[0];
+    const url = front?.thumbnails?.['250'] || front?.image || null;
+    mbCoverCache.set(releaseId,url);
+    return url;
+  } catch(e) { mbCoverCache.set(releaseId,null); return null; }
+}
+async function mbSearchRecordings(q, limit=8) {
+  try {
+    const url = `${MB_BASE}/recording/?query=${encodeURIComponent(q)}&fmt=json&limit=${limit}`;
+    const res = await fetch(url, { headers:{Accept:'application/json'} });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const recs = Array.isArray(data.recordings) ? data.recordings : [];
+    const results = recs.slice(0,limit).map(r=>{
+      const artist = (r['artist-credit']||[]).map(c=>c.name||c.artist?.name).filter(Boolean).join(', ');
+      const release = (r.releases && r.releases.length) ? r.releases[0] : null;
+      return {
+        mbid: r.id,
+        title: r.title||'Unknown',
+        artist: artist||'Unknown Artist',
+        releaseId: release ? release.id : null,
+        releaseTitle: release ? release.title : null,
+        coverUrl: null,
+      };
+    });
+    // Hydrate cover art for the first few results only (cost control + speed)
+    await Promise.all(results.slice(0,6).map(async r=>{
+      if (r.releaseId) r.coverUrl = await mbFetchCover(r.releaseId);
+    }));
+    return results;
+  } catch(e) { return []; }
+}
+
+// ── DISCOVER PAGE (external song landed on, not yet on Blastr) ──
+function openExternalSong(rec) {
+  closeSearch(); clearSearch();
+  loadDiscoverPage(rec);
+}
+async function loadDiscoverPage(rec) {
+  if (!rec) return;
+  document.getElementById('discMsg').innerHTML =
+    `Sorry, we don't have <b>${esc(rec.title)}</b> by <b>${esc(rec.artist)}</b> yet. But don't leave just yet—we've got a few songs you might enjoy instead.`;
+  const artBox=document.getElementById('discArt'); const bg=document.getElementById('discBg');
+  if (rec.coverUrl) {
+    artBox.innerHTML = `<img src="${esc(rec.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`;
+    bg.style.backgroundImage = `url(${esc(rec.coverUrl)})`;
+    bg.style.display='block';
+  } else {
+    artBox.innerHTML = '♪';
+    bg.style.display='none';
+  }
+  showPage('discover', null);
+  const grid=document.getElementById('discRecGrid');
+  const reasonEl=document.getElementById('discRecReason');
+  grid.innerHTML = mitosisLoaderHTML('Finding songs you might like…',true);
+  const pool = state.allTracks && state.allTracks.length ? state.allTracks : await getTracks();
+  state.allTracks = pool;
+  // 1) Same artist
+  let recs = pool.filter(t=>t.artist && rec.artist && t.artist.toLowerCase()===rec.artist.toLowerCase());
+  let reason = recs.length ? `MORE FROM ${rec.artist.toUpperCase()}` : '';
+  // 2) Same genre (Blastr tagging fallback — MusicBrainz genre not reliably available here)
+  if (!recs.length) {
+    const genreGuess = (state.currentSearchGenreHint)||null;
+    if (genreGuess) {
+      recs = pool.filter(t=>t.genre && t.genre.toLowerCase()===genreGuess.toLowerCase());
+      if (recs.length) reason = `MORE ${genreGuess.toUpperCase()}`;
+    }
+  }
+  // 3) Verified songs
+  if (!recs.length) {
+    recs = pool.filter(t=>t.is_verified);
+    if (recs.length) reason = 'VERIFIED ON BLASTR';
+  }
+  // 4) Broader curated fallback — never empty if any tracks exist
+  if (!recs.length) { recs = pool.slice(); reason = 'CURATED FOR YOU'; }
+  recs = recs.slice(0,12);
+  reasonEl.textContent = reason;
+  grid.innerHTML = recs.length ? recs.map((t,i)=>songTileHTML(t,i)).join('') :
+    '<p style="color:var(--dim);font-family:var(--mono);font-size:12px">Check back soon — Blastr is growing fast.</p>';
+}
 
 // ── HOME CONTENT ──
 async function loadHomeContent() {
@@ -5139,6 +5478,21 @@ function renderFavorites() {
 function openSongProfile(track) {
   loadSongProfile(track);
 }
+function openGenrePage(genre) {
+  const tracks=(state.allTracks||[]).filter(t=>(t.genre||'Uncategorized')===genre);
+  const titleEl=document.getElementById('genrePageTitle');
+  const metaEl=document.getElementById('genrePageMeta');
+  const gridEl=document.getElementById('genrePageGrid');
+  if(titleEl) titleEl.innerHTML=`${esc(genre)} <span>Tracks</span>`;
+  if(metaEl) metaEl.textContent=`${tracks.length} track${tracks.length!==1?'s':''} in this genre`;
+  if(gridEl){
+    gridEl.innerHTML = tracks.length
+      ? tracks.map((t,i)=>songTileHTML(t,i)).join('')
+      : '<div style="color:var(--dim);padding:30px;font-family:var(--mono);font-size:12px;letter-spacing:1px">NO TRACKS IN THIS GENRE YET.</div>';
+  }
+  showPage('genre', null);
+}
+window.openGenrePage = openGenrePage;
 function loadSongProfile(track) {
   if(!track) return;
   state.currentProfileTrack=track;
@@ -5852,6 +6206,17 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 // ── UTILS ──
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function jsonAttr(obj){return JSON.stringify(obj).replace(/"/g,'&quot;');}
+function mitosisLoaderHTML(text,compact){
+  return `<div class="explore-loader"${compact?' style="padding:30px 16px;min-height:auto;gap:14px"':''}>
+    <div class="mitosis-wrap"${compact?' style="width:96px;height:60px;transform:scale(.7)"':''}>
+      <div class="mitosis-membrane"></div>
+      <div class="mitosis-cell a"></div>
+      <div class="mitosis-cell b"></div>
+    </div>
+    <div class="explore-loader-text">${esc(text||'Searching the global catalog…')}</div>
+  </div>`;
+}
+window.mitosisLoaderHTML = mitosisLoaderHTML;
 
 
 // ── RESPONSIVE NAV / DRAWER / GESTURES ──
@@ -7300,7 +7665,6 @@ body.blastr-lite-mode .account-row{transition:none !important}
       ? window.state.allTracks.find(t => String(t.id) === String(resume.trackId))
       : null;
     if (!track) {
-      home.insertAdjacentHTML('afterbegin', `<div class="continue-empty">NO RESUME STATE YET — PLAY A SONG AND BLASTR WILL REMEMBER IT HERE.</div>`);
       return;
     }
     const cover = track.cover_url
@@ -9349,6 +9713,395 @@ document.addEventListener('click',e=>{
   }
 });
 
+})();
+
+
+// ═══════════════════════════════════════════════════════════════
+// EXPLORE — Discovery Wall (single clean engine, no patch-stacking)
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  const EXPLORE_QUOTES=[
+    'Music fuels momentum. 🔥','Small sparks become anthems. ✨','Find the sound before it finds you. 🎧',
+    'One track can reset the whole day. 🌊','Energy is a genre too. ⚡','Press play, let the room shift. 🎵',
+    'The beat drops — and so does everything else. 💫','Your playlist is your autobiography. 📖',
+    'Silence is overrated. Turn it up. 🔊','Every great song was once someone\'s secret. 🤫',
+    'Music is the fastest time machine we have. ⏳','Late nights hit different with the right track. 🌙',
+    'The bass line knows what words can\'t say. 🎸','You don\'t choose your anthem — it chooses you. 🏆',
+    'Vibes don\'t lie. Trust the playlist. 🎶','Sometimes a song is a whole life story. 💿',
+    'The drop is where physics takes a break. 🚀','Art is what happens when sound meets soul. 🫀',
+    'Every genre is a different language of feeling. 🌍','Blastr: where the grid meets your ears. 🎤',
+    'Studio sessions at 3am hit different. 🌃','The right song at the right moment = everything. ✌️',
+  ];
+  const GENRE_EMOJI={'Pop':'🎤','Hip-Hop':'🎤','R&B':'🎵','Electronic':'⚡','Rock':'🎸','Jazz':'🎷','Classical':'🎻','Afrobeats':'🥁','Gospel':'✝','Latin':'💃','Country':'🤠','Indie':'🎹','Lo-fi':'🌙','Chill':'🫧','Dance':'🔥','Trap':'💥','Drill':'🔱','Ambient':'🌊'};
+  const ACCENTS=['#2FE86E','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42','#FF4D6D','#00E5D3'];
+  let exploreTicker=0;
+  let exploreIO=null;
+
+  function pickUnique(list,key,limit){
+    const seen=new Set(),out=[];
+    for(const item of list){
+      const v=String(item?.[key]||'').trim();
+      if(!v||seen.has(v)) continue;
+      seen.add(v); out.push(item);
+      if(out.length>=limit) break;
+    }
+    return out;
+  }
+  function shuffle(arr){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+    return a;
+  }
+  function tileCover(track,accent){
+    if(track?.cover_url) return `<div class="explore-cover"><img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt=""></div><div class="explore-overlay"></div>`;
+    return `<div class="explore-cover" style="background:linear-gradient(145deg,${accent}20,${accent}08)"></div><div class="explore-overlay"></div>`;
+  }
+  function makeTrackTile(track,size,accent,badge,extraLabel){
+    const title=track?.title||'Untitled', artist=track?.artist||'Unknown Artist', genre=track?.genre||'Unknown Genre';
+    const emojis={'TRENDING NOW':'🔥','EDITOR PICK':'✨','YOU MIGHT LIKE':'💫','FRESH DROP':'🆕','NEW IN GENRE':'🌱'};
+    const be=emojis[badge]||'🎵';
+    const verified=track?.is_verified?'<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:rgba(47,232,110,.12);border:1px solid rgba(47,232,110,.25);color:var(--accent);font-size:9px;font-family:var(--mono);letter-spacing:1.2px">✓ VERIFIED</span>':'';
+    return `<div class="explore-tile ${size}" data-glow style="--t-glow:${accent}22" onclick="initiateHandshake(${jsonAttr(track)})">
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front">
+          ${tileCover(track,accent)}
+          <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:12px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+              <div class="explore-badge" style="background:${accent}18;border-color:${accent}30;color:${accent}">${be} ${esc(badge)}</div>
+              ${verified}
+            </div>
+            <div>
+              <div class="explore-title">${esc(title)}</div>
+              <div class="explore-sub">${esc(track?.description||'A fresh pick from the Blastr grid.')}</div>
+            </div>
+            <div class="explore-source">
+              <div class="meta"><div class="artist">${esc(artist)}</div><div class="genre">${esc(genre)}</div></div>
+              <div class="action" style="border-color:${accent}44;color:${accent};background:${accent}10">${esc(extraLabel||'PLAY')}</div>
+            </div>
+          </div>
+        </div>
+        <div class="explore-card-face explore-card-back">
+          ${tileCover(track,accent)}
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%">
+            <div class="explore-badge" style="background:${accent}18;border-color:${accent}30;color:${accent}">🎧 SPOTLIGHT</div>
+            <div style="margin-top:auto">
+              <div class="explore-title">${esc(title)}</div>
+              <div class="explore-sub">${esc(artist)} · ${esc(genre)}</div>
+            </div>
+            <div class="explore-source">
+              <div class="meta"><div class="artist">Tap to play</div><div class="genre">Blastr grid</div></div>
+              <div class="action" style="border-color:${accent}44;color:${accent};background:${accent}10">OPEN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  function makeQuoteTile(index,accent,quote){
+    const emojis=['🎵','✨','🔥','🌙','⚡','🎧','💫','🎤','🌊','🏆'];
+    const labels=['BLASTR WISDOM','ARTIST NOTE','STUDIO THOUGHT','LATE NIGHT TAKE','SOUND TRUTH'];
+    const emoji=emojis[index%emojis.length], label=labels[index%labels.length];
+    return `<div class="explore-tile tall explore-quote" data-rotate="1" data-quote-index="${index}" style="background:radial-gradient(ellipse at 20% 80%,${accent}14,transparent 55%)">
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front">
+          <div class="explore-cover" style="background:linear-gradient(145deg,${accent}20,${accent}04)"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%">
+            <div class="explore-neon-badge" style="color:${accent};border-color:${accent}44;background:${accent}0D">${emoji} ${label}</div>
+            <div class="quote-text" style="margin-top:14px;background:linear-gradient(135deg,#fff 30%,${accent}CC);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${esc(quote)}</div>
+            <div class="quote-sub" style="margin-top:auto">Blastr finds the sound that fits this moment.</div>
+            <div class="quote-arrow" style="color:${accent}">FLIP FOR MORE →</div>
+          </div>
+        </div>
+        <div class="explore-card-face explore-card-back" style="background:linear-gradient(145deg,${accent}10,rgba(10,10,22,.98))">
+          <div class="explore-neon-badge" style="color:${accent};border-color:${accent}44;background:${accent}0D">${emoji} NEXT</div>
+          <div class="quote-text js-explore-quote" style="margin-top:14px;background:linear-gradient(135deg,#fff 30%,${accent}AA);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${esc(quote)}</div>
+          <div class="quote-sub" style="margin-top:auto">Rotating every few seconds.</div>
+          <div class="quote-arrow" style="color:${accent}">← BACK TO BROWSE</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  function makeArtistTile(artistObj,sampleTrack,accent){
+    const hasProfile=!!artistObj?.id;
+    const name=artistObj?.name||sampleTrack?.artist||'Unknown Artist';
+    const avatar=artistObj?.avatar_url
+      ? `<img src="${esc(artistObj.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:${accent}">${esc((name[0]||'A').toUpperCase())}</div>`;
+    const verified=artistObj?.verified?'<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:rgba(47,232,110,.12);border:1px solid rgba(47,232,110,.25);color:var(--accent);font-size:9px;font-family:var(--mono);letter-spacing:1.2px">✓ VERIFIED</span>':'';
+    const action=hasProfile?`onclick="openArtistProfile(${jsonAttr(artistObj)})"`:(sampleTrack?`onclick="initiateHandshake(${jsonAttr(sampleTrack)})"`:'');
+    return `<div class="explore-tile medium explore-artist" data-glow style="--t-glow:${accent}22" ${action}>
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front">
+          <div class="explore-cover" style="background:linear-gradient(145deg,${accent}1c,${accent}06)"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;border:2px solid ${accent}44;flex-shrink:0">${avatar}</div>
+              <div class="artist-chip" style="margin:0">Artist spotlight</div>
+            </div>
+            <div class="artist-name" style="margin-top:auto">${esc(name)} ${verified}</div>
+            <div class="artist-note">${esc(artistObj?.genre||sampleTrack?.genre||'Discover their sound')}</div>
+            <div class="explore-source">
+              <div class="meta"><div class="artist">${esc(sampleTrack?.title||'Browse catalog')}</div><div class="genre">${esc(artistObj?.genre||'')}</div></div>
+              <div class="action" style="border-color:${accent}44;color:${accent};background:${accent}10">${hasProfile?'VIEW':'PLAY'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="explore-card-face explore-card-back">
+          <div class="explore-cover" style="background:linear-gradient(145deg,${accent}10,rgba(10,10,22,.98))"></div>
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%">
+            <div class="artist-chip">MORE FROM ARTIST</div>
+            <div class="artist-name">${esc(name)}</div>
+            <div class="artist-note">${esc(artistObj?.bio||'Tap to explore their full profile and discography.')}</div>
+            <div class="explore-source"><div class="meta"><div class="artist">Tap to open</div></div>
+              <div class="action" style="border-color:${accent}44;color:${accent};background:${accent}10">${hasProfile?'OPEN PROFILE':'PLAY'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderExploreWall(tracks,artists){
+    const genreList=tracks.map(t=>t?.genre||'Uncategorized').filter(Boolean);
+    const artistList=tracks.map(t=>t?.artist||'Unknown Artist').filter(Boolean);
+
+    // Fresh: newest tracks first (by created_at if present, else id desc)
+    const fresh=[...tracks].sort((a,b)=>{
+      const ad=a.created_at?new Date(a.created_at).getTime():(a.id||0);
+      const bd=b.created_at?new Date(b.created_at).getTime():(b.id||0);
+      return bd-ad;
+    }).slice(0,8);
+    const freshShow=shuffle(fresh).slice(0,3);
+
+    const featuredTiles=freshShow.map((track,idx)=>{
+      const color=ACCENTS[idx%ACCENTS.length];
+      const size=idx===0?'large':'medium';
+      const badge=idx===0?'TRENDING NOW':(idx===1?'FRESH DROP':'EDITOR PICK');
+      return makeTrackTile(track,size,color,badge,idx===0?'PLAY NOW':'OPEN');
+    }).join('');
+
+    // Genres — every genre represented, rotates which 4 show
+    const allGenres=[...new Set(genreList)];
+    const genrePicks=shuffle(allGenres).slice(0,4);
+    const genreTiles=genrePicks.map((genreName,idx)=>{
+      const color=ACCENTS[(idx+2)%ACCENTS.length];
+      const sample=tracks.find(t=>(t.genre||'Uncategorized')===genreName)||{};
+      const count=tracks.filter(t=>(t.genre||'Uncategorized')===genreName).length;
+      const emoji=GENRE_EMOJI[genreName]||'🎵';
+      return `<div class="explore-tile square explore-genre" data-glow style="--t-glow:${color}22;grid-column:span 4;cursor:pointer" onclick="openGenrePage('${esc(genreName)}')">
+        <div class="explore-card-inner">
+          <div class="explore-card-face explore-card-front">
+            <div class="explore-cover" style="background:linear-gradient(145deg,${color}25,${color}08)"></div>
+            <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%">
+              <div class="genre-pill" style="background:${color}18;border-color:${color}30;color:${color}">${emoji} GENRE</div>
+              <div class="genre-name" style="color:#fff;margin-top:auto">${esc(genreName)}</div>
+              <div class="genre-note">${count} track${count!==1?'s':''} · Tap to browse</div>
+            </div>
+          </div>
+          <div class="explore-card-face explore-card-back" style="background:linear-gradient(145deg,${color}14,rgba(10,10,22,.98))">
+            <div class="genre-pill" style="background:${color}18;border-color:${color}30;color:${color}">📂 BROWSE</div>
+            <div class="genre-name" style="color:${color}">${esc(genreName)}</div>
+            <div class="genre-note">${esc(tracks.filter(t=>(t.genre||'Uncategorized')===genreName).slice(0,3).map(x=>x.title).join(' · ')||'More tracks soon')}</div>
+            <div class="explore-source" style="margin-top:auto">
+              <div class="meta"><div class="artist">${esc(sample.artist||'Various')}</div></div>
+              <div class="action" style="border-color:${color}44;color:${color};background:${color}10">OPEN ALL</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Artists — pull from artists table across genres + fallback to track-artist
+    const artistColors=ACCENTS.slice().reverse();
+    let artistTilesData=[];
+    if(Array.isArray(artists)&&artists.length){
+      const byGenre={};
+      artists.forEach(a=>{const g=a.genre||'Other';(byGenre[g]=byGenre[g]||[]).push(a);});
+      const genres=shuffle(Object.keys(byGenre));
+      genres.slice(0,3).forEach(g=>{
+        const a=byGenre[g][Math.floor(Math.random()*byGenre[g].length)];
+        const sampleTrack=tracks.find(t=>String(t.artist_id||'')===String(a.id))||tracks.find(t=>t.artist===a.name);
+        artistTilesData.push({artist:a,track:sampleTrack});
+      });
+    }
+    if(artistTilesData.length<3){
+      pickUnique(tracks,'artist',3-artistTilesData.length).forEach(t=>artistTilesData.push({artist:null,track:t}));
+    }
+    const artistTiles=artistTilesData.map((d,idx)=>makeArtistTile(d.artist,d.track,artistColors[idx%artistColors.length])).join('');
+
+    const quoteOne=EXPLORE_QUOTES[Math.floor(Math.random()*EXPLORE_QUOTES.length)];
+    const quoteTwo=EXPLORE_QUOTES[(Math.floor(Math.random()*EXPLORE_QUOTES.length)+2)%EXPLORE_QUOTES.length];
+    const quoteThree=EXPLORE_QUOTES[(Math.floor(Math.random()*EXPLORE_QUOTES.length)+4)%EXPLORE_QUOTES.length];
+
+    const MOOD_DATA=[
+      {icon:'🌙',label:'LATE NIGHT',sub:'Slow burns & night drives',color:ACCENTS[0]},
+      {icon:'⚡',label:'HIGH ENERGY',sub:'Dance, afro & hype drops',color:ACCENTS[1]},
+      {icon:'🫧',label:'CHILL WAVE',sub:'Lo-fi, ambient & dreamy',color:ACCENTS[2]},
+      {icon:'🔥',label:'INTENSE',sub:'Trap, drill & bass-heavy',color:ACCENTS[3]},
+    ];
+    const moodTiles=MOOD_DATA.map(m=>`<div class="explore-tile square explore-mood" data-glow style="--t-glow:${m.color}22;background:radial-gradient(ellipse at 50% 0%,${m.color}18,transparent 60%);border-color:${m.color}22">
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front" style="align-items:center;justify-content:center;text-align:center">
+          <div class="mood-icon">${m.icon}</div>
+          <div class="mood-label" style="color:${m.color}">${m.label}</div>
+          <div class="mood-sub">${m.sub}</div>
+        </div>
+        <div class="explore-card-face explore-card-back" style="align-items:center;justify-content:center;text-align:center">
+          <div class="mood-icon">${m.icon}</div>
+          <div class="mood-label" style="font-size:14px;color:${m.color}">Smart mix for this vibe</div>
+          <div class="mood-sub">Blastr picks tracks that match the ${m.label.toLowerCase()} mood.</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+    const uniqueGenres=shuffle([...new Set(genreList)]).slice(0,10);
+    const trendingRowTile=`<div class="explore-tile row explore-trending-row">
+      <div class="tr-label">BROWSE BY GENRE — TAP TO EXPLORE</div>
+      <div class="tr-items">${uniqueGenres.map((g,i)=>`<div class="tr-pill" style="border-color:${ACCENTS[i%ACCENTS.length]}22;color:${ACCENTS[i%ACCENTS.length]}" onclick="openGenrePage('${esc(g)}')">${esc(g)}</div>`).join('')}</div>
+    </div>`;
+
+    const spotTrack=tracks[Math.floor(Math.random()*Math.min(tracks.length,8))];
+    const spotlightTile=spotTrack?`<div class="explore-tile medium explore-spotlight" data-glow onclick="initiateHandshake(${jsonAttr(spotTrack)})">
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front">
+          ${tileCover(spotTrack,'#FF1493')}
+          <div style="position:relative;z-index:1;display:flex;flex-direction:column;height:100%;gap:10px">
+            <div class="spot-tag">✦ SPOTLIGHT</div>
+            <div class="spot-title">${esc(spotTrack.title||'Featured')}</div>
+            <div class="spot-note">${esc(spotTrack.artist||'Various')} · ${esc(spotTrack.genre||'Mixed')}</div>
+          </div>
+        </div>
+        <div class="explore-card-face explore-card-back">
+          <div class="spot-tag">EDITOR'S NOTE</div>
+          <div class="spot-title">${esc(spotTrack.title||'Featured')}</div>
+          <div class="spot-note">${esc(spotTrack.description||'A carefully selected pick — curated for this moment.')}</div>
+        </div>
+      </div>
+    </div>`:'';
+
+    const lyricSample=tracks[Math.floor(Math.random()*Math.min(tracks.length,10))];
+    const lyricTicker=`<div class="explore-tile wide" data-glow style="background:linear-gradient(135deg,rgba(47,232,110,.06),rgba(0,210,255,.04));border-color:rgba(47,232,110,.12)">
+      <div class="explore-card-inner">
+        <div class="explore-card-face explore-card-front">
+          <div class="explore-badge" style="background:rgba(47,232,110,.1);border-color:rgba(47,232,110,.2);color:var(--accent)">🎤 NOW SPINNING</div>
+          <div class="ticker-text" style="margin-top:12px">"${esc(lyricSample?.title||'Music fills the silence')}"</div>
+          <div class="ticker-song" style="margin-top:8px">— ${esc(lyricSample?.artist||'Blastr Grid')}</div>
+          <div style="display:flex;align-items:flex-end;gap:2px;height:20px;margin-top:12px">
+            ${[8,14,20,12,18,10,16,8,14].map((h,i)=>`<span style="display:inline-block;width:3px;height:${h}px;border-radius:2px;background:var(--accent);animation:explore-wave .8s ease-in-out ${i*.08}s infinite alternate"></span>`).join('')}
+          </div>
+        </div>
+        <div class="explore-card-face explore-card-back" style="background:linear-gradient(145deg,rgba(47,232,110,.08),rgba(10,10,22,.98))">
+          <div class="explore-badge" style="background:rgba(47,232,110,.1);border-color:rgba(47,232,110,.2);color:var(--accent)">🎵 DISCOVER MORE</div>
+          <div class="ticker-text" style="margin-top:12px">Every note tells a story — yours is just getting started.</div>
+        </div>
+      </div>
+    </div>`;
+
+    return `
+      <div class="explore-hero">
+        <div class="explore-hero-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <div class="explore-live-badge">🔴 LIVE NOW</div>
+            <div class="explore-hero-kicker" style="margin-bottom:0">Discovery Wall · ${new Set(genreList).size} Genres · Always Fresh</div>
+          </div>
+          <div class="explore-hero-title" style="background:linear-gradient(135deg,#fff 0%,rgba(47,232,110,.9) 50%,#00D4FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+            ${['Your universe of sound.','Discover something new.','Flip. Play. Feel the vibe.','The grid is alive.'][Math.floor(Math.random()*4)]}
+          </div>
+          <div class="explore-hero-sub">Flip tiles to discover. Genres, artists, moods and fresh drops — the wall reshapes itself every visit. 🎧</div>
+          <div class="explore-mini" style="margin-top:16px">
+            <span style="background:rgba(47,232,110,.1);border-color:rgba(47,232,110,.22);color:var(--accent)">🎵 ${tracks.length} tracks</span>
+            <span style="background:rgba(0,198,255,.08);border-color:rgba(0,198,255,.18);color:var(--accent2)">🎸 ${new Set(genreList).size} genres</span>
+            <span style="background:rgba(255,20,147,.07);border-color:rgba(255,20,147,.18);color:var(--accent3)">🎤 ${new Set(artistList).size} artists</span>
+          </div>
+        </div>
+        <div class="explore-stats">
+          <div class="explore-stat"><div class="k">🎵 Content</div><div class="v" style="color:var(--accent)">${tracks.length}+</div></div>
+          <div class="explore-stat"><div class="k">⚡ Motion</div><div class="v" style="color:var(--accent2)">Fluid</div></div>
+          <div class="explore-stat"><div class="k">🔮 Mode</div><div class="v" style="color:#FF6B9D">Smart</div></div>
+          <div class="explore-stat"><div class="k">🌐 Grid</div><div class="v" style="color:#FFD166">Live</div></div>
+        </div>
+      </div>
+
+      <div class="explore-wall">
+        ${featuredTiles}
+        ${makeQuoteTile(0,ACCENTS[0],quoteOne)}
+        ${spotlightTile}
+        ${makeQuoteTile(1,ACCENTS[1],quoteTwo)}
+
+        <div class="explore-section-divider"><span class="div-label">🎸 GENRES — TAP TO BROWSE</span></div>
+        ${genreTiles}
+        ${lyricTicker}
+
+        <div class="explore-section-divider"><span class="div-label">🌙 MOOD MIXES</span></div>
+        ${moodTiles}
+
+        <div class="explore-section-divider"><span class="div-label">🎤 ARTISTS ACROSS GENRES</span></div>
+        ${artistTiles}
+        ${makeQuoteTile(2,ACCENTS[2],quoteThree)}
+
+        ${trendingRowTile}
+      </div>`;
+  }
+
+  function tickExploreQuotes(){
+    if(document.hidden) return;
+    const explorePage=document.getElementById('page-explore');
+    if(!explorePage||!explorePage.classList.contains('active')) return;
+    const cards=Array.from(document.querySelectorAll('#exploreContent .explore-quote[data-rotate="1"]'));
+    if(!cards.length) return;
+    exploreTicker+=1;
+    // Only flip ONE card per tick, round-robin — avoids simultaneous repaint burst
+    const card=cards[exploreTicker%cards.length];
+    const back=card.querySelector('.js-explore-quote');
+    if(!back) return;
+    const current=Number(card.dataset.quoteIndex||0);
+    const next=(current+1+exploreTicker)%EXPLORE_QUOTES.length;
+    card.dataset.quoteIndex=String(next);
+    back.textContent=EXPLORE_QUOTES[next];
+    card.classList.add('flip');
+    setTimeout(()=>card.classList.remove('flip'),1750);
+  }
+
+  function observeExploreTiles(){
+    if(!('IntersectionObserver' in window)){
+      document.querySelectorAll('.explore-tile').forEach(t=>t.classList.add('visible'));
+      return;
+    }
+    if(!exploreIO){
+      exploreIO=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){ e.target.classList.add('visible'); exploreIO.unobserve(e.target); }
+        });
+      },{threshold:0.08,rootMargin:'0px 0px -20px 0px'});
+    }
+    document.querySelectorAll('.explore-tile:not(.visible)').forEach(t=>exploreIO.observe(t));
+  }
+
+  let exploreLoaded=false;
+  async function loadExploreContent(){
+    const wrap=document.getElementById('exploreContent');
+    if(!wrap) return;
+    wrap.innerHTML=mitosisLoaderHTML('Building your discovery wall…');
+    const needTracks = !(Array.isArray(state.allTracks)&&state.allTracks.length);
+    const [tracks, artists] = await Promise.all([
+      needTracks ? getTracks() : Promise.resolve(state.allTracks),
+      getArtists().catch(()=>[])
+    ]);
+    if(Array.isArray(tracks)) state.allTracks=tracks;
+    // Bail if the user already navigated away — avoid wasted DOM work
+    const explorePage=document.getElementById('page-explore');
+    if(!explorePage||!explorePage.classList.contains('active')) return;
+    if(!tracks||!tracks.length){
+      wrap.innerHTML='<div class="explore-empty">No tracks are available yet. Add content to the grid, then this page will bloom automatically.</div>';
+      return;
+    }
+    wrap.innerHTML=renderExploreWall(tracks,artists||[]);
+    requestAnimationFrame(observeExploreTiles);
+    if(window.__blastrExploreInterval) clearInterval(window.__blastrExploreInterval);
+    window.__blastrExploreInterval=setInterval(tickExploreQuotes,4200);
+    exploreLoaded=true;
+  }
+  window.loadExploreContent=loadExploreContent;
 })();
 
 </script>
