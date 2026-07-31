@@ -2532,44 +2532,49 @@ body.light .search-input{color:var(--text)}
   }
 
   .mobile-nav-btn{display:flex}
-  /* Sidebar always visible on mobile — vertical layout like desktop */
-  .sidebar{
-    position:relative;
-    width:100%;max-width:100%;
-    transform:none!important;
-    z-index:auto;
-    overflow-y:auto;
-    padding-bottom:12px;
-    box-shadow:none;
-    border-right:none;
-    border-bottom:1px solid var(--border);
-    flex-shrink:0;
-  }
+  /* Sidebar: full-screen overlay drawer, opens via hamburger ☰ */
   #appScreen{
     grid-template-columns:1fr!important;
-    grid-template-rows:auto 1fr var(--player-h)!important;
-    grid-template-areas:"sidebar" "main" "player"!important;
+    grid-template-rows:1fr var(--player-h)!important;
+    grid-template-areas:"main" "player"!important;
   }
-  #appScreen.mobile-nav-open .sidebar{transform:none}
-  .mobile-scrim{display:none!important}
-  .mobile-nav-btn{display:none!important}
-  .sidebar-close-btn{display:none!important}
-  .sidebar-mobile-hint{display:none!important}
+  .sidebar{
+    position:fixed;
+    left:0;top:0;bottom:0;
+    width:min(310px,85vw);
+    z-index:800;
+    transform:translateX(-110%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:0 0 24px;
+    box-shadow:20px 0 60px rgba(0,0,0,.5);
+    /* All text always visible in drawer */
+  }
   .sidebar-brand .brand-text,
   .sidebar-btn span,
   .sidebar-section-label,
-  .user-info{display:block}
-  .sidebar-btn{justify-content:flex-start}
-  .sidebar-btn .icon{min-width:22px;font-size:16px}
-  /* Compact sidebar on mobile */
-  .sidebar{padding:10px 10px 8px}
-  .sidebar-brand{padding:10px 8px 8px}
-  .sidebar-section-label{font-size:8px;margin:8px 8px 2px}
-  .sidebar-btn{padding:8px 10px;font-size:11px;border-radius:10px}
-  .sidebar-bottom{padding-bottom:8px;padding-top:4px}
-  .sidebar-bottom .user-chip{padding:8px 10px}
+  .user-info{display:block!important}
+  .sidebar-btn{justify-content:flex-start!important;padding:11px 16px;font-size:13px}
+  .sidebar-btn .icon{min-width:24px;font-size:17px}
+  .sidebar-section-label{font-size:9px;padding:6px 16px 6px}
+  .sidebar-brand{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+  .sidebar-close-btn{display:flex!important}
+  .mobile-nav-btn{display:flex!important}
+  .sidebar-mobile-hint{display:none}
+  .sidebar-bottom{padding:12px 16px 8px;border-top:1px solid var(--border)}
+  .user-chip{padding:10px 12px;border-radius:14px}
+  #appScreen.mobile-nav-open .sidebar{transform:translateX(0)}
+  #appScreen.mobile-nav-open .mobile-scrim{
+    display:block;position:fixed;inset:0;z-index:799;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+    pointer-events:auto;
+  }
+  .mobile-scrim{display:none;pointer-events:none}
   .top-bar{padding-left:14px;padding-right:14px}
   .topbar-actions{gap:6px}
+  /* Hide inline admin door on mobile — modal handles it */
+  .admin-door{display:none!important}
 }
 
 @media (max-width: 640px){
@@ -5118,7 +5123,13 @@ function requireAdminAccess(page, btn) {
   if(state.isAdmin) {
     showPage(page,btn);
   } else {
-    showToast('ACCESS RESTRICTED','Admin Matrix requires admin unlock.','Use the padlock inside the app sidebar.');
+    // Open centered passcode modal — works on both desktop and mobile
+    if(typeof openAdminModal==='function'){
+      openAdminModal();
+    } else {
+      // Fallback: open the inline sidebar admin door
+      toggleAdminDoor();
+    }
   }
 }
 
@@ -10537,6 +10548,7 @@ function submitAdminModal(){
     window.state&&(window.state.isAdmin=true);
     if(window.blastrSetUiUser) blastrSetUiUser(window.state?.currentUser,true);
     closeAdminModal();
+    if(typeof closeSidebarDrawer==='function') closeSidebarDrawer();
     showPage('admin', document.getElementById('nav-admin'));
     if(typeof loadAdminTracks==='function') loadAdminTracks();
     if(window.showToast) showToast('ADMIN UNLOCKED','Welcome to the Matrix. ⬡');
