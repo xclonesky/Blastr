@@ -3860,7 +3860,6 @@ body.light .search-input{color:var(--text)}
             <div class="lab-status" id="labStatus">NO TRACK LOCKED — SEARCH AND SELECT ABOVE</div>
             <div class="lab-controls">
               <button class="lab-btn primary" id="btnLockSong" onclick="lockLabSong()">⚲ LOCK SONG</button>
-              <button class="lab-btn" id="btnAutoLyrics" onclick="autoFetchLyrics()" disabled>⚡ AUTO-SYNC (LRCLIB)</button>
               <button class="lab-btn" id="btnStartSync" onclick="startLabSync()" disabled>▶ START SYNC</button>
             </div>
             <div class="progress-wrap" style="margin-top:4px">
@@ -4277,6 +4276,11 @@ body.light .search-input{color:var(--text)}
   <div class="settings-section">
     <div class="settings-section-label">ACCOUNT</div>
     <button class="theme-btn" onclick="logout()" style="color:var(--red)">⬡ Logout / Switch Account</button>
+  </div>
+  <div class="settings-section" id="linkedAccountsSection">
+    <div class="settings-section-label">LINKED ACCOUNTS</div>
+    <div class="linked-accounts-list" id="settingsLinkedList"></div>
+    <button class="linked-add-btn" type="button" onclick="blastrOpenLinkModal()">+ Add Account</button>
   </div>
 </div>
 
@@ -5584,7 +5588,7 @@ function toggleLike(track) {
   const idx=state.favorites.findIndex(f=>f.id===track.id);
   if(idx>=0){state.favorites.splice(idx,1);showToast('REMOVED',track.title,'Removed from Favorites');}
   else{state.favorites.push(track);showToast('LIKED ♥',track.title,'Added to Favorites');}
-  localStorage.setItem('blastr_favorites',JSON.stringify(state.favorites));
+  { const __uid = window.state?.currentUserProfile?.id || window.state?.session?.user?.id; localStorage.setItem(__uid ? ('blastr_favorites_'+__uid) : 'blastr_favorites', JSON.stringify(state.favorites)); }
   if(state.currentTrack&&state.currentTrack.id===track.id){
     const h=document.getElementById('npHeart');
     const liked=idx<0;h.textContent=liked?'♥':'♡';h.classList.toggle('liked',liked);
@@ -6268,7 +6272,6 @@ function lockLabSong(){
   document.getElementById('labStatus').className='lab-status locked';
   document.getElementById('btnStartSync').disabled=false;
   document.getElementById('btnCommit').disabled=false;
-  document.getElementById('btnAutoLyrics').disabled=false;
 }
 function startLabSync(){
   if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
@@ -6316,37 +6319,6 @@ async function commitLyrics(){
     showToast('TRANSMISSION FAILED','Could not save lyrics. Check your connection.');
   }
   btn.textContent='☁ COMMIT TO DATABASE';btn.disabled=false;
-}
-async function autoFetchLyrics(){
-  if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
-  const btn=document.getElementById('btnAutoLyrics');
-  const original=btn.textContent;
-  const track=state.labLockedSong;
-  btn.textContent='⌛ SEARCHING...';btn.disabled=true;
-  document.getElementById('labStatus').textContent='Searching LRCLIB for existing synced lyrics...';
-  document.getElementById('labStatus').className='lab-status active';
-  try{
-    const q=new URLSearchParams({track_name:track.title||'',artist_name:track.artist||''});
-    const res=await fetch(`https://lrclib.net/api/search?${q.toString()}`);
-    if(!res.ok) throw new Error('LRCLIB request failed');
-    const results=await res.json();
-    const match=Array.isArray(results)?results.find(r=>r.syncedLyrics):null;
-    if(match){
-      document.getElementById('lyricInput').value=match.syncedLyrics;
-      document.getElementById('labStatus').textContent=`✅ Auto-synced from LRCLIB — matched "${match.trackName}" by ${match.artistName}. Skim it, then commit.`;
-      document.getElementById('labStatus').className='lab-status active';
-      showToast('LRCLIB MATCH','Synced lyrics found — review & commit.');
-    } else {
-      document.getElementById('labStatus').textContent='No synced lyrics on LRCLIB for this track — fall back to manual sync below.';
-      document.getElementById('labStatus').className='lab-status';
-      showToast('NO MATCH','LRCLIB has no synced lyrics for this track.');
-    }
-  }catch(e){
-    document.getElementById('labStatus').textContent='LRCLIB lookup failed (network/CORS) — sync manually instead.';
-    document.getElementById('labStatus').className='lab-status';
-    showToast('LOOKUP FAILED','Could not reach LRCLIB.');
-  }
-  btn.textContent=original;btn.disabled=false;
 }
 function labSeek(e){
   if(!state.labLockedSong||!audio.duration) return;
@@ -10623,6 +10595,362 @@ function bnActivate(btn){
 </div>
 
 <!-- bottom nav removed: sidebar is always visible on mobile -->
+
+<!-- ══════ LINKED ACCOUNTS ══════ -->
+<style>
+.linked-accounts-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;margin-bottom:10px}
+.linked-account-card{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.linked-account-card:hover{transform:translateY(-2px);border-color:rgba(57,255,20,.3);background:rgba(57,255,20,.05)}
+.linked-account-card.active{cursor:default;border-color:rgba(57,255,20,.4);background:rgba(57,255,20,.07)}
+.linked-account-card.active:hover{transform:none}
+.linked-account-avatar{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#000;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.linked-account-meta{min-width:0;flex:1}
+.linked-account-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linked-account-sub{font-size:10px;color:var(--dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.linked-account-badge{font-size:9px;font-family:var(--mono);letter-spacing:1.5px;color:var(--accent);border:1px solid rgba(57,255,20,.35);background:rgba(57,255,20,.08);padding:4px 8px;border-radius:999px;flex-shrink:0}
+.linked-account-empty{font-size:11px;color:var(--dim);font-family:var(--mono);padding:10px 2px;letter-spacing:.5px}
+.linked-add-btn{width:100%;padding:11px;border-radius:16px;cursor:pointer;border:1.5px dashed rgba(255,255,255,.16);background:transparent;color:var(--dim);font-size:11px;font-weight:800;letter-spacing:1.5px;font-family:var(--mono);transition:all .15s}
+.linked-add-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(57,255,20,.05)}
+.acct-switcher-card{width:400px}
+@media(max-width:520px){.acct-switcher-card{width:min(94vw,400px)}}
+.acct-cine-overlay{position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.74);backdrop-filter:blur(20px) saturate(120%);-webkit-backdrop-filter:blur(20px) saturate(120%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .55s ease}
+.acct-cine-overlay.open{opacity:1;pointer-events:auto}
+.acct-cine-inner{display:flex;flex-direction:column;align-items:center;gap:24px;transform:scale(.94);transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.acct-cine-overlay.open .acct-cine-inner{transform:scale(1)}
+.acct-cine-spinner{width:60px;height:60px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent),var(--accent2),transparent 68%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 5px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 5px));animation:acctCineSpin 1s linear infinite;will-change:transform}
+@keyframes acctCineSpin{to{transform:rotate(360deg)}}
+.acct-cine-title{font-size:19px;font-weight:900;letter-spacing:.3px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.acct-cine-sub-wrap{position:relative;height:18px;width:min(88vw,340px);text-align:center}
+.acct-cine-sub{position:absolute;inset:0;font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);opacity:0;transition:opacity .6s ease}
+.acct-cine-sub.active{opacity:1}
+</style>
+
+<!-- Add Account -->
+<div class="modal-overlay" id="linkAccountModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="blastrCloseLinkModal()">✕</button>
+    <div class="modal-title">Link an Account</div>
+    <div class="modal-sub">Add another Blastr account to switch between instantly.</div>
+    <div class="form-group">
+      <label class="form-label">EMAIL</label>
+      <input type="email" class="form-input" id="linkUsernameInput" placeholder="user@blastr.io" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('linkPasskeyInput').focus();}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">PASSKEY</label>
+      <input type="password" class="form-input" id="linkPasskeyInput" placeholder="••••••••••" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();blastrSubmitLinkAccount();}">
+    </div>
+    <div id="linkAccountError" style="color:var(--red);font-size:11px;font-family:var(--mono);min-height:14px;margin:-4px 0 12px"></div>
+    <button class="btn-primary" id="linkAccountBtn" onclick="blastrSubmitLinkAccount()">LINK ACCOUNT</button>
+  </div>
+</div>
+
+<!-- Account Switcher -->
+<div class="modal-overlay" id="acctSwitcherModal">
+  <div class="modal-card acct-switcher-card">
+    <button class="modal-close" onclick="blastrCloseSwitcher()">✕</button>
+    <div class="modal-title">Switch Account</div>
+    <div class="modal-sub">Pick an account below, or link a new one.</div>
+    <div class="linked-accounts-list" id="acctSwitcherList"></div>
+    <button class="linked-add-btn" type="button" onclick="blastrOpenLinkModal()">+ Add Account</button>
+  </div>
+</div>
+
+<!-- Cinematic switch transition -->
+<div class="acct-cine-overlay" id="acctCineOverlay" aria-hidden="true">
+  <div class="acct-cine-inner">
+    <div class="acct-cine-spinner"></div>
+    <div class="acct-cine-title">Switching personalities...</div>
+    <div class="acct-cine-sub-wrap">
+      <div class="acct-cine-sub" id="acctCineSubA"></div>
+      <div class="acct-cine-sub" id="acctCineSubB"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const LINKED_KEY = 'blastr_linked_accounts_v1';
+  const SWITCH_MIN_MS = 5800;
+  const CINE_MESSAGES = ['Stay tuned...','Loading your universe...','Preparing your stage...','Syncing your music identity...','Almost ready...'];
+  let cineTimer = null, cineIdx = 0;
+
+  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function shake(el){ if(!el) return; el.classList.add('error'); setTimeout(()=>el.classList.remove('error'),400); }
+  function activeAccountId(){ return window.state?.currentUserProfile?.id || window.state?.session?.user?.id || null; }
+
+  // ── favorites, namespaced per account ──
+  function favKey(uid){ return 'blastr_favorites_'+uid; }
+  function loadFavoritesFor(uid){
+    try{
+      const raw = localStorage.getItem(favKey(uid));
+      if(raw!=null) return JSON.parse(raw)||[];
+      return [];
+    }catch(e){ return []; }
+  }
+  let legacyMigrateTries = 0;
+  function tryMigrateLegacyFavorites(){
+    legacyMigrateTries++;
+    try{
+      if(localStorage.getItem('blastr_legacy_favs_migrated')){ return; }
+      const uid = activeAccountId();
+      if(!uid){ if(legacyMigrateTries<12) setTimeout(tryMigrateLegacyFavorites,600); return; }
+      const legacy = localStorage.getItem('blastr_favorites');
+      if(legacy!=null && localStorage.getItem(favKey(uid))==null){
+        localStorage.setItem(favKey(uid), legacy);
+        window.state.favorites = JSON.parse(legacy)||[];
+        if(typeof window.renderFavorites==='function') window.renderFavorites();
+      }
+      localStorage.setItem('blastr_legacy_favs_migrated','1');
+    }catch(e){}
+  }
+
+  // ── linked account storage ──
+  function getLinked(){ try{ const v=JSON.parse(localStorage.getItem(LINKED_KEY)||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+  function saveLinked(list){ try{ localStorage.setItem(LINKED_KEY, JSON.stringify(list)); }catch(e){} }
+  function upsertLinked(entry){
+    const list = getLinked();
+    const i = list.findIndex(r=>r.id===entry.id);
+    if(i>=0) list[i] = {...list[i], ...entry};
+    else list.push(entry);
+    saveLinked(list);
+    return list;
+  }
+  function syncActiveIntoLinked(){
+    const sess = window.state?.session;
+    const profile = window.state?.currentUserProfile;
+    const uid = profile?.id || sess?.user?.id;
+    if(!uid || !sess?.access_token) return;
+    upsertLinked({
+      id: uid,
+      username: profile?.username || window.state?.currentUser || '',
+      display_name: profile?.display_name || '',
+      email: profile?.email || sess?.user?.email || '',
+      session: { access_token: sess.access_token, refresh_token: sess.refresh_token||'', token_type: sess.token_type||'bearer', expires_at: sess.expires_at||null }
+    });
+  }
+
+  // ── rendering ──
+  function cardHTML(rec, isActive){
+    const label = esc(rec.display_name || rec.username || 'Account');
+    const initial = (rec.display_name||rec.username||'?').trim().slice(0,1).toUpperCase();
+    return `<div class="linked-account-card${isActive?' active':''}" ${isActive?'':`onclick="blastrHandleAccountCardClick('${rec.id}')"`}>
+      <div class="linked-account-avatar">${esc(initial)}</div>
+      <div class="linked-account-meta">
+        <div class="linked-account-name">${label}</div>
+        ${rec.username?`<div class="linked-account-sub">@${esc(rec.username)}</div>`:''}
+      </div>
+      ${isActive?'<span class="linked-account-badge">ACTIVE</span>':''}
+    </div>`;
+  }
+  function renderLinkedUI(){
+    const activeId = activeAccountId();
+    const list = getLinked();
+    const ordered = [...list].sort((a,b)=> (b.id===activeId)-(a.id===activeId));
+    const html = ordered.length ? ordered.map(r=>cardHTML(r, r.id===activeId)).join('') : '<div class="linked-account-empty">No linked accounts yet.</div>';
+    const s = document.getElementById('settingsLinkedList'); if(s) s.innerHTML = html;
+    const w = document.getElementById('acctSwitcherList'); if(w) w.innerHTML = html;
+  }
+  window.blastrHandleAccountCardClick = function(id){
+    const rec = getLinked().find(r=>r.id===id);
+    if(!rec) return;
+    window.blastrCloseSwitcher();
+    document.getElementById('settingsPanel')?.classList.remove('open');
+    performSwitch(rec);
+  };
+
+  // ── Add Account modal ──
+  window.blastrOpenLinkModal = function(){
+    const m = document.getElementById('linkAccountModal');
+    const err = document.getElementById('linkAccountError');
+    const u = document.getElementById('linkUsernameInput');
+    const p = document.getElementById('linkPasskeyInput');
+    if(err) err.textContent='';
+    if(u) u.value='';
+    if(p) p.value='';
+    m?.classList.add('open');
+    setTimeout(()=>u?.focus(),150);
+  };
+  window.blastrCloseLinkModal = function(){ document.getElementById('linkAccountModal')?.classList.remove('open'); };
+  window.blastrSubmitLinkAccount = async function(){
+    const uBox = document.getElementById('linkUsernameInput');
+    const pBox = document.getElementById('linkPasskeyInput');
+    const errBox = document.getElementById('linkAccountError');
+    const btn = document.getElementById('linkAccountBtn');
+    const email = (uBox?.value||'').trim();
+    const passkey = pBox?.value||'';
+    if(errBox) errBox.textContent='';
+    if(!email){ shake(uBox); if(errBox) errBox.textContent='Enter an email.'; return; }
+    if(!passkey){ shake(pBox); if(errBox) errBox.textContent='Enter a passkey.'; return; }
+    btn.disabled=true; btn.textContent='LINKING...';
+    try{
+      let authData;
+      try{
+        authData = await blastrAuthRequest('/auth/v1/token?grant_type=password', { email, password: passkey });
+      }catch(e){
+        shake(uBox); shake(pBox);
+        if(errBox) errBox.textContent="We couldn't sign in with that email and passkey.";
+        return;
+      }
+      if(!authData?.access_token || !authData?.user){
+        if(errBox) errBox.textContent='Could not verify that account. Please try again.';
+        return;
+      }
+      const existing = getLinked();
+      const activeId = activeAccountId();
+      if(authData.user.id===activeId || existing.some(r=>r.id===authData.user.id)){
+        if(errBox) errBox.textContent='This account is already linked on this device.';
+        return;
+      }
+      let profileRow = null;
+      try{
+        const rows = await sbFetch(`/rest/v1/profiles?select=username,display_name&id=eq.${encodeURIComponent(authData.user.id)}`, {}, authData.access_token);
+        profileRow = Array.isArray(rows)&&rows.length ? rows[0] : null;
+      }catch(e){}
+      upsertLinked({
+        id: authData.user.id,
+        username: profileRow?.username || '',
+        display_name: profileRow?.display_name || '',
+        email: authData.user.email || email,
+        session: { access_token: authData.access_token, refresh_token: authData.refresh_token||'', token_type: authData.token_type||'bearer', expires_at: authData.expires_at||null }
+      });
+      renderLinkedUI();
+      window.blastrCloseLinkModal();
+      if(typeof window.showToast==='function') window.showToast('ACCOUNT LINKED', profileRow?.display_name||profileRow?.username||email, 'Ready to switch anytime.');
+    }catch(e){
+      if(errBox) errBox.textContent='Something went wrong. Please try again.';
+    }finally{
+      btn.disabled=false; btn.textContent='LINK ACCOUNT';
+    }
+  };
+
+  // ── Switcher popover ──
+  window.blastrOpenAccountSwitcher = function(){
+    syncActiveIntoLinked();
+    renderLinkedUI();
+    document.getElementById('acctSwitcherModal')?.classList.add('open');
+  };
+  window.blastrCloseSwitcher = function(){ document.getElementById('acctSwitcherModal')?.classList.remove('open'); };
+  ['linkAccountModal','acctSwitcherModal'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    window.blastrCloseLinkModal();
+    window.blastrCloseSwitcher();
+  });
+
+  // ── Cinematic switch overlay ──
+  function startCineMessages(){
+    const a=document.getElementById('acctCineSubA'), b=document.getElementById('acctCineSubB');
+    if(!a||!b) return;
+    a.textContent=CINE_MESSAGES[0]; a.classList.add('active'); b.classList.remove('active');
+    cineIdx=1;
+    clearInterval(cineTimer);
+    cineTimer=setInterval(()=>{
+      const next = a.classList.contains('active') ? b : a;
+      const prev = next===a ? b : a;
+      next.textContent = CINE_MESSAGES[cineIdx % CINE_MESSAGES.length];
+      next.classList.add('active'); prev.classList.remove('active');
+      cineIdx++;
+    }, 1400);
+  }
+  function stopCineMessages(){ clearInterval(cineTimer); cineTimer=null; }
+  function showCine(){ document.getElementById('acctCineOverlay')?.classList.add('open'); startCineMessages(); }
+  function hideCine(){ document.getElementById('acctCineOverlay')?.classList.remove('open'); stopCineMessages(); }
+
+  // ── resolve a stored session (refresh if needed) ──
+  async function resolveLinkedSession(rec){
+    const sess = rec.session || {};
+    if(sess.access_token){
+      try{
+        const user = await sbFetch('/auth/v1/user', {}, sess.access_token);
+        if(user && user.id) return {access_token:sess.access_token, refresh_token:sess.refresh_token||'', token_type:sess.token_type||'bearer', expires_at:sess.expires_at||null, user};
+      }catch(e){}
+    }
+    if(sess.refresh_token){
+      const refreshed = await blastrAuthRequest('/auth/v1/token?grant_type=refresh_token', {refresh_token:sess.refresh_token});
+      if(refreshed?.access_token && refreshed?.user){
+        return {access_token:refreshed.access_token, refresh_token:refreshed.refresh_token||sess.refresh_token, token_type:refreshed.token_type||'bearer', expires_at:refreshed.expires_at||null, user:refreshed.user};
+      }
+    }
+    throw new Error('This account needs to be re-linked.');
+  }
+
+  async function performSwitch(rec){
+    if(!rec || rec.id===activeAccountId()) return;
+    showCine();
+    const startedAt = Date.now();
+    let error=null;
+    try{
+      const resolved = await resolveLinkedSession(rec);
+      upsertLinked({...rec, session:{access_token:resolved.access_token, refresh_token:resolved.refresh_token, token_type:resolved.token_type, expires_at:resolved.expires_at}});
+      await window.blastrHydrateSession({access_token:resolved.access_token, refresh_token:resolved.refresh_token, token_type:resolved.token_type, expires_at:resolved.expires_at, user:resolved.user}, 'account-switch');
+    }catch(e){ error=e; }
+    const remaining = SWITCH_MIN_MS - (Date.now()-startedAt);
+    if(remaining>0) await new Promise(r=>setTimeout(r,remaining));
+    hideCine();
+    if(error && typeof window.showToast==='function') window.showToast('SWITCH FAILED', error.message||'Could not switch accounts right now.');
+  }
+
+  // ── hook hydrate to keep favorites/queue/history account-scoped & the list fresh ──
+  const prevHydrate = window.blastrHydrateSession;
+  if(typeof prevHydrate==='function'){
+    window.blastrHydrateSession = async function linkedAccountsHydrateWrap(session, source){
+      const result = await prevHydrate.call(window, session, source);
+      try{
+        const uid = window.state?.currentUserProfile?.id || session?.user?.id;
+        if(uid){
+          syncActiveIntoLinked();
+          renderLinkedUI();
+          if(source==='account-switch'){
+            window.state.favorites = loadFavoritesFor(uid);
+            window.state.queue = [];
+            window.state.history = [];
+            if(typeof window.renderFavorites==='function') window.renderFavorites();
+            if(typeof window.loadHomeContent==='function') window.loadHomeContent();
+            if(typeof window.blastrRenderAccountPage==='function') window.blastrRenderAccountPage();
+          } else {
+            window.state.favorites = loadFavoritesFor(uid);
+          }
+        }
+      }catch(e){}
+      return result;
+    };
+  }
+
+  // ── My Account: double-click (desktop) / long-press (touch) opens the switcher ──
+  function wireAccountButton(){
+    const btn = document.getElementById('nav-account');
+    if(!btn || btn.dataset.linkedWired) return;
+    btn.dataset.linkedWired = '1';
+    const original = btn.onclick;
+    btn.onclick = null;
+    let clickTimer = null, suppressNextClick = false, touchTimer = null;
+    btn.addEventListener('click', function(e){
+      if(suppressNextClick){ suppressNextClick=false; e.preventDefault(); e.stopPropagation(); return; }
+      if(clickTimer){ clearTimeout(clickTimer); clickTimer=null; return; }
+      clickTimer = setTimeout(()=>{ clickTimer=null; if(typeof original==='function') original.call(btn); }, 260);
+    });
+    btn.addEventListener('dblclick', function(e){ e.preventDefault(); window.blastrOpenAccountSwitcher(); });
+    btn.addEventListener('touchstart', function(){
+      touchTimer = setTimeout(()=>{
+        touchTimer=null; suppressNextClick=true;
+        if(navigator.vibrate) navigator.vibrate(10);
+        window.blastrOpenAccountSwitcher();
+      }, 550);
+    }, {passive:true});
+    const cancelTouch=()=>{ if(touchTimer){ clearTimeout(touchTimer); touchTimer=null; } };
+    btn.addEventListener('touchend', cancelTouch);
+    btn.addEventListener('touchmove', cancelTouch);
+    btn.addEventListener('touchcancel', cancelTouch);
+  }
+
+  wireAccountButton();
+  renderLinkedUI();
+  window.addEventListener('load', ()=>setTimeout(tryMigrateLegacyFavorites, 800));
+})();
+</script>
 
 </body>
 </html>
