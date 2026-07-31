@@ -3860,6 +3860,7 @@ body.light .search-input{color:var(--text)}
             <div class="lab-status" id="labStatus">NO TRACK LOCKED — SEARCH AND SELECT ABOVE</div>
             <div class="lab-controls">
               <button class="lab-btn primary" id="btnLockSong" onclick="lockLabSong()">⚲ LOCK SONG</button>
+              <button class="lab-btn" id="btnAutoLyrics" onclick="autoFetchLyrics()" disabled>⚡ AUTO-SYNC (LRCLIB)</button>
               <button class="lab-btn" id="btnStartSync" onclick="startLabSync()" disabled>▶ START SYNC</button>
             </div>
             <div class="progress-wrap" style="margin-top:4px">
@@ -6272,6 +6273,7 @@ function lockLabSong(){
   document.getElementById('labStatus').className='lab-status locked';
   document.getElementById('btnStartSync').disabled=false;
   document.getElementById('btnCommit').disabled=false;
+  document.getElementById('btnAutoLyrics').disabled=false;
 }
 function startLabSync(){
   if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
@@ -6319,6 +6321,37 @@ async function commitLyrics(){
     showToast('TRANSMISSION FAILED','Could not save lyrics. Check your connection.');
   }
   btn.textContent='☁ COMMIT TO DATABASE';btn.disabled=false;
+}
+async function autoFetchLyrics(){
+  if(!state.labLockedSong){showToast('ERROR','Lock a song first!');return;}
+  const btn=document.getElementById('btnAutoLyrics');
+  const original=btn.textContent;
+  const track=state.labLockedSong;
+  btn.textContent='⌛ SEARCHING...';btn.disabled=true;
+  document.getElementById('labStatus').textContent='Searching LRCLIB for existing synced lyrics...';
+  document.getElementById('labStatus').className='lab-status active';
+  try{
+    const q=new URLSearchParams({track_name:track.title||'',artist_name:track.artist||''});
+    const res=await fetch(`https://lrclib.net/api/search?${q.toString()}`);
+    if(!res.ok) throw new Error('LRCLIB request failed');
+    const results=await res.json();
+    const match=Array.isArray(results)?results.find(r=>r.syncedLyrics):null;
+    if(match){
+      document.getElementById('lyricInput').value=match.syncedLyrics;
+      document.getElementById('labStatus').textContent=`✅ Auto-synced from LRCLIB — matched "${match.trackName}" by ${match.artistName}. Skim it, then commit.`;
+      document.getElementById('labStatus').className='lab-status active';
+      showToast('LRCLIB MATCH','Synced lyrics found — review & commit.');
+    } else {
+      document.getElementById('labStatus').textContent='No synced lyrics on LRCLIB for this track — fall back to manual sync below.';
+      document.getElementById('labStatus').className='lab-status';
+      showToast('NO MATCH','LRCLIB has no synced lyrics for this track.');
+    }
+  }catch(e){
+    document.getElementById('labStatus').textContent='LRCLIB lookup failed (network/CORS) — sync manually instead.';
+    document.getElementById('labStatus').className='lab-status';
+    showToast('LOOKUP FAILED','Could not reach LRCLIB.');
+  }
+  btn.textContent=original;btn.disabled=false;
 }
 function labSeek(e){
   if(!state.labLockedSong||!audio.duration) return;
@@ -10613,7 +10646,7 @@ function bnActivate(btn){
 .linked-add-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(57,255,20,.05)}
 .acct-switcher-card{width:400px}
 @media(max-width:520px){.acct-switcher-card{width:min(94vw,400px)}}
-.acct-cine-overlay{position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.74);backdrop-filter:blur(20px) saturate(120%);-webkit-backdrop-filter:blur(20px) saturate(120%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .55s ease}
+.acct-cine-overlay{position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.74);backdrop-filter:blur(16px) saturate(115%);-webkit-backdrop-filter:blur(16px) saturate(115%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .55s ease}
 .acct-cine-overlay.open{opacity:1;pointer-events:auto}
 .acct-cine-inner{display:flex;flex-direction:column;align-items:center;gap:24px;transform:scale(.94);transition:transform .6s cubic-bezier(.22,1,.36,1)}
 .acct-cine-overlay.open .acct-cine-inner{transform:scale(1)}
@@ -10623,6 +10656,11 @@ function bnActivate(btn){
 .acct-cine-sub-wrap{position:relative;height:18px;width:min(88vw,340px);text-align:center}
 .acct-cine-sub{position:absolute;inset:0;font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);opacity:0;transition:opacity .6s ease}
 .acct-cine-sub.active{opacity:1}
+/* perf: respect existing lite-mode for weaker devices */
+body.blastr-lite-mode .acct-cine-overlay{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(4,4,10,.92)}
+body.blastr-lite-mode .acct-cine-spinner{animation:none;border:3px solid var(--accent);border-top-color:transparent;border-radius:50%}
+body.blastr-lite-mode .linked-account-card{transition:none}
+body.blastr-lite-mode .linked-account-card:hover{transform:none}
 </style>
 
 <!-- Add Account -->
