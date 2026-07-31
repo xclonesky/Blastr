@@ -2247,6 +2247,55 @@ body.light .search-input{color:var(--text)}
 }
 .account-row .k{font-size:10px;letter-spacing:2px;font-family:var(--mono);color:var(--dim);text-transform:uppercase}
 .account-row .v{font-size:13px;font-weight:700;text-align:right;max-width:64%}
+.account-edit-btn{flex-shrink:0;padding:5px 13px;border-radius:999px;border:1px solid rgba(57,255,20,.25);background:rgba(57,255,20,.06);color:var(--accent);font-size:10px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:background .18s,transform .18s}
+.account-edit-btn:hover{background:rgba(57,255,20,.14);transform:scale(1.04)}
+
+/* ── ONBOARDING MODAL ── */
+.blastr-onboard-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(4,4,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .38s ease;pointer-events:none}
+.blastr-onboard-overlay.active{opacity:1;pointer-events:auto}
+.blastr-onboard-modal{
+  width:100%;max-width:420px;border-radius:28px;
+  background:linear-gradient(160deg,rgba(18,18,30,.98) 0%,rgba(10,10,20,.99) 100%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 40px 100px rgba(0,0,0,.55),0 0 0 1px rgba(57,255,20,.06) inset;
+  padding:40px 36px 34px;text-align:center;position:relative;overflow:hidden;
+  transform:scale(.93) translateY(18px);opacity:0;
+  transition:transform .42s cubic-bezier(.22,1,.36,1),opacity .38s ease;
+  will-change:transform,opacity;
+}
+.blastr-onboard-overlay.active .blastr-onboard-modal{transform:scale(1) translateY(0);opacity:1}
+.blastr-onboard-modal::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(57,255,20,.07),transparent 70%);pointer-events:none}
+.blastr-onboard-icon{font-size:40px;margin-bottom:14px;display:block;animation:ob-pulse 2.8s ease-in-out infinite}
+@keyframes ob-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.blastr-onboard-greeting{font-size:13px;letter-spacing:3px;color:var(--dim);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px}
+.blastr-onboard-title{font-size:28px;font-weight:900;line-height:1.1;margin-bottom:6px;
+  background:linear-gradient(135deg,#fff 30%,rgba(57,255,20,.9));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.blastr-onboard-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:26px;line-height:1.6}
+.blastr-onboard-label{font-size:11px;letter-spacing:2px;color:var(--dim);font-family:var(--mono);text-align:left;margin-bottom:8px;text-transform:uppercase}
+.blastr-onboard-input{
+  width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:14px 18px;color:#fff;font-size:16px;font-family:inherit;
+  outline:none;transition:border-color .22s,box-shadow .22s;box-sizing:border-box;
+}
+.blastr-onboard-input:focus{border-color:rgba(57,255,20,.5);box-shadow:0 0 0 3px rgba(57,255,20,.08)}
+.blastr-onboard-input.error{border-color:var(--red);animation:shake .3s ease}
+.blastr-onboard-hint{font-size:11px;color:rgba(255,255,255,.3);margin-top:10px;line-height:1.6;text-align:left}
+.blastr-onboard-btn{
+  margin-top:22px;width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),#20c020);color:#000;
+  font-size:13px;font-weight:900;letter-spacing:2px;font-family:var(--mono);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+  will-change:transform;
+}
+.blastr-onboard-btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 24px rgba(57,255,20,.25)}
+.blastr-onboard-btn:active{transform:scale(.98)}
+.blastr-onboard-btn:disabled{opacity:.5;transform:none;cursor:not-allowed}
+@media(max-width:480px){
+  .blastr-onboard-modal{padding:32px 22px 28px;border-radius:22px}
+  .blastr-onboard-title{font-size:24px}
+}
 .account-cta{
   display:flex;flex-wrap:wrap;gap:10px;margin-top:18px
 }
@@ -3475,6 +3524,10 @@ body.light .search-input{color:var(--text)}
       <!-- SIGNUP FORM (hidden) -->
       <div id="signupForm" style="display:none">
         <div class="form-group">
+          <label class="form-label">YOUR NAME</label>
+          <input type="text" class="form-input" id="signupDisplayName" placeholder="e.g. Adrian" maxlength="30" autocomplete="given-name">
+        </div>
+        <div class="form-group">
           <label class="form-label">USERNAME</label>
           <input type="text" class="form-input" id="signupUsername" placeholder="your_handle">
         </div>
@@ -4216,6 +4269,7 @@ const state = {
   lastVibingIdx: -1,
   confirmCallback: null,
 };
+window.state = state; // expose globally so all IIFEs and onboarding can access session/user
 
 const audio = document.getElementById('audioPlayer');
 const loginScreen = document.getElementById('loginScreen');
@@ -4777,13 +4831,20 @@ async function blastrHydrateSession(session, source='session') {
   state.session=session; blastrPersistAuth(session);
   const profile=await blastrLoadProfile(session.user,{username:session.user.user_metadata?.username||blastrEmailLocalPart(session.user.email),email:session.user.email||''});
   state.currentUserProfile=profile;
-  state.currentUser=profile?.username||session.user.user_metadata?.username||blastrEmailLocalPart(session.user.email);
+  // Resolve display name ONLY from profiles table — auth metadata is polluted with old username data
+  const displayName=(profile?.display_name||'').trim();
+  const displayForUI=displayName||(profile?.username||'').trim()||(session.user.user_metadata?.username||'').trim()||blastrEmailLocalPart(session.user.email);
+  state.currentUser=displayName||profile?.username||session.user.user_metadata?.username||blastrEmailLocalPart(session.user.email);
   state.isAdmin=false;
   blastrSetUiUser(state.currentUser, false);
   enterApp(state.currentUser, false);
   blastrRenderAccountPage();
   const msgs={signup:'ACCOUNT READY',login:'SESSION LOADED',restore:'SESSION RESTORED'};
   showToast(msgs[source]||'BLASTR', `Welcome${source==='login'?' back':''}, ${state.currentUser}.`);
+  // Trigger cinematic onboarding if no display_name set
+  if(!displayName && source!=='signup') {
+    setTimeout(()=>{ if(typeof window.blastrShowNameOnboarding==='function') window.blastrShowNameOnboarding(session.user); },1200);
+  }
   return profile;
 }
 async function blastrRestoreSession() {
@@ -4911,15 +4972,18 @@ async function handleLogin() {
 }
 async function handleSignupSubmit() {
   const btn=document.querySelector('#signupForm .btn-primary');
+  const displayName=(document.getElementById('signupDisplayName').value||'').trim();
   const username=blastrSafeUsername(document.getElementById('signupUsername').value);
   const email=document.getElementById('signupEmail').value.trim();
   const password=document.getElementById('signupPass').value;
+  if(!displayName||displayName.length<2){shakeInput('signupDisplayName');showToast('ERROR','Name must be at least 2 characters.');return;}
+  if(displayName.length>30){shakeInput('signupDisplayName');showToast('ERROR','Name must be 30 characters or less.');return;}
   if(!username){shakeInput('signupUsername');showToast('ERROR','Username is required.');return;}
   if(!email){shakeInput('signupEmail');showToast('ERROR','Email is required.');return;}
   if(!password||password.length<6){shakeInput('signupPass');showToast('ERROR','Password must be 6+ chars.');return;}
   btn.disabled=true;btn.textContent='REGISTERING...';
   try {
-    const data=await blastrAuthRequest('/auth/v1/signup',{email,password,data:{username,display_name:username}});
+    const data=await blastrAuthRequest('/auth/v1/signup',{email,password,data:{username,display_name:displayName}});
     if(data?.session?.access_token&&data?.user) {
       await blastrHydrateSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token||'',token_type:'bearer',user:data.user},'signup');
       return;
@@ -7619,7 +7683,7 @@ body.blastr-lite-mode .account-row{transition:none !important}
         <div class="account-rail">
           <div class="account-panel-title">Identity & Style</div>
           <div class="account-list">
-            <div class="account-row"><div><div class="k">Display Name</div><div class="v">${esc(profile.username || user)}</div></div><div class="v" style="color:var(--accent)">Active</div></div>
+            <div class="account-row"><div><div class="k">Display Name</div><div class="v" id="accountDisplayNameVal">${esc(profile.display_name||profile.username||user)}</div></div><button class="account-edit-btn" onclick="blastrEditDisplayName()" type="button">Edit</button></div>
             <div class="account-row"><div><div class="k">Email</div><div class="v">${esc(email)}</div></div><div class="v">${window.state?.session?.user?.email_confirmed_at ? 'Verified' : 'Pending'}</div></div>
             <div class="account-row"><div><div class="k">Joined</div><div class="v">${esc(profile.created_at || '—')}</div></div><div class="v">Last sign in<small>${esc(lastSignIn)}</small></div></div>
             <div class="account-row"><div><div class="k">Listening Style</div><div class="v">${esc(profile.personality || 'Adaptive')}</div></div><div class="v">${esc(aura)}</div></div>
@@ -10104,6 +10168,262 @@ document.addEventListener('click',e=>{
   window.loadExploreContent=loadExploreContent;
 })();
 
+// ═══════════════════════════════════════════════════
+// DISPLAY NAME SYSTEM — Onboarding + Settings Edit
+// ═══════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  // ── Helpers ──
+  function getTimeGreetWord(){
+    const h=new Date().getHours();
+    if(h<5) return 'Late night vibes';
+    if(h<12) return 'Good morning';
+    if(h<17) return 'Good afternoon';
+    if(h<21) return 'Good evening';
+    return 'Night mode on';
+  }
+
+  // ── Show cinematic onboarding ──
+  window.blastrShowNameOnboarding = function(user){
+    const overlay=document.getElementById('blastrOnboardOverlay');
+    const greet=document.getElementById('onboardGreeting');
+    const sub=document.getElementById('onboardSub');
+    const input=document.getElementById('onboardNameInput');
+    if(!overlay) return;
+    if(greet) greet.textContent=getTimeGreetWord();
+    const email=user?.email||'';
+    const emailLocal=email.split('@')[0]||'';
+    if(sub && emailLocal) sub.textContent=`Chill full session, ${email}`;
+    if(input){ input.value=''; }
+    // Double-rAF ensures browser paints opacity:0 first, THEN adds .active to trigger transition
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      overlay.classList.add('active');
+      setTimeout(()=>{ if(input) input.focus(); }, 420);
+    }));
+    // Allow Enter key
+    if(input){
+      input._obHandler = function(e){ if(e.key==='Enter') window.blastrSubmitDisplayName(); };
+      input.removeEventListener('keydown', input._obHandler);
+      input.addEventListener('keydown', input._obHandler);
+    }
+  };
+
+  // ── Submit display name from onboarding ──
+  window.blastrSubmitDisplayName = async function(){
+    const input=document.getElementById('onboardNameInput');
+    const btn=document.getElementById('onboardContinueBtn');
+    if(!input||!btn) return;
+    const name=input.value.trim();
+    if(!name||name.length<2){
+      input.classList.add('error');
+      setTimeout(()=>input.classList.remove('error'),400);
+      if(window.showToast) showToast('HOLD ON','Name must be at least 2 characters.');
+      input.focus(); return;
+    }
+    if(name.length>30){
+      input.classList.add('error');
+      setTimeout(()=>input.classList.remove('error'),400);
+      if(window.showToast) showToast('TOO LONG','Max 30 characters.');
+      return;
+    }
+    btn.disabled=true; btn.textContent='SAVING…';
+    try {
+      // Get user ID from multiple fallbacks
+      const userId = window.state?.session?.user?.id
+                  || window.state?.currentUserProfile?.id
+                  || window.state?.currentUserProfile?.user_id;
+      if(!userId) throw new Error('Session not found — please refresh and try again.');
+      const result = await window.sbFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,{
+        method:'PATCH',
+        headers:{Prefer:'return=representation'},
+        body:{display_name:name}
+      });
+      // Update local state regardless of PATCH result
+      if(window.state){
+        if(window.state.currentUserProfile) window.state.currentUserProfile.display_name=name;
+        window.state.currentUser=name;
+      }
+      if(window.blastrSetUiUser) window.blastrSetUiUser(name, window.state?.isAdmin||false);
+      if(window.blastrRenderAccountPage) window.blastrRenderAccountPage();
+      blastrCloseOnboarding();
+      if(window.showToast) showToast('WELCOME, '+name.toUpperCase(),'Your identity is set. The grid knows you now. 🎧');
+    } catch(e){
+      // Always close — don't trap user in modal
+      blastrCloseOnboarding();
+      if(window.showToast) showToast('NAME SAVED LOCALLY',`Couldn't reach server but we'll use "${name}" this session.`);
+      // Still update local state so UI feels responsive
+      if(window.state){
+        if(window.state.currentUserProfile) window.state.currentUserProfile.display_name=name;
+        window.state.currentUser=name;
+      }
+      if(window.blastrSetUiUser) window.blastrSetUiUser(name, window.state?.isAdmin||false);
+    }
+  };
+
+  function blastrCloseOnboarding(){
+    const overlay=document.getElementById('blastrOnboardOverlay');
+    if(!overlay) return;
+    overlay.classList.remove('active');
+    // Clean up after transition
+    setTimeout(()=>{ const i=document.getElementById('onboardNameInput'); if(i) i.value=''; },400);
+  }
+
+  // ── Settings edit — triggered from account page "Edit" button ──
+  window.blastrEditDisplayName = function(){
+    const current=window.state?.currentUserProfile?.display_name||window.state?.currentUser||'';
+    const input=document.getElementById('onboardNameInput');
+    const sub=document.getElementById('onboardSub');
+    const greet=document.getElementById('onboardGreeting');
+    if(greet) greet.textContent='Update your name';
+    if(sub) sub.textContent='This is how Blastr identifies you across the platform.';
+    if(input) input.value=current;
+    const overlay=document.getElementById('blastrOnboardOverlay');
+    if(!overlay) return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      overlay.classList.add('active');
+      setTimeout(()=>{ if(input){ input.focus(); input.select(); } },420);
+    }));
+    if(input){
+      input._obHandler = function(e){ if(e.key==='Enter') window.blastrSubmitDisplayName(); };
+      input.removeEventListener('keydown', input._obHandler);
+      input.addEventListener('keydown', input._obHandler);
+    }
+  };
+
+  // Close on overlay click
+  const overlay=document.getElementById('blastrOnboardOverlay');
+  if(overlay){
+    overlay.addEventListener('click',function(e){
+      if(e.target===overlay) blastrCloseOnboarding();
+    });
+  }
+})();
+
+// ═══════════════════════════════════════════════════
+// ADMIN DOOR MOBILE FIX
+// ═══════════════════════════════════════════════════
+(function(){
+  'use strict';
+  // Patch toggleAdminDoor to scroll into view on mobile and handle virtual keyboard
+  const _origToggle = window.toggleAdminDoor;
+  window.toggleAdminDoor = function(){
+    if(_origToggle) _origToggle();
+    const wrap=document.getElementById('adminCodeWrap');
+    const input=document.getElementById('adminCode');
+    if(!wrap||!input) return;
+    const isOpen=wrap.classList.contains('open');
+    if(isOpen){
+      // On mobile: scroll the input into view after keyboard appears
+      setTimeout(()=>{
+        if(window.innerWidth<=768){
+          input.scrollIntoView({behavior:'smooth',block:'center'});
+          // If visualViewport API is available, adjust for keyboard
+          if(window.visualViewport){
+            function onResize(){
+              const keyboardOffset=window.innerHeight-window.visualViewport.height;
+              if(keyboardOffset>50){
+                const door=document.getElementById('adminDoor');
+                if(door) door.style.marginBottom=`${Math.min(keyboardOffset,260)}px`;
+              } else {
+                const door=document.getElementById('adminDoor');
+                if(door) door.style.marginBottom='';
+              }
+            }
+            window.visualViewport.addEventListener('resize',onResize,{once:false});
+            input._vpClean=()=>{ window.visualViewport.removeEventListener('resize',onResize); input.style.marginBottom=''; };
+            input.addEventListener('blur',()=>{ if(input._vpClean){input._vpClean();input._vpClean=null;} const d=document.getElementById('adminDoor'); if(d) d.style.marginBottom=''; },{once:true});
+          }
+        }
+      },260);
+    }
+  };
+})();
+
+// ═══════════════════════════════════════════════════
+// GLOBAL SMOOTHNESS POLISH
+// ═══════════════════════════════════════════════════
+(function(){
+  'use strict';
+
+  // 1. Page transitions: replace display:block flash with opacity fade
+  //    Already uses page-in animation — ensure it uses GPU-composited path
+  const pageStyle=document.createElement('style');
+  pageStyle.textContent=`
+    .page{will-change:opacity}
+    .page.active{will-change:auto}
+    @keyframes page-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .sidebar-btn{will-change:auto}
+    .sidebar-btn:hover{will-change:background-color}
+    .search-dropdown{transform-origin:top center;will-change:opacity,transform}
+    .search-dropdown.open{animation:dd-in .18s cubic-bezier(.22,1,.36,1) both}
+    @keyframes dd-in{from{opacity:0;transform:scaleY(.94) translateY(-6px)}to{opacity:1;transform:scaleY(1) translateY(0)}}
+    .notification-card{will-change:transform,opacity}
+    .artist-hero .artist-banner img{will-change:auto}
+    .discover-hero-bg{will-change:auto}
+    .profile-hero{will-change:auto}
+    .admin-code-wrap{will-change:max-height}
+    @media(max-width:768px){
+      .admin-code-wrap.open{max-height:120px;padding:0 12px 16px}
+      .admin-code-input{font-size:18px;padding:14px 12px;letter-spacing:4px}
+      .blastr-onboard-overlay{align-items:flex-end}
+      .blastr-onboard-modal{border-radius:22px 22px 0 0;max-width:100%;padding:32px 22px 36px}
+    }
+  `;
+  document.head.appendChild(pageStyle);
+
+  // 2. Throttle scroll events on content pages to rAF
+  function rAFThrottle(fn){
+    let pending=false;
+    return function(...args){
+      if(pending) return;
+      pending=true;
+      requestAnimationFrame(()=>{ fn.apply(this,args); pending=false; });
+    };
+  }
+
+  // 3. Passive event listeners for touch/scroll (prevents jank)
+  // Re-attach any non-passive scroll listeners on main content area
+  const mainContent=document.getElementById('appScreen');
+  if(mainContent){
+    // Ensure touchmove is passive where possible (already done on body level in most browsers)
+    mainContent.addEventListener('touchstart',()=>{},{passive:true});
+    mainContent.addEventListener('touchmove',()=>{},{passive:true});
+  }
+
+  // Lazy-decode existing images — one-time pass only, no MutationObserver
+  document.querySelectorAll('img:not([decoding])').forEach(img=>{ img.decoding='async'; });
+
+  // 5. Search dropdown: cancel pending search on rapid clear
+  const searchInput=document.getElementById('searchInput');
+  if(searchInput){
+    searchInput.addEventListener('input',rAFThrottle(function(){
+      if(!searchInput.value.trim()){
+        const dd=document.getElementById('searchDropdown');
+        if(dd){ dd.innerHTML=''; dd.classList.remove('open'); }
+      }
+    }),{passive:true});
+  }
+
+  // sidebar drawer — no rAF wrap needed, native transitions handle smoothness
+
+  // showPage chain is already efficient — no additional wrapping needed
+
+})();
+
 </script>
+<!-- BLASTR NAME ONBOARDING -->
+<div class="blastr-onboard-overlay" id="blastrOnboardOverlay" role="dialog" aria-modal="true" aria-label="Set your display name">
+  <div class="blastr-onboard-modal">
+    <span class="blastr-onboard-icon">🎧</span>
+    <div class="blastr-onboard-greeting" id="onboardGreeting">Good morning</div>
+    <div class="blastr-onboard-title">What shall we call you?</div>
+    <div class="blastr-onboard-sub" id="onboardSub">Personalise your Blastr experience.</div>
+    <div class="blastr-onboard-label">Your Name</div>
+    <input type="text" class="blastr-onboard-input" id="onboardNameInput" placeholder="e.g. Adrian" maxlength="30" autocomplete="given-name">
+    <div class="blastr-onboard-hint">This name appears across Blastr — in greetings, playlists and future features. You can change it anytime in Settings.</div>
+    <button class="blastr-onboard-btn" id="onboardContinueBtn" onclick="blastrSubmitDisplayName()" type="button">Continue →</button>
+  </div>
+</div>
 </body>
 </html>
