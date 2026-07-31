@@ -10706,8 +10706,8 @@ function bnActivate(btn){
   }
 
   // ── linked account storage ──
-  function getLinked(){ try{ const v=JSON.parse(localStorage.getItem(LINKED_KEY)||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
-  function saveLinked(list){ try{ localStorage.setItem(LINKED_KEY, JSON.stringify(list)); }catch(e){} }
+  function getLinked(){ try{ const v=JSON.parse(localStorage.getItem(LINKED_KEY)||'[]'); return Array.isArray(v)?v:[]; }catch(e){ if(typeof diag==='function') diag('LINKED','read failed',e?.message); return []; } }
+  function saveLinked(list){ try{ localStorage.setItem(LINKED_KEY, JSON.stringify(list)); }catch(e){ if(typeof diag==='function') diag('LINKED','save failed',e?.message); if(typeof window.showToast==='function') window.showToast('SAVE FAILED','Could not store linked accounts in this browser.'); } }
   function upsertLinked(entry){
     const list = getLinked();
     const i = list.findIndex(r=>r.id===entry.id);
@@ -10948,6 +10948,14 @@ function bnActivate(btn){
 
   wireAccountButton();
   renderLinkedUI();
+  const origToggleSettings = window.toggleSettings;
+  if(typeof origToggleSettings==='function'){
+    window.toggleSettings = function(){
+      renderLinkedUI();
+      return origToggleSettings.apply(window, arguments);
+    };
+  }
+  window.addEventListener('load', ()=>setTimeout(renderLinkedUI, 1000));
   window.addEventListener('load', ()=>setTimeout(tryMigrateLegacyFavorites, 800));
 })();
 </script>
