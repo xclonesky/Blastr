@@ -2532,42 +2532,42 @@ body.light .search-input{color:var(--text)}
   }
 
   .mobile-nav-btn{display:flex}
+  /* Sidebar always visible on mobile — vertical layout like desktop */
   .sidebar{
-    position:fixed;
-    left:0;top:0;bottom:0;
-    width:min(320px,88vw);
-    z-index:650;
-    transform:translateX(-105%);
-    transition:transform .32s cubic-bezier(.4,0,.2,1);
+    position:relative;
+    width:100%;max-width:100%;
+    transform:none!important;
+    z-index:auto;
     overflow-y:auto;
-    padding-bottom:24px;
-    box-shadow:24px 0 80px rgba(0,0,0,.45);
+    padding-bottom:12px;
+    box-shadow:none;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
   }
-  #appScreen.mobile-nav-open .sidebar{transform:translateX(0)}
-  #appScreen.mobile-nav-open .mobile-scrim{
-    display:block;
-    position:fixed;
-    inset:0;
-    z-index:640;
-    background:rgba(0,0,0,.45);
-    backdrop-filter:blur(4px);
-    opacity:1;
-    pointer-events:auto;
+  #appScreen{
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto 1fr var(--player-h)!important;
+    grid-template-areas:"sidebar" "main" "player"!important;
   }
-  .mobile-scrim{
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .22s ease;
-  }
-  .sidebar-close-btn{display:flex}
-  .sidebar-mobile-hint{display:block}
+  #appScreen.mobile-nav-open .sidebar{transform:none}
+  .mobile-scrim{display:none!important}
+  .mobile-nav-btn{display:none!important}
+  .sidebar-close-btn{display:none!important}
+  .sidebar-mobile-hint{display:none!important}
   .sidebar-brand .brand-text,
   .sidebar-btn span,
   .sidebar-section-label,
   .user-info{display:block}
   .sidebar-btn{justify-content:flex-start}
   .sidebar-btn .icon{min-width:22px;font-size:16px}
-  .sidebar-bottom{padding-bottom:8px}
+  /* Compact sidebar on mobile */
+  .sidebar{padding:10px 10px 8px}
+  .sidebar-brand{padding:10px 8px 8px}
+  .sidebar-section-label{font-size:8px;margin:8px 8px 2px}
+  .sidebar-btn{padding:8px 10px;font-size:11px;border-radius:10px}
+  .sidebar-bottom{padding-bottom:8px;padding-top:4px}
+  .sidebar-bottom .user-chip{padding:8px 10px}
   .top-bar{padding-left:14px;padding-right:14px}
   .topbar-actions{gap:6px}
 }
@@ -3540,14 +3540,6 @@ body.light .search-input{color:var(--text)}
 .bottom-nav-btn:active{transform:scale(.93)}
 .bottom-nav-btn.admin-bn{color:rgba(255,80,80,.5)}
 .bottom-nav-btn.admin-bn.active{color:var(--red)}
-@media(max-width:860px){
-  .bottom-nav{display:flex}
-  /* Push player bar up so it doesn't overlap bottom nav */
-  :root{--bottom-nav-h:62px}
-  .player-bar{bottom:var(--bottom-nav-h)!important}
-  .notification-card{bottom:calc(var(--bottom-nav-h) + var(--player-h) + 14px)!important}
-  .blastr-onboard-overlay{padding-bottom:calc(var(--bottom-nav-h) + 20px)}
-}
 
 </style>
 </head>
@@ -4321,6 +4313,7 @@ const SUPABASE_URL = "https://oapfpawypuodfvpzdffi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hcGZwYXd5cHVvZGZ2cHpkZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzk0MDUsImV4cCI6MjA4NzYxNTQwNX0.jrWLCX7pww2C_JzqMz0SMn1dyZ3HsQyVDfGWL2UkcX0";
 const BLASTR_AUTH_STORAGE_KEY = 'blastr_session_v3';
 const ADMIN_PASSCODE = '19731979';
+window.ADMIN_PASSCODE = ADMIN_PASSCODE;
 
 const state = {
   currentTrack: null,
@@ -7526,6 +7519,25 @@ body.blastr-lite-mode .account-row{transition:none !important}
 .account-note{margin-top:14px;font-size:11px;color:var(--dim);line-height:1.6}
 .account-list .account-row .v small{display:block;color:var(--dim);font-size:10px;font-family:var(--mono);margin-top:4px}
 @media(max-width:680px){.continue-card{flex-direction:column;align-items:flex-start}.continue-right{width:100%;justify-content:space-between}.avatar-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.theme-swatches{grid-template-columns:1fr}}
+
+/* ══════ ADMIN PAGE MOBILE ══════ */
+@media(max-width:860px){
+  .sm-tab{font-size:9px;padding:8px 10px;letter-spacing:.8px}
+  #page-admin .section-title{font-size:18px}
+  .am-layout{grid-template-columns:1fr!important;gap:12px}
+  .sm-matrix-grid{grid-template-columns:1fr!important}
+  .sm-track-list{max-height:260px}
+  .am-banner-preview{height:140px}
+  .am-feat-slot{padding:8px 10px}
+  .es-layout{grid-template-columns:1fr!important}
+  .sm-stage-grid{grid-template-columns:1fr!important}
+  .sm-preview-frame{height:260px}
+  .am-artist-list-wrap{max-height:220px;overflow-y:auto}
+  .admin-code-wrap.open{max-height:110px}
+}
+@media(max-width:640px){
+  .sm-tab{font-size:8px;padding:7px 8px;letter-spacing:.5px}
+}
 </style>
 
 <script>
@@ -10545,21 +10557,7 @@ function bnActivate(btn){
   document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
 }
-// Keep bottom nav in sync when sidebar nav is used
-(function(){
-  const pageMap={home:'bn-home',explore:'bn-explore',favorites:'bn-favorites',
-    lab:'bn-lab',account:'bn-account',admin:'bn-admin'};
-  const _sp=window.showPage;
-  window.showPage=function(name,btn){
-    _sp&&_sp.call(window,name,btn);
-    const bnId=pageMap[name];
-    if(bnId){
-      document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
-      const bnBtn=document.getElementById(bnId);
-      if(bnBtn) bnBtn.classList.add('active');
-    }
-  };
-})();
+// bottom nav sync removed
 
 </script>
 <!-- BLASTR NAME ONBOARDING -->
@@ -10591,15 +10589,7 @@ function bnActivate(btn){
   </div>
 </div>
 
-<!-- BOTTOM NAV (mobile) -->
-<nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation">
-  <button class="bottom-nav-btn active" id="bn-home" onclick="showPage('home',this);bnActivate(this)"><span class="bn-icon">⌂</span>Home</button>
-  <button class="bottom-nav-btn" id="bn-explore" onclick="showPage('explore',this);bnActivate(this)"><span class="bn-icon">✦</span>Explore</button>
-  <button class="bottom-nav-btn" id="bn-favorites" onclick="showPage('favorites',this);bnActivate(this)"><span class="bn-icon">♥</span>Likes</button>
-  <button class="bottom-nav-btn" id="bn-lab" onclick="showPage('lab',this);bnActivate(this)"><span class="bn-icon">⚗</span>Lab</button>
-  <button class="bottom-nav-btn" id="bn-account" onclick="showPage('account',this);bnActivate(this)"><span class="bn-icon">◎</span>Me</button>
-  <button class="bottom-nav-btn admin-bn" id="bn-admin" onclick="openAdminModal()"><span class="bn-icon">⬡</span>Admin</button>
-</nav>
+<!-- bottom nav removed: sidebar is always visible on mobile -->
 
 </body>
 </html>
