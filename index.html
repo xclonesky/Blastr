@@ -2536,50 +2536,78 @@ body.light .search-input{color:var(--text)}
     grid-template-areas:"main" "player";
   }
 
-  .mobile-nav-btn{display:flex}
-  /* Sidebar: full-screen overlay drawer, opens via hamburger ☰ */
-  #appScreen{
-    grid-template-columns:1fr!important;
-    grid-template-rows:1fr var(--player-h)!important;
-    grid-template-areas:"main" "player"!important;
-  }
-  .sidebar{
-    position:fixed;
-    left:0;top:0;bottom:0;
-    width:min(310px,85vw);
-    z-index:800;
-    transform:translateX(-110%);
-    transition:transform .3s cubic-bezier(.4,0,.2,1);
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding:0 0 24px;
-    box-shadow:20px 0 60px rgba(0,0,0,.5);
-    /* All text always visible in drawer */
-  }
-  .sidebar-brand .brand-text,
-  .sidebar-btn span,
-  .sidebar-section-label,
-  .user-info{display:block!important}
-  .sidebar-btn{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;padding:11px 16px;font-size:13px;width:100%}
-  .sidebar-btn .icon{min-width:24px;font-size:17px}
-  .sidebar-section-label{font-size:9px;padding:6px 16px 6px}
-  .sidebar-brand{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
-  .sidebar-close-btn{display:flex!important}
+  /* ── Mobile hamburger drawer ── */
   .mobile-nav-btn{display:flex!important}
-  .sidebar-mobile-hint{display:none}
-  .sidebar-bottom{padding:12px 16px 8px;border-top:1px solid var(--border)}
-  .user-chip{padding:10px 12px;border-radius:14px}
-  #appScreen.mobile-nav-open .sidebar{transform:translateX(0)}
+  .sidebar{
+    position:fixed!important;
+    left:0!important;top:0!important;bottom:0!important;
+    width:280px!important;
+    max-width:85vw!important;
+    z-index:800!important;
+    transform:translateX(-110%)!important;
+    transition:transform .3s cubic-bezier(.4,0,.2,1)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:0!important;
+    box-shadow:20px 0 60px rgba(0,0,0,.55)!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  /* Force all label text to show — overrides icon-strip rules */
+  .sidebar *{box-sizing:border-box}
+  .sidebar .sidebar-brand{
+    display:flex!important;flex-direction:row!important;
+    align-items:center!important;padding:20px 16px 16px!important;
+    border-bottom:1px solid var(--border)!important;
+    flex-shrink:0!important;
+  }
+  .sidebar .brand-text{display:block!important;font-size:15px!important}
+  .sidebar .sidebar-close-btn{display:flex!important;margin-left:auto!important}
+  .sidebar .sidebar-section-label{
+    display:block!important;font-size:9px!important;
+    letter-spacing:2px!important;padding:14px 16px 4px!important;
+  }
+  .sidebar .sidebar-btn{
+    display:flex!important;flex-direction:row!important;
+    align-items:center!important;justify-content:flex-start!important;
+    padding:12px 16px!important;font-size:13px!important;
+    width:100%!important;border-radius:0!important;gap:12px!important;
+  }
+  .sidebar .sidebar-btn .icon{
+    font-size:18px!important;min-width:22px!important;
+    text-align:center!important;flex-shrink:0!important;
+  }
+  .sidebar .sidebar-btn span:not(.icon){
+    display:block!important;font-size:13px!important;
+    white-space:nowrap!important;
+  }
+  .sidebar .sidebar-bottom{
+    margin-top:auto!important;padding:16px!important;
+    border-top:1px solid var(--border)!important;
+    flex-shrink:0!important;
+  }
+  .sidebar .user-chip{
+    display:flex!important;flex-direction:row!important;
+    align-items:center!important;padding:10px 12px!important;
+    border-radius:14px!important;gap:10px!important;
+    width:100%!important;
+  }
+  .sidebar .user-info{display:flex!important;flex-direction:column!important}
+  .sidebar .user-avatar{margin:0!important;flex-shrink:0!important}
+  .sidebar .sidebar-mobile-hint{display:none!important}
+  .sidebar .admin-door{display:none!important}
+
+  /* Open state */
+  #appScreen.mobile-nav-open .sidebar{transform:translateX(0)!important}
   #appScreen.mobile-nav-open .mobile-scrim{
-    display:block;position:fixed;inset:0;z-index:799;
-    background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
-    pointer-events:auto;
+    display:block!important;position:fixed!important;inset:0!important;
+    z-index:799!important;background:rgba(0,0,0,.6)!important;
+    backdrop-filter:blur(4px)!important;-webkit-backdrop-filter:blur(4px)!important;
+    pointer-events:auto!important;
   }
   .mobile-scrim{display:none;pointer-events:none}
   .top-bar{padding-left:14px;padding-right:14px}
   .topbar-actions{gap:6px}
-  /* Hide inline admin door on mobile — modal handles it */
-  .admin-door{display:none!important}
 }
 
 @media (max-width: 640px){
