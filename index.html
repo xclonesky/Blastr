@@ -3643,6 +3643,7 @@ body.light .search-input{color:var(--text)}
     <button class="sidebar-btn" id="nav-profile" onclick="showPage('profile',this)"><span class="icon">◉</span><span>Song Profile</span></button>
     <button class="sidebar-btn" id="nav-artist" onclick="showPage('artist',this)"><span class="icon">★</span><span>Artist</span></button>
     <button class="sidebar-btn" id="nav-favorites" onclick="showPage('favorites',this)"><span class="icon">♥</span><span>Favorites</span></button>
+    <button class="sidebar-btn" id="nav-following" onclick="showPage('following',this)"><span class="icon">★</span><span>Following</span></button>
     <button class="sidebar-btn" id="nav-lab" onclick="showPage('lab',this)"><span class="icon">⚗</span><span>Lyric Lab</span></button>
     <div class="sidebar-section-label" style="margin-top:14px">ADMIN</div>
     <button class="sidebar-btn admin-btn" id="nav-admin" onclick="requireAdminAccess('admin',this)"><span class="icon">⬡</span><span>Admin Matrix</span></button>
@@ -3681,6 +3682,24 @@ body.light .search-input{color:var(--text)}
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <button class="explore-btn" id="exploreTopBtn" onclick="showPage('explore', document.getElementById('nav-explore') || this)"><span class="xbtn-dot"></span>Explore</button>
+      <!-- FOLLOW CLUSTER -->
+      <div class="follow-cluster" id="followCluster">
+        <div class="fc-empty" onclick="showPage('following',document.getElementById('nav-following'))">
+          <span class="fc-empty-icon">★</span>
+          <span class="fc-empty-txt">FOLLOW ARTISTS</span>
+        </div>
+      </div>
+      <!-- FOLLOW PANEL -->
+      <div class="follow-panel" id="followPanel">
+        <div class="fp-header">
+          <span class="fp-title">FOLLOWING</span>
+          <button class="fp-close" onclick="fwClosePanel()">✕</button>
+        </div>
+        <div class="fp-rows" id="followPanelRows"></div>
+        <div class="fp-footer">
+          <button class="fp-see-more" onclick="fwClosePanel();showPage('following',document.getElementById('nav-following'))">SEE ALL FOLLOWED ARTISTS →</button>
+        </div>
+      </div>
       <div class="topbar-actions">
         <button class="icon-btn" id="btnZenTop" onclick="toggleZen()" title="Zen Stage">✦</button>
         <button class="icon-btn" onclick="toggleMiniPlayer()" title="Mini Player">⊡</button>
@@ -3819,7 +3838,10 @@ body.light .search-input{color:var(--text)}
             <div class="artist-bio" id="artistBio"></div>
             <div class="artist-actions">
               <button class="btn-play-big" onclick="artistPlayFeatured()">▶ PLAY</button>
-              <button class="btn-outline" onclick="showToast('ARTIST','Following feature coming soon!')">+ FOLLOW</button>
+              <button class="btn-outline" id="artistFollowBtn" onclick="fwToggle()">
+                <span class="fi" id="artistFollowIcon">+</span>
+                <span id="artistFollowLabel">FOLLOW</span>
+              </button>
             </div>
           </div>
           <!-- Popular Tracks -->
@@ -3833,6 +3855,22 @@ body.light .search-input{color:var(--text)}
             <div class="song-grid" id="artistDiscogGrid"></div>
           </div>
         </div>
+      </div>
+
+      <!-- FOLLOWING PAGE -->
+      <div class="page" id="page-following">
+        <div class="fw-hero">
+          <div>
+            <div class="fw-kicker">YOUR ARTISTS</div>
+            <div class="fw-page-title">Following</div>
+            <div class="fw-count" id="fwCount"></div>
+          </div>
+          <div class="fw-search-wrap">
+            <span class="fw-search-icon">🔎</span>
+            <input type="text" class="fw-search" id="fwSearchInput" placeholder="Search followed artists…" oninput="fwFilter(this.value)">
+          </div>
+        </div>
+        <div class="fw-grid" id="fwGrid"></div>
       </div>
 
       <!-- FAVORITES PAGE -->
@@ -7577,6 +7615,135 @@ body.blastr-lite-mode .account-row{transition:none !important}
 @media(max-width:640px){
   .sm-tab{font-size:8px;padding:7px 8px;letter-spacing:.5px}
 }
+
+/* ══════════════════════════════════════════
+   FOLLOW ARTIST SYSTEM — v24
+   ══════════════════════════════════════════ */
+
+/* Follow button — artist profile */
+.btn-follow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:100px;
+  font-size:12px;font-weight:700;font-family:var(--mono);letter-spacing:1.5px;
+  cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);
+  border:1.5px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.05);color:var(--text);white-space:nowrap;
+}
+.btn-follow:hover{border-color:var(--accent);color:var(--accent);background:rgba(57,255,20,.07);transform:translateY(-1px)}
+.btn-follow.following{background:rgba(57,255,20,.10);border-color:rgba(57,255,20,.38);color:var(--accent)}
+.btn-follow.following:hover{background:rgba(255,49,49,.07);border-color:rgba(255,49,49,.28);color:var(--red)}
+.btn-follow .fi{font-size:14px;transition:transform .18s}
+.btn-follow:hover .fi{transform:scale(1.15)}
+
+/* Avatar cluster in topbar */
+.follow-cluster{position:relative;display:flex;align-items:center;flex-shrink:0}
+.fc-avatars{
+  display:flex;align-items:center;cursor:pointer;
+  padding:4px 10px 4px 4px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);
+  transition:all .2s ease;
+}
+.fc-avatars:hover{border-color:rgba(57,255,20,.28);background:rgba(57,255,20,.05)}
+.fc-avatars:hover .fc-av:nth-child(1){transform:translateY(-5px) rotate(-4deg)}
+.fc-avatars:hover .fc-av:nth-child(2){transform:translateY(-7px)}
+.fc-avatars:hover .fc-av:nth-child(3){transform:translateY(-5px) rotate(4deg)}
+.fc-av{
+  width:28px;height:28px;border-radius:50%;overflow:hidden;
+  border:2px solid var(--panel);background:linear-gradient(135deg,#1a1a2e,#252540);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.6);flex-shrink:0;
+  transition:transform .26s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.fc-av:not(:first-child){margin-left:-8px}
+.fc-av img{width:100%;height:100%;object-fit:cover}
+.fc-avatars:hover .fc-av{box-shadow:0 4px 14px rgba(0,0,0,.55),0 0 0 2px rgba(57,255,20,.18)}
+.fc-lbl{font-size:10px;font-family:var(--mono);letter-spacing:1px;color:rgba(255,255,255,.42);margin-left:8px;white-space:nowrap}
+.fc-empty{
+  display:flex;align-items:center;gap:7px;padding:7px 14px;
+  border-radius:999px;border:1px dashed rgba(255,255,255,.1);
+  background:rgba(255,255,255,.03);cursor:pointer;transition:all .2s;
+}
+.fc-empty:hover{border-color:rgba(57,255,20,.22);background:rgba(57,255,20,.04)}
+.fc-empty-icon{font-size:13px;color:var(--dim)}
+.fc-empty-txt{font-size:10px;font-family:var(--mono);color:var(--dim);letter-spacing:1px}
+
+/* Glass dropdown panel */
+.follow-panel{
+  position:absolute;top:calc(100% + 10px);right:0;
+  width:min(340px,90vw);
+  background:rgba(8,8,20,.97);border:1px solid rgba(57,255,20,.16);
+  border-radius:22px;padding:0;overflow:hidden;
+  box-shadow:0 24px 70px rgba(0,0,0,.72),0 0 0 1px rgba(57,255,20,.06);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  z-index:450;
+  opacity:0;pointer-events:none;
+  transform:translateY(-8px) scale(.97);
+  transition:opacity .2s ease,transform .22s cubic-bezier(.34,1.56,.64,1);
+}
+.follow-panel.open{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+.follow-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),rgba(0,198,255,.8),transparent)}
+.fp-header{padding:15px 18px 12px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.fp-title{font-size:10px;font-family:var(--mono);letter-spacing:2.5px;color:rgba(255,255,255,.36)}
+.fp-close{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.07);border:none;color:var(--dim);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.fp-close:hover{background:rgba(255,255,255,.14);color:var(--text)}
+.fp-rows{}
+.fp-row{display:flex;align-items:center;gap:11px;padding:12px 18px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .14s}
+.fp-row:last-child{border-bottom:none}
+.fp-row:hover{background:rgba(255,255,255,.04)}
+.fp-av{width:42px;height:42px;border-radius:50%;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1a1a2e,#252540);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(255,255,255,.4);box-shadow:0 3px 12px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.07)}
+.fp-av img{width:100%;height:100%;object-fit:cover}
+.fp-meta{flex:1;min-width:0}
+.fp-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-genre{font-size:10px;font-family:var(--mono);color:var(--dim);margin-top:2px}
+.fp-bio{font-size:11px;color:rgba(255,255,255,.32);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.fp-vdot{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--accent);color:#000;font-size:7px;font-weight:900;margin-left:3px;vertical-align:middle;flex-shrink:0}
+.fp-arr{font-size:13px;color:var(--dim);flex-shrink:0;transition:color .14s}
+.fp-row:hover .fp-arr{color:var(--accent)}
+.fp-footer{padding:13px 18px;border-top:1px solid rgba(255,255,255,.06)}
+.fp-see-more{width:100%;padding:10px;background:rgba(57,255,20,.06);border:1.5px solid rgba(57,255,20,.18);border-radius:13px;color:var(--accent);font-size:11px;font-family:var(--mono);letter-spacing:1.5px;cursor:pointer;transition:all .18s}
+.fp-see-more:hover{background:rgba(57,255,20,.13);transform:translateY(-1px);box-shadow:0 5px 18px rgba(57,255,20,.13)}
+
+/* Following page */
+#page-following{padding:0 22px 40px}
+.fw-hero{padding:28px 0 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.fw-kicker{font-size:10px;font-family:var(--mono);letter-spacing:3px;color:var(--accent);opacity:.8;margin-bottom:5px}
+.fw-page-title{font-size:34px;font-weight:900;line-height:1.05}
+.fw-count{font-size:12px;font-family:var(--mono);color:var(--dim);margin-top:4px}
+.fw-search-wrap{position:relative;width:min(260px,100%)}
+.fw-search{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 16px 10px 36px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .2s}
+.fw-search:focus{border-color:var(--accent)}
+.fw-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;pointer-events:none}
+.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:4px}
+.fw-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:20px 15px 14px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);text-align:center;position:relative;overflow:hidden}
+.fw-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(57,255,20,.14),transparent);opacity:0;transition:opacity .2s}
+.fw-card:hover{background:rgba(255,255,255,.06);border-color:rgba(57,255,20,.18);transform:translateY(-4px);box-shadow:0 16px 44px rgba(0,0,0,.32)}
+.fw-card:hover::before{opacity:1}
+.fw-card-av{width:76px;height:76px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#252540);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:rgba(255,255,255,.3);box-shadow:0 8px 28px rgba(0,0,0,.48),0 0 0 2px rgba(255,255,255,.07);transition:box-shadow .2s;flex-shrink:0}
+.fw-card:hover .fw-card-av{box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 0 2px rgba(57,255,20,.22)}
+.fw-card-av img{width:100%;height:100%;object-fit:cover}
+.fw-card-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.fw-card-genre{font-size:10px;font-family:var(--mono);color:var(--dim)}
+.fw-card-bio{font-size:11px;color:rgba(255,255,255,.33);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fw-card-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:999px;font-size:9px;font-family:var(--mono);letter-spacing:1.2px;background:rgba(57,255,20,.09);color:var(--accent);border:1px solid rgba(57,255,20,.22)}
+.fw-unfollow{width:100%;padding:7px;margin-top:2px;background:transparent;border:1px solid rgba(255,255,255,.07);border-radius:10px;color:var(--dim);font-size:10px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;transition:all .17s}
+.fw-unfollow:hover{background:rgba(255,49,49,.06);border-color:rgba(255,49,49,.22);color:var(--red)}
+.fw-empty{text-align:center;padding:70px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;grid-column:1/-1}
+.fw-empty-icon{font-size:44px;opacity:.28}
+.fw-empty-title{font-size:19px;font-weight:800;color:rgba(255,255,255,.55)}
+.fw-empty-sub{font-size:12px;font-family:var(--mono);color:var(--dim);letter-spacing:1px;max-width:300px;line-height:1.6}
+.fw-empty-cta{padding:11px 22px;background:rgba(57,255,20,.07);border:1.5px solid rgba(57,255,20,.2);border-radius:13px;color:var(--accent);font-size:11px;font-family:var(--mono);letter-spacing:1.5px;cursor:pointer;transition:all .2s}
+.fw-empty-cta:hover{background:rgba(57,255,20,.14);transform:translateY(-2px)}
+
+/* More From [Artist] kicker on home rows */
+.more-from-kicker{font-size:9px;font-family:var(--mono);letter-spacing:2.5px;color:var(--accent);opacity:.7;display:block;margin-bottom:2px}
+
+@media(max-width:680px){
+  .fw-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+  #page-following{padding:0 14px 30px}
+  .fw-page-title{font-size:25px}
+  .fc-lbl{display:none}
+}
 </style>
 
 <script>
@@ -9537,6 +9704,369 @@ function buildArtistRowHTML(label, artists) {
   </div>`;
 }
 window.loadFeaturedArtistsRow = loadFeaturedArtistsRow;
+
+// ═══════════════════════════════════════════════════════════════
+// FOLLOW ARTIST SYSTEM — v25
+// Dual-layer: localStorage (instant, always works) + Supabase sync
+// Table: artist_follows (user_id uuid, artist_id uuid, created_at)
+// ═══════════════════════════════════════════════════════════════
+
+const FW_LOCAL_KEY = 'blastr_follows_v1';
+
+// ── localStorage helpers (source of truth for UI) ──
+function fwLocalGet() {
+  try { return JSON.parse(localStorage.getItem(FW_LOCAL_KEY) || '{}'); } catch { return {}; }
+}
+function fwLocalSave(map) {
+  try { localStorage.setItem(FW_LOCAL_KEY, JSON.stringify(map)); } catch {}
+}
+function fwLocalAdd(artist) {
+  const map = fwLocalGet();
+  map[artist.id] = { id: artist.id, name: artist.name, genre: artist.genre || '', bio: artist.bio || '', avatar_url: artist.avatar_url || null, banner_url: artist.banner_url || null, verified: !!artist.verified, badge: artist.badge || null, savedAt: Date.now() };
+  fwLocalSave(map);
+}
+function fwLocalRemove(artistId) {
+  const map = fwLocalGet();
+  delete map[artistId];
+  fwLocalSave(map);
+}
+function fwLocalList() {
+  const map = fwLocalGet();
+  return Object.values(map).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+}
+function fwLocalIsFollowing(artistId) {
+  return !!fwLocalGet()[artistId];
+}
+
+// ── Supabase sync (best-effort, non-blocking) ──
+async function fwSyncToDb(artistId, action /* 'follow'|'unfollow' */) {
+  const userId = state.session?.user?.id;
+  if (!userId) return; // not logged in — localStorage only
+  try {
+    if (action === 'follow') {
+      const res = await sbFetch('/rest/v1/artist_follows', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: { user_id: userId, artist_id: artistId }
+      });
+      // sbFetch returns null on error; log but don't throw — localStorage already saved
+      if (res === null) diag('FOLLOW', 'DB write failed (null) — localStorage fallback active');
+    } else {
+      await sbFetch(`/rest/v1/artist_follows?user_id=eq.${userId}&artist_id=eq.${artistId}`, { method: 'DELETE' });
+    }
+  } catch(e) {
+    diag('FOLLOW', 'DB sync failed', e?.message || e);
+  }
+}
+
+// ── Load follows from DB into localStorage on session start ──
+async function fwHydrateFromDb() {
+  const userId = state.session?.user?.id;
+  if (!userId) return;
+  try {
+    const rows = await sbFetch(`/rest/v1/artist_follows?select=artist_id&user_id=eq.${userId}&limit=200`);
+    if (!Array.isArray(rows) || !rows.length) return;
+    const ids = rows.map(r => r.artist_id).filter(Boolean);
+    if (!ids.length) return;
+    const artists = await sbFetch(`/rest/v1/artists?select=*&id=in.(${ids.join(',')})`);
+    if (!Array.isArray(artists)) return;
+    // Merge DB records into localStorage (DB wins for artist data freshness)
+    artists.forEach(a => fwLocalAdd(a));
+    diag('FOLLOW', `Hydrated ${artists.length} follows from DB`);
+  } catch(e) {
+    diag('FOLLOW', 'DB hydrate failed — using localStorage only', e?.message || e);
+  }
+}
+
+// ── Follow / Unfollow ──
+function fwFollow(artist) {
+  fwLocalAdd(artist);                          // instant, always works
+  fwSyncToDb(artist.id, 'follow');             // best-effort DB sync
+  _fwCache = null;
+}
+function fwUnfollow(artistId) {
+  fwLocalRemove(artistId);                     // instant
+  fwSyncToDb(artistId, 'unfollow');            // best-effort DB sync
+  _fwCache = null;
+}
+
+// ── Cache for cluster (artist objects, not IDs) ──
+let _fwCache = null;
+function fwGetAll() {
+  if (Array.isArray(_fwCache)) return _fwCache;
+  _fwCache = fwLocalList();
+  return _fwCache;
+}
+
+// ── Follow button state ──
+function fwSetBtn(following) {
+  const btn = document.getElementById('artistFollowBtn');
+  const lbl = document.getElementById('artistFollowLabel');
+  const ico = document.getElementById('artistFollowIcon');
+  if (!btn) return;
+  if (following) {
+    btn.classList.add('btn-follow', 'following');
+    btn.classList.remove('btn-outline');
+    if (lbl) lbl.textContent = 'FOLLOWING';
+    if (ico) ico.textContent = '✓';
+  } else {
+    btn.classList.remove('btn-follow', 'following');
+    btn.classList.add('btn-outline');
+    if (lbl) lbl.textContent = 'FOLLOW';
+    if (ico) ico.textContent = '+';
+  }
+}
+
+// ── Toggle (called by button) ──
+window.fwToggle = async function() {
+  const artist = state.currentArtist;
+  if (!artist) { showToast('ERROR', 'No artist loaded.'); return; }
+
+  const isNowFollowing = fwLocalIsFollowing(artist.id);
+
+  if (isNowFollowing) {
+    showConfirm(`Unfollow ${artist.name}?`, 'You can follow again any time.', () => {
+      fwUnfollow(artist.id);
+      fwSetBtn(false);
+      _fwCache = null;
+      fwRefreshCluster();
+      fwInjectMoreFrom();
+      showToast('UNFOLLOWED', artist.name);
+      if (document.getElementById('page-following')?.classList.contains('active')) fwRenderPage();
+    });
+  } else {
+    fwFollow(artist);      // pass full artist object so we store metadata locally
+    fwSetBtn(true);
+    _fwCache = null;
+    fwRefreshCluster();
+    fwInjectMoreFrom();
+    showToast('FOLLOWING ★', artist.name, 'Added to your collection');
+    if (document.getElementById('page-following')?.classList.contains('active')) fwRenderPage();
+  }
+};
+
+// ── Patch openArtistProfile to sync button state ──
+const _origOAP = window.openArtistProfile;
+window.openArtistProfile = async function(artist) {
+  await _origOAP.call(this, artist);
+  fwSetBtn(fwLocalIsFollowing(artist?.id));
+};
+
+// ── Avatar Cluster ──
+function fwRefreshCluster() {
+  const wrap = document.getElementById('followCluster');
+  if (!wrap) return;
+  _fwCache = null;
+  const all = fwGetAll();
+
+  if (!all.length) {
+    wrap.innerHTML = `
+      <div class="fc-empty" onclick="showPage('following',document.getElementById('nav-following'))" title="Discover artists to follow">
+        <span class="fc-empty-icon">★</span>
+        <span class="fc-empty-txt">FOLLOW ARTISTS</span>
+      </div>`;
+    const panelRows = document.getElementById('followPanelRows');
+    if (panelRows) panelRows.innerHTML = '';
+    return;
+  }
+
+  // Pick up to 3 random artists (different each call)
+  const pool = all.slice();
+  const picked = [];
+  while (picked.length < 3 && pool.length) {
+    picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+
+  const avHTML = picked.map(a => {
+    const inner = a.avatar_url
+      ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'" alt="">`
+      : `<span>${esc((a.name || 'A')[0].toUpperCase())}</span>`;
+    return `<div class="fc-av" title="${esc(a.name)}">${inner}</div>`;
+  }).join('');
+
+  const extra = all.length - picked.length;
+  const lbl = extra > 0 ? `+${extra} more` : `${all.length} artist${all.length !== 1 ? 's' : ''}`;
+
+  wrap.innerHTML = `
+    <div class="fc-avatars" id="fcAvatars" onclick="fwTogglePanel()" title="You follow ${all.length} artist${all.length!==1?'s':''}">
+      ${avHTML}
+      <span class="fc-lbl">${lbl}</span>
+    </div>`;
+
+  // Panel rows
+  const panelRows = document.getElementById('followPanelRows');
+  if (panelRows) {
+    panelRows.innerHTML = picked.map(a => `
+      <div class="fp-row" onclick="fwClosePanel();openArtistProfile(${jsonAttr(a)})">
+        <div class="fp-av">
+          ${a.avatar_url
+            ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+            : `<span>${esc((a.name||'A')[0].toUpperCase())}</span>`}
+        </div>
+        <div class="fp-meta">
+          <div class="fp-name">${esc(a.name)}${a.verified ? '<span class="fp-vdot">✓</span>' : ''}</div>
+          <div class="fp-genre">${esc(a.genre || 'ARTIST')}</div>
+          ${a.bio ? `<div class="fp-bio">${esc(a.bio)}</div>` : ''}
+        </div>
+        <span class="fp-arr">›</span>
+      </div>`).join('');
+  }
+}
+window.fwRefreshCluster = fwRefreshCluster;
+
+// Panel open/close
+let _fwPanelOpen = false;
+window.fwTogglePanel = function() {
+  _fwPanelOpen = !_fwPanelOpen;
+  document.getElementById('followPanel')?.classList.toggle('open', _fwPanelOpen);
+};
+window.fwClosePanel = function() {
+  _fwPanelOpen = false;
+  document.getElementById('followPanel')?.classList.remove('open');
+};
+document.addEventListener('click', e => {
+  if (!e.target.closest('#followCluster') && !e.target.closest('#followPanel')) fwClosePanel();
+}, true);
+
+// ── Following page ──
+let _fwPageAll = [];
+function fwRenderPage() {
+  const grid = document.getElementById('fwGrid');
+  const countEl = document.getElementById('fwCount');
+  if (!grid) return;
+  _fwPageAll = fwGetAll();
+  if (countEl) countEl.textContent = `${_fwPageAll.length} artist${_fwPageAll.length !== 1 ? 's' : ''} followed`;
+  fwRenderGrid(_fwPageAll);
+}
+
+function fwRenderGrid(list) {
+  const grid = document.getElementById('fwGrid');
+  if (!grid) return;
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="fw-empty">
+        <div class="fw-empty-icon">★</div>
+        <div class="fw-empty-title">No artists yet</div>
+        <div class="fw-empty-sub">Open any artist profile and tap Follow to build your collection.</div>
+        <button class="fw-empty-cta" onclick="showPage('explore',document.getElementById('nav-explore'))">EXPLORE ARTISTS →</button>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = list.map(a => `
+    <div class="fw-card" onclick="openArtistProfile(${jsonAttr(a)})">
+      <div class="fw-card-av">
+        ${a.avatar_url
+          ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+          : `<span>${esc((a.name||'A')[0].toUpperCase())}</span>`}
+      </div>
+      <div class="fw-card-name">${esc(a.name)}${a.verified ? '<span class="artist-verified-dot" style="font-size:7px;width:14px;height:14px;margin-left:4px">✓</span>' : ''}</div>
+      <div class="fw-card-genre">${esc(a.genre || 'ARTIST')}</div>
+      ${a.bio ? `<div class="fw-card-bio">${esc(a.bio)}</div>` : ''}
+      ${a.badge ? `<div class="fw-card-badge">${esc(a.badge)}</div>` : ''}
+      <button class="fw-unfollow" onclick="event.stopPropagation();fwUnfollowFromPage(${jsonAttr(a)})">UNFOLLOW</button>
+    </div>`).join('');
+}
+
+window.fwFilter = function(val) {
+  const q = val.toLowerCase();
+  fwRenderGrid(q ? _fwPageAll.filter(a => (a.name||'').toLowerCase().includes(q) || (a.genre||'').toLowerCase().includes(q)) : _fwPageAll);
+};
+
+window.fwUnfollowFromPage = function(artist) {
+  showConfirm(`Unfollow ${artist.name}?`, 'You can follow again any time.', () => {
+    fwUnfollow(artist.id);
+    _fwCache = null;
+    fwRenderPage();
+    fwRefreshCluster();
+    fwInjectMoreFrom();
+    showToast('UNFOLLOWED', artist.name);
+  });
+};
+
+// ── Homepage "More From [Artist]" rows ──
+async function fwInjectMoreFrom() {
+  const homeContent = document.getElementById('homeContent');
+  if (!homeContent) return;
+  homeContent.querySelectorAll('.blastr-more-from-row').forEach(el => el.remove());
+
+  const followed = fwGetAll();
+  if (!followed.length || !state.allTracks?.length) return;
+
+  const eligible = followed.map(artist => {
+    const tracks = state.allTracks.filter(t =>
+      (t.artist || '').toLowerCase().trim() === (artist.name || '').toLowerCase().trim()
+    );
+    return tracks.length >= 2 ? { artist, tracks } : null;
+  }).filter(Boolean);
+
+  if (!eligible.length) return;
+
+  eligible.sort(() => Math.random() - 0.5);
+
+  const anchors = Array.from(homeContent.querySelectorAll('.songs-section, .blastr-artist-era-row'));
+  const used = new Set();
+
+  eligible.forEach((sec, i) => {
+    let slot = (Math.floor(Math.random() * (anchors.length + 1)) + i) % (anchors.length + 1);
+    while (used.has(slot)) slot = (slot + 1) % (anchors.length + 1 || 1);
+    used.add(slot);
+
+    const el = document.createElement('div');
+    el.className = 'blastr-more-from-row songs-section';
+    const tilesHTML = sec.tracks.slice(0, 6).map((t, ti) => songTileHTML(t, ti)).join('');
+    el.innerHTML = `
+      <div class="section-header">
+        <div>
+          <span class="more-from-kicker">FOLLOWED ARTIST</span>
+          <div class="section-name" style="cursor:pointer" onclick="openArtistProfile(${jsonAttr(sec.artist)})">More From ${esc(sec.artist.name)}</div>
+        </div>
+      </div>
+      <div class="song-grid">${tilesHTML}</div>`;
+
+    const ref = anchors[Math.min(slot, anchors.length - 1)];
+    if (!anchors.length || slot === 0) homeContent.insertBefore(el, homeContent.firstChild);
+    else if (ref?.nextSibling) homeContent.insertBefore(el, ref.nextSibling);
+    else homeContent.appendChild(el);
+  });
+}
+window.fwInjectMoreFrom = fwInjectMoreFrom;
+
+// ── Hooks ──
+// showPage — load Following page
+const _fwOrigShowPage = window.showPage;
+window.showPage = function(name, btn) {
+  if (typeof _fwOrigShowPage === 'function') _fwOrigShowPage.call(this, name, btn);
+  if (name === 'following') fwRenderPage();
+};
+
+// loadHomeContent — inject More From
+const _fwOrigLoadHome = window.loadHomeContent;
+if (typeof _fwOrigLoadHome === 'function') {
+  window.loadHomeContent = async function() {
+    await _fwOrigLoadHome.apply(this, arguments);
+    fwInjectMoreFrom();
+  };
+}
+
+// blastrHydrateSession — hydrate from DB after login, refresh cluster
+const _fwOrigHydrate = window.blastrHydrateSession;
+if (typeof _fwOrigHydrate === 'function') {
+  window.blastrHydrateSession = async function() {
+    const result = await _fwOrigHydrate.apply(this, arguments);
+    // Hydrate DB follows into localStorage (non-blocking)
+    fwHydrateFromDb().then(() => {
+      _fwCache = null;
+      fwRefreshCluster();
+    }).catch(() => {
+      // fallback: just refresh from localStorage
+      fwRefreshCluster();
+    });
+    return result;
+  };
+}
+
+// Boot: render cluster from localStorage immediately (no async needed)
+fwRefreshCluster();
 
 // ── ARTIST MANAGER (Admin) ──
 const AM = { artists:[], selected:null, newAvatarFile:null, newBannerFile:null, newAvatarUrl:null, newBannerUrl:null, featTracks:[], isVerified:false, isNew:false };
