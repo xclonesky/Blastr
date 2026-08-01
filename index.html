@@ -9711,14 +9711,17 @@ window.loadFeaturedArtistsRow = loadFeaturedArtistsRow;
 // Table: artist_follows (user_id uuid, artist_id uuid, created_at)
 // ═══════════════════════════════════════════════════════════════
 
-const FW_LOCAL_KEY = 'blastr_follows_v1';
+function fwKey() {
+  const uid = window.state?.currentUserProfile?.id || window.state?.session?.user?.id;
+  return uid ? ('blastr_follows_v1_' + uid) : 'blastr_follows_v1_guest';
+}
 
 // ── localStorage helpers (source of truth for UI) ──
 function fwLocalGet() {
-  try { return JSON.parse(localStorage.getItem(FW_LOCAL_KEY) || '{}'); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(fwKey()) || '{}'); } catch { return {}; }
 }
 function fwLocalSave(map) {
-  try { localStorage.setItem(FW_LOCAL_KEY, JSON.stringify(map)); } catch {}
+  try { localStorage.setItem(fwKey(), JSON.stringify(map)); } catch {}
 }
 function fwLocalAdd(artist) {
   const map = fwLocalGet();
@@ -9765,13 +9768,18 @@ async function fwHydrateFromDb() {
   if (!userId) return;
   try {
     const rows = await sbFetch(`/rest/v1/artist_follows?select=artist_id&user_id=eq.${userId}&limit=200`);
-    if (!Array.isArray(rows) || !rows.length) return;
+    if (!Array.isArray(rows)) return; // request failed — keep existing local cache rather than wipe it
     const ids = rows.map(r => r.artist_id).filter(Boolean);
-    if (!ids.length) return;
-    const artists = await sbFetch(`/rest/v1/artists?select=*&id=in.(${ids.join(',')})`);
-    if (!Array.isArray(artists)) return;
-    // Merge DB records into localStorage (DB wins for artist data freshness)
-    artists.forEach(a => fwLocalAdd(a));
+    let artists = [];
+    if (ids.length) {
+      const fetched = await sbFetch(`/rest/v1/artists?select=*&id=in.(${ids.join(',')})`);
+      artists = Array.isArray(fetched) ? fetched : [];
+    }
+    // DB is authoritative: replace the local cache entirely (not merge) so unfollows made
+    // elsewhere reconcile correctly instead of lingering in this account's local cache.
+    const map = {};
+    artists.forEach(a => { map[a.id] = { id: a.id, name: a.name, genre: a.genre || '', bio: a.bio || '', avatar_url: a.avatar_url || null, banner_url: a.banner_url || null, verified: !!a.verified, badge: a.badge || null, savedAt: Date.now() }; });
+    fwLocalSave(map);
     diag('FOLLOW', `Hydrated ${artists.length} follows from DB`);
   } catch(e) {
     diag('FOLLOW', 'DB hydrate failed — using localStorage only', e?.message || e);
@@ -10052,11 +10060,14 @@ if (typeof _fwOrigLoadHome === 'function') {
 const _fwOrigHydrate = window.blastrHydrateSession;
 if (typeof _fwOrigHydrate === 'function') {
   window.blastrHydrateSession = async function() {
+    _fwCache = null; // never show the previous account's in-memory cache while hydrating
     const result = await _fwOrigHydrate.apply(this, arguments);
     // Hydrate DB follows into localStorage (non-blocking)
     fwHydrateFromDb().then(() => {
       _fwCache = null;
       fwRefreshCluster();
+      fwInjectMoreFrom();
+      if (document.getElementById('page-following')?.classList.contains('active')) fwRenderPage();
     }).catch(() => {
       // fallback: just refresh from localStorage
       fwRefreshCluster();
