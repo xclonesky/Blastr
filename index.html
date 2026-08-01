@@ -10646,12 +10646,13 @@ function bnActivate(btn){
 .linked-add-btn{width:100%;padding:11px;border-radius:16px;cursor:pointer;border:1.5px dashed rgba(255,255,255,.16);background:transparent;color:var(--dim);font-size:11px;font-weight:800;letter-spacing:1.5px;font-family:var(--mono);transition:all .15s}
 .linked-add-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(57,255,20,.05)}
 .acct-switcher-card{width:400px}
+#linkAccountModal{z-index:100002}
 @media(max-width:520px){.acct-switcher-card{width:min(94vw,400px)}}
 .acct-cine-overlay{position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.74);backdrop-filter:blur(16px) saturate(115%);-webkit-backdrop-filter:blur(16px) saturate(115%);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .55s ease}
 .acct-cine-overlay.open{opacity:1;pointer-events:auto}
 .acct-cine-inner{display:flex;flex-direction:column;align-items:center;gap:24px;transform:scale(.94);transition:transform .6s cubic-bezier(.22,1,.36,1)}
 .acct-cine-overlay.open .acct-cine-inner{transform:scale(1)}
-.acct-cine-spinner{width:60px;height:60px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent),var(--accent2),transparent 68%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 5px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 5px));animation:acctCineSpin 1s linear infinite;will-change:transform}
+.acct-cine-spinner{width:60px;height:60px;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:var(--accent);border-right-color:var(--accent2);animation:acctCineSpin .9s linear infinite;will-change:transform}
 @keyframes acctCineSpin{to{transform:rotate(360deg)}}
 .acct-cine-title{font-size:19px;font-weight:900;letter-spacing:.3px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .acct-cine-sub-wrap{position:relative;height:18px;width:min(88vw,340px);text-align:center}
@@ -10659,7 +10660,6 @@ function bnActivate(btn){
 .acct-cine-sub.active{opacity:1}
 /* perf: respect existing lite-mode for weaker devices */
 body.blastr-lite-mode .acct-cine-overlay{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(4,4,10,.92)}
-body.blastr-lite-mode .acct-cine-spinner{animation:none;border:3px solid var(--accent);border-top-color:transparent;border-radius:50%}
 body.blastr-lite-mode .linked-account-card{transition:none}
 body.blastr-lite-mode .linked-account-card:hover{transform:none}
 </style>
@@ -11003,6 +11003,7 @@ body.blastr-lite-mode .linked-account-card:hover{transform:none}
 <style>
 .nf-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease;background:color-mix(in srgb, var(--accent,#39FF14) 16%, #101014);overflow:hidden}
 .nf-overlay.open{opacity:1;pointer-events:auto}
+.nf-overlay:not(.open) .nf-stage{pointer-events:none!important}
 .nf-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease;padding:24px;box-sizing:border-box}
 .nf-stage.active{opacity:1;pointer-events:auto}
 .nf-boot-stage{position:relative;display:flex;align-items:center;justify-content:center;height:140px;width:100%}
@@ -11010,13 +11011,20 @@ body.blastr-lite-mode .linked-account-card:hover{transform:none}
 .nf-boot-letter.show{opacity:1;transform:scale(1)}
 .nf-boot-letter.bounce{transform:scale(1.08)}
 .nf-boot-letter.hide{opacity:0;transform:scale(1.4);transition:opacity .45s ease,transform .45s ease}
-.nf-boot-wordmark{position:absolute;font-family:var(--font);font-weight:900;font-size:56px;letter-spacing:6px;opacity:0;transform:scale(.7) perspective(400px) rotateX(10deg);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1),background-position .7s cubic-bezier(.22,1,.36,1);background:linear-gradient(100deg,#fff 30%,var(--accent,#39FF14) 45%,#fff 60%);background-size:250% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.nf-boot-wordmark.show{opacity:1;transform:scale(1) perspective(400px) rotateX(0deg);background-position:-20% 0}
+.nf-boot-wordmark{position:absolute;display:flex;font-family:var(--font);font-weight:900;font-size:56px;letter-spacing:2px;color:#fff}
+.nf-boot-wordmark span{display:inline-block;opacity:0;transform:translateX(-14px) scale(.55);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);text-shadow:0 0 16px var(--accent,#39FF14)}
+.nf-boot-wordmark.show span{opacity:1;transform:translateX(0) scale(1)}
+.nf-boot-wordmark span:nth-child(1){transition-delay:0s}
+.nf-boot-wordmark span:nth-child(2){transition-delay:.11s;translate:0 3px}
+.nf-boot-wordmark span:nth-child(3){transition-delay:.22s;translate:0 -2px}
+.nf-boot-wordmark span:nth-child(4){transition-delay:.33s;translate:0 -4px}
+.nf-boot-wordmark span:nth-child(5){transition-delay:.44s;translate:0 -2px}
+.nf-boot-wordmark span:nth-child(6){transition-delay:.55s;translate:0 3px}
 .nf-boot-spinner-wrap{position:absolute;bottom:64px;opacity:0;transition:opacity .5s ease}
 .nf-boot-spinner-wrap.show{opacity:1}
 .nf-who-header{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:30px}
 .nf-who-title{font-family:var(--font);font-weight:900;font-size:clamp(22px,4vw,34px);color:#fff;text-align:center;letter-spacing:.5px}
-.nf-who-header .explore-btn{position:absolute;top:-6px;right:24px}
+.nf-who-header .explore-btn{position:fixed;top:28px;right:32px}
 .nf-tiles{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;max-width:900px}
 .nf-tile{display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer}
 .nf-tile-art{width:140px;height:140px;border-radius:18px;background-size:cover;background-position:center;position:relative;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 8px 30px rgba(0,0,0,.4)}
@@ -11052,7 +11060,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   <div class="nf-stage nf-stage-intro" data-stage="intro">
     <div class="nf-boot-stage">
       <div class="nf-boot-letter" id="nfBootLetter">B</div>
-      <div class="nf-boot-wordmark" id="nfBootWordmark">BLASTR</div>
+      <div class="nf-boot-wordmark" id="nfBootWordmark"><span data-l="B">B</span><span data-l="L">L</span><span data-l="A">A</span><span data-l="S">S</span><span data-l="T">T</span><span data-l="R">R</span></div>
     </div>
     <div class="nf-boot-spinner-wrap" id="nfBootSpinnerWrap"><div class="acct-cine-spinner"></div></div>
   </div>
@@ -11119,7 +11127,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
 
   function stage(name){ document.querySelectorAll('#nfOverlay .nf-stage').forEach(el=>el.classList.toggle('active', el.dataset.stage===name)); }
   function openOverlay(){ document.getElementById('nfOverlay')?.classList.add('open'); }
-  function closeOverlay(){ document.getElementById('nfOverlay')?.classList.remove('open'); }
+  function closeOverlay(){ document.getElementById('nfOverlay')?.classList.remove('open'); document.querySelectorAll('#nfOverlay .nf-stage').forEach(el=>el.classList.remove('active')); }
 
   function runIntro(){
     const letter=document.getElementById('nfBootLetter');
@@ -11128,7 +11136,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     letter.classList.add('show');
     setTimeout(()=>letter.classList.add('bounce'), 550);
     setTimeout(()=>{ letter.classList.add('hide'); word.classList.add('show'); }, 1150);
-    setTimeout(()=>spin.classList.add('show'), 1700);
+    setTimeout(()=>spin.classList.add('show'), 2150);
     setTimeout(()=>{ stage('who'); renderTiles(); }, 4000);
   }
 
@@ -11209,6 +11217,39 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     window.nfCloseGallery();
     renderTiles();
   };
+
+  async function syncActiveCoverArt(){
+    const profile = window.state?.currentUserProfile;
+    const uid = profile?.id || window.state?.session?.user?.id;
+    if(!uid || !profile?.cover_art_id) return;
+    const list = getLinked();
+    const i = list.findIndex(r=>r.id===uid);
+    if(i<0) return;
+    if(list[i].cover_art_id===profile.cover_art_id && list[i].cover_art_url) return;
+    const artists = await loadArtists();
+    const art = artists.find(a=>a.id===profile.cover_art_id);
+    list[i].cover_art_id = profile.cover_art_id;
+    list[i].cover_art_url = art?.avatar_url || list[i].cover_art_url;
+    saveLinked(list);
+  }
+
+  const prevHydrateForTiles = window.blastrHydrateSession;
+  if(typeof prevHydrateForTiles==='function'){
+    window.blastrHydrateSession = async function(...args){
+      const result = await prevHydrateForTiles.apply(window, args);
+      try{ await syncActiveCoverArt(); renderTiles(); }catch(e){}
+      return result;
+    };
+  }
+  const prevSubmitLink = window.blastrSubmitLinkAccount;
+  if(typeof prevSubmitLink==='function'){
+    window.blastrSubmitLinkAccount = async function(...args){
+      const result = await prevSubmitLink.apply(window, args);
+      renderTiles();
+      return result;
+    };
+  }
+  window.addEventListener('load', ()=>setTimeout(renderTiles, 1200));
 
   function boot(){
     const list = getLinked();
