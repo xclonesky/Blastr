@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>if(localStorage.getItem('blastr_linked_accounts_v1')){document.documentElement.style.visibility='hidden';}</script>
 <title>Blastr — Live Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
@@ -10995,6 +10996,229 @@ body.blastr-lite-mode .linked-account-card:hover{transform:none}
   }
   window.addEventListener('load', ()=>setTimeout(renderLinkedUI, 1000));
   window.addEventListener('load', ()=>setTimeout(tryMigrateLegacyFavorites, 800));
+})();
+</script>
+
+<!-- ══════ NETFLIX ERA: BOOT + PROFILE PICKER ══════ -->
+<style>
+.nf-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease;background:color-mix(in srgb, var(--accent,#39FF14) 16%, #101014);overflow:hidden}
+.nf-overlay.open{opacity:1;pointer-events:auto}
+.nf-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease;padding:24px;box-sizing:border-box}
+.nf-stage.active{opacity:1;pointer-events:auto}
+.nf-boot-stage{position:relative;display:flex;align-items:center;justify-content:center;height:140px;width:100%}
+.nf-boot-letter{font-family:var(--font);font-weight:900;font-size:120px;color:#fff;opacity:0;transform:scale(.3);transition:opacity .5s ease,transform .5s cubic-bezier(.34,1.56,.64,1);position:absolute}
+.nf-boot-letter.show{opacity:1;transform:scale(1)}
+.nf-boot-letter.bounce{transform:scale(1.08)}
+.nf-boot-letter.hide{opacity:0;transform:scale(1.4);transition:opacity .45s ease,transform .45s ease}
+.nf-boot-wordmark{position:absolute;font-family:var(--font);font-weight:900;font-size:56px;letter-spacing:6px;opacity:0;transform:scale(.7) perspective(400px) rotateX(10deg);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1),background-position .7s cubic-bezier(.22,1,.36,1);background:linear-gradient(100deg,#fff 30%,var(--accent,#39FF14) 45%,#fff 60%);background-size:250% 100%;background-position:120% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nf-boot-wordmark.show{opacity:1;transform:scale(1) perspective(400px) rotateX(0deg);background-position:-20% 0}
+.nf-boot-spinner-wrap{position:absolute;bottom:64px;opacity:0;transition:opacity .5s ease}
+.nf-boot-spinner-wrap.show{opacity:1}
+.nf-who-header{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:30px}
+.nf-who-title{font-family:var(--font);font-weight:900;font-size:clamp(22px,4vw,34px);color:#fff;text-align:center;letter-spacing:.5px}
+.nf-who-header .explore-btn{position:absolute;top:-6px;right:24px}
+.nf-tiles{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;max-width:900px}
+.nf-tile{display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer}
+.nf-tile-art{width:140px;height:140px;border-radius:18px;background-size:cover;background-position:center;position:relative;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.nf-tile:hover .nf-tile-art{transform:scale(1.06);box-shadow:0 0 0 3px var(--accent),0 8px 30px rgba(0,0,0,.5)}
+.nf-tile-label{font-size:13px;color:var(--dim);font-weight:600;max-width:140px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nf-tile-pencil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);border-radius:18px;font-size:30px;color:#fff}
+.nf-tile-add .nf-tile-art{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:2px dashed rgba(255,255,255,.18)}
+.nf-tile-add .nf-tile-art span{font-size:54px;line-height:1;color:var(--dim)}
+.nf-tile-add:hover .nf-tile-art{border-color:var(--accent)}
+.nf-tile-add:hover .nf-tile-art span{color:var(--accent)}
+.explore-btn.nf-edit-active{background:linear-gradient(135deg,rgba(57,255,20,.2),rgba(0,198,255,.12));border-color:var(--accent)}
+.nf-gallery-header{position:relative;width:100%;max-width:1100px;display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.nf-back-btn{background:none;border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:700}
+.nf-back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nf-gallery-title{flex:1;text-align:center;font-weight:900;font-size:clamp(16px,2.6vw,22px);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.nf-gallery-search{width:210px;padding:9px 14px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:12px;outline:none}
+.nf-gallery-search:focus{border-color:var(--accent)}
+.nf-gallery-body{width:100%;max-width:1100px;overflow-y:auto;max-height:calc(100vh - 140px);padding:4px 4px 40px}
+.nf-genre-section{margin-bottom:30px}
+.nf-genre-title{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.nf-genre-row{display:flex;gap:16px;flex-wrap:wrap}
+.nf-artist-tile{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;width:120px}
+.nf-artist-art{width:120px;height:120px;border-radius:14px;background-size:cover;background-position:center;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.nf-artist-tile:hover .nf-artist-art{transform:scale(1.05);box-shadow:0 0 0 3px var(--accent2),0 6px 20px rgba(0,0,0,.4)}
+.nf-artist-name{font-size:11px;color:var(--text);text-align:center;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.blastr-lite-mode .nf-tile-art,body.blastr-lite-mode .nf-artist-art{transition:none}
+body.blastr-lite-mode .nf-tile:hover .nf-tile-art,body.blastr-lite-mode .nf-artist-tile:hover .nf-artist-art{transform:none;box-shadow:none}
+body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
+@media(max-width:520px){.nf-tile-art{width:96px;height:96px}.nf-artist-tile{width:92px}.nf-artist-art{width:92px;height:92px}.nf-boot-letter{font-size:80px}.nf-boot-wordmark{font-size:36px;letter-spacing:3px}.nf-gallery-search{width:130px}}
+</style>
+
+<div class="nf-overlay" id="nfOverlay">
+  <div class="nf-stage nf-stage-intro" data-stage="intro">
+    <div class="nf-boot-stage">
+      <div class="nf-boot-letter" id="nfBootLetter">B</div>
+      <div class="nf-boot-wordmark" id="nfBootWordmark">BLASTR</div>
+    </div>
+    <div class="nf-boot-spinner-wrap" id="nfBootSpinnerWrap"><div class="acct-cine-spinner"></div></div>
+  </div>
+  <div class="nf-stage nf-stage-who" data-stage="who">
+    <div class="nf-who-header">
+      <div class="nf-who-title">Who's Listening to Blastr?</div>
+      <button class="explore-btn" id="nfCustomizeBtn" onclick="nfToggleEditMode()"><span class="xbtn-dot"></span>Customize Profile</button>
+    </div>
+    <div class="nf-tiles" id="nfTiles"></div>
+  </div>
+  <div class="nf-stage nf-stage-gallery" data-stage="gallery">
+    <div class="nf-gallery-header">
+      <button class="nf-back-btn" onclick="nfCloseGallery()">← Back</button>
+      <div class="nf-gallery-title">Pick what makes you, YOU</div>
+      <input class="nf-gallery-search" id="nfGallerySearch" placeholder="Search artists…" oninput="nfFilterGallery(this.value)">
+    </div>
+    <div class="nf-gallery-body" id="nfGalleryBody"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const LINKED_KEY = 'blastr_linked_accounts_v1';
+  const GENRES = ['Pop','Hip-Hop','Rap','R&B','Electronic','Rock','Jazz','Classical','Afrobeats','Gospel','Latin','Country','Indie'];
+  const MAX_ACCOUNTS = 5;
+
+  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function getLinked(){ try{ const v=JSON.parse(localStorage.getItem(LINKED_KEY)||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+  function saveLinked(list){ try{ localStorage.setItem(LINKED_KEY, JSON.stringify(list)); }catch(e){} }
+  function gradientFor(seed){
+    let h=0; const str=String(seed||'x');
+    for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))>>>0;
+    const h1=h%360, h2=(h1+55)%360;
+    return `linear-gradient(135deg,hsl(${h1},65%,42%),hsl(${h2},65%,26%))`;
+  }
+  function reveal(){ document.documentElement.style.visibility='visible'; }
+
+  let artistsCache = null;
+  async function loadArtists(){
+    if(artistsCache) return artistsCache;
+    try{
+      const rows = await sbFetch('/rest/v1/artists?select=*&order=name.asc', {}, SUPABASE_KEY);
+      artistsCache = Array.isArray(rows) ? rows : [];
+    }catch(e){ artistsCache = []; }
+    return artistsCache;
+  }
+
+  async function resolveSessionFor(rec){
+    const sess = rec.session||{};
+    if(sess.access_token){
+      try{ const u=await sbFetch('/auth/v1/user',{},sess.access_token); if(u&&u.id) return {access_token:sess.access_token, user:u}; }catch(e){}
+    }
+    if(sess.refresh_token){
+      const r = await blastrAuthRequest('/auth/v1/token?grant_type=refresh_token', {refresh_token:sess.refresh_token});
+      if(r?.access_token && r?.user){
+        const list=getLinked(); const i=list.findIndex(x=>x.id===rec.id);
+        if(i>=0){ list[i].session={access_token:r.access_token, refresh_token:r.refresh_token||sess.refresh_token, token_type:r.token_type||'bearer', expires_at:r.expires_at||null}; saveLinked(list); }
+        return {access_token:r.access_token, user:r.user};
+      }
+    }
+    throw new Error('This profile needs to be re-linked.');
+  }
+
+  function stage(name){ document.querySelectorAll('#nfOverlay .nf-stage').forEach(el=>el.classList.toggle('active', el.dataset.stage===name)); }
+  function openOverlay(){ document.getElementById('nfOverlay')?.classList.add('open'); }
+  function closeOverlay(){ document.getElementById('nfOverlay')?.classList.remove('open'); }
+
+  function runIntro(){
+    const letter=document.getElementById('nfBootLetter');
+    const word=document.getElementById('nfBootWordmark');
+    const spin=document.getElementById('nfBootSpinnerWrap');
+    letter.classList.add('show');
+    setTimeout(()=>letter.classList.add('bounce'), 550);
+    setTimeout(()=>{ letter.classList.add('hide'); word.classList.add('show'); }, 1150);
+    setTimeout(()=>spin.classList.add('show'), 1700);
+    setTimeout(()=>{ stage('who'); renderTiles(); }, 4000);
+  }
+
+  let editMode=false;
+  function tileHTML(rec, isAdd){
+    if(isAdd) return `<div class="nf-tile nf-tile-add" onclick="window.blastrOpenLinkModal()"><div class="nf-tile-art"><span>+</span></div><div class="nf-tile-label">Add Profile</div></div>`;
+    const label = esc(rec.display_name || rec.email || rec.username || 'Account');
+    const bg = rec.cover_art_url ? `background-image:url('${esc(rec.cover_art_url)}')` : `background-image:${gradientFor(rec.id)}`;
+    return `<div class="nf-tile" data-id="${esc(rec.id)}" onclick="window.__nfTileTap('${esc(rec.id)}')">
+      <div class="nf-tile-art" style="${bg}">${editMode?'<span class="nf-tile-pencil">✎</span>':''}</div>
+      <div class="nf-tile-label">${label}</div>
+    </div>`;
+  }
+  function renderTiles(){
+    const list = getLinked();
+    const html = list.map(r=>tileHTML(r,false)).join('') + (list.length<MAX_ACCOUNTS ? tileHTML(null,true) : '');
+    const el = document.getElementById('nfTiles'); if(el) el.innerHTML = html || tileHTML(null,true);
+    document.getElementById('nfCustomizeBtn')?.classList.toggle('nf-edit-active', editMode);
+  }
+  window.__nfTileTap = function(id){
+    if(editMode){ openGalleryFor(id); return; }
+    closeOverlay();
+    setTimeout(()=>{ if(typeof window.blastrHandleAccountCardClick==='function') window.blastrHandleAccountCardClick(id); }, 250);
+  };
+  window.nfToggleEditMode = function(){ editMode=!editMode; renderTiles(); };
+
+  let galleryTargetId=null;
+  async function openGalleryFor(id){
+    galleryTargetId=id;
+    stage('gallery');
+    const body=document.getElementById('nfGalleryBody');
+    body.innerHTML = '<div class="linked-account-empty">Loading artists…</div>';
+    const search=document.getElementById('nfGallerySearch'); if(search) search.value='';
+    const artists = await loadArtists();
+    renderGallery(artists);
+  }
+  function artistTileHTML(a){
+    const bg = a.avatar_url ? `background-image:url('${esc(a.avatar_url)}')` : `background-image:${gradientFor(a.id)}`;
+    return `<div class="nf-artist-tile" onclick="window.__nfPickArt('${esc(a.id)}')">
+      <div class="nf-artist-art" style="${bg}"></div>
+      <div class="nf-artist-name">${esc(a.name||'Artist')}</div>
+    </div>`;
+  }
+  function renderGallery(artists, filter){
+    const body=document.getElementById('nfGalleryBody');
+    const q=(filter||'').trim().toLowerCase();
+    if(q){
+      const matches=artists.filter(a=>(a.name||'').toLowerCase().includes(q));
+      body.innerHTML = matches.length ? `<div class="nf-genre-row">${matches.map(artistTileHTML).join('')}</div>` : '<div class="linked-account-empty">No artists match that search.</div>';
+      return;
+    }
+    let html='';
+    GENRES.forEach(g=>{
+      const inGenre=artists.filter(a=>a.genre===g);
+      if(!inGenre.length) return;
+      html += `<div class="nf-genre-section"><div class="nf-genre-title">${esc(g)}</div><div class="nf-genre-row">${inGenre.map(artistTileHTML).join('')}</div></div>`;
+    });
+    body.innerHTML = html || '<div class="linked-account-empty">No artists available yet.</div>';
+  }
+  window.nfFilterGallery = function(v){ if(artistsCache) renderGallery(artistsCache, v); };
+  window.nfCloseGallery = function(){ galleryTargetId=null; stage('who'); };
+  window.__nfPickArt = async function(artistId){
+    if(!galleryTargetId) return;
+    const list=getLinked();
+    const rec=list.find(r=>r.id===galleryTargetId);
+    if(!rec) return;
+    try{
+      const {access_token} = await resolveSessionFor(rec);
+      await sbFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(rec.id)}`, {method:'PATCH', headers:{Prefer:'return=minimal'}, body:{cover_art_id:artistId}}, access_token);
+      const artists = await loadArtists();
+      const art = artists.find(a=>a.id===artistId);
+      rec.cover_art_url = art?.avatar_url || rec.cover_art_url;
+      saveLinked(list);
+      if(typeof window.showToast==='function') window.showToast('PROFILE UPDATED','Cover art saved.','Looking good.');
+    }catch(e){
+      if(typeof window.showToast==='function') window.showToast('SAVE FAILED', e?.message||'Could not save right now.');
+    }
+    window.nfCloseGallery();
+    renderTiles();
+  };
+
+  function boot(){
+    const list = getLinked();
+    if(!list.length){ reveal(); return; }
+    stage('intro');
+    openOverlay();
+    reveal();
+    runIntro();
+  }
+  boot();
 })();
 </script>
 
