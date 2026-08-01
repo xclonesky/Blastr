@@ -1758,6 +1758,25 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   filter:none;
 }
 
+/* Line-to-line slide transition — reuses the existing entering/exiting
+   class hooks already toggled by syncZenLyric(); center/side layout only,
+   spatial mode keeps its own 3D depth staging untouched */
+@keyframes zenLineEnter{
+  0%{transform:translate3d(0,18px,0) scale(.965);opacity:.4}
+  55%{transform:translate3d(0,-3px,0) scale(1.02);opacity:1}
+  100%{transform:translate3d(0,0,0) scale(1.012);opacity:1}
+}
+@keyframes zenLineExit{
+  0%{transform:translate3d(0,0,0) scale(1.012);opacity:1}
+  100%{transform:translate3d(0,-9px,0) scale(.98);opacity:.88}
+}
+.zen-stage:not([data-layout="spatial"]) .zen-lyric-line.entering{
+  animation:zenLineEnter .68s cubic-bezier(.22,1,.36,1) both;
+}
+.zen-stage:not([data-layout="spatial"]) .zen-lyric-line.exiting{
+  animation:zenLineExit .48s cubic-bezier(.4,0,.2,1) both;
+}
+
 /* Spatial mode */
 .zen-stage[data-layout="spatial"] .zen-lyric-line{
   transform-style:preserve-3d;
@@ -4321,6 +4340,11 @@ body.light .search-input{color:var(--text)}
     <div class="settings-section-label">LINKED ACCOUNTS</div>
     <div class="linked-accounts-list" id="settingsLinkedList"></div>
     <button class="linked-add-btn" type="button" onclick="blastrOpenLinkModal()">+ Add Account</button>
+  </div>
+  <div class="settings-section" id="voiceAssistantSection">
+    <div class="settings-section-label">BLASTR ASSISTANT</div>
+    <button class="theme-btn" id="vaToggleBtn" onclick="vaToggleFromSettings()">🎙 Voice Commands: <span id="vaToggleState">OFF</span></button>
+    <div style="font-size:10px;font-family:var(--mono);color:var(--dim);margin-top:8px;letter-spacing:.4px;line-height:1.6">Tap the mic icon beside your Follow row, then say "play [song]", "pause" or "resume". Mic access is requested once by your browser.</div>
   </div>
 </div>
 
@@ -7553,6 +7577,8 @@ body.blastr-lite-mode .song-tile,
 body.blastr-lite-mode .fav-row,
 body.blastr-lite-mode .search-row,
 body.blastr-lite-mode .account-row{transition:none !important}
+body.blastr-lite-mode .zen-lyric-line.entering,
+body.blastr-lite-mode .zen-lyric-line.exiting{animation:none !important}
 
 .continue-card,.continue-empty{margin:18px 0 22px}
 .continue-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 18px 18px 20px;border-radius:22px;border:1px solid rgba(57,255,20,.16);background:linear-gradient(135deg, rgba(57,255,20,.08), rgba(0,198,255,.05) 48%, rgba(255,255,255,.04));box-shadow:0 18px 50px rgba(0,0,0,.18);cursor:pointer;overflow:hidden;position:relative}
@@ -11801,6 +11827,292 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     runIntro();
   }
   boot();
+})();
+</script>
+
+<!-- ══════ BLASTR ASSISTANT (Voice Commands — push-to-talk) ══════ -->
+<style>
+.va-cluster{position:relative;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;cursor:pointer;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);transition:all .32s cubic-bezier(.22,1,.36,1);max-width:38px;overflow:hidden;flex-shrink:0}
+.va-cluster.on{border-color:rgba(57,255,20,.22)}
+.va-cluster.expanded{max-width:360px;padding:8px 16px;border-color:rgba(57,255,20,.35);background:rgba(57,255,20,.06);box-shadow:0 4px 18px rgba(57,255,20,.1)}
+.va-mic-dot{font-size:14px;flex-shrink:0}
+.va-cluster.listening .va-mic-dot{animation:vaPulse 1s ease-in-out infinite}
+@keyframes vaPulse{0%,100%{opacity:1;text-shadow:0 0 0 rgba(57,255,20,0)}50%{opacity:.5;text-shadow:0 0 10px rgba(57,255,20,.6)}}
+.va-cluster-text{font-size:11px;font-family:var(--mono);color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s ease;max-width:0}
+.va-cluster.expanded .va-cluster-text{opacity:1;max-width:300px}
+.va-cluster-text.va-success{color:var(--accent)}
+.va-cluster-text.va-error{color:var(--red)}
+.va-cmd-row{display:flex;flex-direction:column;gap:10px;margin:6px 0 18px}
+@media(max-width:680px){.va-cluster.expanded{max-width:220px}}
+</style>
+
+<div class="modal-overlay" id="vaPromoModal">
+  <div class="modal-card">
+    <div class="modal-title">🎙 New: Voice Commands</div>
+    <div class="modal-sub">Check out our new Voice Command feature — tap the mic and Blastr will do it for ya.</div>
+    <button class="btn-primary" onclick="vaDismissPromo()">OKAY</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="vaOnboardModal">
+  <div class="modal-card">
+    <div class="modal-title">You're all set 🎙</div>
+    <div class="modal-sub">Tap the mic icon beside your Follow row, then just say what you need:</div>
+    <div class="va-cmd-row">
+      <div class="linked-account-card" style="cursor:default"><div class="linked-account-meta"><div class="linked-account-name">"Play Shabang"</div><div class="linked-account-sub">Finds and plays the song instantly</div></div></div>
+      <div class="linked-account-card" style="cursor:default"><div class="linked-account-meta"><div class="linked-account-name">"Pause"</div><div class="linked-account-sub">Pauses whatever's playing</div></div></div>
+      <div class="linked-account-card" style="cursor:default"><div class="linked-account-meta"><div class="linked-account-name">"Resume"</div><div class="linked-account-sub">Picks back up where you left off</div></div></div>
+    </div>
+    <button class="btn-primary" onclick="vaDismissOnboarding()">GOT IT</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const VA_ENABLED_KEY = 'blastr_assistant_enabled';
+  const VA_PROMO_KEY = 'blastr_va_promo_seen';
+  const VA_ONBOARD_KEY = 'blastr_va_onboarded';
+  const WAKE_RE = /\bblast(?:er|ers|a)?\b|\bblast\s+her\b/i; // optional — still accepted if said, never required
+
+  const VA_PLAY_LINES = ["On it — playing {title} by {artist}.", "Alright, playing {title} by {artist}.", "Playing {title} by {artist}.", "Here's {title} — {artist}.", "Now playing {title} by {artist}. Enjoy!"];
+  const VA_PAUSE_LINES = ["Paused.", "Alright, pausing that for you.", "On it — paused."];
+  const VA_RESUME_LINES = ["Resuming.", "Back to it.", "Alright, continuing."];
+  const VA_NOTFOUND_LINES = ["Song not found. Try another title.", "Couldn't find that one in your library.", "No match for that title — try again?"];
+  function vaPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  let vaEnabled = false, vaRecognition = null, vaListening = false, vaAudioCtx = null, vaVoice = null, vaCollapseTimer = null;
+
+  function vaSupported(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+  function vaGetAudioEl(){ return window.audio || document.getElementById('audioPlayer'); }
+
+  // ── TTS ──
+  function vaPickVoice(){
+    if (vaVoice) return vaVoice;
+    const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    if (!voices.length) return null;
+    const prefs = ['Google US English','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Samantha','Google UK English Female'];
+    for (const name of prefs){ const v = voices.find(v=>v.name===name); if (v){ vaVoice=v; return v; } }
+    vaVoice = voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0];
+    return vaVoice;
+  }
+  if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => { vaVoice = null; };
+  function vaSpeak(text){
+    if (!('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = vaPickVoice(); if (v) u.voice = v;
+      u.volume = 1; u.rate = 1.04; u.pitch = 1.06; // max volume — browsers cap output at device level, this is the ceiling
+      window.speechSynthesis.speak(u);
+    } catch(e){ /* TTS is a bonus layer — the on-screen response is the source of truth */ }
+  }
+  function vaChime(){
+    try{
+      vaAudioCtx = vaAudioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const o = vaAudioCtx.createOscillator(), g = vaAudioCtx.createGain();
+      o.type='sine'; o.frequency.value=880; g.gain.value=0.0001;
+      o.connect(g); g.connect(vaAudioCtx.destination);
+      const t = vaAudioCtx.currentTime;
+      g.gain.exponentialRampToValueAtTime(0.28, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.18);
+      o.start(t); o.stop(t+0.2);
+    }catch(e){}
+  }
+
+  // ── Live caption / response chip (beside the Follow cluster) ──
+  function vaSetClusterText(text, cls){
+    const el = document.getElementById('vaClusterText');
+    const wrap = document.getElementById('vaCluster');
+    if (!el || !wrap) return;
+    el.textContent = text || '';
+    el.className = 'va-cluster-text' + (cls ? (' '+cls) : '');
+    wrap.classList.toggle('expanded', !!text);
+  }
+  function vaRespond(text, cls){
+    vaSpeak(text);
+    vaSetClusterText(text, cls);
+    clearTimeout(vaCollapseTimer);
+    vaCollapseTimer = setTimeout(() => vaSetClusterText('', ''), 3800);
+  }
+
+  // ── Instant local track matching (no network — speed matters here) ──
+  function vaNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim(); }
+  function vaFindTrack(query){
+    const pool = (window.state && Array.isArray(window.state.allTracks)) ? window.state.allTracks : [];
+    const q = vaNorm(query);
+    if (!pool.length || !q) return null;
+    let best=null, bestScore=0;
+    for (const t of pool){
+      const title = vaNorm(t.title);
+      if (!title) continue;
+      let score = 0;
+      if (title===q) score=100;
+      else if (title.startsWith(q)) score=80;
+      else if (title.includes(q)) score=60;
+      else {
+        const qw=q.split(' '), tw=title.split(' ');
+        const overlap=qw.filter(w=>tw.includes(w)).length;
+        score = overlap ? (overlap/qw.length)*40 : 0;
+      }
+      if (score>bestScore){ bestScore=score; best=t; }
+    }
+    return bestScore>=30 ? best : null;
+  }
+
+  // ── Command execution ──
+  function vaExecuteCommand(cmd){
+    const lc = cmd.toLowerCase().trim();
+    const a = vaGetAudioEl();
+    if (/^(pause|stop)\b/.test(lc)){
+      if (window.state?.isPlaying){ a?.pause(); window.state.isPlaying=false; if (typeof syncPlayState==='function') syncPlayState(); vaRespond(vaPick(VA_PAUSE_LINES),'va-success'); }
+      else vaRespond('Already paused.','va-success');
+      return;
+    }
+    if (/^(resume|continue|unpause)\b/.test(lc) || lc==='play'){
+      if (window.state?.currentTrack && !window.state.isPlaying){ a?.play(); window.state.isPlaying=true; if (typeof syncPlayState==='function') syncPlayState(); vaRespond(vaPick(VA_RESUME_LINES),'va-success'); }
+      else if (!window.state?.currentTrack) vaRespond("Nothing queued yet — try a song name.",'va-error');
+      else vaRespond('Already playing.','va-success');
+      return;
+    }
+    const m = lc.match(/^play\s+(.+)$/);
+    const query = (m ? m[1] : lc).trim();
+    if (!query){ vaRespond('Say a song name.','va-error'); return; }
+    const track = vaFindTrack(query);
+    const doInitiate = window.initiateHandshake || (typeof initiateHandshake==='function' ? initiateHandshake : null);
+    if (track && doInitiate){
+      doInitiate(track);
+      vaRespond(vaPick(VA_PLAY_LINES).replace('{title}',track.title).replace('{artist}',track.artist||'Unknown Artist'),'va-success');
+    } else {
+      vaRespond(vaPick(VA_NOTFOUND_LINES),'va-error');
+    }
+  }
+
+  // The wake word is optional now — strip it only if said right at the start; never required
+  function vaHandleCommand(raw){
+    let text = (raw||'').trim();
+    const m = WAKE_RE.exec(text);
+    if (m && m.index===0) text = text.slice(m[0].length).replace(/^[,.\-\s]+/, '').trim();
+    if (!text){ vaRespond("Didn't catch a command — try again.", 'va-error'); return; }
+    vaExecuteCommand(text);
+  }
+
+  // ── Recognition engine: single push-to-talk burst, no continuous mode, no restart loop needed ──
+  function vaCreateRecognition(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const r = new SR();
+    r.continuous = false; r.interimResults = true; r.lang = 'en-US';
+    r.onresult = (e) => {
+      for (let i=e.resultIndex;i<e.results.length;i++){
+        const res = e.results[i];
+        if (res.isFinal) vaHandleCommand(res[0].transcript);
+        else vaSetClusterText(res[0].transcript || '…');
+      }
+    };
+    r.onerror = (e) => {
+      vaListening = false; vaUpdateIndicator();
+      if (e.error==='not-allowed' || e.error==='service-not-allowed'){
+        vaSetEnabled(false);
+        if (typeof showToast==='function') showToast('MIC BLOCKED','Enable microphone access in your browser settings to use voice commands.');
+      } else if (e.error==='no-speech'){
+        vaRespond("Didn't catch that — tap and try again.", 'va-error');
+      } else {
+        vaSetClusterText('', '');
+      }
+    };
+    r.onend = () => { vaListening = false; vaUpdateIndicator(); };
+    return r;
+  }
+  function vaListenOnce(){
+    if (!vaEnabled){ if (typeof showToast==='function') showToast('ASSISTANT OFF','Turn on Voice Commands in Settings first.'); return; }
+    if (!vaSupported()){ if (typeof showToast==='function') showToast('NOT SUPPORTED','Voice commands need Chrome or Edge.'); return; }
+    if (vaListening){ try{ vaRecognition?.abort(); }catch(e){} return; } // tap again to cancel
+    try{
+      vaRecognition = vaCreateRecognition();
+      vaListening = true; vaUpdateIndicator();
+      vaSetClusterText('Listening…');
+      vaChime();
+      vaRecognition.start();
+    }catch(e){ vaListening = false; vaUpdateIndicator(); }
+  }
+  window.vaHandleTap = vaListenOnce;
+
+  // ── Enable/disable (Settings only — no longer toggles listening itself) ──
+  function vaRenderToggle(on){
+    const btn=document.getElementById('vaToggleBtn'), lbl=document.getElementById('vaToggleState');
+    if (lbl) lbl.textContent = on?'ON':'OFF';
+    if (btn) btn.classList.toggle('active', on);
+    vaUpdateIndicator();
+  }
+  function vaUpdateIndicator(){
+    const wrap=document.getElementById('vaCluster');
+    if (!wrap) return;
+    wrap.classList.toggle('on', vaEnabled);
+    wrap.classList.toggle('listening', vaListening);
+    wrap.style.opacity = vaEnabled ? '1' : '.5';
+  }
+  async function vaRequestPermission(){
+    try{ const s = await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); return true; }
+    catch(e){ return false; }
+  }
+  window.vaSetEnabled = async function vaSetEnabled(on){
+    if (on){
+      if (!vaSupported()){
+        if (typeof showToast==='function') showToast('NOT SUPPORTED','Voice commands need Chrome or Edge.');
+        vaRenderToggle(false); return;
+      }
+      const granted = await vaRequestPermission();
+      if (!granted){
+        if (typeof showToast==='function') showToast('MIC BLOCKED','Allow microphone access to use voice commands.');
+        vaRenderToggle(false); return;
+      }
+      vaEnabled = true;
+      try{ localStorage.setItem(VA_ENABLED_KEY,'1'); }catch(e){}
+      vaRenderToggle(true);
+      if (!localStorage.getItem(VA_ONBOARD_KEY)) setTimeout(vaShowOnboarding, 500);
+    } else {
+      vaEnabled = false;
+      if (vaRecognition){ try{ vaRecognition.abort(); }catch(e){} }
+      try{ localStorage.setItem(VA_ENABLED_KEY,'0'); }catch(e){}
+      vaRenderToggle(false);
+      vaSetClusterText('', '');
+    }
+  };
+  window.vaToggleFromSettings = function(){ vaSetEnabled(!vaEnabled); };
+  function vaShowOnboarding(){ document.getElementById('vaOnboardModal')?.classList.add('open'); }
+  window.vaDismissOnboarding = function(){ document.getElementById('vaOnboardModal')?.classList.remove('open'); try{ localStorage.setItem(VA_ONBOARD_KEY,'1'); }catch(e){} };
+  window.vaDismissPromo = function(){ document.getElementById('vaPromoModal')?.classList.remove('open'); try{ localStorage.setItem(VA_PROMO_KEY,'1'); }catch(e){} };
+
+  // Promo: shown once ever, waits for a clear moment (no boot/switch overlay covering the screen)
+  function vaMaybeShowPromo(){
+    if (localStorage.getItem(VA_PROMO_KEY)) return;
+    let tries=0;
+    const check=()=>{
+      tries++;
+      const busy = document.getElementById('nfOverlay')?.classList.contains('open')
+        || document.getElementById('acctCineOverlay')?.classList.contains('open')
+        || document.documentElement.style.visibility==='hidden';
+      if (!busy){ document.getElementById('vaPromoModal')?.classList.add('open'); return; }
+      if (tries<20) setTimeout(check, 700);
+    };
+    setTimeout(check, 1200);
+  }
+  window.addEventListener('load', vaMaybeShowPromo);
+
+  // Inject the tap-to-talk cluster right beside the Follow cluster (additive DOM insert — nothing existing touched)
+  function vaInjectCluster(){
+    if (document.getElementById('vaCluster')) return;
+    const anchor = document.getElementById('followCluster');
+    const html = '<div class="va-cluster" id="vaCluster" onclick="vaHandleTap()" title="Tap to talk to Blastr"><span class="va-mic-dot">🎙</span><span class="va-cluster-text" id="vaClusterText"></span></div>';
+    if (anchor) anchor.insertAdjacentHTML('afterend', html);
+    else document.querySelector('.topbar-actions')?.insertAdjacentHTML('afterbegin', html);
+  }
+  vaInjectCluster();
+  setTimeout(vaInjectCluster, 1000); // Follow cluster may render slightly after boot — retry once
+
+  // Restore prior enabled state on boot — permission already granted, nothing to re-prompt, no listening starts automatically
+  if (localStorage.getItem(VA_ENABLED_KEY)==='1'){ vaEnabled = true; vaRenderToggle(true); }
+  else { vaRenderToggle(false); }
 })();
 </script>
 
