@@ -3200,21 +3200,21 @@ body.light .search-input{color:var(--text)}
 .artist-info-flex{display:flex;align-items:flex-start;gap:8px}
 .artist-info-flex .artist-info-row{flex:1;min-width:0}
 .artist-phone-wrap{flex-shrink:0;padding:28px 32px 28px 0;display:flex;align-items:flex-start;justify-content:center}
-.artist-phone{position:relative;width:222px;aspect-ratio:9/19.5;border-radius:38px;padding:9px;flex-shrink:0;
+.artist-phone{position:relative;width:264px;aspect-ratio:9/19.5;border-radius:42px;padding:10px;flex-shrink:0;
   background:linear-gradient(160deg,#20202f,#0a0a14 65%);
   box-shadow:0 30px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.07) inset,0 0 90px rgba(0,198,255,.09);
   animation:artist-phone-float 5.5s ease-in-out infinite;
 }
 @keyframes artist-phone-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.artist-phone-notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:64px;height:16px;border-radius:10px;background:#000;z-index:5}
-.artist-phone-screen{position:relative;width:100%;height:100%;border-radius:29px;overflow:hidden;background:#050509;box-shadow:0 0 0 2px rgba(255,255,255,.05) inset}
+.artist-phone-notch{position:absolute;top:23px;left:50%;transform:translateX(-50%);width:76px;height:18px;border-radius:11px;background:#000;z-index:5}
+.artist-phone-screen{position:relative;width:100%;height:100%;border-radius:33px;overflow:hidden;background:#050509;box-shadow:0 0 0 2px rgba(255,255,255,.05) inset}
 .artist-phone-video{width:100%;height:100%;object-fit:cover;display:block}
 .artist-phone-iframe{width:100%;height:100%;border:0;display:block;background:#050509}
 .artist-phone-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:linear-gradient(160deg,rgba(0,198,255,.14),rgba(57,255,20,.08) 60%,rgba(8,8,20,.9))}
 .artist-phone-ph-icon{font-size:30px;color:rgba(255,255,255,.35);text-shadow:0 0 24px rgba(0,198,255,.35)}
 .artist-phone-ph-text{font-size:9px;font-family:var(--mono);letter-spacing:1.6px;color:rgba(255,255,255,.4);line-height:1.7}
 .artist-phone-sheen{position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.10) 0%,transparent 30%);pointer-events:none}
-@media(max-width:900px){
+@media(max-width:980px){
   .artist-info-flex{flex-wrap:wrap}
   .artist-phone-wrap{display:none}
 }
@@ -3890,7 +3890,7 @@ body.light .search-input{color:var(--text)}
             <div class="artist-phone">
               <div class="artist-phone-notch"></div>
               <div class="artist-phone-screen">
-                <video id="artistPhoneVideo" class="artist-phone-video" autoplay muted loop playsinline preload="metadata" style="display:none"></video>
+                <video id="artistPhoneVideo" class="artist-phone-video" autoplay muted loop playsinline preload="auto" fetchpriority="high" style="display:none"></video>
                 <iframe id="artistPhoneIframe" class="artist-phone-iframe" style="display:none" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
                 <div class="artist-phone-placeholder" id="artistPhonePlaceholder">
                   <div class="artist-phone-ph-icon">♪</div>
@@ -9654,6 +9654,16 @@ function artistGradient(id) {
   return BANNER_GRADIENTS[h % BANNER_GRADIENTS.length];
 }
 
+// Warms up the connection to a video's origin (DNS+TLS) before the byte
+// request is actually issued, shaving latency off first-frame render time.
+function blastrPreconnectOrigin(url){
+  try{
+    const origin = new URL(url).origin;
+    let link = document.getElementById('artistVideoPreconnect');
+    if (!link) { link = document.createElement('link'); link.id = 'artistVideoPreconnect'; link.rel = 'preconnect'; link.crossOrigin = ''; document.head.appendChild(link); }
+    link.href = origin;
+  } catch(_) {}
+}
 // Resolves a pasted video URL to a playable form: a direct file plays inline,
 // TikTok/YouTube/Instagram links resolve to their native embed players since
 // browsers can't decode a social-media page URL as a raw <video> source.
@@ -9664,7 +9674,7 @@ function blastrResolveVideoEmbed(url){
   if (/\.(mp4|webm|ogv|mov|m3u8)(\?.*)?$/i.test(u)) return { type:'video', src:u };
   if ((m = u.match(/youtu\.be\/([\w-]+)/)) || (m = u.match(/youtube\.com\/(?:shorts\/|watch\?v=)([\w-]+)/))) {
     const id = m[1];
-    return { type:'iframe', src:`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0` };
+    return { type:'iframe', src:`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0` };
   }
   if ((m = u.match(/tiktok\.com\/.*?\/video\/(\d+)/))) {
     return { type:'iframe', src:`https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1` };
@@ -9679,6 +9689,7 @@ function blastrResolveVideoEmbed(url){
 window.openArtistProfile = async function(artist) {
   if (!artist || !artist.id) return;
   state.currentArtist = artist;
+  if (artist.featured_video_url) blastrPreconnectOrigin(artist.featured_video_url);
   // Banner
   const banner = document.getElementById('artistBanner');
   const bannerImg = document.getElementById('artistBannerImg');
@@ -9726,10 +9737,14 @@ window.openArtistProfile = async function(artist) {
   const phoneFrame = document.getElementById('artistPhoneIframe');
   const phonePh = document.getElementById('artistPhonePlaceholder');
   if (phoneVideo && phoneFrame) {
-    phoneVideo.pause(); phoneVideo.removeAttribute('src'); phoneVideo.style.display = 'none';
+    phoneVideo.pause(); phoneVideo.removeAttribute('src'); phoneVideo.style.display = 'none'; phoneVideo.style.opacity = '';
     phoneFrame.removeAttribute('src'); phoneFrame.style.display = 'none';
     const embed = blastrResolveVideoEmbed(artist.featured_video_url);
     if (embed && embed.type === 'video') {
+      phoneVideo.poster = artist.avatar_url || artist.banner_url || '';
+      phoneVideo.style.opacity = phoneVideo.poster ? '0' : '1';
+      phoneVideo.style.transition = 'opacity .35s ease';
+      phoneVideo.oncanplay = () => { phoneVideo.style.opacity = '1'; };
       phoneVideo.onerror = () => { phoneVideo.style.display = 'none'; phonePh.style.display = 'flex'; };
       phoneVideo.src = embed.src;
       phoneVideo.style.display = 'block';
