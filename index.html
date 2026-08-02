@@ -3196,6 +3196,28 @@ body.light .search-input{color:var(--text)}
 .artist-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .artist-genre-tag{padding:4px 13px;border-radius:20px;font-size:10px;font-family:var(--mono);letter-spacing:1.5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
 .artist-actions{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+/* Info row + phone mockup layout */
+.artist-info-flex{display:flex;align-items:flex-start;gap:8px}
+.artist-info-flex .artist-info-row{flex:1;min-width:0}
+.artist-phone-wrap{flex-shrink:0;padding:28px 32px 28px 0;display:flex;align-items:flex-start;justify-content:center}
+.artist-phone{position:relative;width:222px;aspect-ratio:9/19.5;border-radius:38px;padding:9px;flex-shrink:0;
+  background:linear-gradient(160deg,#20202f,#0a0a14 65%);
+  box-shadow:0 30px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.07) inset,0 0 90px rgba(0,198,255,.09);
+  animation:artist-phone-float 5.5s ease-in-out infinite;
+}
+@keyframes artist-phone-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.artist-phone-notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:64px;height:16px;border-radius:10px;background:#000;z-index:5}
+.artist-phone-screen{position:relative;width:100%;height:100%;border-radius:29px;overflow:hidden;background:#050509;box-shadow:0 0 0 2px rgba(255,255,255,.05) inset}
+.artist-phone-video{width:100%;height:100%;object-fit:cover;display:block}
+.artist-phone-iframe{width:100%;height:100%;border:0;display:block;background:#050509}
+.artist-phone-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:linear-gradient(160deg,rgba(0,198,255,.14),rgba(57,255,20,.08) 60%,rgba(8,8,20,.9))}
+.artist-phone-ph-icon{font-size:30px;color:rgba(255,255,255,.35);text-shadow:0 0 24px rgba(0,198,255,.35)}
+.artist-phone-ph-text{font-size:9px;font-family:var(--mono);letter-spacing:1.6px;color:rgba(255,255,255,.4);line-height:1.7}
+.artist-phone-sheen{position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.10) 0%,transparent 30%);pointer-events:none}
+@media(max-width:900px){
+  .artist-info-flex{flex-wrap:wrap}
+  .artist-phone-wrap{display:none}
+}
 /* Section headers */
 .artist-section-title{font-size:20px;font-weight:800;letter-spacing:.2px;margin:28px 0 14px;color:#fff}
 /* Popular track rows */
@@ -3846,6 +3868,7 @@ body.light .search-input{color:var(--text)}
         </div>
         <!-- Info section -->
         <div class="artist-content">
+          <div class="artist-info-flex">
           <div class="artist-info-row">
             <div class="artist-name-row">
               <div class="artist-name" id="artistName">Artist</div>
@@ -3862,6 +3885,21 @@ body.light .search-input{color:var(--text)}
                 <span id="artistFollowLabel">FOLLOW</span>
               </button>
             </div>
+          </div>
+          <div class="artist-phone-wrap" id="artistPhoneWrap">
+            <div class="artist-phone">
+              <div class="artist-phone-notch"></div>
+              <div class="artist-phone-screen">
+                <video id="artistPhoneVideo" class="artist-phone-video" autoplay muted loop playsinline preload="metadata" style="display:none"></video>
+                <iframe id="artistPhoneIframe" class="artist-phone-iframe" style="display:none" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                <div class="artist-phone-placeholder" id="artistPhonePlaceholder">
+                  <div class="artist-phone-ph-icon">♪</div>
+                  <div class="artist-phone-ph-text">FEATURED VIDEO<br>COMING SOON</div>
+                </div>
+                <div class="artist-phone-sheen"></div>
+              </div>
+            </div>
+          </div>
           </div>
           <!-- Popular Tracks -->
           <div id="artistPopularSection" style="display:none">
@@ -3952,7 +3990,10 @@ body.light .search-input{color:var(--text)}
           <div class="admin-card">
             <div class="admin-card-title">⬆ DUAL_BLAST() — UPLOAD TRACK</div>
             <input type="text" class="admin-input" id="adminTitle" placeholder="Track Title">
-            <input type="text" class="admin-input" id="adminArtist" placeholder="Artist Name">
+            <div style="position:relative">
+              <input type="text" class="admin-input" id="adminArtist" placeholder="Artist Name" oninput="uploadOnArtistSearch(this.value)" autocomplete="off">
+              <div class="am-track-results" id="adminArtistResults"></div>
+            </div>
             <input type="text" class="admin-input" id="adminDesc" placeholder="Description (optional)">
             <select class="admin-select" id="adminGenre">
               <option value="">SELECT GENRE...</option>
@@ -4036,9 +4077,10 @@ body.light .search-input{color:var(--text)}
                   <label class="es-label">TITLE</label>
                   <input type="text" class="es-input" id="esTitle" placeholder="Track title">
                 </div>
-                <div class="es-field">
+                <div class="es-field" style="position:relative">
                   <label class="es-label">ARTIST</label>
-                  <input type="text" class="es-input" id="esArtist" placeholder="Artist name">
+                  <input type="text" class="es-input" id="esArtist" placeholder="Artist name" oninput="esOnArtistSearch(this.value)" autocomplete="off">
+                  <div class="am-track-results" id="esArtistResults"></div>
                 </div>
                 <div class="es-field">
                   <label class="es-label">DESCRIPTION</label>
@@ -4132,6 +4174,11 @@ body.light .search-input{color:var(--text)}
                       <option value="NEW">NEW</option>
                     </select>
                   </div>
+                </div>
+                <div class="am-field">
+                  <label class="am-label">FEATURED VIDEO URL</label>
+                  <input type="text" class="am-input" id="amVideoUrl" placeholder="https://…/artist-promo.mp4">
+                  <div style="font-size:9px;color:var(--dim);font-family:var(--mono);margin-top:5px;line-height:1.5">Direct .mp4 files loop cleanest. TikTok / YouTube Shorts / Instagram Reels links also work via embed.</div>
                 </div>
                 <div class="am-verify" id="amVerifyToggle" onclick="amToggleVerify()" style="margin-top:10px">
                   <div class="am-verify-dot" id="amVerifyDot"></div>
@@ -6243,6 +6290,8 @@ async function executeBlast() {
       reason: 'uploading the cover art'
     });
 
+    const linkedArtistId = await blastrResolveArtistId(artist, upArtistId);
+
     const inserted = await sbFetch('/rest/v1/tracks', {
       method: 'POST',
       headers: {
@@ -6251,6 +6300,7 @@ async function executeBlast() {
       body: {
         title,
         artist,
+        artist_id: linkedArtistId,
         description: desc,
         genre,
         url: uploadedAudio.url,
@@ -6265,6 +6315,7 @@ async function executeBlast() {
 
     showToast('BLAST SUCCESS!', `"${title}" uploaded to the Grid`);
     ['adminTitle','adminArtist','adminDesc'].forEach(id => document.getElementById(id).value = '');
+    upArtistId = null;
     document.getElementById('adminGenre').value = '';
     adminAudioFile = null;
     adminImageFile = null;
@@ -6448,6 +6499,64 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 // ── UTILS ──
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function jsonAttr(obj){return JSON.stringify(obj).replace(/"/g,'&quot;');}
+
+// ── Live artist linking (Upload + Edit Song) ──
+let upArtistId = null, esArtistIdSel = null, upArtistTimer = null, esArtistTimer = null;
+function artistTypeaheadRows(list, pickFn) {
+  return list.slice(0,6).map(a => `
+    <div class="am-track-result-row" onclick="${pickFn}(${jsonAttr(a)})">
+      <div class="am-track-result-thumb">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy">`:'★'}</div>
+      <div style="font-size:12px;font-weight:700">${esc(a.name)}</div>
+    </div>`).join('');
+}
+window.uploadOnArtistSearch = function(val){
+  upArtistId = null;
+  clearTimeout(upArtistTimer);
+  const res = document.getElementById('adminArtistResults');
+  if (val.trim().length < 2) { res.classList.remove('open'); return; }
+  upArtistTimer = setTimeout(async () => {
+    const list = await getArtists(val.trim());
+    if (!list.length) { res.classList.remove('open'); return; }
+    res.innerHTML = artistTypeaheadRows(list, 'uploadPickArtist');
+    res.classList.add('open');
+  }, 220);
+};
+window.uploadPickArtist = function(a){
+  upArtistId = a.id;
+  document.getElementById('adminArtist').value = a.name;
+  document.getElementById('adminArtistResults').classList.remove('open');
+};
+window.esOnArtistSearch = function(val){
+  esArtistIdSel = null;
+  clearTimeout(esArtistTimer);
+  const res = document.getElementById('esArtistResults');
+  if (val.trim().length < 2) { res.classList.remove('open'); return; }
+  esArtistTimer = setTimeout(async () => {
+    const list = await getArtists(val.trim());
+    if (!list.length) { res.classList.remove('open'); return; }
+    res.innerHTML = artistTypeaheadRows(list, 'esPickArtist');
+    res.classList.add('open');
+  }, 220);
+};
+window.esPickArtist = function(a){
+  esArtistIdSel = a.id;
+  document.getElementById('esArtist').value = a.name;
+  document.getElementById('esArtistResults').classList.remove('open');
+};
+// Resolves a typed artist name to an id: uses the picked typeahead result if present,
+// else an exact-name match, else auto-creates a new artist record.
+async function blastrResolveArtistId(name, pickedId){
+  if (pickedId) return pickedId;
+  if (!name) return null;
+  try {
+    const matches = await getArtists(name);
+    const exact = matches.find(a => (a.name||'').toLowerCase() === name.toLowerCase());
+    if (exact) return exact.id;
+    const created = await sbFetch('/rest/v1/artists', { method:'POST', headers:{Prefer:'return=representation'}, body:{ name } });
+    const row = Array.isArray(created) ? created[0] : created;
+    return row?.id || null;
+  } catch(e) { console.warn('[artist link]', e); return null; }
+}
 function mitosisLoaderHTML(text,compact){
   return `<div class="explore-loader"${compact?' style="padding:30px 16px;min-height:auto;gap:14px"':''}>
     <div class="mitosis-wrap"${compact?' style="width:96px;height:60px;transform:scale(.7)"':''}>
@@ -9282,6 +9391,7 @@ window.SM = SM;
 
     document.getElementById('esTitle').value  = track.title || '';
     document.getElementById('esArtist').value = track.artist || '';
+    esArtistIdSel = track.artist_id || null;
     document.getElementById('esDesc').value   = track.description || '';
     document.getElementById('esGenre').value  = track.genre || '';
 
@@ -9293,6 +9403,7 @@ window.SM = SM;
 
   window.esClearSong = function() {
     ES.track = null;
+    esArtistIdSel = null;
     ES.newCoverFile = null;
     if (ES.newCoverPreviewURL) { URL.revokeObjectURL(ES.newCoverPreviewURL); ES.newCoverPreviewURL = null; }
     document.getElementById('esLockedChip').style.display = 'none';
@@ -9408,6 +9519,9 @@ window.SM = SM;
       if (genre  !== (ES.track.genre       || '')) patch.genre       = genre;
       if (ES.isVerified !== !!ES.track.is_verified) patch.is_verified = ES.isVerified;
       if (newCoverUrl) patch.cover_url = newCoverUrl;
+
+      const resolvedArtistId = await blastrResolveArtistId(artist, esArtistIdSel);
+      if (resolvedArtistId !== (ES.track.artist_id || null)) patch.artist_id = resolvedArtistId;
 
       if (!Object.keys(patch).length) {
         showToast('NO CHANGES', 'Nothing to update.');
@@ -9540,6 +9654,27 @@ function artistGradient(id) {
   return BANNER_GRADIENTS[h % BANNER_GRADIENTS.length];
 }
 
+// Resolves a pasted video URL to a playable form: a direct file plays inline,
+// TikTok/YouTube/Instagram links resolve to their native embed players since
+// browsers can't decode a social-media page URL as a raw <video> source.
+function blastrResolveVideoEmbed(url){
+  if (!url) return null;
+  const u = url.trim();
+  let m;
+  if (/\.(mp4|webm|ogv|mov|m3u8)(\?.*)?$/i.test(u)) return { type:'video', src:u };
+  if ((m = u.match(/youtu\.be\/([\w-]+)/)) || (m = u.match(/youtube\.com\/(?:shorts\/|watch\?v=)([\w-]+)/))) {
+    const id = m[1];
+    return { type:'iframe', src:`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0` };
+  }
+  if ((m = u.match(/tiktok\.com\/.*?\/video\/(\d+)/))) {
+    return { type:'iframe', src:`https://www.tiktok.com/embed/v2/${m[1]}?autoplay=1&loop=1` };
+  }
+  if ((m = u.match(/instagram\.com\/(?:reel|p)\/([\w-]+)/))) {
+    return { type:'iframe', src:`https://www.instagram.com/reel/${m[1]}/embed` };
+  }
+  return { type:'video', src:u }; // best-effort: treat unrecognized links as a direct file
+}
+
 // ── ARTIST PROFILE PAGE ──
 window.openArtistProfile = async function(artist) {
   if (!artist || !artist.id) return;
@@ -9585,6 +9720,30 @@ window.openArtistProfile = async function(artist) {
   if (artist.genre) { genreTag.textContent = artist.genre; genreTag.style.display = ''; }
   else genreTag.style.display = 'none';
   document.getElementById('artistBio').textContent = artist.bio || '';
+
+  // Featured video phone mockup
+  const phoneVideo = document.getElementById('artistPhoneVideo');
+  const phoneFrame = document.getElementById('artistPhoneIframe');
+  const phonePh = document.getElementById('artistPhonePlaceholder');
+  if (phoneVideo && phoneFrame) {
+    phoneVideo.pause(); phoneVideo.removeAttribute('src'); phoneVideo.style.display = 'none';
+    phoneFrame.removeAttribute('src'); phoneFrame.style.display = 'none';
+    const embed = blastrResolveVideoEmbed(artist.featured_video_url);
+    if (embed && embed.type === 'video') {
+      phoneVideo.onerror = () => { phoneVideo.style.display = 'none'; phonePh.style.display = 'flex'; };
+      phoneVideo.src = embed.src;
+      phoneVideo.style.display = 'block';
+      phonePh.style.display = 'none';
+      phoneVideo.load();
+      phoneVideo.play().catch(()=>{});
+    } else if (embed && embed.type === 'iframe') {
+      phoneFrame.src = embed.src;
+      phoneFrame.style.display = 'block';
+      phonePh.style.display = 'none';
+    } else {
+      phonePh.style.display = 'flex';
+    }
+  }
 
   showPage('artist', document.getElementById('nav-artist'));
 
@@ -10175,7 +10334,7 @@ function amShowEditor() {
   document.getElementById('amEditorFields').style.display='block';
 }
 function amClearEditor() {
-  ['amName','amBio'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['amName','amBio','amVideoUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const g=document.getElementById('amGenre');if(g)g.value='';
   const b=document.getElementById('amBadge');if(b)b.value='';
   const ap=document.getElementById('amAvatarPreview');if(ap)ap.innerHTML='★';
@@ -10189,6 +10348,7 @@ function amPopulateEditor(a) {
   document.getElementById('amBio').value = a.bio||'';
   document.getElementById('amGenre').value = a.genre||'';
   document.getElementById('amBadge').value = a.badge||'';
+  document.getElementById('amVideoUrl').value = a.featured_video_url||'';
   // Avatar preview
   const ap = document.getElementById('amAvatarPreview');
   if(ap) ap.innerHTML = a.avatar_url ? `<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
@@ -10405,6 +10565,7 @@ window.amSaveArtist=async function(){
       bio: document.getElementById('amBio').value.trim()||null,
       genre: document.getElementById('amGenre').value||null,
       badge: document.getElementById('amBadge').value||null,
+      featured_video_url: document.getElementById('amVideoUrl').value.trim()||null,
       verified: AM.isVerified,
       avatar_url: avatarUrl,
       banner_url: bannerUrl,
