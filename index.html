@@ -19,7 +19,8 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2);border-radius:3px}
+::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2);border-radius:3px;transition:background .15s}
+::-webkit-scrollbar-thumb:hover{background:rgba(57,255,20,.4)}
 
 /* ── SCREENS ── */
 .screen{position:absolute;inset:0;transition:opacity .4s ease,transform .4s ease}
@@ -1014,7 +1015,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 /* ── PAGES ── */
 .pages-container{flex:1;overflow:hidden;position:relative}
-.page{position:absolute;inset:0;overflow-y:auto;padding:0 22px 22px;display:none}
+.page{position:absolute;inset:0;overflow-y:auto;padding:0 22px 22px;display:none;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .page.active{display:block;animation:page-in .2s ease}
 @keyframes page-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .section-title{font-size:24px;font-weight:900;letter-spacing:.3px;margin:18px 0 14px}
@@ -3238,9 +3239,9 @@ body.light .search-input{color:var(--text)}
 .artist-track-like:hover{color:var(--red);background:rgba(255,60,60,.08)}
 .artist-verified-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#000;font-size:9px;font-weight:900;margin-left:4px;flex-shrink:0;vertical-align:middle}
 /* Artist cards — home row — slightly larger (+18px) */
-.artist-row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-ms-overflow-style:none}
+.artist-row-scroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x proximity;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .artist-row-scroll::-webkit-scrollbar{display:none}
-.artist-card{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;width:148px;padding:14px 8px;border-radius:16px;transition:background .15s,transform .18s}
+.artist-card{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;width:148px;padding:14px 8px;border-radius:16px;transition:background .15s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1);scroll-snap-align:start}
 .artist-card:hover{background:rgba(255,255,255,.06);transform:translateY(-4px)}
 .artist-card-avatar{width:118px;height:118px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#0f0f1a);display:flex;align-items:center;justify-content:center;font-size:34px;color:rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.07);flex-shrink:0;transition:box-shadow .18s}
 .artist-card:hover .artist-card-avatar{box-shadow:0 10px 40px rgba(0,0,0,.65),0 0 0 2px rgba(57,255,20,.2)}
@@ -3669,6 +3670,7 @@ body.light .search-input{color:var(--text)}
 </div>
 
 <!-- ═══════════════════ MAIN APP ═══════════════════ -->
+<div id="blastrProjectBadge" style="position:fixed;left:10px;bottom:calc(var(--player-h) + 10px);z-index:9999;font:600 11px/1 monospace;letter-spacing:.03em;padding:4px 8px;border-radius:6px;background:rgba(0,0,0,.55);color:rgba(57,255,20,.85);border:1px solid rgba(57,255,20,.25);pointer-events:none;">P1</div>
 <div id="appScreen" class="screen hidden">
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -3858,7 +3860,7 @@ body.light .search-input{color:var(--text)}
         <!-- Hero banner -->
         <div class="artist-hero">
           <div class="artist-banner" id="artistBanner">
-            <img id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+            <img loading="lazy" id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
           </div>
           <div class="artist-banner-fade"></div>
           <div class="artist-banner-bottom"></div>
@@ -4064,7 +4066,7 @@ body.light .search-input{color:var(--text)}
               <div id="esEditorFields" style="display:none">
                 <!-- Cover preview -->
                 <div class="es-cover-preview" id="esCoverPreviewWrap">
-                  <img class="es-cover-img" id="esCoverImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+                  <img loading="lazy" class="es-cover-img" id="esCoverImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
                   <div class="es-cover-placeholder" id="esCoverPlaceholder">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="14" cy="15" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 27l9-8 6 6 5-4 12 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
                     <span>NO COVER</span>
@@ -4134,7 +4136,7 @@ body.light .search-input{color:var(--text)}
                       <span>UPLOAD BANNER (3:1 recommended)</span>
                       <span style="font-size:9px;opacity:.5">Drag image vertically to set focal point</span>
                     </div>
-                    <img class="am-banner-drag-img" id="amBannerDragImg" style="display:none">
+                    <img loading="lazy" class="am-banner-drag-img" id="amBannerDragImg" style="display:none">
                     <div class="am-banner-drag-hint" id="amBannerDragHint" style="display:none">↕ DRAG TO REPOSITION · CLICK TO CHANGE</div>
                     <div class="am-banner-change-overlay" id="amBannerChangeOverlay" style="display:none">
                       <button class="am-banner-change-btn" onclick="event.stopPropagation();amPickBanner()">⬆ CHANGE</button>
@@ -4285,7 +4287,7 @@ body.light .search-input{color:var(--text)}
   <canvas class="zen-bg-canvas" id="zenCanvas"></canvas>
   <!-- Album art environmental bleed -->
   <div class="zen-art-env" id="zenArtEnv">
-    <img class="zen-art-env-img" id="zenArtEnvImg" src="" alt="" referrerpolicy="no-referrer">
+    <img loading="lazy" class="zen-art-env-img" id="zenArtEnvImg" src="" alt="" referrerpolicy="no-referrer">
   </div>
   <!-- Chorus bloom -->
   <div class="zen-chorus-bloom" id="zenChorusBloom"></div>
@@ -4311,7 +4313,7 @@ body.light .search-input{color:var(--text)}
     <!-- Side art panel (visible in side mode only) -->
     <div class="zen-side-art" id="zenSideArt">
       <div class="zen-side-cover" id="zenSideCover">
-        <img id="zenSideImg" src="" alt="" referrerpolicy="no-referrer">
+        <img loading="lazy" id="zenSideImg" src="" alt="" referrerpolicy="no-referrer">
       </div>
       <div class="zen-side-meta">
         <div class="zen-side-title" id="zenSideTitle">—</div>
@@ -4425,8 +4427,104 @@ body.light .search-input{color:var(--text)}
 // ═══════════════════════════════════════════════════════
 // BLASTR WEB v2 — CORE STATE ENGINE
 // ═══════════════════════════════════════════════════════
-const SUPABASE_URL = "https://oapfpawypuodfvpzdffi.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hcGZwYXd5cHVvZGZ2cHpkZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzk0MDUsImV4cCI6MjA4NzYxNTQwNX0.jrWLCX7pww2C_JzqMz0SMn1dyZ3HsQyVDfGWL2UkcX0";
+// ── DUAL-PROJECT ROTATION (Blastr Backup) ──
+// index 0 = primary, index 1 = backup. Failover flips ACTIVE, never both at once.
+const BLASTR_PROJECTS = [
+  { url: "https://oapfpawypuodfvpzdffi.supabase.co", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hcGZwYXd5cHVvZGZ2cHpkZmZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzk0MDUsImV4cCI6MjA4NzYxNTQwNX0.jrWLCX7pww2C_JzqMz0SMn1dyZ3HsQyVDfGWL2UkcX0" },
+  { url: "https://zlkdlvovnclxqfwpafnc.supabase.co", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsa2Rsdm92bmNseHFmd3BhZm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3Mzg4MzksImV4cCI6MjEwMTMxNDgzOX0.RORueyIi_SDvy3Ub1FL3FB5ETa8y-0syH-0azj3L3ac" }
+];
+const BLASTR_ACTIVE_STORAGE_KEY = 'blastr_active_project';
+let blastrActiveIdx = (() => {
+  try { const v = parseInt(localStorage.getItem(BLASTR_ACTIVE_STORAGE_KEY), 10); return (v === 0 || v === 1) ? v : 0; } catch(e) { return 0; }
+})();
+let SUPABASE_URL = BLASTR_PROJECTS[blastrActiveIdx].url;
+let SUPABASE_KEY = BLASTR_PROJECTS[blastrActiveIdx].key;
+document.addEventListener('DOMContentLoaded', () => { try { blastrUpdateBadge(); } catch(e) {} });
+
+function blastrStandbyProject() { return BLASTR_PROJECTS[blastrActiveIdx === 0 ? 1 : 0]; }
+
+function blastrUpdateBadge() {
+  try {
+    const el = document.getElementById('blastrProjectBadge');
+    if (el) el.textContent = 'P' + (blastrActiveIdx + 1);
+  } catch(e) {}
+}
+
+function blastrSwitchProject(reason) {
+  blastrActiveIdx = blastrActiveIdx === 0 ? 1 : 0;
+  SUPABASE_URL = BLASTR_PROJECTS[blastrActiveIdx].url;
+  SUPABASE_KEY = BLASTR_PROJECTS[blastrActiveIdx].key;
+  try { localStorage.setItem(BLASTR_ACTIVE_STORAGE_KEY, String(blastrActiveIdx)); } catch(e) {}
+  diag('ROTATE', `Switched active project -> #${blastrActiveIdx}`, reason);
+  blastrUpdateBadge();
+  // A session token is only valid on the project that issued it — carrying it over
+  // silently breaks every authenticated call (profile, playlists, etc). Clear it and
+  // tell the person plainly, instead of leaving them stuck on a broken profile page.
+  state.session = null;
+  try { blastrClearStoredAuth(); } catch(e) {}
+  try { if (typeof showToast === 'function') showToast('SWITCHED PROJECTS', 'Now running on the backup', 'Please sign in again', 'warn'); } catch(e) {}
+}
+
+// Two confirmed quota signals in a row are required before we actually flip —
+// a single blip (cold start, one dropped request) should never cause a switch.
+let blastrQuotaStrikes = 0;
+function blastrRegisterQuotaStrike(reason) {
+  blastrQuotaStrikes += 1;
+  diag('ROTATE', `Quota strike ${blastrQuotaStrikes}/2`, reason);
+  if (blastrQuotaStrikes >= 2) {
+    blastrQuotaStrikes = 0;
+    blastrSwitchProject(reason);
+    return true;
+  }
+  return false;
+}
+function blastrResetQuotaStrikes() { blastrQuotaStrikes = 0; }
+
+// True when a response looks like a quota/limit problem rather than an ordinary error
+function blastrIsQuotaSignal(status, payloadText) {
+  const s = Number(status || 0);
+  if (s === 402 || s >= 500) return true;
+  const t = String(payloadText || '').toLowerCase();
+  return /exceeded_|read-only transaction|payload too large|quota/.test(t);
+}
+
+// Best-effort mirror of writes to vitals tables, so the standby project stays warm.
+// Anon-writable on both projects by design (tracks/artists have no RLS; storage buckets allow anon).
+const BLASTR_MIRROR_TABLES = ['tracks', 'artists'];
+function blastrMirrorWrite(path, opts, resultPayload) {
+  try {
+    const m = /^\/rest\/v1\/([a-zA-Z_]+)/.exec(path || '');
+    const table = m && BLASTR_MIRROR_TABLES.includes(m[1]) ? m[1] : null;
+    if (!table) return;
+    const method = String(opts.method || 'GET').toUpperCase();
+    if (!['POST', 'PATCH', 'DELETE'].includes(method)) return;
+    const standby = blastrStandbyProject();
+    let mirrorBody = opts.body;
+    if (method === 'POST' && resultPayload) {
+      const row = Array.isArray(resultPayload) ? resultPayload[0] : resultPayload;
+      if (row && row.id && mirrorBody && typeof mirrorBody === 'object') mirrorBody = { ...mirrorBody, id: row.id };
+    }
+    const h = new Headers();
+    h.set('apikey', standby.key);
+    h.set('Authorization', `Bearer ${standby.key}`);
+    if (opts.headers) { try { new Headers(opts.headers).forEach((v, k) => h.set(k, v)); } catch(e) {} }
+    let sendBody = mirrorBody;
+    if (sendBody != null && typeof sendBody !== 'string' && !(sendBody instanceof Blob)) {
+      h.set('Content-Type', 'application/json');
+      sendBody = JSON.stringify(sendBody);
+    }
+    fetch(`${standby.url}${path}`, { method, headers: h, body: sendBody, credentials: 'omit' }).catch(() => {});
+  } catch(e) { /* mirroring is best-effort only */ }
+}
+function blastrMirrorStorageUpload(bucket, objectName, file, mime) {
+  try {
+    const standby = blastrStandbyProject();
+    const encodedName = blastrNormalizePublicObjectPath(objectName);
+    const h = new Headers({ apikey: standby.key, Authorization: `Bearer ${standby.key}`, 'x-upsert': 'true' });
+    if (mime) h.set('Content-Type', mime);
+    fetch(`${standby.url}/storage/v1/object/${encodeURIComponent(bucket)}/${encodedName}`, { method: 'POST', headers: h, body: file, credentials: 'omit' }).catch(() => {});
+  } catch(e) { /* mirroring is best-effort only */ }
+}
 const BLASTR_AUTH_STORAGE_KEY = 'blastr_session_v3';
 const ADMIN_PASSCODE = '19731979';
 window.ADMIN_PASSCODE = ADMIN_PASSCODE;
@@ -4647,16 +4745,40 @@ function blastrPrepareBody(body,headers) {
   if(!headers.has('Content-Type')) headers.set('Content-Type','application/json');
   return typeof body==='string'?body:JSON.stringify(body);
 }
-async function sbFetch(path, opts={}, token=null) {
+const blastrGetCache = new Map(); // path -> {t, data}
+async function sbFetch(path, opts={}, token=null, _retried=false) {
+  const { cache: blastrWantsCache, cacheTtl, ...fetchOpts } = opts;
+  const method0=String(fetchOpts.method||'GET').toUpperCase();
+  if(method0==='GET' && blastrWantsCache){
+    const hit=blastrGetCache.get(path);
+    const ttl=cacheTtl||60000;
+    if(hit && (Date.now()-hit.t)<ttl) return hit.data;
+  }
   try {
-    const h=blastrAuthHeaders(token, opts.headers||{});
-    const body=blastrPrepareBody(opts.body,h);
-    const res=await fetch(`${SUPABASE_URL}${path}`,{...opts,headers:h,body,credentials:'omit'});
+    const h=blastrAuthHeaders(token, fetchOpts.headers||{});
+    const body=blastrPrepareBody(fetchOpts.body,h);
+    const res=await fetch(`${SUPABASE_URL}${path}`,{...fetchOpts,headers:h,body,credentials:'omit'});
     const ct=res.headers.get('content-type')||'';
     const payload=ct.includes('application/json')?await res.json().catch(()=>null):await res.text().catch(()=>null);
-    if(!res.ok){diag('API',`${path} ${res.status}`,payload);return null;}
+    if(!res.ok){
+      diag('API',`${path} ${res.status}`,payload);
+      if(!_retried && blastrIsQuotaSignal(res.status, JSON.stringify(payload))){
+        if(blastrRegisterQuotaStrike(`${res.status} on ${path}`)) return sbFetch(path, opts, token, true);
+      } else {
+        blastrResetQuotaStrikes();
+      }
+      return null;
+    }
+    blastrResetQuotaStrikes();
+    if(method0!=='GET') blastrMirrorWrite(path, opts, payload);
+    else if(opts.cache) blastrGetCache.set(path, {t:Date.now(), data:payload});
     return payload;
-  } catch(e){diag('API ERROR',path,e?.message||e);return null;}
+  } catch(e){
+    // A thrown exception here is usually a transient network blip, not proof the
+    // project is over quota — never switch on this alone, just fail this one call.
+    diag('API ERROR',path,e?.message||e);
+    return null;
+  }
 }
 
 function blastrCleanFileStem(value) {
@@ -4875,7 +4997,7 @@ async function blastrEnsureFreshSession(reason = 'storage upload') {
   throw new Error(`Please sign in again before ${reason}.`);
 }
 
-async function blastrUploadStorageFile(bucket, fileName, file, opts = {}) {
+async function blastrUploadStorageFile(bucket, fileName, file, opts = {}, _retried = false) {
   const safeBucket = String(bucket || '').trim();
   if (!safeBucket) throw new Error('Missing storage bucket.');
   if (!file) throw new Error(`Missing file for ${safeBucket}.`);
@@ -4925,6 +5047,8 @@ async function blastrUploadStorageFile(bucket, fileName, file, opts = {}) {
     const candidate = candidateTokens[i];
     lastResult = await uploadOnce(candidate);
     if (lastResult.res.ok) {
+      blastrResetQuotaStrikes();
+      blastrMirrorStorageUpload(safeBucket, objectName, file, mime);
       return {
         url: `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(safeBucket)}/${encodedName}`,
         bucket: safeBucket,
@@ -4948,6 +5072,13 @@ async function blastrUploadStorageFile(bucket, fileName, file, opts = {}) {
         ? lastResult.payload
         : blastrStoragePayloadText(lastResult.payload))
     : '';
+
+  if (!_retried && blastrIsQuotaSignal(lastResult?.res?.status, detail)) {
+    if (blastrRegisterQuotaStrike(`storage upload ${lastResult?.res?.status} on ${safeBucket}`)) {
+      return blastrUploadStorageFile(bucket, fileName, file, opts, true);
+    }
+  }
+
   const err = new Error(detail || `Storage upload failed (${lastResult?.res?.status || 'unknown'})`);
   err.status = lastResult?.res?.status || 0;
   err.statusText = lastResult?.res?.statusText || '';
@@ -4957,18 +5088,28 @@ async function blastrUploadStorageFile(bucket, fileName, file, opts = {}) {
   throw err;
 }
 
-async function blastrAuthRequest(path, body) {
+async function blastrAuthRequest(path, body, _retried = false) {
   const h = new Headers({
     apikey: SUPABASE_KEY,
     Authorization: `Bearer ${SUPABASE_KEY}`,
     'Content-Type': 'application/json'
   });
-  const res = await fetch(`${SUPABASE_URL}${path}`, {
-    method: 'POST',
-    headers: h,
-    body: JSON.stringify(body || {}),
-    credentials: 'omit'
-  });
+  let res;
+  try {
+    res = await fetch(`${SUPABASE_URL}${path}`, {
+      method: 'POST',
+      headers: h,
+      body: JSON.stringify(body || {}),
+      credentials: 'omit'
+    });
+  } catch (netErr) {
+    throw netErr;
+  }
+  if (!_retried && blastrIsQuotaSignal(res.status, '')) {
+    if (blastrRegisterQuotaStrike(`${res.status} on ${path}`)) return blastrAuthRequest(path, body, true);
+  } else if (res.ok) {
+    blastrResetQuotaStrikes();
+  }
   let payload = null;
   try {
     payload = await res.json();
@@ -5717,7 +5858,7 @@ function renderFavorites() {
   list.innerHTML=state.favorites.map((t,i)=>`
     <div class="fav-row" onclick="initiateHandshake(${jsonAttr(t)})">
       <span class="fav-num">${i+1}</span>
-      <div class="fav-cover">${t.cover_url?`<img src="${esc(t.cover_url)}">`:'♪'}</div>
+      <div class="fav-cover">${t.cover_url?`<img loading="lazy" src="${esc(t.cover_url)}">`:'♪'}</div>
       <div class="fav-meta">
         <div class="title">${esc(t.title)}</div>
         <div class="sub">${esc(t.artist||'Unknown')}${t.genre?' · '+esc(t.genre):''}</div>
@@ -5759,7 +5900,7 @@ function loadSongProfile(track) {
   const genreTag=[track.genre,track.source].filter(Boolean).join(' • ')||'GENRE • SOURCE';
   document.getElementById('profGenreTag').textContent=genreTag;
   const cover=document.getElementById('profCover');
-  cover.innerHTML=track.cover_url?`<img src="${esc(track.cover_url)}">`:'♪';
+  cover.innerHTML=track.cover_url?`<img loading="lazy" src="${esc(track.cover_url)}">`:'♪';
   // Dynamic glow based on cover color
   const glow=document.getElementById('profCoverGlow');
   if(track.cover_url) glow.style.background='radial-gradient(circle,rgba(57,255,20,.08),transparent 70%)';
@@ -8579,7 +8720,7 @@ function thRender(idx, animate) {
   // Cover art
   if (coverPh) {
     if (song.cover_url) {
-      coverPh.outerHTML = `<img src="${esc(song.cover_url)}" alt="${esc(song.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.7)" id="thCoverImg">`;
+      coverPh.outerHTML = `<img loading="lazy" src="${esc(song.cover_url)}" alt="${esc(song.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.7)" id="thCoverImg">`;
     } else {
       coverPh.textContent = '&#9834;';
     }
@@ -8984,7 +9125,7 @@ function smImgSlotHTML(i) {
   return `
     <div>
       <div class="sm-img-slot${hasImg?' loaded':''}" onclick="smPickImage(${i})">
-        ${hasImg ? `<img src="${esc(src)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${p.x}% ${p.y}%">` : `<span style="font-size:22px;opacity:.4">&#43;</span>`}
+        ${hasImg ? `<img loading="lazy" src="${esc(src)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${p.x}% ${p.y}%">` : `<span style="font-size:22px;opacity:.4">&#43;</span>`}
         <div class="sm-img-slot-label">SLICE ${i+1}</div>
         ${hasImg ? `
           <div class="sm-img-overlay">
@@ -9044,7 +9185,7 @@ function smPreviewHTML() {
         <div class="th-left-bg" style="${coverUrl?`background-image:url('${esc(coverUrl)}')`:''}"></div>
         <div class="th-left-content">
           <div class="th-cover-wrap" style="width:clamp(50px,6vw,80px)">
-            ${coverUrl?`<img src="${esc(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:'<div class="th-cover-placeholder" style="font-size:1.5rem">&#9834;</div>'}
+            ${coverUrl?`<img loading="lazy" src="${esc(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:'<div class="th-cover-placeholder" style="font-size:1.5rem">&#9834;</div>'}
           </div>
           <div class="th-collection-tag" style="font-size:8px">${esc(collName.toUpperCase())}</div>
           <div class="th-title" style="font-size:clamp(12px,1.8vw,22px)">${esc(song.title||'Song Title')}</div>
@@ -9374,7 +9515,7 @@ window.SM = SM;
     chip.style.display = 'flex';
     const thumb = document.getElementById('esChipThumb');
     thumb.innerHTML = track.cover_url
-      ? `<img src="${esc(track.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" referrerpolicy="no-referrer">`
+      ? `<img loading="lazy" src="${esc(track.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" referrerpolicy="no-referrer">`
       : '♪';
     document.getElementById('esChipName').textContent = track.title || '—';
     document.getElementById('esChipSub').textContent = track.artist || '—';
@@ -9609,7 +9750,7 @@ window.SM = SM;
 async function getArtists(q='') {
   let url = '/rest/v1/artists?select=*&order=name.asc';
   if (q) url += `&name=ilike.*${encodeURIComponent(q)}*`;
-  const d = await sbFetch(url);
+  const d = await sbFetch(url, {cache:true, cacheTtl:120000});
   return Array.isArray(d) ? d : [];
 }
 window.getArtists = getArtists;
@@ -9708,7 +9849,7 @@ window.openArtistProfile = async function(artist) {
   // Avatar
   const avatarEl = document.getElementById('artistAvatar');
   if (artist.avatar_url) {
-    avatarEl.innerHTML = `<img src="${esc(artist.avatar_url)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='★'">`;
+    avatarEl.innerHTML = `<img loading="lazy" src="${esc(artist.avatar_url)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='★'">`;
   } else {
     avatarEl.textContent = (artist.name || 'A')[0].toUpperCase();
   }
@@ -10299,7 +10440,7 @@ function amRenderArtistList(artists) {
   }
   list.innerHTML = artists.map(a=>`
     <div class="am-artist-item${AM.selected?.id===a.id?' selected':''}" onclick="amSelectArtist(${jsonAttr(a)})">
-      <div class="am-artist-item-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:(a.name||'A')[0]}</div>
+      <div class="am-artist-item-avatar">${a.avatar_url?`<img loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:(a.name||'A')[0]}</div>
       <div class="am-artist-item-name">${esc(a.name)}</div>
       ${a.verified?'<span style="font-size:10px;color:var(--accent)">✓</span>':''}
     </div>`).join('');
@@ -10366,7 +10507,7 @@ function amPopulateEditor(a) {
   document.getElementById('amVideoUrl').value = a.featured_video_url||'';
   // Avatar preview
   const ap = document.getElementById('amAvatarPreview');
-  if(ap) ap.innerHTML = a.avatar_url ? `<img src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
+  if(ap) ap.innerHTML = a.avatar_url ? `<img loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
   // Banner preview with saved position
   amUpdateBannerPreview();
   amSetVerify(!!a.verified);
@@ -10438,7 +10579,7 @@ window.amPickAvatar=function(){
     if(AM.newAvatarUrl) URL.revokeObjectURL(AM.newAvatarUrl);
     AM.newAvatarUrl=URL.createObjectURL(f);
     const el=document.getElementById('amAvatarPreview');
-    if(el) el.innerHTML=`<img src="${AM.newAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    if(el) el.innerHTML=`<img loading="lazy" src="${AM.newAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   };inp.click();
 };
 window.amPickBanner=function(){
@@ -11846,7 +11987,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   async function loadArtists(){
     if(artistsCache) return artistsCache;
     try{
-      const rows = await sbFetch('/rest/v1/artists?select=*&order=name.asc', {}, SUPABASE_KEY);
+      const rows = await sbFetch('/rest/v1/artists?select=*&order=name.asc', {cache:true, cacheTtl:120000}, SUPABASE_KEY);
       artistsCache = Array.isArray(rows) ? rows : [];
     }catch(e){ artistsCache = []; }
     return artistsCache;
