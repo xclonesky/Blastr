@@ -3860,7 +3860,7 @@ body.light .search-input{color:var(--text)}
         <!-- Hero banner -->
         <div class="artist-hero">
           <div class="artist-banner" id="artistBanner">
-            <img loading="lazy" id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+            <img decoding="async" loading="lazy" id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
           </div>
           <div class="artist-banner-fade"></div>
           <div class="artist-banner-bottom"></div>
@@ -4066,7 +4066,7 @@ body.light .search-input{color:var(--text)}
               <div id="esEditorFields" style="display:none">
                 <!-- Cover preview -->
                 <div class="es-cover-preview" id="esCoverPreviewWrap">
-                  <img loading="lazy" class="es-cover-img" id="esCoverImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
+                  <img decoding="async" loading="lazy" class="es-cover-img" id="esCoverImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
                   <div class="es-cover-placeholder" id="esCoverPlaceholder">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="14" cy="15" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 27l9-8 6 6 5-4 12 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
                     <span>NO COVER</span>
@@ -4136,7 +4136,7 @@ body.light .search-input{color:var(--text)}
                       <span>UPLOAD BANNER (3:1 recommended)</span>
                       <span style="font-size:9px;opacity:.5">Drag image vertically to set focal point</span>
                     </div>
-                    <img loading="lazy" class="am-banner-drag-img" id="amBannerDragImg" style="display:none">
+                    <img decoding="async" loading="lazy" class="am-banner-drag-img" id="amBannerDragImg" style="display:none">
                     <div class="am-banner-drag-hint" id="amBannerDragHint" style="display:none">↕ DRAG TO REPOSITION · CLICK TO CHANGE</div>
                     <div class="am-banner-change-overlay" id="amBannerChangeOverlay" style="display:none">
                       <button class="am-banner-change-btn" onclick="event.stopPropagation();amPickBanner()">⬆ CHANGE</button>
@@ -4287,7 +4287,7 @@ body.light .search-input{color:var(--text)}
   <canvas class="zen-bg-canvas" id="zenCanvas"></canvas>
   <!-- Album art environmental bleed -->
   <div class="zen-art-env" id="zenArtEnv">
-    <img loading="lazy" class="zen-art-env-img" id="zenArtEnvImg" src="" alt="" referrerpolicy="no-referrer">
+    <img decoding="async" loading="lazy" class="zen-art-env-img" id="zenArtEnvImg" src="" alt="" referrerpolicy="no-referrer">
   </div>
   <!-- Chorus bloom -->
   <div class="zen-chorus-bloom" id="zenChorusBloom"></div>
@@ -4313,7 +4313,7 @@ body.light .search-input{color:var(--text)}
     <!-- Side art panel (visible in side mode only) -->
     <div class="zen-side-art" id="zenSideArt">
       <div class="zen-side-cover" id="zenSideCover">
-        <img loading="lazy" id="zenSideImg" src="" alt="" referrerpolicy="no-referrer">
+        <img decoding="async" loading="lazy" id="zenSideImg" src="" alt="" referrerpolicy="no-referrer">
       </div>
       <div class="zen-side-meta">
         <div class="zen-side-title" id="zenSideTitle">—</div>
@@ -5420,7 +5420,7 @@ async function runSearch(q) {
     html += `<div class="search-section-label">ARTISTS</div>`;
     html += artists.slice(0,4).map(a => `
       <div class="search-artist-row" onclick="openArtistProfile(${jsonAttr(a)})">
-        <div class="search-artist-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:'★'}</div>
+        <div class="search-artist-avatar">${a.avatar_url?`<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:'★'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
           <div style="font-size:10px;color:var(--dim);font-family:var(--mono)">${esc(a.genre||'ARTIST')}</div>
@@ -5434,7 +5434,7 @@ async function runSearch(q) {
     html += tracks.slice(0,10).map((t,i)=>`
       <div class="search-row" onclick="playTrackFromSearch(${jsonAttr(t)})">
         <div class="search-bar-accent" style="background:${accents[i%accents.length]}"></div>
-        <div class="search-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
+        <div class="search-thumb">${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
         <div class="search-meta">
           <div class="title">${esc(t.title)}</div>
           <div class="sub">${esc(t.artist||'')}${t.genre?' · '+esc(t.genre):''}</div>
@@ -5455,7 +5455,7 @@ async function runSearch(q) {
       let extHtml = `<div class="search-section-label">FROM THE GLOBAL CATALOG</div>`;
       extHtml += ext.slice(0,6).map(r=>`
         <div class="search-row external" onclick="openExternalSong(${jsonAttr(r)})">
-          <div class="search-thumb">${r.coverUrl?`<img src="${esc(r.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
+          <div class="search-thumb">${r.coverUrl?`<img decoding="async" src="${esc(r.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
           <div class="search-meta">
             <div class="title">${esc(r.title)}</div>
             <div class="sub">${esc(r.artist||'')}</div>
@@ -5528,7 +5528,7 @@ async function loadDiscoverPage(rec) {
     `Sorry, we don't have <b>${esc(rec.title)}</b> by <b>${esc(rec.artist)}</b> yet. But don't leave just yet—we've got a few songs you might enjoy instead.`;
   const artBox=document.getElementById('discArt'); const bg=document.getElementById('discBg');
   if (rec.coverUrl) {
-    artBox.innerHTML = `<img src="${esc(rec.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`;
+    artBox.innerHTML = `<img decoding="async" src="${esc(rec.coverUrl)}" loading="lazy" referrerpolicy="no-referrer">`;
     bg.style.backgroundImage = `url(${esc(rec.coverUrl)})`;
     bg.style.display='block';
   } else {
@@ -5622,7 +5622,7 @@ function songTileHTML(t, idx) {
   const liked=state.favorites.some(f=>f.id===t.id);
   return `<div class="song-tile" onclick="initiateHandshake(${jsonAttr(t)})">
     <div class="tile-cover" style="background:linear-gradient(135deg,${color}22,${color}08)">
-      ${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:`<span style="color:${color}">♪</span>`}
+      ${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy">`:`<span style="color:${color}">♪</span>`}
       ${t.is_verified?'<div class="verified-badge">✓</div>':''}
       <div class="tile-hover-layer">
         <div class="tile-hover-btns">
@@ -5858,7 +5858,7 @@ function renderFavorites() {
   list.innerHTML=state.favorites.map((t,i)=>`
     <div class="fav-row" onclick="initiateHandshake(${jsonAttr(t)})">
       <span class="fav-num">${i+1}</span>
-      <div class="fav-cover">${t.cover_url?`<img loading="lazy" src="${esc(t.cover_url)}">`:'♪'}</div>
+      <div class="fav-cover">${t.cover_url?`<img decoding="async" loading="lazy" src="${esc(t.cover_url)}">`:'♪'}</div>
       <div class="fav-meta">
         <div class="title">${esc(t.title)}</div>
         <div class="sub">${esc(t.artist||'Unknown')}${t.genre?' · '+esc(t.genre):''}</div>
@@ -5900,7 +5900,7 @@ function loadSongProfile(track) {
   const genreTag=[track.genre,track.source].filter(Boolean).join(' • ')||'GENRE • SOURCE';
   document.getElementById('profGenreTag').textContent=genreTag;
   const cover=document.getElementById('profCover');
-  cover.innerHTML=track.cover_url?`<img loading="lazy" src="${esc(track.cover_url)}">`:'♪';
+  cover.innerHTML=track.cover_url?`<img decoding="async" loading="lazy" src="${esc(track.cover_url)}">`:'♪';
   // Dynamic glow based on cover color
   const glow=document.getElementById('profCoverGlow');
   if(track.cover_url) glow.style.background='radial-gradient(circle,rgba(57,255,20,.08),transparent 70%)';
@@ -6646,7 +6646,7 @@ let upArtistId = null, esArtistIdSel = null, upArtistTimer = null, esArtistTimer
 function artistTypeaheadRows(list, pickFn) {
   return list.slice(0,6).map(a => `
     <div class="am-track-result-row" onclick="${pickFn}(${jsonAttr(a)})">
-      <div class="am-track-result-thumb">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy">`:'★'}</div>
+      <div class="am-track-result-thumb">${a.avatar_url?`<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy">`:'★'}</div>
       <div style="font-size:12px;font-weight:700">${esc(a.name)}</div>
     </div>`).join('');
 }
@@ -8720,7 +8720,7 @@ function thRender(idx, animate) {
   // Cover art
   if (coverPh) {
     if (song.cover_url) {
-      coverPh.outerHTML = `<img loading="lazy" src="${esc(song.cover_url)}" alt="${esc(song.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.7)" id="thCoverImg">`;
+      coverPh.outerHTML = `<img decoding="async" loading="lazy" src="${esc(song.cover_url)}" alt="${esc(song.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.7)" id="thCoverImg">`;
     } else {
       coverPh.textContent = '&#9834;';
     }
@@ -8953,7 +8953,7 @@ function smStageItemHTML(s, idx) {
          ondragstart="smDragStart(event,${s.id})" ondragover="smDragOver(event)" ondrop="smDrop(event,${s.id})">
       <div style="color:var(--dim);cursor:grab;font-size:16px;flex-shrink:0">&#8597;</div>
       <div class="sm-stage-thumb">
-        ${thumb ? `<img src="${esc(thumb)}" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px">&#9834;</div>'}
+        ${thumb ? `<img decoding="async" src="${esc(thumb)}" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:20px">&#9834;</div>'}
       </div>
       <div class="sm-stage-info">
         <div class="sm-stage-title">${esc(song.title || 'Untitled')}</div>
@@ -9051,7 +9051,7 @@ function smRenderForm() {
       ${SM.form.song ? `
         <div class="sm-selected-song" id="smSelSong">
           <div class="sm-selected-song-art">
-            ${SM.form.song.cover_url ? `<img src="${esc(SM.form.song.cover_url)}" loading="lazy">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--dim)">&#9834;</div>'}
+            ${SM.form.song.cover_url ? `<img decoding="async" src="${esc(SM.form.song.cover_url)}" loading="lazy">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--dim)">&#9834;</div>'}
           </div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:700">${esc(SM.form.song.title)}</div>
@@ -9125,7 +9125,7 @@ function smImgSlotHTML(i) {
   return `
     <div>
       <div class="sm-img-slot${hasImg?' loaded':''}" onclick="smPickImage(${i})">
-        ${hasImg ? `<img loading="lazy" src="${esc(src)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${p.x}% ${p.y}%">` : `<span style="font-size:22px;opacity:.4">&#43;</span>`}
+        ${hasImg ? `<img decoding="async" loading="lazy" src="${esc(src)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${p.x}% ${p.y}%">` : `<span style="font-size:22px;opacity:.4">&#43;</span>`}
         <div class="sm-img-slot-label">SLICE ${i+1}</div>
         ${hasImg ? `
           <div class="sm-img-overlay">
@@ -9185,7 +9185,7 @@ function smPreviewHTML() {
         <div class="th-left-bg" style="${coverUrl?`background-image:url('${esc(coverUrl)}')`:''}"></div>
         <div class="th-left-content">
           <div class="th-cover-wrap" style="width:clamp(50px,6vw,80px)">
-            ${coverUrl?`<img loading="lazy" src="${esc(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:'<div class="th-cover-placeholder" style="font-size:1.5rem">&#9834;</div>'}
+            ${coverUrl?`<img decoding="async" loading="lazy" src="${esc(coverUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:'<div class="th-cover-placeholder" style="font-size:1.5rem">&#9834;</div>'}
           </div>
           <div class="th-collection-tag" style="font-size:8px">${esc(collName.toUpperCase())}</div>
           <div class="th-title" style="font-size:clamp(12px,1.8vw,22px)">${esc(song.title||'Song Title')}</div>
@@ -9251,7 +9251,7 @@ window.smSongSearch = function(val) {
     }
     results.innerHTML = tracks.map(t => `
       <div class="sm-song-row" onclick="smSelectSong(${jsonAttr(t)})">
-        <div class="sm-song-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:var(--dim)">&#9834;</div>'}</div>
+        <div class="sm-song-thumb">${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy">`:'<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:var(--dim)">&#9834;</div>'}</div>
         <div style="min-width:0">
           <div class="sm-song-name">${esc(t.title)}</div>
           <div class="sm-song-artist">${esc(t.artist||'')}</div>
@@ -9488,7 +9488,7 @@ window.SM = SM;
     if (!tracks || !tracks.length) { res.classList.remove('open'); return; }
     res.innerHTML = tracks.slice(0, 8).map(t => `
       <div class="es-result-row" onclick="esSelectSong(${jsonAttr(t)})">
-        <div class="es-result-thumb">${t.cover_url ? `<img src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">` : '♪'}</div>
+        <div class="es-result-thumb">${t.cover_url ? `<img decoding="async" src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">` : '♪'}</div>
         <div class="es-result-info">
           <div class="es-result-title">${esc(t.title)}</div>
           <div class="es-result-artist">${esc(t.artist || '—')}</div>
@@ -9515,7 +9515,7 @@ window.SM = SM;
     chip.style.display = 'flex';
     const thumb = document.getElementById('esChipThumb');
     thumb.innerHTML = track.cover_url
-      ? `<img loading="lazy" src="${esc(track.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" referrerpolicy="no-referrer">`
+      ? `<img decoding="async" loading="lazy" src="${esc(track.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" referrerpolicy="no-referrer">`
       : '♪';
     document.getElementById('esChipName').textContent = track.title || '—';
     document.getElementById('esChipSub').textContent = track.artist || '—';
@@ -9849,7 +9849,7 @@ window.openArtistProfile = async function(artist) {
   // Avatar
   const avatarEl = document.getElementById('artistAvatar');
   if (artist.avatar_url) {
-    avatarEl.innerHTML = `<img loading="lazy" src="${esc(artist.avatar_url)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='★'">`;
+    avatarEl.innerHTML = `<img decoding="async" loading="lazy" src="${esc(artist.avatar_url)}" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='★'">`;
   } else {
     avatarEl.textContent = (artist.name || 'A')[0].toUpperCase();
   }
@@ -9937,7 +9937,7 @@ function artistTrackRowHTML(t, i) {
   return `<div class="artist-track-row" onclick="initiateHandshake(${jsonAttr(t)})">
     <span class="artist-track-num">${i+1}</span>
     <span class="artist-track-play-icon">▶</span>
-    <div class="artist-track-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
+    <div class="artist-track-thumb">${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy" referrerpolicy="no-referrer">`:'♪'}</div>
     <div class="artist-track-info">
       <div class="artist-track-title">${esc(t.title)}</div>
       <div class="artist-track-artist">${esc(t.artist||'')}</div>
@@ -10037,7 +10037,7 @@ function buildArtistRowHTML(label, artists) {
     <div class="artist-row-scroll">
       ${artists.map(a=>`
         <div class="artist-card" onclick="openArtistProfile(${jsonAttr(a)})">
-          <div class="artist-card-avatar">${a.avatar_url?`<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
+          <div class="artist-card-avatar">${a.avatar_url?`<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
           <div class="artist-card-name">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
           <div class="artist-card-type">${esc(a.genre||'ARTIST')}</div>
         </div>`).join('')}
@@ -10228,7 +10228,7 @@ function fwRefreshCluster() {
 
   const avHTML = picked.map(a => {
     const inner = a.avatar_url
-      ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'" alt="">`
+      ? `<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'" alt="">`
       : `<span>${esc((a.name || 'A')[0].toUpperCase())}</span>`;
     return `<div class="fc-av" title="${esc(a.name)}">${inner}</div>`;
   }).join('');
@@ -10249,7 +10249,7 @@ function fwRefreshCluster() {
       <div class="fp-row" onclick="fwClosePanel();openArtistProfile(${jsonAttr(a)})">
         <div class="fp-av">
           ${a.avatar_url
-            ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+            ? `<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
             : `<span>${esc((a.name||'A')[0].toUpperCase())}</span>`}
         </div>
         <div class="fp-meta">
@@ -10305,7 +10305,7 @@ function fwRenderGrid(list) {
     <div class="fw-card" onclick="openArtistProfile(${jsonAttr(a)})">
       <div class="fw-card-av">
         ${a.avatar_url
-          ? `<img src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
+          ? `<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
           : `<span>${esc((a.name||'A')[0].toUpperCase())}</span>`}
       </div>
       <div class="fw-card-name">${esc(a.name)}${a.verified ? '<span class="artist-verified-dot" style="font-size:7px;width:14px;height:14px;margin-left:4px">✓</span>' : ''}</div>
@@ -10440,7 +10440,7 @@ function amRenderArtistList(artists) {
   }
   list.innerHTML = artists.map(a=>`
     <div class="am-artist-item${AM.selected?.id===a.id?' selected':''}" onclick="amSelectArtist(${jsonAttr(a)})">
-      <div class="am-artist-item-avatar">${a.avatar_url?`<img loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:(a.name||'A')[0]}</div>
+      <div class="am-artist-item-avatar">${a.avatar_url?`<img decoding="async" loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:(a.name||'A')[0]}</div>
       <div class="am-artist-item-name">${esc(a.name)}</div>
       ${a.verified?'<span style="font-size:10px;color:var(--accent)">✓</span>':''}
     </div>`).join('');
@@ -10507,7 +10507,7 @@ function amPopulateEditor(a) {
   document.getElementById('amVideoUrl').value = a.featured_video_url||'';
   // Avatar preview
   const ap = document.getElementById('amAvatarPreview');
-  if(ap) ap.innerHTML = a.avatar_url ? `<img loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
+  if(ap) ap.innerHTML = a.avatar_url ? `<img decoding="async" loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
   // Banner preview with saved position
   amUpdateBannerPreview();
   amSetVerify(!!a.verified);
@@ -10552,7 +10552,7 @@ window.amOnTrackSearch=function(val){
     if(!tracks.length){res.classList.remove('open');return;}
     res.innerHTML=tracks.slice(0,6).map(t=>`
       <div class="am-track-result-row" onclick="amAddFeat(${jsonAttr(t)})">
-        <div class="am-track-result-thumb">${t.cover_url?`<img src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
+        <div class="am-track-result-thumb">${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</div>
           <div style="font-size:10px;color:var(--dim)">${esc(t.artist||'')}</div>
@@ -10579,7 +10579,7 @@ window.amPickAvatar=function(){
     if(AM.newAvatarUrl) URL.revokeObjectURL(AM.newAvatarUrl);
     AM.newAvatarUrl=URL.createObjectURL(f);
     const el=document.getElementById('amAvatarPreview');
-    if(el) el.innerHTML=`<img loading="lazy" src="${AM.newAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    if(el) el.innerHTML=`<img decoding="async" loading="lazy" src="${AM.newAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   };inp.click();
 };
 window.amPickBanner=function(){
@@ -10908,7 +10908,7 @@ document.addEventListener('click',e=>{
     const hasProfile=!!artistObj?.id;
     const name=artistObj?.name||sampleTrack?.artist||'Unknown Artist';
     const avatar=artistObj?.avatar_url
-      ? `<img src="${esc(artistObj.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover">`
+      ? `<img decoding="async" src="${esc(artistObj.avatar_url)}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover">`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:${accent}">${esc((name[0]||'A').toUpperCase())}</div>`;
     const verified=artistObj?.verified?'<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:rgba(47,232,110,.12);border:1px solid rgba(47,232,110,.25);color:var(--accent);font-size:9px;font-family:var(--mono);letter-spacing:1.2px">✓ VERIFIED</span>':'';
     const action=hasProfile?`onclick="openArtistProfile(${jsonAttr(artistObj)})"`:(sampleTrack?`onclick="initiateHandshake(${jsonAttr(sampleTrack)})"`:'');
