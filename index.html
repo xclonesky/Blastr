@@ -12322,7 +12322,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     r.onresult = (e) => {
       for (let i=e.resultIndex;i<e.results.length;i++){
         const res = e.results[i];
-        if (res.isFinal) vaHandleCommand(res[0].transcript);
+        if (res.isFinal) { if (typeof johnPanelOpen!=='undefined' && johnPanelOpen && typeof johnProcess==='function') johnProcess(res[0].transcript); else vaHandleCommand(res[0].transcript); }
         else vaSetClusterText(res[0].transcript || '…');
       }
     };
@@ -12420,14 +12420,231 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   function vaInjectCluster(){
     if (document.getElementById('vaCluster')) return;
     const anchor = document.getElementById('followCluster');
-    const html = '<div class="va-cluster" id="vaCluster" onclick="vaHandleTap()" title="Tap to talk to Blastr"><span class="va-mic-dot">🎙</span><span class="va-cluster-text" id="vaClusterText"></span></div>';
+    const html = '<div class="va-cluster" id="vaCluster" onclick="johnClusterTap()" title="Talk to John"><span class="va-mic-dot">🎙</span><span class="va-cluster-text" id="vaClusterText"></span></div>';
     if (anchor) anchor.insertAdjacentHTML('afterend', html);
     else document.querySelector('.topbar-actions')?.insertAdjacentHTML('afterbegin', html);
   }
   vaInjectCluster();
   setTimeout(vaInjectCluster, 1000); // Follow cluster may render slightly after boot — retry once
 
-  // Restore prior enabled state on boot — permission already granted, nothing to re-prompt, no listening starts automatically
+  // ══════════════════ JOHN — Groq-powered chat assistant ══════════════════
+  // NOTE: this key is necessarily visible in client-side page source (no backend exists
+  // in this single-file architecture). Anyone viewing the page can extract and use it
+  // against your Groq account/quota. Rotate periodically; consider a tiny serverless
+  // proxy later if usage/cost ever becomes a concern.
+  const GROQ_API_KEY = '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';
+  const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+  const GROQ_MODEL = 'openai/gpt-oss-20b'; // fast tier — tuned for quick command turnaround
+
+  let johnPanelOpen = false;
+  let johnHistory = [];
+
+  const JOHN_TOOLS = [
+    { type:'function', function:{ name:'play_track', description:'Play a specific song by title and/or artist name.', parameters:{ type:'object', properties:{ query:{ type:'string', description:'song title, optionally with artist' } }, required:['query'] } } },
+    { type:'function', function:{ name:'pause_playback', description:'Pause whatever is currently playing.', parameters:{ type:'object', properties:{} } } },
+    { type:'function', function:{ name:'resume_playback', description:'Resume/unpause playback.', parameters:{ type:'object', properties:{} } } },
+    { type:'function', function:{ name:'next_track', description:'Skip to the next track.', parameters:{ type:'object', properties:{} } } },
+    { type:'function', function:{ name:'previous_track', description:'Go back to the previous track.', parameters:{ type:'object', properties:{} } } },
+    { type:'function', function:{ name:'like_track', description:'Add a song to favorites. Pass "current" to like whatever is playing right now.', parameters:{ type:'object', properties:{ query:{ type:'string' } }, required:['query'] } } },
+    { type:'function', function:{ name:'get_track_info', description:'Look up metadata (cover, description) about a song to describe to the user.', parameters:{ type:'object', properties:{ query:{ type:'string' } }, required:['query'] } } }
+  ];
+
+  function johnSystemPrompt(){
+    return 'You are John, the voice assistant built into Blastr, a personal music streaming app. You are warm, friendly, and intentional — never robotic, never long-winded. When the user asks for an action (play, pause, skip, like a song), call the matching tool — you may call more than one tool in a single reply, e.g. play a song AND like it. Keep spoken replies short: one or two natural sentences, like a friend talking, not a script.';
+  }
+
+  async function johnAskGroq(userText){
+    const messages = [{ role:'system', content: johnSystemPrompt() }, ...johnHistory.slice(-12), { role:'user', content:userText }];
+    const res = await fetch(GROQ_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({ model:GROQ_MODEL, messages, tools:JOHN_TOOLS, tool_choice:'auto', temperature:0.7, max_completion_tokens:200 })
+    });
+    if (!res.ok) throw new Error('groq_'+res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message || null;
+  }
+
+  async function johnExecuteTool(name, args){
+    const a = vaGetAudioEl();
+    if (name==='play_track'){
+      const track = vaFindTrack(args.query);
+      if (!track) return { ok:false, message:`Couldn't find "${args.query}" in the library.` };
+      (window.initiateHandshake||initiateHandshake)(track);
+      return { ok:true, track };
+    }
+    if (name==='pause_playback'){
+      a?.pause(); if (window.state) window.state.isPlaying=false; if (typeof syncPlayState==='function') syncPlayState();
+      return { ok:true };
+    }
+    if (name==='resume_playback'){
+      if (window.state?.currentTrack){ a?.play(); window.state.isPlaying=true; if (typeof syncPlayState==='function') syncPlayState(); return { ok:true }; }
+      return { ok:false, message:'Nothing queued yet — ask me to play something first.' };
+    }
+    if (name==='next_track'){ (window.nextTrack||nextTrack)(); return { ok:true, track: window.state?.currentTrack }; }
+    if (name==='previous_track'){ (window.prevTrack||prevTrack)(); return { ok:true, track: window.state?.currentTrack }; }
+    if (name==='like_track'){
+      const track = /current/i.test(args.query||'') ? window.state?.currentTrack : vaFindTrack(args.query);
+      if (!track) return { ok:false, message:`Couldn't find "${args.query}" to like.` };
+      (window.toggleLike||toggleLike)(track);
+      return { ok:true, track };
+    }
+    if (name==='get_track_info'){
+      const track = vaFindTrack(args.query);
+      if (!track) return { ok:false, message:`No info found for "${args.query}".` };
+      return { ok:true, track, info:{ title:track.title, artist:track.artist||'', description:track.description||'', cover: track.cover_url||'' } };
+    }
+    return { ok:false, message:'Unknown action.' };
+  }
+
+  function johnAddMessage(role, text){
+    const wrap = document.getElementById('johnMessages');
+    if (!wrap) return;
+    const div = document.createElement('div');
+    div.className = 'john-msg john-msg-'+role;
+    div.textContent = text;
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+  function johnRenderInfoCard(info){
+    const wrap = document.getElementById('johnMessages');
+    if (!wrap) return;
+    const div = document.createElement('div');
+    div.className = 'john-msg john-msg-john john-info-card';
+    div.innerHTML = (info.cover ? `<img loading="lazy" decoding="async" src="${info.cover}" alt="">` : '') +
+      `<div><strong>${info.title}</strong><br>${info.artist}${info.description ? `<p>${info.description}</p>` : ''}</div>`;
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+  function johnShowTyping(on){ const el=document.getElementById('johnTyping'); if (el) el.style.display = on?'flex':'none'; }
+  function johnSyncNowPlaying(track){
+    const bar=document.getElementById('johnNowPlaying'), cover=document.getElementById('johnNPCover'), title=document.getElementById('johnNPTitle');
+    if (!bar || !track) return;
+    bar.style.display='flex';
+    if (cover) cover.src = track.cover_url || '';
+    if (title) title.textContent = `${track.title} — ${track.artist||''}`;
+  }
+
+  async function johnProcess(text){
+    if (!text || !text.trim()) return;
+    johnAddMessage('user', text);
+    johnShowTyping(true);
+    let msg;
+    try { msg = await johnAskGroq(text); }
+    catch(e){
+      johnShowTyping(false);
+      vaExecuteCommand(text); // graceful fallback to the fast local parser
+      johnAddMessage('john', "My smarter brain isn't responding right now, so I used a quick command instead.");
+      return;
+    }
+    const toolCalls = msg?.tool_calls || [];
+    const willPlay = toolCalls.some(tc => tc.function?.name==='play_track');
+    johnShowTyping(false);
+    if (willPlay){ johnAddMessage('john', 'On it — hold on while I fetch that for you.'); vaSpeak('Hold on, fetching that for you.'); }
+    if (msg?.content){ johnAddMessage('john', msg.content); if (!willPlay) vaSpeak(msg.content); }
+    for (const tc of toolCalls){
+      let args = {};
+      try { args = JSON.parse(tc.function.arguments || '{}'); } catch(e){}
+      const result = await johnExecuteTool(tc.function.name, args);
+      if (!result.ok){ johnAddMessage('john', result.message || "Couldn't do that."); vaSpeak(result.message || "Couldn't do that."); continue; }
+      if (['play_track','next_track','previous_track'].includes(tc.function.name) && result.track){
+        johnAddMessage('john', `Now playing ${result.track.title} — ${result.track.artist||'Unknown Artist'}.`);
+        johnSyncNowPlaying(result.track);
+      }
+      if (tc.function.name==='like_track' && result.track) johnAddMessage('john', `Added ${result.track.title} to your favorites. ♥`);
+      if (tc.function.name==='get_track_info' && result.info) johnRenderInfoCard(result.info);
+    }
+    johnHistory.push({ role:'user', content:text }, { role:'assistant', content: msg?.content || (toolCalls.length ? '(performed action)' : '') });
+    if (johnHistory.length > 16) johnHistory = johnHistory.slice(-16);
+  }
+  window.johnProcess = johnProcess;
+
+  function johnIsMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+  function johnOpenPanel(){
+    johnPanelOpen = true;
+    document.getElementById('johnPanel')?.classList.add('open');
+    if (johnIsMobile()) vaListenOnce();
+    else setTimeout(() => document.getElementById('johnInput')?.focus(), 50);
+  }
+  function johnClosePanel(){
+    johnPanelOpen = false;
+    document.getElementById('johnPanel')?.classList.remove('open','fullscreen');
+  }
+  function johnToggleFullscreen(){ document.getElementById('johnPanel')?.classList.toggle('fullscreen'); }
+  function johnClusterTap(){ johnPanelOpen ? johnClosePanel() : johnOpenPanel(); }
+  function johnSubmitInput(){
+    const inp = document.getElementById('johnInput');
+    if (!inp || !inp.value.trim()) return;
+    const text = inp.value.trim();
+    inp.value = '';
+    johnProcess(text);
+  }
+  window.johnClusterTap = johnClusterTap;
+  window.johnClosePanel = johnClosePanel;
+  window.johnToggleFullscreen = johnToggleFullscreen;
+  window.johnSubmitInput = johnSubmitInput;
+
+  function johnInjectPanel(){
+    if (document.getElementById('johnPanel')) return;
+    const style = document.createElement('style');
+    style.textContent = `
+      #johnPanel{position:fixed;right:16px;bottom:calc(var(--player-h) + 16px);width:340px;height:0;max-height:70vh;overflow:hidden;background:rgba(10,12,10,.96);border:1px solid rgba(57,255,20,.22);border-radius:16px;z-index:9998;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:height .28s cubic-bezier(.22,1,.36,1),opacity .2s;backdrop-filter:blur(10px)}
+      #johnPanel.open{height:460px;opacity:1;pointer-events:auto}
+      #johnPanel.fullscreen{right:0;bottom:0;left:0;top:0;width:100%;height:100%;max-height:100vh;border-radius:0}
+      .john-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(57,255,20,.15);font:600 13px/1 system-ui;color:#eafff0}
+      .john-head-btns button{background:none;border:0;color:rgba(234,255,240,.7);font-size:15px;cursor:pointer;padding:4px 8px}
+      #johnMessages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+      .john-msg{font:400 13.5px/1.4 system-ui;padding:8px 11px;border-radius:12px;max-width:88%;white-space:pre-wrap}
+      .john-msg-user{align-self:flex-end;background:rgba(57,255,20,.16);color:#eafff0}
+      .john-msg-john{align-self:flex-start;background:rgba(255,255,255,.06);color:#d8ffe0}
+      .john-info-card{display:flex;gap:10px;align-items:flex-start}
+      .john-info-card img{width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0}
+      #johnTyping{display:none;align-self:flex-start;color:rgba(216,255,224,.6);font:400 12px system-ui;padding:2px 4px}
+      #johnNowPlaying{display:none;align-items:center;gap:10px;padding:8px 14px;border-top:1px solid rgba(57,255,20,.15)}
+      #johnNPCover{width:34px;height:34px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#111}
+      #johnNPTitle{font:500 11.5px/1.3 system-ui;color:#d8ffe0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #johnSeek{flex:1;accent-color:#39ff14;height:3px}
+      .john-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(57,255,20,.15)}
+      #johnInput{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 11px;color:#eafff0;font:400 13px system-ui;outline:none}
+      .john-send-btn{background:rgba(57,255,20,.85);border:0;border-radius:10px;padding:0 14px;font:600 12px system-ui;color:#08130a;cursor:pointer}
+    `;
+    document.head.appendChild(style);
+    const html = `
+      <div id="johnPanel">
+        <div class="john-head">
+          <span>🎙 John</span>
+          <div class="john-head-btns">
+            <button onclick="johnToggleFullscreen()" title="Fullscreen">⤢</button>
+            <button onclick="johnClosePanel()" title="Close">✕</button>
+          </div>
+        </div>
+        <div id="johnMessages"><div class="john-msg john-msg-john">Hey, I'm John. Ask me to play something, skip a track, or like a song — just talk to me like normal.</div></div>
+        <div id="johnTyping">John's thinking…</div>
+        <div id="johnNowPlaying">
+          <img id="johnNPCover" src="" alt="">
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+            <span id="johnNPTitle"></span>
+            <input id="johnSeek" type="range" min="0" max="100" value="0">
+          </div>
+        </div>
+        <div class="john-input-row">
+          <input id="johnInput" type="text" placeholder="Type a command…" onkeydown="if(event.key==='Enter')johnSubmitInput()">
+          <button class="john-send-btn" onclick="johnSubmitInput()">Send</button>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    const a = vaGetAudioEl();
+    const seek = document.getElementById('johnSeek');
+    if (a && seek){
+      let dragging = false;
+      seek.addEventListener('input', () => { dragging = true; });
+      seek.addEventListener('change', () => { if (a.duration) a.currentTime = (seek.value/100) * a.duration; dragging = false; });
+      a.addEventListener('timeupdate', () => { if (!dragging && a.duration) seek.value = (a.currentTime / a.duration) * 100; });
+    }
+  }
+  johnInjectPanel();
+
+
   if (localStorage.getItem(VA_ENABLED_KEY)==='1'){ vaEnabled = true; vaRenderToggle(true); }
   else { vaRenderToggle(false); }
 })();
