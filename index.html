@@ -12209,12 +12209,10 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     const enVoices = voices.filter(v=>/en/i.test(v.lang));
     const pool = (enVoices.length ? enVoices : voices).slice();
     const malePattern = /david|mark|guy|daniel|fred|george|male/i;
-    const qualityPattern = /google|natural|online|neural/i;
     const male = pool.filter(v=>malePattern.test(v.name));
-    const maleHQ = male.filter(v=>qualityPattern.test(v.name));
     const rest = pool.filter(v=>!malePattern.test(v.name));
     const list = [];
-    if (maleHQ[0]) list.push(maleHQ[0]); else if (male[0]) list.push(male[0]);
+    if (male[0]) list.push(male[0]);
     const second = rest.find(v=>v!==list[0]);
     if (second) list.push(second); else if (pool.find(v=>v!==list[0])) list.push(pool.find(v=>v!==list[0]));
     return list.length ? list : pool.slice(0,1);
@@ -12732,12 +12730,6 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   function tourRenderStep(step){
     const card = document.getElementById('tourCard');
     if (!card) return;
-    card.style.opacity = '0';
-    setTimeout(() => { tourPaintStep(step); card.style.opacity = '1'; }, 160);
-  }
-  function tourPaintStep(step){
-    const card = document.getElementById('tourCard');
-    if (!card) return;
     const isLast = tourIndex === TOUR_STEPS.length-1;
     let extra = '';
     if (step.gated){
@@ -12779,8 +12771,6 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
 
   async function tourFinish(){
     document.getElementById('tourOverlay')?.remove();
-    document.getElementById('tourRing')?.remove();
-    document.getElementById('tourCard')?.remove();
     try { localStorage.setItem('blastr_onboarded_v1','1'); } catch(e){}
     const uid = window.state?.session?.user?.id, token = window.state?.session?.access_token;
     if (uid){ try { await sbFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(uid)}`, { method:'PATCH', headers:{ Prefer:'return=minimal' }, body:{ onboarding_completed:true } }, token); } catch(e){} }
@@ -12793,7 +12783,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     style.textContent = `
       #tourOverlay{position:fixed;inset:0;background:rgba(5,8,6,.62);backdrop-filter:blur(1px);z-index:99997}
       #tourRing{position:fixed;border:2px solid rgba(57,255,20,.85);border-radius:14px;box-shadow:0 0 0 6px rgba(57,255,20,.15),0 0 30px rgba(57,255,20,.4);pointer-events:none;z-index:99998;transition:all .4s cubic-bezier(.22,1,.36,1)}
-      #tourCard{position:fixed;z-index:99999;background:rgba(10,14,11,.97);border:1px solid rgba(57,255,20,.25);border-radius:16px;padding:16px 18px;width:270px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:top .4s cubic-bezier(.22,1,.36,1),left .4s cubic-bezier(.22,1,.36,1),opacity .18s ease;font-family:system-ui}
+      #tourCard{position:fixed;z-index:99999;background:rgba(10,14,11,.97);border:1px solid rgba(57,255,20,.25);border-radius:16px;padding:16px 18px;width:270px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:top .4s cubic-bezier(.22,1,.36,1),left .4s cubic-bezier(.22,1,.36,1);font-family:system-ui}
       .tour-step-count{font:600 10px system-ui;color:rgba(57,255,20,.7);letter-spacing:.05em;margin-bottom:4px}
       .tour-title{font:700 15px system-ui;color:#eafff0;margin-bottom:6px}
       .tour-text{font:400 13px/1.4 system-ui;color:#c8e8d0;margin-bottom:12px}
