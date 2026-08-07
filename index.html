@@ -3587,8 +3587,17 @@ body.light .search-input{color:var(--text)}
 /* ══════ RANKING SYSTEM ══════ */
 .artist-views-chip{position:absolute;top:16px;right:16px;z-index:5;display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;background:rgba(8,8,20,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.4px}
 .artist-views-chip .avc-eye{font-size:13px;opacity:.85}
-.artist-pos-badge{font-size:clamp(20px,3vw,32px);font-weight:900;font-family:var(--mono);letter-spacing:-1px;background:linear-gradient(135deg,#FFF3C9,#FFD166 45%,#C98A1F);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 14px rgba(255,209,102,.45));display:inline-flex;align-items:center}
-.artist-pos-badge .apb-hash{opacity:.55;font-weight:800;margin-right:1px}
+.artist-pos-badge{display:inline-flex;flex-direction:column;gap:1px;padding:8px 16px;border-radius:14px;background:linear-gradient(135deg,rgba(255,209,102,.14),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.4);box-shadow:0 4px 20px rgba(255,209,102,.15)}
+.artist-pos-badge .apb-num{font-size:clamp(20px,2.6vw,28px);font-weight:900;font-family:var(--mono);letter-spacing:-.5px;background:linear-gradient(135deg,#FFF3C9,#FFD166 45%,#C98A1F);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(255,209,102,.4));line-height:1.15}
+.artist-pos-badge .apb-total{font-size:10px;font-family:var(--mono);color:#FFD166;letter-spacing:.3px;opacity:.85;line-height:1.2}
+.artist-pos-badge.unranked{border-color:var(--border);background:rgba(255,255,255,.03);padding:6px 14px}
+.artist-pos-badge.unranked .apb-num{-webkit-text-fill-color:var(--dim);background:none;filter:none;font-size:12px;font-weight:800;letter-spacing:1px}
+.profile-rank-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+.prs-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-family:var(--mono);font-size:10.5px;color:var(--dim);font-weight:700;letter-spacing:.3px}
+.prs-chip.gold{color:#FFD166;border-color:rgba(255,209,102,.35);background:rgba(255,209,102,.08)}
+.incomplete-tag{margin-top:4px;display:inline-block;padding:2px 7px;border-radius:6px;background:rgba(255,140,40,.14);color:#FF9432;font-family:var(--mono);font-size:8px;font-weight:800;letter-spacing:.4px;border:1px solid rgba(255,140,40,.35)}
+.artist-card.incomplete .artist-card-avatar{outline:2px dashed rgba(255,150,50,.65);outline-offset:2px}
+.ranking-page-avatar.incomplete{outline:2px dashed rgba(255,150,50,.65);outline-offset:2px}
 .rank-badge{position:absolute;top:8px;left:8px;z-index:3;min-width:24px;height:24px;padding:0 7px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:900;font-size:11.5px;color:#1a1200;background:linear-gradient(135deg,#FFE9A8,#FFD166 55%,#E0A639);box-shadow:0 3px 12px rgba(255,209,102,.5),0 0 0 1px rgba(255,255,255,.25) inset}
 .rank-badge.rb-1,.artist-card-rank.rb-1{background:linear-gradient(135deg,#FFF3C9,#FFD166 45%,#FF9A2E);box-shadow:0 3px 16px rgba(255,180,60,.65),0 0 0 1px rgba(255,255,255,.35) inset}
 .artist-card-rankwrap{position:relative;display:inline-block}
@@ -3869,6 +3878,7 @@ body.light .search-input{color:var(--text)}
             <div class="profile-title" id="profTitle">Select a track</div>
             <div class="profile-artist" id="profArtist">—</div>
             <div class="profile-tags" id="profTags"></div>
+            <div class="profile-rank-stats" id="profRankStats"></div>
             <div class="profile-actions">
               <button class="btn-play-big" id="profPlayBtn" onclick="playCurrentProfile()">▶ PLAY</button>
               <button class="btn-outline" onclick="likeCurrentProfile()">♡ LIKE</button>
@@ -12473,11 +12483,17 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
 })();
 
 // ═══════════════════════════════════════════════════════════════
-// RANKING SYSTEM — v43
-// Views: artist_page_visits (capped 3/user, +2 views each). Points:
-// track_listens (capped 3/user/song, +2 pts to the track, rolls up
-// to the artist). Backed by artist_rankings / track_rankings SQL
-// views using RANK() — see chat for the migration.
+// RANKING SYSTEM — v44
+// Views: artist_page_visits (capped 3/user, +2 views) + uncapped
+// raw_visits tiebreaker. Points: track_listens (capped 3/user/song,
+// +2 pts, rolls up to the artist) + uncapped raw_plays tiebreaker.
+// Backed by MATERIALIZED VIEWS artist_rankings / track_rankings,
+// refreshed hourly via pg_cron — identical numbers for every user.
+// Sequential positions (no rank-skipping on ties); zero-activity
+// items are "Unranked" and sort alphabetically. Duplicate artist
+// rows borrow a complete profile's avatar when their own is empty;
+// if none exists anywhere, they're flagged incomplete. See chat
+// for the SQL migration.
 // ═══════════════════════════════════════════════════════════════
 (function(){
   function blastrUid(){ return window.state?.currentUserProfile?.id || window.state?.session?.user?.id || null; }
@@ -12486,6 +12502,10 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     if(n>=1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'')+'M';
     if(n>=1000) return (n/1000).toFixed(1).replace(/\.0$/,'')+'K';
     return String(n);
+  }
+  function blastrArtistAvatarHTML(a){
+    const src = a.avatar_url || a.display_avatar_url;
+    return src ? `<img decoding="async" src="${esc(src)}" loading="lazy" referrerpolicy="no-referrer">` : (a.name||'A')[0].toUpperCase();
   }
 
   async function blastrTrackArtistView(artistId){
@@ -12504,8 +12524,8 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     if(!force && window.blastrRankings.loaded) return;
     try{
       const [artists, tracks] = await Promise.all([
-        sbFetch('/rest/v1/artist_rankings?select=*&order=position.asc&limit=300'),
-        sbFetch('/rest/v1/track_rankings?select=*&order=position.asc&limit=300')
+        sbFetch('/rest/v1/artist_rankings?select=*&order=position.asc,name.asc&limit=500'),
+        sbFetch('/rest/v1/track_rankings?select=*&order=position.asc,title.asc&limit=500')
       ]);
       window.blastrRankings.artists = Array.isArray(artists) ? artists : [];
       window.blastrRankings.tracks = Array.isArray(tracks) ? tracks : [];
@@ -12540,27 +12560,31 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   }
   function topArtistCardHTML(a){
     const rb = a.position===1?' rb-1':'';
-    return `<div class="artist-card" onclick="openArtistProfile(${jsonAttr(a)})">
+    const incomplete = a.incomplete_profile ? ' incomplete' : '';
+    return `<div class="artist-card${incomplete}" onclick="openArtistProfile(${jsonAttr(a)})">
       <div class="artist-card-rankwrap">
-        <div class="artist-card-avatar">${a.avatar_url?`<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
+        <div class="artist-card-avatar">${blastrArtistAvatarHTML(a)}</div>
         <div class="artist-card-rank${rb}">#${a.position}</div>
       </div>
+      ${a.incomplete_profile?'<div class="incomplete-tag">NO PROFILE</div>':''}
       <div class="artist-card-name">${esc(a.name)}${a.verified?'<span class="artist-verified-dot">✓</span>':''}</div>
       <div class="artist-card-type">${esc(a.genre||'ARTIST')}</div>
     </div>`;
   }
   function buildTop10ArtistsRowHTML(list){
-    if(!list.length) return '';
+    const ranked = list.filter(a=>a.position);
+    if(!ranked.length) return '';
     return `<div class="songs-section blastr-rank-row">
       <div class="section-header"><div class="section-name">🏆 Top Artists on Blastr</div><button class="section-more" onclick="showFullRankings('artists')">VIEW ALL →</button></div>
-      <div class="artist-row-scroll">${list.slice(0,10).map(a=>topArtistCardHTML(a)).join('')}</div>
+      <div class="artist-row-scroll">${ranked.slice(0,10).map(a=>topArtistCardHTML(a)).join('')}</div>
     </div>`;
   }
   function buildTop10SongsRowHTML(list){
-    if(!list.length) return '';
+    const ranked = list.filter(t=>t.position);
+    if(!ranked.length) return '';
     return `<div class="songs-section blastr-rank-row">
       <div class="section-header"><div class="section-name">🔥 Top Songs on Blastr</div><button class="section-more" onclick="showFullRankings('songs')">VIEW ALL →</button></div>
-      <div class="song-grid">${list.slice(0,10).map((t,i)=>topSongTileHTML(t,i)).join('')}</div>
+      <div class="song-grid">${ranked.slice(0,10).map((t,i)=>topSongTileHTML(t,i)).join('')}</div>
     </div>`;
   }
 
@@ -12580,23 +12604,65 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     return out;
   };
 
-  // ── Wire into artist profile: track the view, show views chip + gold position ──
+  // ── Wire into artist profile: track the view, show views+points chips and the "No.X/Y" pill ──
   const prevOpenArtistProfile = window.openArtistProfile;
   window.openArtistProfile = async function blastrRankedOpenArtistProfile(artist){
     const out = await prevOpenArtistProfile.call(window, artist);
     const chip = document.getElementById('artistViewsChip');
     const posBadge = document.getElementById('artistPosBadge');
+    if(chip) chip.style.display='none';
+    if(posBadge) posBadge.style.display='none';
     try{
       if(artist?.id){
         blastrTrackArtistView(artist.id);
-        const rows = await sbFetch(`/rest/v1/artist_rankings?select=total_views,position&id=eq.${artist.id}&limit=1`);
-        const row = Array.isArray(rows) && rows[0];
+        // Reuse ranking fields already on the object (e.g. opened from a ranking row) — else fetch fresh.
+        let row = (artist.total_views!==undefined && artist.total_points!==undefined) ? artist : null;
+        if(!row){
+          const rows = await sbFetch(`/rest/v1/artist_rankings?select=total_views,total_points,position,total_artists&id=eq.${artist.id}&limit=1`);
+          row = Array.isArray(rows) && rows[0];
+        }
         if(row){
-          if(chip){ chip.innerHTML = `<span class="avc-eye">👁</span> ${blastrFormatCount(row.total_views)}`; chip.style.display=''; }
-          if(posBadge){ posBadge.innerHTML = `<span class="apb-hash">#</span>${row.position}`; posBadge.style.display=''; }
-        } else { if(chip) chip.style.display='none'; if(posBadge) posBadge.style.display='none'; }
+          if(chip){
+            chip.innerHTML = `<span class="avc-eye">👁</span> ${blastrFormatCount(row.total_views)} <span style="opacity:.4">·</span> ⭐ ${blastrFormatCount(row.total_points)}`;
+            chip.style.display='';
+          }
+          if(posBadge){
+            if(row.position){
+              posBadge.classList.remove('unranked');
+              posBadge.innerHTML = `<span class="apb-num">No.${row.position}</span><span class="apb-total">/${row.total_artists||'—'} Artists on Blastr</span>`;
+            } else {
+              posBadge.classList.add('unranked');
+              posBadge.innerHTML = `<span class="apb-num">UNRANKED</span>`;
+            }
+            posBadge.style.display='';
+          }
+        }
       }
-    }catch(e){ console.warn('[artist rank ui]', e); if(chip) chip.style.display='none'; if(posBadge) posBadge.style.display='none'; }
+    }catch(e){ console.warn('[artist rank ui]', e); }
+    return out;
+  };
+
+  // ── Wire into song profile: show plays/points + the "No.X/Y" position ──
+  const prevOpenSongProfile = window.openSongProfile;
+  window.openSongProfile = async function blastrRankedOpenSongProfile(track){
+    const out = prevOpenSongProfile.call(window, track);
+    const stats = document.getElementById('profRankStats');
+    if(stats) stats.innerHTML = '';
+    try{
+      if(track?.id && stats){
+        let row = (track.total_points!==undefined) ? track : null;
+        if(!row){
+          const rows = await sbFetch(`/rest/v1/track_rankings?select=total_points,position,total_tracks&id=eq.${track.id}&limit=1`);
+          row = Array.isArray(rows) && rows[0];
+        }
+        if(row){
+          const posHTML = row.position
+            ? `<span class="prs-chip gold">No.${row.position}/${row.total_tracks||'—'} Songs on Blastr</span>`
+            : `<span class="prs-chip">UNRANKED</span>`;
+          stats.innerHTML = `<span class="prs-chip gold">⭐ ${blastrFormatCount(row.total_points)} pts</span>${posHTML}`;
+        }
+      }
+    }catch(e){ console.warn('[song rank ui]', e); }
     return out;
   };
 
@@ -12615,7 +12681,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     return out;
   };
 
-  // ── Full rankings page ──
+  // ── Full rankings page — sequential positions, Unranked items alphabetical at the end ──
   window.showFullRankings = async function(tab){
     await ensureBlastrRankings(true);
     switchRankingsTab(tab||'artists');
@@ -12628,23 +12694,25 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     const data = tab==='artists' ? window.blastrRankings.artists : window.blastrRankings.tracks;
     if(!data.length){ list.innerHTML = '<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO RANKING DATA YET.</p>'; return; }
     if(tab==='artists'){
-      list.innerHTML = data.map(a=>`
+      list.innerHTML = data.map(a=>{
+        const incomplete = a.incomplete_profile ? ' incomplete' : '';
+        return `
         <div class="ranking-page-row" onclick="openArtistProfile(${jsonAttr(a)})">
-          <div class="ranking-page-pos${a.position<=10?' top10':''}">#${a.position}</div>
-          <div class="ranking-page-avatar">${a.avatar_url?`<img decoding="async" src="${esc(a.avatar_url)}" loading="lazy" referrerpolicy="no-referrer">`:(a.name||'A')[0].toUpperCase()}</div>
+          <div class="ranking-page-pos${a.position&&a.position<=10?' top10':''}">${a.position?'#'+a.position:'—'}</div>
+          <div class="ranking-page-avatar${incomplete}">${blastrArtistAvatarHTML(a)}</div>
           <div class="ranking-page-info">
-            <div class="ranking-page-name">${esc(a.name||'Unknown')}</div>
-            <div class="ranking-page-sub">${blastrFormatCount(a.total_views)} views · ${blastrFormatCount(a.total_points)} pts</div>
+            <div class="ranking-page-name">${esc(a.name||'Unknown')}${a.incomplete_profile?' <span style="color:#ff9432;font-size:9px">⚠ NO PROFILE</span>':''}</div>
+            <div class="ranking-page-sub">${a.position?`${blastrFormatCount(a.total_views)} views · ${blastrFormatCount(a.total_points)} pts`:'UNRANKED'}</div>
           </div>
-        </div>`).join('');
+        </div>`;}).join('');
     } else {
       list.innerHTML = data.map(t=>`
         <div class="ranking-page-row" onclick="initiateHandshake(${jsonAttr(t)})">
-          <div class="ranking-page-pos${t.position<=10?' top10':''}">#${t.position}</div>
+          <div class="ranking-page-pos${t.position&&t.position<=10?' top10':''}">${t.position?'#'+t.position:'—'}</div>
           <div class="ranking-page-avatar sq">${t.cover_url?`<img decoding="async" src="${esc(t.cover_url)}" loading="lazy">`:'♪'}</div>
           <div class="ranking-page-info">
             <div class="ranking-page-name">${esc(t.title||'Untitled')}</div>
-            <div class="ranking-page-sub">${esc(t.artist||'Unknown')} · ${blastrFormatCount(t.total_points)} pts</div>
+            <div class="ranking-page-sub">${esc(t.artist||'Unknown')}${t.position?` · ${blastrFormatCount(t.total_points)} pts`:' · UNRANKED'}</div>
           </div>
         </div>`).join('');
     }
