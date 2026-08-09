@@ -1175,7 +1175,6 @@ img{max-width:100%; display:block}
       <div class="avatar av-4 call-avatar" id="callAvatar">A</div>
       <video class="call-video" id="callLocalVideo" autoplay muted playsinline></video>
     </div>
-    <audio id="callRemoteAudio" autoplay></audio>
     <div class="call-name" id="callName">Someone</div>
     <div class="call-subtext" id="callSubtext">Calling…</div>
   </div>
@@ -2123,9 +2122,7 @@ function clearReply(){ document.getElementById('replyPreview').classList.remove(
 
 /* ============================= CALLING (real ringing via Supabase) ============================= */
 let mediaPermissionGranted = false, callLocalStream = null, callTimeoutTimer, pendingCallType = 'audio';
-let activeCallId = null, isIncomingCall = false, pendingOfferRow = null;
-let peerConnection = null, callIceChannel = null, iceQueue = [], outgoingIceQueue = [];
-const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+let activeCallId = null, isIncomingCall = false;
 const callStateSteps = [
   { label:'Calling…', delay:0 },
   { label:'Connecting…', delay:1400 },
@@ -2145,56 +2142,17 @@ async function grantCallPermissions(){
   } catch(err){ logDiagnostic('Mic/camera permission', err); }
   startOutgoingCall(pendingCallType);
 }
-function createPeerConnection(){
-  peerConnection = new RTCPeerConnection(RTC_CONFIG);
-  iceQueue = []; outgoingIceQueue = [];
-  peerConnection.onicecandidate = e=>{
-    if(!e.candidate) return;
-    if(callIceChannel) callIceChannel.send({ type:'broadcast', event:'ice', payload:{ candidate:e.candidate, from: currentUserId } });
-    else outgoingIceQueue.push(e.candidate);
-  };
-  peerConnection.ontrack = e=>{
-    const el = document.getElementById('callRemoteAudio');
-    if(el.srcObject !== e.streams[0]){ el.srcObject = e.streams[0]; el.play().catch(()=>{}); }
-  };
-}
-function handleIncomingIce(candidate){
-  if(!peerConnection) return;
-  if(peerConnection.remoteDescription) peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(err=>logDiagnostic('ICE add', err));
-  else iceQueue.push(candidate);
-}
-function flushIceQueue(){
-  iceQueue.forEach(c=>peerConnection.addIceCandidate(new RTCIceCandidate(c)).catch(err=>logDiagnostic('ICE add', err)));
-  iceQueue = [];
-}
-function subscribeToCallChannel(callId){
-  callIceChannel = sb.channel('call-ice-'+callId);
-  callIceChannel.on('broadcast', { event:'ice' }, payload=>{
-    if(payload.payload.from !== currentUserId) handleIncomingIce(payload.payload.candidate);
-  }).subscribe(status=>{
-    if(status === 'SUBSCRIBED' && outgoingIceQueue.length){
-      outgoingIceQueue.forEach(c=>callIceChannel.send({ type:'broadcast', event:'ice', payload:{ candidate:c, from: currentUserId } }));
-      outgoingIceQueue = [];
-    }
-  });
-}
 async function startOutgoingCall(type){
   isIncomingCall = false;
   openCallScreen(type, document.getElementById('chatHeadName').textContent || 'Someone', document.getElementById('chatHeadAv'));
-  if(!(activeConversationOtherId && currentUserId)) return; // demo contact — local ring only, no real signaling
-  try{
-    createPeerConnection();
-    callLocalStream.getAudioTracks().forEach(t=>peerConnection.addTrack(t, callLocalStream));
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    const { data, error } = await sb.from('calls').insert({ caller_id: currentUserId, callee_id: activeConversationOtherId, conversation_id: activeConversationId, status:'ringing', call_type:type, offer: JSON.stringify(offer) }).select().single();
+  if(activeConversationOtherId && currentUserId){
+    const { data, error } = await sb.from('calls').insert({ caller_id: currentUserId, callee_id: activeConversationOtherId, conversation_id: activeConversationId, status:'ringing', call_type:type }).select().single();
     if(error){ logDiagnostic('Start call', error); return; }
     activeCallId = data.id;
-    subscribeToCallChannel(activeCallId);
-  } catch(err){ logDiagnostic('WebRTC offer', err); }
+  }
 }
 async function showIncomingCall(row){
-  activeCallId = row.id; isIncomingCall = true; pendingOfferRow = row;
+  activeCallId = row.id; isIncomingCall = true;
   const { data: caller } = await sb.from('profiles').select('username,full_name,avatar_url').eq('id', row.caller_id).single();
   const name = (caller && (caller.full_name || caller.username)) || 'NEXA user';
   const av = document.getElementById('callAvatar');
@@ -2208,24 +2166,7 @@ async function showIncomingCall(row){
   document.getElementById('callScreen').classList.add('show');
 }
 async function acceptCall(){
-  if(!callLocalStream){
-    try{ callLocalStream = await navigator.mediaDevices.getUserMedia({ audio:true, video:true }); mediaPermissionGranted = true; }
-    catch(err){ logDiagnostic('Mic/camera permission', err); return; }
-  }
-  try{
-    createPeerConnection();
-    callLocalStream.getAudioTracks().forEach(t=>peerConnection.addTrack(t, callLocalStream));
-    if(pendingOfferRow && pendingOfferRow.offer){
-      await peerConnection.setRemoteDescription(JSON.parse(pendingOfferRow.offer));
-      flushIceQueue();
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      if(activeCallId){
-        await sb.from('calls').update({ status:'accepted', answer: JSON.stringify(answer) }).eq('id', activeCallId);
-        subscribeToCallChannel(activeCallId);
-      }
-    }
-  } catch(err){ logDiagnostic('Accept call', err); }
+  if(activeCallId) await sb.from('calls').update({ status:'accepted' }).eq('id', activeCallId);
   document.getElementById('callDeckIncoming').style.display='none';
   document.getElementById('callDeckOutgoing').style.display='flex';
   document.getElementById('callSubtext').textContent = 'Connected';
@@ -2235,22 +2176,16 @@ async function declineCall(){
   if(activeCallId) await sb.from('calls').update({ status:'declined' }).eq('id', activeCallId);
   closeCallUI();
 }
-function handleRemoteCallStatusChange(row){
-  const status = row.status;
+function handleRemoteCallStatusChange(status){
   if(status==='declined'){ document.getElementById('callSubtext').textContent='Declined'; setTimeout(closeCallUI,1200); }
-  else if(status==='accepted'){
-    document.getElementById('callSubtext').textContent='Connected'; clearTimeout(callTimeoutTimer);
-    if(!isIncomingCall && peerConnection && row.answer && !peerConnection.currentRemoteDescription){
-      peerConnection.setRemoteDescription(JSON.parse(row.answer)).then(flushIceQueue).catch(err=>logDiagnostic('Set answer', err));
-    }
-  }
+  else if(status==='accepted'){ document.getElementById('callSubtext').textContent='Connected'; clearTimeout(callTimeoutTimer); }
   else if(status==='ended' || status==='missed') closeCallUI();
 }
 function subscribeToIncomingCalls(){
   if(!currentUserId) return;
   sb.channel('calls-'+currentUserId)
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'calls', filter:`callee_id=eq.${currentUserId}` }, payload=>showIncomingCall(payload.new))
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'calls' }, payload=>{ if(payload.new.id === activeCallId) handleRemoteCallStatusChange(payload.new); })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'calls' }, payload=>{ if(payload.new.id === activeCallId) handleRemoteCallStatusChange(payload.new.status); })
     .subscribe();
 }
 function openCallScreen(type, name, headAv){
@@ -2293,11 +2228,7 @@ function closeCallUI(){
   document.getElementById('callScreen').classList.remove('show');
   clearTimeout(callTimeoutTimer);
   document.getElementById('callLocalVideo').srcObject = null;
-  const remoteAudio = document.getElementById('callRemoteAudio'); if(remoteAudio) remoteAudio.srcObject = null;
-  if(peerConnection){ peerConnection.close(); peerConnection = null; }
-  if(callIceChannel){ sb.removeChannel(callIceChannel); callIceChannel = null; }
-  iceQueue = []; outgoingIceQueue = [];
-  activeCallId = null; isIncomingCall = false; pendingOfferRow = null;
+  activeCallId = null; isIncomingCall = false;
 }
 function endCall(){
   if(activeCallId) sb.from('calls').update({ status:'ended' }).eq('id', activeCallId);
