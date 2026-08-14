@@ -1408,6 +1408,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .admin-file-btn:hover{background:rgba(57,255,20,.08);border-style:solid}
 .admin-file-btn.loaded{background:rgba(57,255,20,.07);border-style:solid;border-color:var(--accent)}
+.admin-file-btn.drag-active{
+  background:rgba(57,255,20,.18);border-style:solid;border-color:var(--accent);
+  color:#fff;box-shadow:0 0 18px rgba(57,255,20,.55),inset 0 0 14px rgba(57,255,20,.25);
+  transform:scale(1.015);animation:blastrDropPulse 1s ease-in-out infinite;
+}
+@keyframes blastrDropPulse{0%,100%{box-shadow:0 0 18px rgba(57,255,20,.55),inset 0 0 14px rgba(57,255,20,.25)}50%{box-shadow:0 0 30px rgba(57,255,20,.85),inset 0 0 22px rgba(57,255,20,.4)}}
 .btn-blast{
   width:100%;padding:13px;background:var(--accent);color:#000;
   font-size:12px;font-weight:900;letter-spacing:2px;
@@ -4086,8 +4092,8 @@ body.light .search-input{color:var(--text)}
               <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
               <option>Latin</option><option>Country</option><option>Indie</option>
             </select>
-            <button class="admin-file-btn" id="btnAudio" onclick="selectAdminFile('audio')">⬆ LOAD_AUDIO: click to select MP3</button>
-            <button class="admin-file-btn" id="btnImage" onclick="selectAdminFile('image')">⬆ LOAD_VISUAL: click to select cover image</button>
+            <button class="admin-file-btn" id="btnAudio" onclick="selectAdminFile('audio')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'admin','audio',null)">⬆ LOAD_AUDIO: click or drop MP3</button>
+            <button class="admin-file-btn" id="btnImage" onclick="selectAdminFile('image')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'admin','image',null)">⬆ LOAD_VISUAL: click or drop cover image</button>
             <div class="verify-toggle" id="verifyToggle" onclick="toggleVerify()">
               <div class="check" id="verifyCheck"></div>
               <span id="verifyLabel">VERIFY SONG (Blastr Certified Original)</span>
@@ -6549,10 +6555,27 @@ function toggleVerify(){
 let adminAudioFile=null,adminImageFile=null;
 function selectAdminFile(type){
   const inp=document.createElement('input');inp.type='file';inp.accept=type==='audio'?'audio/*':'image/*';
-  inp.onchange=e=>{const f=e.target.files[0];if(!f) return;
+  inp.onchange=e=>{const f=e.target.files[0];if(f) blastrApplyDropFile('admin',type,f,null);};inp.click();
+}
+function blastrApplyDropFile(scope,type,f,i){
+  if(scope==='admin'){
     if(type==='audio'){adminAudioFile=f;const btn=document.getElementById('btnAudio');btn.textContent='✓ LOAD_AUDIO: '+f.name;btn.classList.add('loaded');}
     else{adminImageFile=f;const btn=document.getElementById('btnImage');btn.textContent='✓ LOAD_VISUAL: '+f.name;btn.classList.add('loaded');}
-  };inp.click();
+  } else {
+    DMP.files[i][type]=f;
+    const btn=document.getElementById(type==='audio'?`dmpAudioBtn${i}`:`dmpImageBtn${i}`);
+    btn.textContent='✓ '+f.name;btn.classList.add('loaded');
+  }
+}
+function blastrDragOver(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('drag-active');}
+function blastrDragLeave(e){e.currentTarget.classList.remove('drag-active');}
+function blastrDrop(e,scope,type,i){
+  e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drag-active');
+  const f=e.dataTransfer.files[0]; if(!f) return;
+  const wantAudio=type==='audio';
+  if(wantAudio && !f.type.startsWith('audio/')){showToast('ERROR','Drop an audio file for the MP3 slot.');return;}
+  if(!wantAudio && !f.type.startsWith('image/')){showToast('ERROR','Drop an image file for the cover slot.');return;}
+  blastrApplyDropFile(scope,type,f,i);
 }
 async function executeBlast() {
   const title = document.getElementById('adminTitle').value.trim();
@@ -6865,7 +6888,7 @@ let DMP = { files: [] };
 function dmpGenreOptions(){ return '<option value="">SELECT GENRE...</option>' + DMP_GENRES.map(g=>`<option>${g}</option>`).join(''); }
 function dmpGenerateRows(){
   const n = Math.max(1, Math.min(20, parseInt(document.getElementById('dmpCount').value,10) || 1));
-  DMP.files = Array.from({length:n}, () => ({audio:null, image:null}));
+  DMP.files = Array.from({length:n}, () => ({audio:null, image:null, verified:false}));
   document.getElementById('dmpRows').innerHTML = Array.from({length:n}, (_,i) => `
     <div class="admin-card" style="margin-bottom:12px">
       <div class="admin-card-title">#${i+1}</div>
@@ -6873,20 +6896,25 @@ function dmpGenerateRows(){
       <input type="text" class="admin-input" id="dmpArtist${i}" placeholder="Artist Name">
       <input type="text" class="admin-input" id="dmpDesc${i}" placeholder="Description (optional)">
       <select class="admin-select" id="dmpGenre${i}">${dmpGenreOptions()}</select>
-      <button class="admin-file-btn" id="dmpAudioBtn${i}" onclick="dmpSelectFile(${i},'audio')">⬆ LOAD_AUDIO: click to select MP3</button>
-      <button class="admin-file-btn" id="dmpImageBtn${i}" onclick="dmpSelectFile(${i},'image')">⬆ LOAD_VISUAL: click to select cover image</button>
+      <button class="admin-file-btn" id="dmpAudioBtn${i}" onclick="dmpSelectFile(${i},'audio')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'dmp','audio',${i})">⬆ LOAD_AUDIO: click or drop MP3</button>
+      <button class="admin-file-btn" id="dmpImageBtn${i}" onclick="dmpSelectFile(${i},'image')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'dmp','image',${i})">⬆ LOAD_VISUAL: click or drop cover image</button>
+      <div class="verify-toggle" id="dmpVerifyToggle${i}" onclick="dmpToggleVerify(${i})">
+        <div class="check" id="dmpVerifyCheck${i}"></div>
+        <span id="dmpVerifyLabel${i}">VERIFY SONG (Blastr Certified Original)</span>
+      </div>
       <div id="dmpStatus${i}" style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:6px">PENDING</div>
     </div>`).join('');
   document.getElementById('dmpInitiateBtn').disabled = false;
 }
+function dmpToggleVerify(i){
+  DMP.files[i].verified = !DMP.files[i].verified;
+  document.getElementById(`dmpVerifyToggle${i}`).classList.toggle('on', DMP.files[i].verified);
+  document.getElementById(`dmpVerifyCheck${i}`).textContent = DMP.files[i].verified ? '✓' : '';
+  document.getElementById(`dmpVerifyLabel${i}`).textContent = DMP.files[i].verified ? '✓ VERIFIED ORIGINAL' : 'VERIFY SONG (Blastr Certified Original)';
+}
 function dmpSelectFile(i, type){
   const inp = document.createElement('input'); inp.type = 'file'; inp.accept = type==='audio' ? 'audio/*' : 'image/*';
-  inp.onchange = e => {
-    const f = e.target.files[0]; if (!f) return;
-    DMP.files[i][type] = f;
-    const btn = document.getElementById(type==='audio' ? `dmpAudioBtn${i}` : `dmpImageBtn${i}`);
-    btn.textContent = '✓ ' + f.name; btn.classList.add('loaded');
-  };
+  inp.onchange = e => { const f = e.target.files[0]; if (f) blastrApplyDropFile('dmp',type,f,i); };
   inp.click();
 }
 async function dmpUploadOne(i){
@@ -6911,7 +6939,7 @@ async function dmpUploadOne(i){
     const linkedArtistId = await blastrResolveArtistId(artist, null);
     const inserted = await sbFetch('/rest/v1/tracks', {
       method: 'POST', headers: { 'Prefer': 'return=representation' },
-      body: { title, artist, artist_id: linkedArtistId, description: desc, genre, url: uploadedAudio.url, cover_url: uploadedCover.url, is_verified: false }
+      body: { title, artist, artist_id: linkedArtistId, description: desc, genre, url: uploadedAudio.url, cover_url: uploadedCover.url, is_verified: !!f.verified }
     });
     if (!inserted || (Array.isArray(inserted) && !inserted.length)) throw new Error('Track insert failed after storage upload.');
     statusEl.textContent = '✓ DONE'; statusEl.style.color = '#4ade80';
@@ -12261,7 +12289,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     setTimeout(()=>letter.classList.add('bounce'), 550);
     setTimeout(()=>{ letter.classList.add('hide'); word.classList.add('show'); }, 1150);
     setTimeout(()=>spin.classList.add('show'), 2150);
-    setTimeout(()=>{ stage('who'); renderTiles(); }, 4000);
+    setTimeout(()=>{ stage('who'); renderTiles(); window.blastrShowApology?.(); }, 4000);
   }
 
   let editMode=false;
@@ -12403,14 +12431,6 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
 @media(max-width:680px){.va-cluster.expanded{max-width:220px}}
 </style>
 
-<div class="modal-overlay" id="vaPromoModal">
-  <div class="modal-card">
-    <div class="modal-title">🎙 New: Voice Commands</div>
-    <div class="modal-sub">Check out our new Voice Command feature — tap the mic and Blastr will do it for ya.</div>
-    <button class="btn-primary" onclick="vaDismissPromo()">OKAY</button>
-  </div>
-</div>
-
 <div class="modal-overlay" id="vaOnboardModal">
   <div class="modal-card">
     <div class="modal-title">You're all set 🎙</div>
@@ -12423,6 +12443,60 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
     <button class="btn-primary" onclick="vaDismissOnboarding()">GOT IT</button>
   </div>
 </div>
+
+<!-- ══════ RECOVERY APOLOGY MODAL ══════ -->
+<style>
+.apology-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(5,6,10,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:apFadeIn .35s ease}
+.apology-overlay.open{display:flex}
+@keyframes apFadeIn{from{opacity:0}to{opacity:1}}
+.apology-card{position:relative;width:min(440px,90vw);border-radius:22px;padding:2px;background:conic-gradient(from 220deg,#39ff14,#00d4ff,#ff2fb5,#39ff14);animation:apSpin 6s linear infinite;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+@keyframes apSpin{to{filter:hue-rotate(360deg)}}
+.apology-inner{background:linear-gradient(165deg,#0c0e14,#14151d 60%,#0c0e14);border-radius:20px;padding:30px 26px 26px;transform:translateY(14px) scale(.97);animation:apSlideUp .45s cubic-bezier(.22,1,.36,1) .1s forwards;opacity:0}
+@keyframes apSlideUp{to{transform:translateY(0) scale(1);opacity:1}}
+.apology-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);border:1px solid rgba(57,255,20,.35);padding:4px 10px;border-radius:999px;background:rgba(57,255,20,.06);margin-bottom:14px}
+.apology-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:10px;letter-spacing:.3px}
+.apology-body{font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.78);margin-bottom:16px}
+.apology-eta{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;margin-bottom:20px}
+.apology-eta-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);flex-shrink:0;animation:vaPulse 1.4s ease-in-out infinite}
+.apology-eta-text{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+.apology-sign{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1.5px;margin-bottom:18px}
+.btn-apology-accept{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#39ff14,#00d4ff);color:#03150a;font-weight:800;font-size:13.5px;letter-spacing:.5px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 8px 24px rgba(57,255,20,.25)}
+.btn-apology-accept:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(57,255,20,.4)}
+.btn-apology-accept:active{transform:translateY(0)}
+</style>
+<div class="apology-overlay" id="apologyOverlay">
+  <div class="apology-card"><div class="apology-inner">
+    <div class="apology-badge">◆ SYSTEM NOTICE</div>
+    <div class="apology-title">We're sorry for the disruption 💚</div>
+    <div class="apology-body">Blastr's database backend hit a critical fault — one of our two hosting projects went down, taking song files and covers with it. We've since rebuilt the storage system from the ground up and are re-uploading the full library by hand.</div>
+    <div class="apology-eta"><div class="apology-eta-dot"></div><div class="apology-eta-text">FULL RESTORATION ETA: 25 AUG</div></div>
+    <div class="apology-body" style="margin-bottom:2px">Thank you for bearing with us. We're putting safeguards in place to make sure this doesn't happen again.</div>
+    <div class="apology-sign" style="margin-top:10px">— FROM XCLONE STUDIOS</div>
+    <button class="btn-apology-accept" onclick="blastrAcceptApology()">ACCEPT APOLOGY & CONTINUE</button>
+  </div></div>
+</div>
+<script>
+(() => {
+  const KEY = 'blastr_recovery_apology_v1';
+  window.blastrShowApology = function(){
+    if (localStorage.getItem(KEY)) return;
+    document.getElementById('apologyOverlay')?.classList.add('open');
+  };
+  window.blastrAcceptApology = function(){
+    try{ localStorage.setItem(KEY,'1'); }catch(e){}
+    document.getElementById('apologyOverlay')?.classList.remove('open');
+  };
+  // Fires for returning users (has a saved session) as soon as the login/app UI is visible —
+  // does not depend on the optional linked-profiles "who's listening" switcher.
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if (typeof BLASTR_AUTH_STORAGE_KEY !== 'undefined' && localStorage.getItem(BLASTR_AUTH_STORAGE_KEY)) {
+        window.blastrShowApology();
+      }
+    }, 900);
+  });
+})();
+</script>
 
 <script>
 (() => {
@@ -12638,23 +12712,6 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   window.vaToggleFromSettings = function(){ vaSetEnabled(!vaEnabled); };
   function vaShowOnboarding(){ document.getElementById('vaOnboardModal')?.classList.add('open'); }
   window.vaDismissOnboarding = function(){ document.getElementById('vaOnboardModal')?.classList.remove('open'); try{ localStorage.setItem(VA_ONBOARD_KEY,'1'); }catch(e){} };
-  window.vaDismissPromo = function(){ document.getElementById('vaPromoModal')?.classList.remove('open'); try{ localStorage.setItem(VA_PROMO_KEY,'1'); }catch(e){} };
-
-  // Promo: shown once ever, waits for a clear moment (no boot/switch overlay covering the screen)
-  function vaMaybeShowPromo(){
-    if (localStorage.getItem(VA_PROMO_KEY)) return;
-    let tries=0;
-    const check=()=>{
-      tries++;
-      const busy = document.getElementById('nfOverlay')?.classList.contains('open')
-        || document.getElementById('acctCineOverlay')?.classList.contains('open')
-        || document.documentElement.style.visibility==='hidden';
-      if (!busy){ document.getElementById('vaPromoModal')?.classList.add('open'); return; }
-      if (tries<20) setTimeout(check, 700);
-    };
-    setTimeout(check, 1200);
-  }
-  window.addEventListener('load', vaMaybeShowPromo);
 
   // Inject the tap-to-talk cluster right beside the Follow cluster (additive DOM insert — nothing existing touched)
   function vaInjectCluster(){
