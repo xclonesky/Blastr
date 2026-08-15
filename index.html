@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>if(localStorage.getItem('blastr_linked_accounts_v1')){document.documentElement.style.visibility='hidden';}</script>
 <title>Blastr — Live Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&family=Cinzel:wght@600;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#06060E;--panel:#0D0D1C;--panel2:#111122;--border:#1A1A30;
@@ -3645,6 +3645,35 @@ body.light .search-input{color:var(--text)}
 .bottom-nav-btn.admin-bn{color:rgba(255,80,80,.5)}
 .bottom-nav-btn.admin-bn.active{color:var(--red)}
 
+/* ══════ THE LEGENDS ROOM ══════ */
+.legends-row-wrap{position:relative;overflow:hidden;border-radius:20px;margin:0 20px 28px;padding:26px 22px 14px;background:linear-gradient(160deg,#1a1206,#0d0a05 65%);border:1px solid rgba(255,176,39,.25);box-shadow:0 0 40px rgba(255,176,39,.08),inset 0 0 60px rgba(255,176,39,.03)}
+.legends-row-wrap::before{content:'LEGENDS';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:900;font-size:min(14vw,140px);letter-spacing:14px;color:rgba(255,176,39,.05);white-space:nowrap;pointer-events:none;user-select:none}
+.legends-row-header{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.legends-row-title{font-family:'Cinzel',serif;font-weight:900;font-size:19px;letter-spacing:2px;color:#FFC862;text-shadow:0 0 18px rgba(255,176,39,.5)}
+.legends-row-flame{font-size:16px;filter:drop-shadow(0 0 6px rgba(255,176,39,.8));animation:legFlicker 2s ease-in-out infinite}
+@keyframes legFlicker{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.75;transform:scale(.94)}}
+.legends-strip{position:relative;display:flex;gap:16px;overflow-x:auto;padding-bottom:6px}
+.legend-tile{flex:0 0 140px;cursor:pointer;text-align:center}
+.legend-tile-photo{width:140px;height:140px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,176,39,.35);filter:grayscale(1) brightness(.75);transition:filter .35s ease,box-shadow .35s ease,border-color .35s ease}
+.legend-tile-photo img{width:100%;height:100%;object-fit:cover}
+.legend-tile:hover .legend-tile-photo{filter:grayscale(0) brightness(1);border-color:#FFB627;box-shadow:0 0 26px rgba(255,176,39,.55)}
+.legend-tile-name{margin-top:10px;font-weight:700;font-size:13px;color:#fff}
+.legend-tile-years{font-family:var(--mono);font-size:10px;color:#FFC862;opacity:.75;margin-top:2px}
+.artist-hero.legend-hero::after{content:'ETERNAL';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:900;font-size:min(20vw,220px);letter-spacing:16px;color:rgba(255,176,39,.06);pointer-events:none}
+.artist-hero.legend-hero .artist-banner{filter:grayscale(.4) brightness(.65)}
+.legend-tribute-tag{display:inline-flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-weight:700;font-size:12px;letter-spacing:1.5px;color:#FFC862;margin-bottom:8px}
+.legend-candle-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:12px;background:rgba(255,176,39,.1);border:1px solid rgba(255,176,39,.35);color:#FFC862;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .2s;margin-left:10px}
+.legend-candle-btn:hover{background:rgba(255,176,39,.2);box-shadow:0 0 20px rgba(255,176,39,.3)}
+.legend-candle-btn.lit{background:rgba(255,176,39,.25)}
+.tribute-form{display:flex;gap:8px;margin:14px 0 16px;flex-wrap:wrap}
+.tribute-input{flex:1;min-width:200px;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,176,39,.2);color:#fff;font-size:13px}
+.tribute-submit{padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,#FFB627,#FF8C42);color:#1a1206;font-weight:800;font-size:12px;cursor:pointer}
+.tribute-item{padding:14px 16px;border-radius:12px;background:rgba(255,176,39,.05);border:1px solid rgba(255,176,39,.12);margin-bottom:10px}
+.tribute-item-name{font-family:'Cinzel',serif;font-size:11.5px;letter-spacing:1px;color:#FFC862;margin-bottom:5px}
+.tribute-item-msg{font-size:13px;color:rgba(255,255,255,.85);line-height:1.5}
+.am-tribute-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(255,176,39,.06);border:1px solid rgba(255,176,39,.15);margin-bottom:8px;font-size:12px}
+.am-tribute-actions button{background:none;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:4px 8px;font-size:10px;cursor:pointer;color:var(--text);margin-left:4px}
+
 </style>
 </head>
 
@@ -3861,6 +3890,7 @@ body.light .search-input{color:var(--text)}
         <div id="homeContent"></div>
         <div id="playlistsRow"></div>
         <div id="featuredArtistsRow" style="margin-top:0"></div>
+        <div id="legendsRow"></div>
       </div>
 
       <!-- EXPLORE PAGE -->
@@ -3921,7 +3951,7 @@ body.light .search-input{color:var(--text)}
       <!-- ARTIST PROFILE PAGE -->
       <div class="page" id="page-artist">
         <!-- Hero banner -->
-        <div class="artist-hero">
+        <div class="artist-hero" id="artistHeroWrap">
           <div class="artist-banner" id="artistBanner">
             <img decoding="async" loading="lazy" id="artistBannerImg" src="" alt="" style="display:none" referrerpolicy="no-referrer">
           </div>
@@ -3943,12 +3973,14 @@ body.light .search-input{color:var(--text)}
               <span class="artist-genre-tag" id="artistGenreTag" style="display:none"></span>
             </div>
             <div class="artist-bio" id="artistBio"></div>
+            <div class="legend-tribute-tag" id="legendTributeTag" style="display:none">☆ FOREVER IN OUR PLAYLISTS ☆</div>
             <div class="artist-actions">
               <button class="btn-play-big" onclick="artistPlayFeatured()">▶ PLAY</button>
               <button class="btn-outline" id="artistFollowBtn" onclick="fwToggle()">
                 <span class="fi" id="artistFollowIcon">+</span>
                 <span id="artistFollowLabel">FOLLOW</span>
               </button>
+              <button class="legend-candle-btn" id="legendCandleBtn" onclick="legendLightCandle()" style="display:none">🕯 LIGHT A CANDLE · <span id="legendCandleCount">0</span></button>
             </div>
           </div>
           <div class="artist-phone-wrap" id="artistPhoneWrap">
@@ -3975,6 +4007,16 @@ body.light .search-input{color:var(--text)}
           <div id="artistDiscogSection" style="display:none">
             <div class="artist-section-title">Discography</div>
             <div class="song-grid" id="artistDiscogGrid"></div>
+          </div>
+          <!-- Tribute Wall (Legend artists only) -->
+          <div id="artistTributeSection" style="display:none">
+            <div class="artist-section-title">Tribute Wall</div>
+            <div class="tribute-form">
+              <input type="text" class="tribute-input" id="tributeName" placeholder="Your name (optional)" maxlength="40" style="flex:0 0 160px">
+              <input type="text" class="tribute-input" id="tributeMsg" placeholder="Leave a tribute…" maxlength="240">
+              <button class="tribute-submit" onclick="legendSubmitTribute()">SEND</button>
+            </div>
+            <div id="tributeList"></div>
           </div>
         </div>
       </div>
@@ -4273,6 +4315,18 @@ body.light .search-input{color:var(--text)}
                 <div class="am-verify" id="amVerifyToggle" onclick="amToggleVerify()" style="margin-top:10px">
                   <div class="am-verify-dot" id="amVerifyDot"></div>
                   <span class="am-verify-label" id="amVerifyLabel">BLASTR CERTIFIED ARTIST</span>
+                </div>
+                <div class="am-verify" id="amLegendToggle" onclick="amToggleLegend()" style="margin-top:10px;border-color:rgba(255,176,39,.35)">
+                  <div class="am-verify-dot" id="amLegendDot" style="border-color:#FFB627"></div>
+                  <span class="am-verify-label" id="amLegendLabel" style="color:#FFC862">🕯 LEGENDS ROOM (In Memoriam)</span>
+                </div>
+                <div id="amLegendFields" style="display:none">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+                    <div class="am-field" style="margin-bottom:0"><label class="am-label">PASSED DATE</label><input type="date" class="am-input" id="amPassedDate"></div>
+                    <div class="am-field" style="margin-bottom:0"><label class="am-label">TRIBUTE LINE</label><input type="text" class="am-input" id="amTributeLine" placeholder="Short epitaph / signature lyric"></div>
+                  </div>
+                  <div class="am-label" style="margin:12px 0 6px">PENDING TRIBUTES</div>
+                  <div id="amTributeMod"><div style="font-size:11px;color:var(--dim);font-family:var(--mono)">Save artist first to enable moderation.</div></div>
                 </div>
                 <!-- Popular Tracks -->
                 <div class="am-label" style="margin-bottom:6px;margin-top:4px">POPULAR TRACKS (up to 5)</div>
@@ -4923,7 +4977,7 @@ async function sbFetch(path, opts={}, token=null, _retried=false) {
       return null;
     }
     blastrResetQuotaStrikes();
-    if(method0!=='GET') blastrMirrorWrite(path, opts, payload);
+    if(method0!=='GET'){ blastrMirrorWrite(path, opts, payload); blastrGetCache.clear(); }
     else if(opts.cache) blastrGetCache.set(path, {t:Date.now(), data:payload});
     return payload;
   } catch(e){
@@ -5755,6 +5809,7 @@ async function loadHomeContent() {
   // Load featured artists row
   loadFeaturedArtistsRow();
   loadPlaylistsRow();
+  loadLegendsRow();
 }
 
 function renderBecauseSection() {
@@ -10223,6 +10278,92 @@ window.artistPlayFeatured = function() {
   else if (state.currentArtist) showToast('ARTIST', 'No featured tracks set yet.');
 };
 
+// ══════ THE LEGENDS ROOM ══════
+async function loadLegendsRow() {
+  const wrap = document.getElementById('legendsRow');
+  if (!wrap) return;
+  const all = await getArtists();
+  const legends = all.filter(a => a.is_legend);
+  if (!legends.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `
+    <div class="legends-row-wrap">
+      <div class="legends-row-header">
+        <span class="legends-row-flame">🕯</span>
+        <div class="legends-row-title">THE LEGENDS ROOM</div>
+      </div>
+      <div class="legends-strip">
+        ${legends.map(a => {
+          const years = a.passed_date ? `${a.passed_date.slice(0,4)}` : '';
+          return `<div class="legend-tile" onclick="openArtistProfile(${jsonAttr(a)})">
+            <div class="legend-tile-photo">${a.avatar_url?`<img decoding="async" loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer">`:'<span style="font-size:40px;line-height:140px;color:#FFC862">★</span>'}</div>
+            <div class="legend-tile-name">${esc(a.name)}</div>
+            <div class="legend-tile-years">${years ? '† '+years : 'IN MEMORIAM'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// Patch openArtistProfile once more — Legend hero mode + tribute wall
+const _origOAPLegend = window.openArtistProfile;
+window.openArtistProfile = async function(artist) {
+  await _origOAPLegend.call(this, artist);
+  const heroWrap = document.getElementById('artistHeroWrap');
+  const tag = document.getElementById('legendTributeTag');
+  const candleBtn = document.getElementById('legendCandleBtn');
+  const tributeSec = document.getElementById('artistTributeSection');
+  if (artist.is_legend) {
+    heroWrap?.classList.add('legend-hero');
+    if (tag) tag.style.display = '';
+    if (candleBtn) { candleBtn.style.display = ''; document.getElementById('legendCandleCount').textContent = artist.candle_count || 0; }
+    if (tributeSec) tributeSec.style.display = '';
+    legendLoadTributes(artist.id);
+  } else {
+    heroWrap?.classList.remove('legend-hero');
+    if (tag) tag.style.display = 'none';
+    if (candleBtn) candleBtn.style.display = 'none';
+    if (tributeSec) tributeSec.style.display = 'none';
+  }
+};
+
+window.legendLightCandle = async function() {
+  const a = state.currentArtist;
+  if (!a) return;
+  const btn = document.getElementById('legendCandleBtn');
+  btn.classList.add('lit');
+  const newCount = (a.candle_count || 0) + 1;
+  document.getElementById('legendCandleCount').textContent = newCount;
+  a.candle_count = newCount;
+  try { await sbFetch(`/rest/v1/artists?id=eq.${a.id}`, { method: 'PATCH', body: { candle_count: newCount } }); }
+  catch (e) { console.warn('[candle]', e); }
+};
+
+async function legendLoadTributes(artistId) {
+  const list = document.getElementById('tributeList');
+  if (!list) return;
+  list.innerHTML = '<div style="padding:10px;text-align:center"><div class="spinner"></div></div>';
+  try {
+    const rows = await sbFetch(`/rest/v1/artist_tributes?select=*&artist_id=eq.${artistId}&approved=eq.true&order=created_at.desc&limit=50`);
+    list.innerHTML = (Array.isArray(rows) && rows.length)
+      ? rows.map(t => `<div class="tribute-item"><div class="tribute-item-name">${esc(t.fan_name || 'A Fan')}</div><div class="tribute-item-msg">${esc(t.message)}</div></div>`).join('')
+      : '<div style="color:var(--dim);font-size:12px;font-family:var(--mono);padding:8px 0">Be the first to leave a tribute.</div>';
+  } catch (e) { console.warn('[tributes load]', e); list.innerHTML = ''; }
+}
+
+window.legendSubmitTribute = async function() {
+  const a = state.currentArtist;
+  if (!a) return;
+  const name = document.getElementById('tributeName').value.trim();
+  const msg = document.getElementById('tributeMsg').value.trim();
+  if (!msg) { showToast('ERROR', 'Write a tribute message first.'); return; }
+  try {
+    await sbFetch('/rest/v1/artist_tributes', { method: 'POST', body: { artist_id: a.id, fan_name: name || null, message: msg, approved: false } });
+    document.getElementById('tributeName').value = '';
+    document.getElementById('tributeMsg').value = '';
+    showToast('TRIBUTE SENT 🕯', 'Submitted for review — thank you.');
+  } catch (e) { console.error('[tribute submit]', e); showToast('ERROR', 'Could not submit tribute.'); }
+};
+
 // ── FEATURED ARTISTS ROW (Homepage — dynamic random insertion) ──
 async function loadFeaturedArtistsRow() {
   const wrap = document.getElementById('featuredArtistsRow');
@@ -10723,7 +10864,7 @@ window.amFilterArtists = function(val) {
 window.amNewArtist = function() {
   AM.selected = null; AM.isNew = true;
   AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null; AM.featTracks=[];
-  AM.isVerified = false; AM.bannerPosY = 50;
+  AM.isVerified = false; AM.bannerPosY = 50; AM.isLegend = false;
   amShowEditor();
   amClearEditor();
   document.getElementById('amDeleteBtn').style.display='none';
@@ -10733,6 +10874,7 @@ window.amSelectArtist = async function(a) {
   AM.selected = a; AM.isNew = false;
   AM.newAvatarFile=null; AM.newBannerFile=null; AM.newAvatarUrl=null; AM.newBannerUrl=null;
   AM.isVerified = !!a.verified;
+  AM.isLegend = !!a.is_legend;
   // Restore saved banner position
   const savedPos = (a.banner_style && a.banner_style.includes('%')) ? a.banner_style : 'center 50%';
   const matchY = savedPos.match(/(\d+(?:\.\d+)?)%/);
@@ -10747,6 +10889,7 @@ window.amSelectArtist = async function(a) {
   amShowEditor();
   amPopulateEditor(a);
   document.getElementById('amDeleteBtn').style.display='';
+  amLoadTributeMod(a.id);
   // Re-render list to show selection
   document.querySelectorAll('.am-artist-item').forEach(el=>el.classList.remove('selected'));
   const items = document.querySelectorAll('.am-artist-item');
@@ -10762,9 +10905,13 @@ function amClearEditor() {
   const g=document.getElementById('amGenre');if(g)g.value='';
   const b=document.getElementById('amBadge');if(b)b.value='';
   const ap=document.getElementById('amAvatarPreview');if(ap)ap.innerHTML='★';
+  document.getElementById('amPassedDate').value='';
+  document.getElementById('amTributeLine').value='';
+  document.getElementById('amTributeMod').innerHTML='<div style="font-size:11px;color:var(--dim);font-family:var(--mono)">Save artist first to enable moderation.</div>';
   AM.bannerPosY=50;
   amUpdateBannerPreview();
   amSetVerify(false);
+  amSetLegend(false);
   amRenderFeatSlots();
 }
 function amPopulateEditor(a) {
@@ -10773,12 +10920,15 @@ function amPopulateEditor(a) {
   document.getElementById('amGenre').value = a.genre||'';
   document.getElementById('amBadge').value = a.badge||'';
   document.getElementById('amVideoUrl').value = a.featured_video_url||'';
+  document.getElementById('amPassedDate').value = a.passed_date||'';
+  document.getElementById('amTributeLine').value = a.tribute_line||'';
   // Avatar preview
   const ap = document.getElementById('amAvatarPreview');
   if(ap) ap.innerHTML = a.avatar_url ? `<img decoding="async" loading="lazy" src="${esc(a.avatar_url)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (a.name||'A')[0];
   // Banner preview with saved position
   amUpdateBannerPreview();
   amSetVerify(!!a.verified);
+  amSetLegend(!!a.is_legend);
   amRenderFeatSlots();
 }
 function amSetBannerPreview(url) {
@@ -10795,6 +10945,37 @@ function amSetVerify(v) {
   if(lbl) lbl.textContent=v?'✓ BLASTR CERTIFIED':'BLASTR CERTIFIED ARTIST';
 }
 window.amToggleVerify=function(){amSetVerify(!AM.isVerified);};
+
+function amSetLegend(v) {
+  AM.isLegend = v;
+  const tog = document.getElementById('amLegendToggle');
+  const dot = document.getElementById('amLegendDot');
+  const fields = document.getElementById('amLegendFields');
+  if (tog) tog.classList.toggle('on', v);
+  if (dot) dot.textContent = v ? '✓' : '';
+  if (fields) fields.style.display = v ? '' : 'none';
+}
+window.amToggleLegend = function(){ amSetLegend(!AM.isLegend); };
+
+async function amLoadTributeMod(artistId) {
+  const box = document.getElementById('amTributeMod');
+  if (!box || !artistId) return;
+  box.innerHTML = '<div style="padding:8px;text-align:center"><div class="spinner"></div></div>';
+  try {
+    const rows = await sbFetch(`/rest/v1/artist_tributes?select=*&artist_id=eq.${artistId}&approved=eq.false&order=created_at.desc`);
+    box.innerHTML = (Array.isArray(rows) && rows.length)
+      ? rows.map(t => `<div class="am-tribute-item"><div>${esc(t.fan_name||'A Fan')}: ${esc(t.message)}</div><div class="am-tribute-actions" style="white-space:nowrap"><button onclick="amApproveTribute('${t.id}','${artistId}')">✓ APPROVE</button><button onclick="amRejectTribute('${t.id}','${artistId}')">✕ REJECT</button></div></div>`).join('')
+      : '<div style="font-size:11px;color:var(--dim);font-family:var(--mono)">No pending tributes.</div>';
+  } catch(e){ box.innerHTML=''; console.warn('[tribute mod]',e); }
+}
+window.amApproveTribute = async function(id, artistId){
+  await sbFetch(`/rest/v1/artist_tributes?id=eq.${id}`, {method:'PATCH', body:{approved:true}});
+  amLoadTributeMod(artistId);
+};
+window.amRejectTribute = async function(id, artistId){
+  await sbFetch(`/rest/v1/artist_tributes?id=eq.${id}`, {method:'DELETE'});
+  amLoadTributeMod(artistId);
+};
 
 function amRenderFeatSlots() {
   const el=document.getElementById('amFeatSlots');
@@ -10991,6 +11172,9 @@ window.amSaveArtist=async function(){
       badge: document.getElementById('amBadge').value||null,
       featured_video_url: document.getElementById('amVideoUrl').value.trim()||null,
       verified: AM.isVerified,
+      is_legend: AM.isLegend,
+      passed_date: document.getElementById('amPassedDate').value || null,
+      tribute_line: document.getElementById('amTributeLine').value.trim() || null,
       avatar_url: avatarUrl,
       banner_url: bannerUrl,
       banner_style: `center ${Math.round(AM.bannerPosY||50)}%`,
@@ -11024,10 +11208,12 @@ window.amSaveArtist=async function(){
     btn.textContent='REFRESHING…';
     const freshArtist = await getArtistById(artistId);
     if(freshArtist) AM.selected = freshArtist;
+    amLoadTributeMod(artistId);
 
     showToast('ARTIST SAVED ✓',`"${name}" saved successfully.`);
     await amLoadArtists();
     loadFeaturedArtistsRow();
+    loadLegendsRow();
 
     // Automatically open/refresh the artist profile page with fresh data
     if(freshArtist) openArtistProfile(freshArtist);
