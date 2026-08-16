@@ -3646,7 +3646,7 @@ body.light .search-input{color:var(--text)}
 .bottom-nav-btn.admin-bn.active{color:var(--red)}
 
 /* ══════ THE LEGENDS ROOM ══════ */
-.legends-row-wrap{position:relative;overflow:hidden;border-radius:20px;margin:0 20px 28px;padding:26px 22px 14px;background:linear-gradient(160deg,#1a1206,#0d0a05 65%);border:1px solid rgba(255,176,39,.25);box-shadow:0 0 40px rgba(255,176,39,.08),inset 0 0 60px rgba(255,176,39,.03)}
+.legends-row-wrap{position:relative;overflow:hidden;border-radius:20px;margin:0 20px 28px;padding:26px 22px 14px;background:linear-gradient(160deg,#1a1206,#0d0a05 65%);border:1px solid rgba(255,176,39,.25);box-shadow:0 0 24px rgba(255,176,39,.06);content-visibility:auto;contain-intrinsic-size:0 260px}
 .legends-row-wrap::before{content:'LEGENDS';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:900;font-size:min(14vw,140px);letter-spacing:14px;color:rgba(255,176,39,.05);white-space:nowrap;pointer-events:none;user-select:none}
 .legends-row-header{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .legends-row-title{font-family:'Cinzel',serif;font-weight:900;font-size:19px;letter-spacing:2px;color:#FFC862;text-shadow:0 0 18px rgba(255,176,39,.5)}
@@ -3674,6 +3674,12 @@ body.light .search-input{color:var(--text)}
 .am-tribute-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(255,176,39,.06);border:1px solid rgba(255,176,39,.15);margin-bottom:8px;font-size:12px}
 .am-tribute-actions button{background:none;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:4px 8px;font-size:10px;cursor:pointer;color:var(--text);margin-left:4px}
 .legend-halo{box-shadow:0 0 0 3px #FFB627,0 0 18px rgba(255,176,39,.65)!important;border-radius:50%}
+.emotion-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;padding:10px;border-radius:12px;background:rgba(255,255,255,.03);border:1.5px dashed rgba(57,255,20,.22);max-height:170px;overflow-y:auto}
+.emotion-pill-group-label{flex-basis:100%;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin:5px 0 1px}
+.emotion-pill-group-label:first-child{margin-top:0}
+.emotion-pill{padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text);font-size:11px;cursor:pointer;transition:all .15s;user-select:none}
+.emotion-pill:hover{border-color:var(--accent);background:rgba(57,255,20,.08)}
+.emotion-pill.selected{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
 
 </style>
 </head>
@@ -4135,7 +4141,8 @@ body.light .search-input{color:var(--text)}
               <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
               <option>Latin</option><option>Country</option><option>Indie</option>
             </select>
-            <select multiple class="admin-select" id="adminEmotions" size="5" style="height:auto;padding:6px" title="Hold Ctrl/Cmd to select multiple moods"></select>
+            <div class="admin-emotions-label" style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:5px">SELECT MOOD(S) — CLICK TO TOGGLE</div>
+            <div id="adminEmotions" class="emotion-pills"></div>
             <button class="admin-file-btn" id="btnAudio" onclick="selectAdminFile('audio')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'admin','audio',null)">⬆ LOAD_AUDIO: click or drop MP3</button>
             <button class="admin-file-btn" id="btnImage" onclick="selectAdminFile('image')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'admin','image',null)">⬆ LOAD_VISUAL: click or drop cover image</button>
             <div class="verify-toggle" id="verifyToggle" onclick="toggleVerify()">
@@ -4231,8 +4238,8 @@ body.light .search-input{color:var(--text)}
                   </select>
                 </div>
                 <div class="es-field">
-                  <label class="es-label">EMOTIONS</label>
-                  <select multiple class="es-select" id="esEmotions" size="5" style="height:auto" title="Hold Ctrl/Cmd to select multiple moods"></select>
+                  <label class="es-label">EMOTIONS — CLICK TO TOGGLE</label>
+                  <div id="esEmotions" class="emotion-pills"></div>
                 </div>
                 <div class="es-verify" id="esVerifyToggle" onclick="esToggleVerify()">
                   <div class="es-verify-dot" id="esVerifyDot"></div>
@@ -4983,7 +4990,11 @@ async function sbFetch(path, opts={}, token=null, _retried=false) {
       return null;
     }
     blastrResetQuotaStrikes();
-    if(method0!=='GET'){ blastrMirrorWrite(path, opts, payload); blastrGetCache.clear(); }
+    if(method0!=='GET'){
+      blastrMirrorWrite(path, opts, payload);
+      const resource = path.split('?')[0];
+      for (const k of [...blastrGetCache.keys()]) { if (k.split('?')[0] === resource) blastrGetCache.delete(k); }
+    }
     else if(opts.cache) blastrGetCache.set(path, {t:Date.now(), data:payload});
     return payload;
   } catch(e){
@@ -6717,7 +6728,7 @@ async function executeBlast() {
     }
 
     const insertedTrack = Array.isArray(inserted) ? inserted[0] : inserted;
-    const selEmotions = Array.from(document.getElementById('adminEmotions').selectedOptions).map(o => o.value);
+    const selEmotions = getSelectedEmotions('adminEmotions');
     if (selEmotions.length) {
       await sbFetch('/rest/v1/track_emotions', { method: 'POST', body: selEmotions.map(eid => ({ track_id: insertedTrack.id, emotion_id: eid })) });
     }
@@ -6726,7 +6737,7 @@ async function executeBlast() {
     ['adminTitle','adminArtist','adminDesc'].forEach(id => document.getElementById(id).value = '');
     upArtistId = null;
     document.getElementById('adminGenre').value = '';
-    document.getElementById('adminEmotions').selectedIndex = -1;
+    populateEmotionSelect('adminEmotions');
     adminAudioFile = null;
     adminImageFile = null;
     document.getElementById('btnAudio').textContent = '⬆ LOAD_AUDIO: click to select audio file';
@@ -9892,7 +9903,11 @@ window.SM = SM;
     document.getElementById('esDesc').value   = track.description || '';
     document.getElementById('esGenre').value  = track.genre || '';
     sbFetch(`/rest/v1/track_emotions?select=emotion_id&track_id=eq.${track.id}`)
-      .then(rows => populateEmotionSelect('esEmotions', (Array.isArray(rows)?rows:[]).map(r=>r.emotion_id)));
+      .then(rows => {
+        const ids = (Array.isArray(rows)?rows:[]).map(r=>r.emotion_id);
+        ES.originalEmotionIds = ids;
+        populateEmotionSelect('esEmotions', ids);
+      });
 
     // Verify toggle
     esSetVerify(ES.isVerified);
@@ -10022,24 +10037,33 @@ window.SM = SM;
       const resolvedArtistId = await blastrResolveArtistId(artist, esArtistIdSel);
       if (resolvedArtistId !== (ES.track.artist_id || null)) patch.artist_id = resolvedArtistId;
 
-      if (!Object.keys(patch).length) {
+      const selEmotions = getSelectedEmotions('esEmotions').sort();
+      const origEmotions = (ES.originalEmotionIds || []).slice().sort();
+      const emotionsChanged = JSON.stringify(selEmotions) !== JSON.stringify(origEmotions);
+
+      if (!Object.keys(patch).length && !emotionsChanged) {
         showToast('NO CHANGES', 'Nothing to update.');
         btn.disabled = false;
         btn.textContent = 'SAVE CHANGES';
         return;
       }
 
-      const result = await sbFetch(
-        `/rest/v1/tracks?id=eq.${ES.track.id}`,
-        { method: 'PATCH', headers: { 'Prefer': 'return=representation' }, body: patch }
-      );
-      if (result === null) throw new Error('Patch failed — no response from server.');
+      let result = null;
+      if (Object.keys(patch).length) {
+        result = await sbFetch(
+          `/rest/v1/tracks?id=eq.${ES.track.id}`,
+          { method: 'PATCH', headers: { 'Prefer': 'return=representation' }, body: patch }
+        );
+        if (result === null) throw new Error('Patch failed — no response from server.');
+      }
 
-      // ── 2b. Resync emotion tags ──
-      const selEmotions = Array.from(document.getElementById('esEmotions').selectedOptions).map(o => o.value);
-      await sbFetch(`/rest/v1/track_emotions?track_id=eq.${ES.track.id}`, { method: 'DELETE' });
-      if (selEmotions.length) {
-        await sbFetch('/rest/v1/track_emotions', { method: 'POST', body: selEmotions.map(eid => ({ track_id: ES.track.id, emotion_id: eid })) });
+      // ── 2b. Resync emotion tags (only if changed) ──
+      if (emotionsChanged) {
+        await sbFetch(`/rest/v1/track_emotions?track_id=eq.${ES.track.id}`, { method: 'DELETE' });
+        if (selEmotions.length) {
+          await sbFetch('/rest/v1/track_emotions', { method: 'POST', body: selEmotions.map(eid => ({ track_id: ES.track.id, emotion_id: eid })) });
+        }
+        ES.originalEmotionIds = selEmotions;
       }
 
       // ── 3. Delete old cover after successful patch ──
@@ -10120,21 +10144,42 @@ async function getArtists(q='') {
 }
 window.getArtists = getArtists;
 
-async function getEmotions() {
-  const d = await sbFetch('/rest/v1/emotions?select=*&order=sort_order.asc');
-  return Array.isArray(d) ? d : [];
-}
-async function populateEmotionSelect(elId, selectedIds) {
+const BLASTR_EMOTIONS = [
+  {id:'happy',name:'Happy',class:'Joy'},{id:'joyful',name:'Joyful',class:'Joy'},{id:'euphoric',name:'Euphoric',class:'Joy'},{id:'playful',name:'Playful',class:'Joy'},{id:'danceable',name:'Danceable',class:'Joy'},{id:'hype',name:'Hype',class:'Joy'},
+  {id:'sad',name:'Sad',class:'Sad'},{id:'heartbroken',name:'Heartbroken',class:'Sad'},{id:'melancholic',name:'Melancholic',class:'Sad'},{id:'grieving',name:'Grieving',class:'Sad'},{id:'lonely',name:'Lonely',class:'Sad'},
+  {id:'chill',name:'Chill',class:'Calm'},{id:'relaxed',name:'Relaxed',class:'Calm'},{id:'dreamy',name:'Dreamy',class:'Calm'},{id:'peaceful',name:'Peaceful',class:'Calm'},
+  {id:'romantic',name:'Romantic',class:'Love'},{id:'sensual',name:'Sensual',class:'Love'},{id:'infatuated',name:'Infatuated',class:'Love'},{id:'devoted',name:'Devoted',class:'Love'},
+  {id:'angry',name:'Angry',class:'Intense'},{id:'aggressive',name:'Aggressive',class:'Intense'},{id:'rebellious',name:'Rebellious',class:'Intense'},{id:'fierce',name:'Fierce',class:'Intense'},
+  {id:'anxious',name:'Anxious',class:'Dark'},{id:'tense',name:'Tense',class:'Dark'},{id:'haunting',name:'Haunting',class:'Dark'},{id:'eerie',name:'Eerie',class:'Dark'},
+  {id:'confident',name:'Confident',class:'Empowered'},{id:'bold',name:'Bold',class:'Empowered'},{id:'triumphant',name:'Triumphant',class:'Empowered'},
+  {id:'nostalgic',name:'Nostalgic',class:'Reflective'},{id:'wistful',name:'Wistful',class:'Reflective'},{id:'introspective',name:'Introspective',class:'Reflective'}
+];
+function populateEmotionSelect(elId, selectedIds) {
   const el = document.getElementById(elId);
   if (!el) return;
-  const emotions = await getEmotions();
   const byClass = {};
-  emotions.forEach(e => { (byClass[e.class] = byClass[e.class] || []).push(e); });
+  BLASTR_EMOTIONS.forEach(e => { (byClass[e.class] = byClass[e.class] || []).push(e); });
   const sel = new Set(selectedIds || []);
+  el.dataset.selected = JSON.stringify([...sel]);
   el.innerHTML = Object.entries(byClass).map(([cls, list]) =>
-    `<optgroup label="${esc(cls)}">${list.map(e => `<option value="${e.id}"${sel.has(e.id)?' selected':''}>${esc(e.name)}</option>`).join('')}</optgroup>`
+    `<div class="emotion-pill-group-label">${esc(cls)}</div>` +
+    list.map(e => `<span class="emotion-pill${sel.has(e.id)?' selected':''}" data-id="${e.id}" onclick="blastrToggleEmotionPill(this,'${elId}')">${esc(e.name)}</span>`).join('')
   ).join('');
 }
+function blastrToggleEmotionPill(pillEl, elId) {
+  pillEl.classList.toggle('selected');
+  const container = document.getElementById(elId);
+  const selected = Array.from(container.querySelectorAll('.emotion-pill.selected')).map(p => p.dataset.id);
+  container.dataset.selected = JSON.stringify(selected);
+}
+function getSelectedEmotions(elId) {
+  const container = document.getElementById(elId);
+  if (!container) return [];
+  try { return JSON.parse(container.dataset.selected || '[]'); } catch(e) { return []; }
+}
+window.populateEmotionSelect = populateEmotionSelect;
+window.blastrToggleEmotionPill = blastrToggleEmotionPill;
+window.getSelectedEmotions = getSelectedEmotions;
 async function getTrackEmotionMap() {
   const d = await sbFetch('/rest/v1/track_emotions?select=track_id,emotion_id,emotions(name,class)', {cache:true, cacheTtl:120000});
   const map = {};
@@ -10145,8 +10190,6 @@ async function getTrackEmotionMap() {
   });
   return map;
 }
-window.getEmotions = getEmotions;
-window.populateEmotionSelect = populateEmotionSelect;
 window.getTrackEmotionMap = getTrackEmotionMap;
 
 async function getArtistById(id) {
