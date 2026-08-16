@@ -4384,6 +4384,7 @@ body.light .search-input{color:var(--text)}
         <div class="np-artist" id="npArtist">Blastr — Live Edition</div>
       </div>
       <button class="np-heart" id="npHeart" onclick="toggleCurrentLike()">♡</button>
+      <button class="np-heart" id="npNotNow" onclick="markNotRightNow()" title="Not in the mood for this">⊘</button>
     </div>
     <div class="player-controls">
       <div class="ctrl-buttons">
@@ -4779,6 +4780,12 @@ const state = {
   currentProfilePlaylistTracks: [],
   publicPlaylists: [],
   playlistRepeatQueue: null,
+  // ── adaptive-algorithm additions ──
+  signalMemory: [],          // rolling {key,type} list: recent skip/complete/replay/reject events (session-local)
+  energyTrail: [],           // last few played tracks' energy values, used for session arc smoothing
+  personalHourAffinity: {},  // {hour: {genre: count}} learned from this user's own history
+  _notRightNow: new Set(),   // track ids explicitly rejected this session
+  _pickCount: 0,             // counts smart-shuffle picks, drives the discovery budget
 };
 window.state = state; // expose globally so all IIFEs and onboarding can access session/user
 
@@ -5802,6 +5809,7 @@ async function loadHomeContent() {
   const tracks=await getTracks();
   state.allTracks=tracks;
   getTrackEmotionMap().then(m=>state.trackEmotionMap=m);
+  loadPersonalAffinity();
   populateEmotionSelect('adminEmotions');
   if(!tracks.length){home.innerHTML='<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS IN THE GRID YET.</p>';return;}
 
@@ -5891,6 +5899,53 @@ function genreShuffle(genre) {
   initiateHandshake(t);
   showToast('GENRE SHUFFLE',`Playing ${genre}`,'Shuffling within genre');
 }
+// ── ADAPTIVE SIGNALS: energy estimate, skip/replay/reject memory, personal time-of-day patterns ──
+const CLASS_ENERGY = {Joy:.82,Intense:.88,Empowered:.72,Love:.5,Reflective:.42,Calm:.24,Sad:.3,Dark:.38};
+function trackMoodClasses(t) { return (state.trackEmotionMap||{})[t?.id]?.classes || null; }
+function trackEnergy(t) {
+  const cls = trackMoodClasses(t);
+  if (cls && cls.size) return [...cls].reduce((a,c)=>a+(CLASS_ENERGY[c]??.5),0)/cls.size;
+  const gl = String(t?.genre||'').toLowerCase();
+  if (/lo[- ]?fi|ambient|chill|jazz|classical|acoustic/.test(gl)) return .3;
+  if (/hip[- ]?hop|electronic|house|dance|afrobeats|pop|rap/.test(gl)) return .7;
+  return .5;
+}
+function recordListeningSignal(track, type) {
+  if (!track) return;
+  const cls = trackMoodClasses(track);
+  const key = `${String(track.genre||'').toLowerCase()}|${cls&&cls.size?[...cls].sort().join(','):''}`;
+  state.signalMemory.push({key, type});
+  if (state.signalMemory.length > 60) state.signalMemory.shift();
+  const uid = state.currentUserProfile?.id || state.session?.user?.id;
+  if (!uid) return; // guest session — keep the in-memory signal only, skip the write
+  sbFetch('/rest/v1/listening_signals', { method:'POST', body:[{
+    user_id: uid, track_id: track.id, genre: track.genre||null,
+    mood_class: cls&&cls.size?[...cls].sort().join(','):null,
+    hour: new Date().getHours(), signal: type
+  }]}).catch(()=>{});
+}
+async function loadPersonalAffinity() {
+  const uid = state.currentUserProfile?.id || state.session?.user?.id;
+  if (!uid) return;
+  const rows = await sbFetch(`/rest/v1/listening_signals?select=genre,hour&user_id=eq.${uid}&signal=in.(complete,replay)&order=created_at.desc&limit=300`).catch(()=>[]);
+  const aff = {};
+  (Array.isArray(rows)?rows:[]).forEach(r=>{
+    if (r.hour==null || !r.genre) return;
+    (aff[r.hour] = aff[r.hour]||{});
+    const g = r.genre.toLowerCase();
+    aff[r.hour][g] = (aff[r.hour][g]||0) + 1;
+  });
+  state.personalHourAffinity = aff;
+}
+window.markNotRightNow = function markNotRightNow() {
+  const t = state.currentTrack;
+  if (!t) return;
+  recordListeningSignal(t, 'reject');
+  state._notRightNow.add(t.id);
+  showToast('GOT IT', 'Tuning that out for now', 'Skipping ahead');
+  nextTrack();
+};
+
 function getNextShuffleTrack() {
   const all = state.allTracks || [];
   if (!all.length) return null;
@@ -5919,29 +5974,77 @@ function getNextShuffleTrack() {
   const isLate = nowHour >= 22 || nowHour < 6;
   const isDay = nowHour >= 11 && nowHour < 17;
 
+  // Recent skip/replay/reject counts, tallied once per pick (not per candidate)
+  const skipCounts = {}, replayCounts = {};
+  state.signalMemory.forEach(s => {
+    if (s.type === 'skip') skipCounts[s.key] = (skipCounts[s.key]||0) + 1;
+    else if (s.type === 'reject') skipCounts[s.key] = (skipCounts[s.key]||0) + 3; // an explicit "not right now" counts harder than a skip
+    else if (s.type === 'replay') replayCounts[s.key] = (replayCounts[s.key]||0) + 1;
+  });
+  const hourAff = state.personalHourAffinity[nowHour];
+  const hasPersonalPattern = hourAff && Object.values(hourAff).reduce((a,b)=>a+b,0) >= 5;
+
+  // Session energy arc: where the last few tracks were headed, so the next pick continues smoothly
+  const trail = state.energyTrail;
+  const trailTrend = trail.length >= 2 ? trail[trail.length-1] - trail[trail.length-2] : 0;
+  const expectedEnergy = trail.length ? Math.max(0, Math.min(1, trail[trail.length-1] + trailTrend*0.6)) : null;
+
+  // Every 5th smart pick, nudge toward something adjacent-but-unheard instead of the closest match
+  state._pickCount++;
+  const exploreTurn = state.shuffleMode === 2 && state._pickCount % 5 === 0;
+  const everPlayed = new Set((state.history||[]).map(t=>t?.id));
+
   const moodBoost = (track) => {
     const g = String(track.genre || '').toLowerCase();
     const a = String(track.artist || '').trim().toLowerCase();
     const title = String(track.title || '').toLowerCase();
+    const te = temap[track.id];
+    const sameGenre = currentGenre && String(track.genre || '') === currentGenre;
+    // Core data flow: current genre+mood (if tagged) → prefer genre+mood match, fall back to genre-only
+    const emoExact = curEmo && te && [...te.ids].some(id => curEmo.ids.has(id));
+    const emoClass = curEmo && te && [...te.classes].some(c => curEmo.classes.has(c));
     let score = 0;
 
-    if (state.shuffleMode === 1 && currentGenre && String(track.genre || '') === currentGenre) score += 40;
+    if (state._notRightNow.has(track.id)) score -= 300; // explicitly rejected this session
+
+    if (state.shuffleMode === 1 && sameGenre) score += 40;
     if (state.shuffleMode === 2) score += 12;
 
     if (currentArtist && a === currentArtist) {
       score += artistStreak < 3 ? 30 : -500; // favor same artist, but hard-cap back-to-back plays at 3
-    } else if (curEmo) {
-      const te = temap[track.id];
-      if (te && [...te.ids].some(id => curEmo.ids.has(id))) score += 25;      // exact emotion match, different artist
-      else if (te && [...te.classes].some(c => curEmo.classes.has(c))) score += 12; // same mood class, different artist
+    } else {
+      if (curEmo) {
+        if (sameGenre && emoExact) score += 45;       // genre + exact mood — best match
+        else if (sameGenre && emoClass) score += 34;  // genre + mood family
+        else if (emoExact) score += 22;                // mood matches, different genre
+        else if (emoClass) score += 14;
+        else if (sameGenre) score += 18;                // current has mood but candidate doesn't — genre still anchors it
+      } else if (sameGenre) {
+        score += 26; // current track has no mood tag at all — genre is the whole signal, per the fallback rule
+      }
     }
     if (track.is_verified) score += 4;
     if (state.favorites.some(f => f.id === track.id)) score += 14;
 
-    if (isLate && /lo[- ]?fi|ambient|chill|sleep|soft|dream|jazz|focus/.test(g)) score += 16;
-    if (isDay && /pop|afrobeats|house|dance|energy|party|hip[- ]?hop|afro/.test(g)) score += 12;
+    // Learned listening-signal memory (skips/rejects down-weight a genre+mood combo, replays up-weight it)
+    const sigKey = `${g}|${te&&te.classes.size?[...te.classes].sort().join(','):''}`;
+    score -= (skipCounts[sigKey]||0) * 6;
+    score += (replayCounts[sigKey]||0) * 10;
+
+    // Personal time-of-day pattern once there's enough history; otherwise fall back to the generic heuristic below
+    if (hasPersonalPattern) score += (hourAff[g]||0) * 3;
+    else {
+      if (isLate && /lo[- ]?fi|ambient|chill|sleep|soft|dream|jazz|focus/.test(g)) score += 16;
+      if (isDay && /pop|afrobeats|house|dance|energy|party|hip[- ]?hop|afro/.test(g)) score += 12;
+    }
 
     if (/midnight|night|drive|echo|memory|memories/.test(title)) score += isLate ? 10 : 3;
+
+    // Session energy arc — reward tracks that continue the current trajectory instead of jarring against it
+    if (expectedEnergy !== null) score += (1 - Math.abs(trackEnergy(track) - expectedEnergy)) * 10;
+
+    // Discovery budget — every 5th smart pick, favor same mood family + unheard artist over the closest repeat
+    if (exploreTurn && emoClass && !sameGenre && !everPlayed.has(track.id)) score += 30;
 
     const historyIndex = (state.history || []).slice(-16).findIndex(t => t?.id === track.id);
     if (historyIndex >= 0) {
@@ -5972,8 +6075,10 @@ function getNextShuffleTrack() {
 function initiateHandshake(track) {
   if(!track||!track.url){showToast('ERROR','No audio URL for this track.');return;}
   const prev=state.currentTrack;
+  if(prev && prev.id===track.id) recordListeningSignal(track,'replay'); // played again right after finishing — strong positive
   state.currentTrack=track;
   if(prev) state.history.push(prev);
+  state.energyTrail=(state.energyTrail||[]).concat(trackEnergy(track)).slice(-5);
   audio.src=track.url;
   audio.volume=state.isMuted?0:state.volume;
   audio.play().then(()=>{
@@ -6026,6 +6131,11 @@ function syncPlayState() {
   document.getElementById('vibingEq').classList.toggle('paused',!playing);
 }
 function nextTrack() {
+  if (state.currentTrack && audio.duration) {
+    const playedFrac = audio.currentTime / audio.duration;
+    if (!audio.ended && playedFrac < 0.2) recordListeningSignal(state.currentTrack, 'skip');
+    else if (playedFrac >= 0.8) recordListeningSignal(state.currentTrack, 'complete');
+  }
   const tracks = state.allTracks || [];
   if (!tracks.length) return;
   if (state.queue.length) { initiateHandshake(state.queue.shift()); return; }
