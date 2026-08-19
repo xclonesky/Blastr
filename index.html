@@ -2088,7 +2088,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .toast{
   position:fixed;bottom:calc(var(--player-h) + 14px);right:22px;
   background:rgba(10,10,22,.96);border-left:3px solid var(--accent);
-  border-radius:14px;padding:13px 17px;max-width:320px;z-index:600;
+  border-radius:14px;padding:13px 17px;max-width:320px;z-index:900;
   box-shadow:0 8px 32px rgba(0,0,0,.5);
   transform:translateY(20px) scale(.95);opacity:0;
   transition:all .28s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
@@ -2171,10 +2171,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 /* ── PLAYLIST COVER COLLAGE (1/2/3/4-split from real song covers) ── */
 .pl-cover{position:relative;width:100%;height:100%;overflow:hidden;display:flex}
+.pl-cover img{display:block}
 .pl-cover-1 img{width:100%;height:100%;object-fit:cover}
-.pl-cover-split>div{flex:1;height:100%;overflow:hidden;position:relative}
+.pl-cover-split>div{flex:1;height:100%;overflow:hidden;position:relative;line-height:0}
 .pl-cover-split img{width:100%;height:100%;object-fit:cover}
-.pl-cover-quad{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pl-cover-quad{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;line-height:0}
 .pl-cover-quad>div{overflow:hidden;position:relative}
 .pl-cover-quad img{width:100%;height:100%;object-fit:cover}
 .pl-cover-empty{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:22px;color:var(--dim)}
@@ -13171,7 +13172,7 @@ function plEmotionLabel(slug){ const f=PLAYLIST_EMOTIONS.find(([s])=>s===slug); 
 // ── Data layer ──
 async function getPlaylists(q='') {
   let url = `/rest/v1/playlists?select=*&order=created_at.desc&limit=20`;
-  if (q) url += `&name=ilike.*${encodeURIComponent(q)}*`;
+  if (q) url += `&title=ilike.*${encodeURIComponent(q)}*`;
   const d = await sbFetch(url);
   return Array.isArray(d) ? d : [];
 }
@@ -13180,8 +13181,13 @@ async function getPublicPlaylists(limit=10) {
   return Array.isArray(d) ? d : [];
 }
 async function getPlaylistTracks(playlistId) {
-  const d = await sbFetch(`/rest/v1/playlist_tracks?select=track_position,tracks(*)&playlist_id=eq.${playlistId}&order=track_position.asc`);
-  return Array.isArray(d) ? d.map(r=>r.tracks).filter(Boolean) : [];
+  const links = await sbFetch(`/rest/v1/playlist_tracks?select=track_id,track_position&playlist_id=eq.${playlistId}&order=track_position.asc`);
+  const ids = (Array.isArray(links) ? links : []).map(l => l.track_id).filter(Boolean);
+  if (!ids.length) return [];
+  const tracks = await sbFetch(`/rest/v1/tracks?select=*&id=in.(${ids.join(',')})`);
+  const byId = {};
+  (Array.isArray(tracks) ? tracks : []).forEach(t => { byId[t.id] = t; });
+  return ids.map(id => byId[id]).filter(Boolean); // preserves playlist order
 }
 async function createPlaylistRecord(payload) {
   const res = await sbFetch('/rest/v1/playlists', { method:'POST', headers:{Prefer:'return=representation'}, body: payload });
@@ -13212,7 +13218,7 @@ function plTileHTML(p, idx, coverUrls) {
       ${plCoverCollageHTML(coverUrls||[])}
     </div>
     <div class="tile-info">
-      <div class="tile-title">${esc(p.name)}</div>
+      <div class="tile-title">${esc(p.title)}</div>
       <div class="tile-artist">${esc(p.genre||'Playlist')}</div>
     </div>
   </div>`;
@@ -13239,7 +13245,7 @@ function plSearchRowHTML(p) {
   return `<div class="search-artist-row" onclick="openPlaylistProfile(${jsonAttr(p)})">
     <div class="search-artist-avatar">🎵</div>
     <div style="flex:1;min-width:0">
-      <div style="font-size:13px;font-weight:700">${esc(p.name)}</div>
+      <div style="font-size:13px;font-weight:700">${esc(p.title)}</div>
       <div style="font-size:10px;color:var(--dim);font-family:var(--mono)">${esc(p.genre||'PLAYLIST')} · ${p.is_public?'PUBLIC':'PRIVATE'}</div>
     </div>
     <button style="padding:4px 10px;background:rgba(0,198,255,.1);color:var(--accent2);border:1px solid rgba(0,198,255,.2);border-radius:8px;font-size:9px;font-family:var(--mono);cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();openPlaylistProfile(${jsonAttr(p)})">↗ OPEN</button>
@@ -13339,16 +13345,22 @@ async function plSubmitCreate() {
   if (emotions.length<3) { showToast('MORE EMOTIONS NEEDED','Pick at least 3 emotions.'); return; }
   const btn = document.getElementById('plSubmitBtn');
   btn.disabled = true; btn.textContent='CREATING...';
-  const created = await createPlaylistRecord({ user_id: uid, name, bio, genre, emotions, is_public: isPublic });
-  if (!created || !created.id) { showToast('ERROR','Could not create the playlist.'); btn.disabled=false; btn.textContent='CREATE PLAYLIST'; return; }
-  await addTracksToPlaylist(created.id, tracks.map(t=>t.id));
-  btn.disabled=false; btn.textContent='CREATE PLAYLIST';
-  closeModal('createPlaylistModal');
-  showToast('PLAYLIST CREATED', name, `${tracks.length} track${tracks.length!==1?'s':''} added`);
-  loadPlaylistsRow();
-  created.cover_track_ids = tracks.slice(0,4).map(t=>t.id);
-  created.duration_seconds = tracks.reduce((s,t)=>s+(t.duration_seconds||0),0);
-  openPlaylistProfile(created, tracks);
+  try {
+    const created = await createPlaylistRecord({ owner_id: uid, title: name, bio, genre, emotions, is_public: isPublic });
+    if (!created || !created.id) throw new Error('Server did not confirm the playlist was created — check that the playlists table has anon INSERT permission.');
+    await addTracksToPlaylist(created.id, tracks.map(t=>t.id));
+    btn.disabled=false; btn.textContent='CREATE PLAYLIST';
+    closeModal('createPlaylistModal');
+    showToast('PLAYLIST CREATED', name, `${tracks.length} track${tracks.length!==1?'s':''} added`);
+    loadPlaylistsRow();
+    created.cover_track_ids = tracks.slice(0,4).map(t=>t.id);
+    created.duration_seconds = tracks.reduce((s,t)=>s+(t.duration_seconds||0),0);
+    openPlaylistProfile(created, tracks);
+  } catch (e) {
+    console.error('[playlist create]', e);
+    btn.disabled=false; btn.textContent='CREATE PLAYLIST';
+    showToast('CREATE FAILED', e?.message || 'Could not create the playlist.');
+  }
 }
 
 // ── Playlist profile page ──
@@ -13358,9 +13370,17 @@ async function openPlaylistProfile(playlist, preloadedTracks) {
   state.playlistRepeatQueue = null;
   document.getElementById('plRepeatBtn')?.classList.remove('active');
   showPage('playlist', null);
-  const tracks = preloadedTracks || await getPlaylistTracks(playlist.id);
+  document.getElementById('plTrackList').innerHTML = '<div style="padding:20px;text-align:center"><div class="spinner"></div></div>';
+  let tracks = [];
+  try {
+    tracks = preloadedTracks || await getPlaylistTracks(playlist.id);
+  } catch (e) {
+    console.error('[playlist tracks fetch]', e);
+    document.getElementById('plTrackList').innerHTML = `<div style="color:var(--red);padding:20px;font-family:var(--mono);font-size:12px">FAILED TO LOAD TRACKS: ${esc(e?.message||'unknown error')}</div>`;
+    showToast('LOAD FAILED', e?.message || 'Could not load playlist tracks.');
+  }
   state.currentProfilePlaylistTracks = tracks;
-  document.getElementById('plTitle').textContent = playlist.name || 'Untitled';
+  document.getElementById('plTitle').textContent = playlist.title || 'Untitled';
   document.getElementById('plGenreTag').textContent = `PLAYLIST • ${(playlist.genre||'MIXED').toUpperCase()}`;
   document.getElementById('plBio').textContent = playlist.bio || 'No description yet.';
   const totalSec = tracks.reduce((s,t)=>s+(t.duration_seconds||0),0);
@@ -13368,7 +13388,7 @@ async function openPlaylistProfile(playlist, preloadedTracks) {
   document.getElementById('plCover').innerHTML = plCoverCollageHTML(tracks.map(t=>t.cover_url));
   document.getElementById('plTags').innerHTML = (playlist.emotions||[]).map(e=>`<span class="profile-tag">${esc(plEmotionLabel(e))}</span>`).join('');
   document.getElementById('plTrackList').innerHTML = tracks.length
-    ? tracks.map((t,i)=>artistTrackRowHTML(t,i)).join('')
+    ? (() => { try { return tracks.map((t,i)=>artistTrackRowHTML(t,i)).join(''); } catch(e) { console.error('[playlist row render]', e); return `<div style="color:var(--red);padding:20px;font-family:var(--mono);font-size:12px">ROW RENDER ERROR: ${esc(e?.message||'unknown')}</div>`; } })()
     : '<div style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS YET.</div>';
 }
 window.openPlaylistProfile = openPlaylistProfile;
