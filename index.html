@@ -13762,7 +13762,9 @@ async function poll(first){if(!BA.admin||BA.admin.role!=='super_admin')return;co
  const u=rows.filter(r=>!r.is_read).length+apps.length;['baNb','baNb2'].forEach(i=>{const e=$('#'+i);if(e){e.textContent=u;e.style.display=u?'inline-block':'none'}});renderApps();renderFeed()}
 
 /* ── wire in: replace old passcode gate, clean up on logout ── */
-window.toggleAdminDoor=window.openAdminModal=()=>BA.open();
+const openDoor=()=>{try{closeSidebarDrawer(true)}catch(e){}BA.open()};
+window.toggleAdminDoor=window.openAdminModal=openDoor;
+const _ra=window.requireAdminAccess;window.requireAdminAccess=function(){if(state.isAdmin&&BA.admin)return _ra.apply(this,arguments);openDoor()};
 window.handleAdminInput=window.handleAdminModalInput=window.submitAdminModal=()=>{};
 const _lo=window.logout;window.logout=function(){try{rpc('admin_end_session').catch(()=>{})}catch(e){}BA.close();endSession();return _lo.apply(this,arguments)};
 })();
