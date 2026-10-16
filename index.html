@@ -4742,8 +4742,7 @@ function blastrMirrorStorageUpload(bucket, objectName, file, mime) {
   } catch(e) { /* mirroring is best-effort only */ }
 }
 const BLASTR_AUTH_STORAGE_KEY = 'blastr_session_v3';
-const ADMIN_PASSCODE = '19731979';
-window.ADMIN_PASSCODE = ADMIN_PASSCODE;
+// Admin gate: universal passcode removed — see BLASTR ADMIN SECURITY block (Face ID / ID number)
 
 const state = {
   currentTrack: null,
@@ -13427,5 +13426,347 @@ function plToggleRepeat() {
 }
 </script>
 
+<!-- ═══════ BLASTR ADMIN SECURITY: Door · Face ID · ID Card · Portal · Super Office ═══════ -->
+<style>
+#baOv{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;overflow:auto;
+  background:radial-gradient(900px 600px at 15% 5%,rgba(255,20,147,.22),transparent 60%),radial-gradient(800px 600px at 90% 95%,rgba(0,198,255,.22),transparent 60%),rgba(4,4,12,.93);backdrop-filter:blur(14px)}
+#baOv.on{display:flex;animation:baFade .3s}
+@keyframes baFade{from{opacity:0}to{opacity:1}}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes baSpin{to{--a:360deg}}
+.ba-box{position:relative;width:min(440px,100%);margin:auto;text-align:center;padding:26px 22px 20px;border-radius:28px;font-family:var(--font);color:var(--text);
+  background:linear-gradient(160deg,rgba(22,22,48,.92),rgba(9,9,22,.96));box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 70px rgba(0,198,255,.12)}
+.ba-box::before{content:'';position:absolute;inset:-1px;border-radius:29px;padding:1.5px;pointer-events:none;opacity:.8;
+  background:conic-gradient(from var(--a),#39FF14,#00C6FF,#FF1493,#FFD166,#39FF14);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:baSpin 6s linear infinite}
+.ba-t{font-size:24px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#39FF14,#00C6FF,#FF1493);-webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0 4px}
+.ba-t.g{background:linear-gradient(90deg,#39FF14,#B6FF00);-webkit-background-clip:text;background-clip:text}
+.ba-t.r{background:linear-gradient(90deg,#FF3131,#FF1493);-webkit-background-clip:text;background-clip:text}
+.ba-s{font:10px var(--mono);letter-spacing:2.5px;color:var(--dim);margin-bottom:18px}
+.ba-lock{font-size:46px;filter:drop-shadow(0 0 18px rgba(57,255,20,.6));animation:baFloat 3s ease-in-out infinite}
+.ba-lock.red{filter:drop-shadow(0 0 18px rgba(255,49,49,.7))}
+@keyframes baFloat{50%{transform:translateY(-6px)}}
+.ba-ms{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 14px}
+.ba-m{cursor:pointer;border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:20px 8px 16px;color:var(--text);font-family:var(--font);transition:.25s;
+  background:linear-gradient(160deg,rgba(57,255,20,.07),rgba(0,198,255,.05) 55%,rgba(255,20,147,.07))}
+.ba-m:hover:not(:disabled){transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 34px rgba(57,255,20,.18)}
+.ba-m:disabled{opacity:.35;cursor:not-allowed}
+.ba-m i{display:block;font-style:normal;font-size:34px;margin-bottom:8px;background:linear-gradient(135deg,#39FF14,#00C6FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ba-m b{display:block;font-size:13px;letter-spacing:2px}.ba-m small{font:9px var(--mono);color:var(--dim);letter-spacing:1px}
+.ba-x{background:none;border:0;color:var(--dim);font:11px var(--mono);letter-spacing:1px;cursor:pointer;padding:10px;margin-top:4px}.ba-x:hover{color:var(--text)}
+.ba-btn{border:0;cursor:pointer;border-radius:14px;padding:14px 22px;font:800 12px var(--font);letter-spacing:2px;color:#02130a;background:linear-gradient(90deg,#39FF14,#00E0FF);box-shadow:0 8px 28px rgba(57,255,20,.3);transition:.2s;margin:6px 4px}
+.ba-btn:hover{transform:translateY(-2px) scale(1.02)}.ba-btn.alt{background:rgba(255,255,255,.07);color:var(--text);box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+.ba-btn.sm{padding:8px 12px;font-size:10px;margin:2px}.ba-btn.red{background:linear-gradient(90deg,#FF3131,#FF1493);color:#fff}
+.ba-note{font:10px var(--mono);color:var(--dim);letter-spacing:1px;margin:8px 0;min-height:14px}
+.ba-big{font:800 38px var(--mono);letter-spacing:6px;margin:10px 0;background:linear-gradient(90deg,#FFD166,#FF1493);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* PIN */
+.ba-pin{display:flex;gap:7px;justify-content:center;margin:8px 0 6px;cursor:text}
+.ba-pin span{width:34px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);position:relative;transition:.2s}
+.ba-pin span.f{border-color:var(--accent);box-shadow:0 0 14px rgba(57,255,20,.35)}.ba-pin span.f::after{content:'';position:absolute;inset:0;margin:auto;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.ba-pin.shake{animation:baShake .45s}@keyframes baShake{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.ba-pin-in{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+/* CAMERA */
+.ba-frame{position:relative;width:min(300px,76vw);aspect-ratio:1;margin:4px auto 12px;border-radius:24px;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 40px rgba(0,198,255,.2);transition:box-shadow .3s}
+.ba-frame.ok{box-shadow:0 0 0 2px #39FF14,0 0 46px rgba(57,255,20,.45)}.ba-frame.bad{box-shadow:0 0 0 2px #FF9F1C,0 0 40px rgba(255,159,28,.35)}
+.ba-frame video,.ba-frame .ba-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ba-frame video{transform:scaleX(-1)}
+.ba-oval{position:absolute;inset:14% 22%;border:2px dashed rgba(255,255,255,.35);border-radius:50%;pointer-events:none;transition:.3s}.ba-frame.ok .ba-oval{border-color:#39FF14}
+.ba-frame b{position:absolute;width:30px;height:30px;border:3px solid #00C6FF;transition:.3s}.ba-frame.ok b{border-color:#39FF14}.ba-frame.bad b{border-color:#FF9F1C}
+.ba-frame .c1{top:10px;left:10px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}.ba-frame .c2{top:10px;right:10px;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.ba-frame .c3{bottom:10px;left:10px;border-right:0;border-top:0;border-radius:0 0 0 12px}.ba-frame .c4{bottom:10px;right:10px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.ba-count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font:800 110px var(--font);color:#fff;text-shadow:0 0 40px #39FF14,0 0 80px #00C6FF;background:rgba(0,0,0,.25)}
+.ba-count.on{display:flex}.ba-count.pop{animation:baPop .9s}@keyframes baPop{0%{transform:scale(1.8);opacity:0}30%{opacity:1}100%{transform:scale(.9);opacity:.85}}
+.ba-hint{font:700 12px var(--mono);letter-spacing:1.5px;min-height:20px;color:var(--accent2);transition:.2s}.ba-hint.ok{color:#39FF14}.ba-hint.bad{color:#FF9F1C}
+.ba-shards{position:absolute;inset:0}.ba-shards i{position:absolute;background-repeat:no-repeat;animation:baShat .95s cubic-bezier(.2,.8,.2,1) both}
+@keyframes baShat{0%{transform:none;filter:brightness(3)}30%{transform:translate(var(--tx),var(--ty)) rotate(var(--r)) scale(1.12);filter:brightness(1.6);opacity:.9}100%{transform:none;filter:none;opacity:1}}
+.ba-flash{position:absolute;inset:0;background:#fff;animation:baFl .5s forwards;pointer-events:none}@keyframes baFl{to{opacity:0}}
+.ba-grid{position:absolute;inset:0;background:linear-gradient(rgba(0,198,255,.22) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(0,198,255,.22) 1px,transparent 1px) 0 0/22px 22px;animation:baFade .6s}
+.ba-scan{position:absolute;left:0;right:0;height:60px;top:-60px;background:linear-gradient(180deg,transparent,rgba(57,255,20,.55),transparent);border-bottom:2px solid #39FF14;box-shadow:0 8px 30px #39FF14;animation:baScan 1.25s ease-in-out infinite alternate}
+@keyframes baScan{to{top:100%}}
+.ba-dot{position:absolute;width:4px;height:4px;margin:-2px;border-radius:50%;background:#39FF14;box-shadow:0 0 8px #39FF14;opacity:0;animation:baDot .35s forwards}@keyframes baDot{to{opacity:1}}
+.ba-prog{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px auto 4px;width:min(300px,76vw)}.ba-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#39FF14,#00C6FF,#FF1493);transition:width 5s linear}
+/* RESULT */
+.ba-tick{width:84px;height:84px;margin:0 auto}.ba-tick circle{fill:rgba(57,255,20,.1);stroke:#39FF14;stroke-width:2.5;stroke-dasharray:150;stroke-dashoffset:150;animation:baDraw .6s .1s forwards}
+.ba-tick path{fill:none;stroke:#39FF14;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:baDraw .4s .65s forwards}
+.ba-tick.x circle,.ba-tick.x path{stroke:#FF3131;fill:none}.ba-tick.x circle{fill:rgba(255,49,49,.1)}
+.ba-tick{filter:drop-shadow(0 0 14px rgba(57,255,20,.7));animation:baPulse .6s 1s}.ba-tick.x{filter:drop-shadow(0 0 14px rgba(255,49,49,.7))}
+@keyframes baDraw{to{stroke-dashoffset:0}}@keyframes baPulse{50%{transform:scale(1.15)}}
+.ba-stage{position:relative;margin:12px auto 0;width:min(340px,100%)}
+.ba-morph{position:absolute;z-index:3;left:50%;top:0;width:150px;height:150px;margin-left:-75px;border-radius:22px;overflow:hidden;box-shadow:0 0 40px rgba(0,198,255,.4);transition:transform .85s cubic-bezier(.6,0,.2,1),opacity .4s}
+.ba-morph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s,filter 1s}.ba-morph .b{opacity:0;filter:blur(10px) hue-rotate(90deg)}
+.ba-morph.m .a{opacity:0;filter:blur(10px) hue-rotate(-90deg)}.ba-morph.m .b{opacity:1;filter:none}
+.ba-cardslot{opacity:0;transform:translateY(60px) scale(.92);transition:all .8s cubic-bezier(.2,.9,.2,1);margin-top:160px}.ba-cardslot.in{opacity:1;transform:none}.ba-cardslot.now{margin-top:0}
+/* ID CARD */
+.ba-card{position:relative;width:min(340px,100%);aspect-ratio:1.586;margin:0 auto;border-radius:22px;padding:14px 16px;text-align:left;overflow:hidden;color:#fff;transition:transform .15s;
+  background:linear-gradient(135deg,#0b1a3a 0%,#143a6b 40%,#3b1170 100%);box-shadow:0 18px 50px rgba(0,198,255,.28),inset 0 0 0 1px rgba(255,255,255,.14);display:flex;flex-direction:column;justify-content:space-between}
+.ba-card.su{background:linear-gradient(135deg,#2a0a1e 0%,#7a1450 38%,#c9861a 100%);box-shadow:0 18px 55px rgba(255,20,147,.38),0 0 0 1px rgba(255,209,102,.5),inset 0 0 0 1px rgba(255,209,102,.35)}
+.ba-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 0,rgba(57,255,20,.25),transparent 45%),repeating-linear-gradient(115deg,transparent 0 14px,rgba(255,255,255,.03) 14px 15px)}
+.ba-sh{position:absolute;inset:0;background:radial-gradient(circle at var(--mx,30%) 0,rgba(255,255,255,.28),transparent 45%),linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 45%,transparent 60%) -150% 0/250% 100% no-repeat;animation:baShine 4s infinite;mix-blend-mode:overlay;pointer-events:none}
+@keyframes baShine{to{background-position:250% 0,250% 0}}
+.ba-ct{position:relative;display:flex;justify-content:space-between;align-items:center}.ba-lg{font-size:15px;letter-spacing:4px;font-weight:800}.ba-lg em{color:#39FF14;font-style:normal;margin-left:4px;font-size:11px}
+.ba-card.su .ba-lg em{color:#FFD166}.ba-rp{font:700 9px var(--mono);letter-spacing:2px;padding:4px 9px;border-radius:20px;background:rgba(57,255,20,.16);border:1px solid rgba(57,255,20,.5);color:#39FF14}
+.ba-card.su .ba-rp{background:linear-gradient(90deg,#FFD166,#FF9F1C);color:#2a0a1e;border:0}
+.ba-cb{position:relative;display:flex;gap:14px;align-items:center}
+.ba-cp{width:30%;aspect-ratio:.82;flex:none;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;font:800 34px var(--font);background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.35);box-shadow:0 0 22px rgba(57,255,20,.35)}
+.ba-card.su .ba-cp{border-color:#FFD166;box-shadow:0 0 24px rgba(255,209,102,.55)}.ba-cp img{width:100%;height:100%;object-fit:cover}
+.ba-ci small{display:block;font:8px var(--mono);letter-spacing:2px;color:rgba(255,255,255,.55)}.ba-ci strong{display:block;font-size:15px;line-height:1.2;margin:2px 0 8px}
+.ba-cr{display:flex;gap:16px}.ba-cr b{font-size:12px;letter-spacing:1px}
+.ba-cf{position:relative;display:flex;align-items:center;gap:10px;font:700 11px var(--mono);letter-spacing:2px}.ba-cf span{flex:1}
+.ba-chipx{width:30px;height:22px;border-radius:5px;background:linear-gradient(135deg,#FFD166,#b8860b);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.ba-bar{width:64px;height:20px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 8px);opacity:.75}
+/* TABS / PORTAL / OFFICE */
+.ba-nb{display:none;min-width:17px;height:17px;border-radius:9px;background:#FF1493;color:#fff;font:700 10px/17px var(--mono);text-align:center;padding:0 5px;margin-left:6px;box-shadow:0 0 12px #FF1493;animation:baPulse 1.5s infinite}
+.ba-panel{background:linear-gradient(160deg,rgba(20,20,44,.85),rgba(10,10,24,.9));border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:20px;margin-bottom:18px;position:relative;overflow:hidden}
+.ba-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#39FF14,#00C6FF,#FF1493,transparent)}
+.ba-ph{font:800 13px var(--font);letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ba-g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.ba-in{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;color:var(--text);font:13px var(--font);outline:none;transition:.2s}.ba-in:focus{border-color:var(--accent);box-shadow:0 0 16px rgba(57,255,20,.15)}
+.ba-pr{display:flex;align-items:center;gap:14px;margin-bottom:14px}.ba-prev{width:70px;height:70px;border-radius:18px;border:2px dashed rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden}.ba-prev img{width:100%;height:100%;object-fit:cover}
+.ba-live{font:700 9px var(--mono);letter-spacing:2px;color:#39FF14;display:inline-flex;align-items:center;gap:6px}.ba-live::before{content:'';width:8px;height:8px;border-radius:50%;background:#39FF14;box-shadow:0 0 10px #39FF14;animation:baPulse 1.2s infinite}
+.ba-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.ba-chip{cursor:pointer;font:700 10px var(--mono);letter-spacing:1px;padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.12);color:var(--dim);background:none}.ba-chip.on{color:#02130a;background:#39FF14;border-color:#39FF14}
+.ba-fi{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;margin-bottom:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);animation:baFade .4s;position:relative}
+.ba-fi.u{border-color:rgba(255,20,147,.5);background:rgba(255,20,147,.07)}.ba-fi.u::after{content:'';position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:#FF1493;box-shadow:0 0 10px #FF1493}
+.ba-av{width:38px;height:38px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#02130a;background:linear-gradient(135deg,#39FF14,#00C6FF)}
+.ba-fi.i .ba-av{background:linear-gradient(135deg,#39FF14,#B6FF00)}.ba-fi.d .ba-av{background:linear-gradient(135deg,#FF3131,#FF1493);color:#fff}.ba-fi.e .ba-av{background:linear-gradient(135deg,#00C6FF,#7B61FF)}
+.ba-ft{flex:1;font-size:13px;line-height:1.35}.ba-ft i{color:var(--accent2)}.ba-ft small{display:block;font:10px var(--mono);color:var(--dim);margin-top:2px}
+.ba-rr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}.ba-rr .ba-ft{min-width:150px}
+.ba-pill{font:700 9px var(--mono);letter-spacing:1.5px;padding:4px 9px;border-radius:20px;background:rgba(57,255,20,.14);color:#39FF14}.ba-pill.su{background:rgba(255,209,102,.18);color:#FFD166}.ba-pill.off{background:rgba(255,49,49,.15);color:#FF5C5C}
+@media(max-width:600px){.ba-box{padding:22px 14px 16px}.ba-t{font-size:20px}}
+</style>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const BA=window.BA={admin:null,sid:null,stream:null};
+const FA='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12';
+const BLUR_MIN=12,DARK_MIN=45;           // tune if the camera check is too strict / too loose
+const device=()=>{let d;try{d=localStorage.getItem('blastr_device_id');if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('blastr_device_id',d)}}catch(e){d=d||'dev-'+Math.random().toString(36).slice(2,12)}return d};
+async function rpc(fn,args){const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
+async function photoUrl(p){if(!p)return null;try{const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/storage/v1/object/sign/admin-faces/${p}`,{method:'POST',headers:h,body:JSON.stringify({expiresIn:3600})});const j=await r.json();return j.signedURL?`${SUPABASE_URL}/storage/v1${j.signedURL}`:null}catch(e){return null}}
+async function upload(path,blob){const r=await fetch(`${SUPABASE_URL}/storage/v1/object/admin-faces/${path}`,{method:'POST',headers:blastrAuthHeaders(null,{'x-upsert':'true','Content-Type':'image/jpeg'}),body:blob});if(!r.ok)throw new Error('Photo upload failed ('+r.status+')')}
+
+/* ── overlay ── */
+const ov=document.createElement('div');ov.id='baOv';ov.innerHTML='<div class="ba-box" id="baBox"></div>';document.body.appendChild(ov);
+const box=$('#baBox'),show=h=>{box.innerHTML=h};
+const stop=()=>{BA.stream&&BA.stream.getTracks().forEach(t=>t.stop());BA.stream=null};
+BA.close=()=>{stop();const a=BA.camAbort;BA.camAbort=null;a&&a();clearInterval(BA.lockT);ov.classList.remove('on')};
+
+/* ── ID card ── */
+function cardHTML(a,photo,idnum){const su=a.role==='super_admin';
+ const ph=photo?`<img src="${esc(photo)}" alt="">`:`<span>${esc((a.full_name_1||'?')[0])}</span>`;
+ return `<div class="ba-card${su?' su':''}" onpointermove="BA.tilt(event,this)" onpointerleave="this.style.transform=''"><div class="ba-sh"></div>
+ <div class="ba-ct"><b class="ba-lg">BLASTR<em>◆</em></b><span class="ba-rp">${su?'✦ SUPER ADMIN':'ADMIN'}</span></div>
+ <div class="ba-cb"><div class="ba-cp">${ph}</div><div class="ba-ci"><small>FULL NAME</small><strong>${esc(a.full_name_1)}<br>${esc(a.full_name_2)}</strong>
+ <div class="ba-cr"><div><small>AGE</small><b>${esc(a.age??'—')}</b></div><div><small>RANK</small><b>${esc(a.rank||'COMING SOON')}</b></div></div></div></div>
+ <div class="ba-cf"><span>ID ${idnum?esc(idnum):'•••• '+esc(a.id_last4||'')}</span><i class="ba-chipx"></i><i class="ba-bar"></i></div></div>`}
+BA.tilt=(e,el)=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg)`;el.style.setProperty('--mx',(x+.5)*100+'%')};
+
+/* ── door ── */
+BA.open=async()=>{
+ if(!(state.session||(typeof blastrGetStoredAuth==='function'&&blastrGetStoredAuth()))){showToast('LOGIN FIRST','Sign in before knocking on the admin door.');return}
+ ov.classList.add('on');
+ if(BA.admin){return success({admin:BA.admin},null,true)}
+ show('<div class="ba-lock">🔐</div><div class="ba-s">CHECKING THE DOOR…</div>');
+ let st={};try{st=await rpc('admin_lock_status',{p_device:device()})}catch(e){}
+ door(st)};
+function door(st){
+ if(st.is_admin===false)return notAdmin();
+ if(st.locked)return locked(st.locked_until);
+ const f=st.face_enrolled;
+ show(`<div class="ba-lock">🔐</div><div class="ba-t">ADMIN DOOR</div><div class="ba-s">CHOOSE YOUR ENTRY METHOD</div>
+ <div class="ba-ms"><button class="ba-m" ${f?'':'disabled'} onclick="BA.face()"><i>◉</i><b>FACE ID</b><small>${f?'SCAN YOUR FACE':'NOT ENROLLED'}</small></button>
+ <button class="ba-m" onclick="BA.pin()"><i>⌗</i><b>ID NUMBER</b><small>8-DIGIT ADMIN ID</small></button></div><button class="ba-x" onclick="BA.close()">Cancel</button>`)}
+function locked(u){
+ show(`<div class="ba-lock red">⛔</div><div class="ba-t r">DOOR LOCKED</div><div class="ba-s">TOO MANY FAILED TRIES ON THIS DEVICE</div><div class="ba-big" id="baLk">--:--</div><div class="ba-note">Other devices on your admin account still work.</div><button class="ba-x" onclick="BA.close()">Close</button>`);
+ const end=new Date(u).getTime();clearInterval(BA.lockT);
+ const f=()=>{const s=Math.max(0,Math.round((end-Date.now())/1000)),e=$('#baLk');if(e)e.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(!s){clearInterval(BA.lockT);BA.open()}};f();BA.lockT=setInterval(f,1000)}
+
+/* ── PIN ── */
+BA.pin=(msg,left,shake)=>{
+ show(`<div class="ba-lock">⌗</div><div class="ba-t">ID NUMBER</div><div class="ba-s">${esc(msg||'ENTER YOUR 8-DIGIT ADMIN ID')}</div>
+ <div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" inputmode="numeric" maxlength="8" autocomplete="off" type="password">
+ <div class="ba-note">${left!=null?left+' ATTEMPT'+(left==1?'':'S')+' LEFT':''}</div><button class="ba-x" onclick="BA.open()">← Back</button>`);
+ const inp=$('#baPinIn'),dots=$$('#baPin span');inp.focus();$('#baPin').onclick=()=>inp.focus();
+ inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'');dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
+  if(inp.value.length===8){inp.disabled=true;let r;try{r=await rpc('admin_verify_pin',{p_device:device(),p_pin:inp.value})}catch(e){r={ok:false,error:'net',msg:e.message}}
+   r.ok?success(r,null):fail(r,'pin')}}};
+
+/* ── face engine + camera ── */
+let faceP=null;
+function loadFace(){return faceP||(faceP=(async()=>{
+ if(!window.faceapi)await new Promise((ok,no)=>{const s=document.createElement('script');s.src=FA+'/dist/face-api.js';s.onload=ok;s.onerror=()=>no(new Error('Face engine failed to load (check your connection)'));document.head.appendChild(s)});
+ const M=FA+'/model/';await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(M),faceapi.nets.faceLandmark68Net.loadFromUri(M),faceapi.nets.faceRecognitionNet.loadFromUri(M)])})().catch(e=>{faceP=null;throw e}))}
+const camHTML=(t,s)=>`<div class="ba-t">${t}</div><div class="ba-s">${s}</div><div class="ba-frame" id="baFrame"><video id="baVid" playsinline muted></video><div class="ba-oval"></div><b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b><div class="ba-count" id="baCount"></div></div><div class="ba-hint" id="baHint">Allow camera access when prompted…</div><button class="ba-x" onclick="BA.close()">Cancel</button>`;
+function sharp(lx){const im=lx.getImageData(0,0,64,64).data,g=new Float32Array(4096);let br=0;for(let i=0;i<4096;i++){g[i]=.299*im[i*4]+.587*im[i*4+1]+.114*im[i*4+2];br+=g[i]}br/=4096;let m=0,m2=0,n=0;for(let y=1;y<63;y++)for(let x=1;x<63;x++){const i=y*64+x,l=4*g[i]-g[i-1]-g[i+1]-g[i-64]-g[i+64];m+=l;m2+=l*l;n++}return{br,v:m2/n-(m/n)**2}}
+async function camera(){
+ const[st]=await Promise.all([navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720},height:{ideal:720}},audio:false}),loadFace()]);
+ BA.stream=st;const v=$('#baVid');v.srcObject=st;await v.play();
+ const opt=new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.5}),hint=$('#baHint'),fr=$('#baFrame'),cnt=$('#baCount');
+ const lap=document.createElement('canvas');lap.width=lap.height=64;const lx=lap.getContext('2d',{willReadFrequently:true});
+ const hist=[];let good=0,cd=0,cdT=null,alive=true;
+ const setS=(c,m)=>{fr.classList.toggle('ok',c==='ok');fr.classList.toggle('bad',c==='bad');hint.className='ba-hint '+c;hint.textContent=m};
+ const cancelCd=()=>{if(cd){cd=0;clearInterval(cdT);cnt.classList.remove('on','pop')}};
+ return new Promise((res,rej)=>{
+  BA.camAbort=()=>{alive=false;cancelCd();rej(new Error('cancel'))};
+  const num=n=>{cnt.textContent=n;cnt.classList.remove('pop');void cnt.offsetWidth;cnt.classList.add('on','pop')};
+  const finish=()=>{try{fin()}catch(e){stop();rej(e)}};const fin=()=>{alive=false;const vw=v.videoWidth,vh=v.videoHeight,s=Math.min(vw,vh),c=document.createElement('canvas');c.width=c.height=480;const x=c.getContext('2d');x.translate(480,0);x.scale(-1,1);x.drawImage(v,(vw-s)/2,(vh-s)/2,s,s,0,0,480,480);stop();BA.camAbort=null;
+   const o=new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.4});
+   res({canvas:c,url:c.toDataURL('image/jpeg',.88),dp:(async()=>{try{return await faceapi.detectSingleFace(c,o).withFaceLandmarks().withFaceDescriptor()}catch(e){return null}})()})};
+  const tick=async()=>{if(!alive)return;const vw=v.videoWidth,vh=v.videoHeight;if(!vw){setTimeout(tick,100);return}
+   let d=null;try{d=await faceapi.detectSingleFace(v,opt)}catch(e){}
+   if(!alive)return;let msg=null;
+   if(!d)msg='No face detected';
+   else{const b=d.box,s=Math.min(vw,vh),ox=(vw-s)/2,oy=(vh-s)/2,cx=1-((b.x+b.width/2-ox)/s),cy=(b.y+b.height/2-oy)/s,sz=b.width/s;
+    hist.push([cx,cy,sz]);if(hist.length>5)hist.shift();
+    if(sz<.34)msg='Move closer';else if(sz>.72)msg='Move back a little';
+    else if(cx<.4)msg='Move your face to the right';else if(cx>.6)msg='Move your face to the left';
+    else if(cy<.38)msg='Move your face down';else if(cy>.62)msg='Move your face up';
+    else if(hist.length<4)msg='Hold on…';
+    else{const m=hist.reduce((a,h)=>[a[0]+h[0],a[1]+h[1],a[2]+h[2]],[0,0,0]).map(z=>z/hist.length),dv=Math.max(...hist.map(h=>Math.abs(h[0]-m[0])+Math.abs(h[1]-m[1])+Math.abs(h[2]-m[2])*.5));
+     if(dv>.035)msg='Stay still please';
+     else{lx.drawImage(v,Math.max(0,b.x),Math.max(0,b.y),b.width,b.height,0,0,64,64);const q=sharp(lx);if(q.br<DARK_MIN)msg='Too dark — find more light';else if(q.v<BLUR_MIN)msg='Image is blurry — hold steady'}}}
+   if(msg){good=0;cancelCd();setS('bad',msg)}
+   else{good++;setS('ok','Perfect — hold still');if(good>=4&&!cd){cd=3;num(3);cdT=setInterval(()=>{cd--;if(cd>0)num(cd);else{clearInterval(cdT);cnt.classList.remove('on');finish()}},1000)}}
+   setTimeout(tick,70)};
+  tick()})}
+async function shatter(url){
+ const fr=$('#baFrame'),N=7,sh=document.createElement('div');sh.className='ba-shards';
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const t=document.createElement('i');t.style.cssText=`background-image:url(${url});background-size:${N*100}% ${N*100}%;background-position:${x*100/(N-1)}% ${y*100/(N-1)}%;left:${x*100/N}%;top:${y*100/N}%;width:${100/N+.5}%;height:${100/N+.5}%;--tx:${Math.random()*90-45}px;--ty:${Math.random()*90-45}px;--r:${Math.random()*50-25}deg;animation-delay:${Math.random()*.12}s`;sh.appendChild(t)}
+ fr.querySelector('video').style.display='none';$$('.ba-oval,.ba-count',fr).forEach(e=>e.style.display='none');fr.appendChild(sh);const fl=document.createElement('div');fl.className='ba-flash';fr.appendChild(fl);
+ await sleep(1100);sh.remove();fl.remove();const im=document.createElement('img');im.className='ba-still';im.src=url;fr.insertBefore(im,fr.firstChild);fr.classList.remove('bad');fr.classList.add('ok')}
+
+/* ── Face ID flow ── */
+BA.face=async()=>{
+ show(camHTML('FACE ID','ALIGN YOUR FACE INSIDE THE SQUARE'));
+ try{const cap=await camera();await shatter(cap.url);
+  const fr=$('#baFrame'),hint=$('#baHint');fr.insertAdjacentHTML('beforeend','<div class="ba-grid"></div><div class="ba-scan"></div>');
+  hint.insertAdjacentHTML('afterend','<div class="ba-prog"><i id="baProg"></i></div>');requestAnimationFrame(()=>{const p=$('#baProg');p&&(p.style.width='100%')});
+  const t0=Date.now(),msgs=['MAPPING FACE GEOMETRY…','READING BIOMETRIC SIGNATURE…','MATCHING ADMIN RECORD…','CHECKING CLEARANCE…'];let i=0;const mt=setInterval(()=>{hint.className='ba-hint';hint.textContent=msgs[i++%4]},1250);hint.textContent=msgs[0];
+  const det=await cap.dp;
+  if(det)det.landmarks.positions.forEach((p,k)=>{const d=document.createElement('i');d.className='ba-dot';d.style.cssText=`left:${p.x/4.8}%;top:${p.y/4.8}%;animation-delay:${k*50}ms`;fr.appendChild(d)});
+  let r;if(!det)r={ok:false,error:'noface'};else{try{r=await rpc('admin_verify_face',{p_device:device(),p_descriptor:Array.from(det.descriptor)})}catch(e){r={ok:false,error:'net',msg:e.message}}}
+  await sleep(Math.max(0,5000-(Date.now()-t0)));clearInterval(mt);
+  r.ok?success(r,cap.url):fail(r,'face')
+ }catch(e){stop();if(e.message==='cancel')return;
+  fail({ok:false,error:'cam',msg:/Permission|NotAllowed|denied/i.test(e.name+e.message)?'Camera permission was denied. Allow it in your browser, or use your ID number.':e.message},'face')}};
+
+/* ── results ── */
+function grant(r){BA.admin=r.admin;BA.sid=r.session_id||BA.sid;state.isAdmin=true;
+ blastrSetUiUser(state.currentUser||state.currentUserProfile?.username||'Admin',true);
+ const ro=$('#sidebarRole');if(ro&&r.admin.role==='super_admin')ro.textContent='SUPER_ADMIN';mountUI()}
+async function success(r,cap,again){
+ if(!again)grant(r);const a=r.admin,photo=await photoUrl(a.photo_path),su=a.role==='super_admin';
+ const morph=cap&&photo;
+ show(`${again?'':'<svg class="ba-tick" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M14 27l8 8 16-17"/></svg><div class="ba-t g">USER VERIFIED!</div>'}<div class="ba-s">${again?'ADMIN SESSION ACTIVE':'WELCOME'}, ${esc(a.full_name_1).toUpperCase()}${su?' · BOSS MODE':''}</div>
+ <div class="ba-stage">${morph?`<div class="ba-morph" id="baMorph"><img class="a" src="${cap}"><img class="b" src="${esc(photo)}"></div>`:''}<div class="ba-cardslot${morph?'':' now'}" id="baSlot">${cardHTML(a,photo||cap)}</div></div>
+ <button class="ba-btn" id="baEnter" style="${morph?'visibility:hidden':''}" onclick="BA.enter()">ENTER ADMIN ROOM →</button>${again?'<button class="ba-btn alt" onclick="BA.lock()">LOCK SESSION</button>':''}`);
+ const slot=$('#baSlot');
+ if(!morph){await sleep(again?30:1100);slot.classList.add('in');return}
+ await sleep(1300);const m=$('#baMorph');m.classList.add('m');await sleep(1250);
+ const t=$('.ba-cp',slot).getBoundingClientRect(),f=m.getBoundingClientRect(),k=t.width/f.width;
+ slot.classList.add('in');m.style.transform=`translate(${t.left+t.width/2-(f.left+f.width/2)}px,${t.top+t.height/2-(f.top+f.height/2)}px) scale(${k})`;
+ await sleep(900);m.style.opacity=0;$('#baEnter').style.visibility='visible'}
+BA.enter=()=>{BA.close();showPage('admin',$('#nav-admin'))};
+BA.lock=async()=>{try{await rpc('admin_end_session')}catch(e){}endSession();BA.close();showToast('SESSION LOCKED','Admin session closed.');showPage('home',$('#nav-home'))};
+function fail(r,from){
+ stop();if(r.error==='locked')return locked(r.locked_until);
+ const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
+ if(from==='pin'&&r.error==='no_match')return BA.pin(m,r.attempts_left,true);
+ show(`<svg class="ba-tick x" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M17 17l18 18M35 17L17 35"/></svg><div class="ba-t r">${m}</div><div class="ba-s">${r.attempts_left!=null?r.attempts_left+' ATTEMPTS LEFT ON THIS DEVICE':'TRY AGAIN OR USE YOUR ID NUMBER'}</div>
+ <div class="ba-note">${esc(r.msg||'')}</div><button class="ba-btn" onclick="BA.face()">TRY AGAIN</button><button class="ba-btn alt" onclick="BA.pin()">USE ID NUMBER</button><br><button class="ba-x" onclick="BA.close()">Cancel</button>`)}
+
+
+/* ── self-registration: apply for admin ── */
+async function notAdmin(){show('<div class="ba-lock">🛂</div><div class="ba-s">CHECKING…</div>');let st={};try{st=await rpc('my_application_status')}catch(e){}
+ const p=st.status==='pending';
+ show(`<div class="ba-lock${p?'':' red'}">${p?'⏳':'🛂'}</div><div class="ba-t${p?'':' r'}">${p?'APPLICATION PENDING':'NOT AN ADMIN YET'}</div><div class="ba-s">${p?'WAITING FOR SUPER ADMIN APPROVAL':st.status==='rejected'?'YOUR LAST APPLICATION WAS DECLINED':'THIS ACCOUNT HAS NO ADMIN CLEARANCE'}</div>${p?'':'<button class="ba-btn" onclick="BA.apply()">APPLY FOR ADMIN POSITION →</button><br>'}<button class="ba-x" onclick="BA.close()">Close</button>`)}
+function apRead(){[['n1','apA1'],['n2','apA2'],['age','apA3'],['pin','apA4']].forEach(([k,i])=>{const e=$('#'+i);if(e)ap[k]=e.value.trim()})}
+BA.apply=()=>{show(`<div class="ba-t">ADMIN APPLICATION</div><div class="ba-s">THE SUPER ADMIN MUST APPROVE YOU</div>
+ <div class="ba-g2" style="text-align:left"><input class="ba-in" id="apA1" placeholder="Real name 1" value="${esc(ap.n1||'')}"><input class="ba-in" id="apA2" placeholder="Real name 2" value="${esc(ap.n2||'')}"><input class="ba-in" id="apA3" type="number" min="1" placeholder="Age" value="${esc(ap.age||'')}"><input class="ba-in" id="apA4" type="password" inputmode="numeric" maxlength="8" placeholder="Choose your 8-digit ID number" value="${esc(ap.pin||'')}"></div>
+ <div class="ba-pr" style="justify-content:center"><div class="ba-prev">${ap.shot?`<img src="${ap.shot.url}">`:'📷'}</div><button class="ba-btn alt" onclick="BA.appShot()">${ap.shot?'RETAKE':'TAKE'} FACE PHOTO</button></div>
+ <div class="ba-note" id="apMsg"></div><button class="ba-btn" id="apGo" onclick="BA.appSend()">SEND APPLICATION →</button><br><button class="ba-x" onclick="BA.close()">Cancel</button>`)};
+BA.appShot=async()=>{apRead();try{ap.shot=await BA.grab('YOUR FACE')}catch(e){if(e.message!=='cancel')return;ov.classList.add('on')}BA.apply()};
+BA.appSend=async()=>{apRead();const m=t=>{$('#apMsg').textContent=t},age=parseInt(ap.age,10);
+ if(!ap.n1||!ap.n2||!age)return m('FILL BOTH NAMES AND YOUR AGE');if(!/^\d{8}$/.test(ap.pin||''))return m('ID NUMBER MUST BE EXACTLY 8 DIGITS');if(!ap.shot)return m('TAKE YOUR FACE PHOTO FIRST');
+ const b=$('#apGo');b.disabled=true;b.textContent='SENDING…';
+ try{const uid=JSON.parse(atob(blastrGetBearerToken().split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub,path='applications/'+uid+'/face.jpg';
+  await upload(path,ap.shot.blob);await rpc('apply_admin',{p_name1:ap.n1,p_name2:ap.n2,p_age:age,p_id_number:ap.pin,p_descriptor:ap.shot.descriptor,p_photo_path:path});ap={};
+  show('<svg class="ba-tick" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M14 27l8 8 16-17"/></svg><div class="ba-t g">APPLICATION SENT!</div><div class="ba-s">THE SUPER ADMIN WILL REVIEW IT</div><div class="ba-note">KEEP YOUR 8-DIGIT ID NUMBER SAFE — IT BECOMES YOUR ADMIN PIN</div><button class="ba-btn" onclick="BA.close()">DONE</button>')
+ }catch(e){errStage('Application failed: '+e.message)}};
+async function renderApps(){const el=$('#baApps');if(!el)return;if(!apps.length){el.innerHTML='';return}
+ const ph=await Promise.all(apps.map(a=>photoUrl(a.photo_path)));
+ el.innerHTML=`<div class="ba-panel"><div class="ba-ph">📝 ADMIN APPLICATIONS <span class="ba-pill">${apps.length} PENDING</span></div>${apps.map((a,i)=>`<div class="ba-rr"><div class="ba-av" style="width:54px;height:54px;overflow:hidden">${ph[i]?`<img src="${esc(ph[i])}" style="width:100%;height:100%;object-fit:cover">`:esc(a.full_name_1[0])}</div><div class="ba-ft"><b>${esc(a.full_name_1)} ${esc(a.full_name_2)}</b><small>${esc(a.email)} · AGE ${esc(a.age??'—')} · ${ago(a.created_at)}</small></div><button class="ba-btn sm" onclick="BA.review('${a.id}',true)">APPROVE</button><button class="ba-btn red sm" onclick="BA.review('${a.id}',false)">REJECT</button></div>`).join('')}</div>`}
+BA.review=async(id,ok)=>{if(!ok&&!confirm('Reject this application?'))return;try{await rpc('review_application',{p_id:id,p_approve:ok});showToast(ok?'APPROVED':'REJECTED',ok?'User elevated to Admin.':'Application declined.');poll();roster()}catch(e){showToast('FAILED',e.message)}};
+/* ── enrollment capture (used by portal) ── */
+BA.grab=async t=>{ov.classList.add('on');show(camHTML(t||'ENROLL FACE','ALIGN THE ADMIN INSIDE THE SQUARE'));
+ try{const cap=await camera();await shatter(cap.url);$('#baHint').textContent='READING FACE…';const det=await cap.dp;if(!det)throw new Error('No clear face in the capture — try again');
+  const blob=await new Promise(r=>cap.canvas.toBlob(r,'image/jpeg',.88));return{url:cap.url,blob,descriptor:Array.from(det.descriptor)}}
+ catch(e){stop();if(e.message==='cancel')ov.classList.remove('on');else errStage(e.message);throw e}};
+function errStage(m){show(`<svg class="ba-tick x" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M17 17l18 18M35 17L17 35"/></svg><div class="ba-t r">SOMETHING FAILED</div><div class="ba-note">${esc(m)}</div><button class="ba-btn" onclick="BA.close()">CLOSE</button>`);ov.classList.add('on')}
+async function saveFace(id,s){show('<div class="ba-lock">💾</div><div class="ba-t">SAVING FACE…</div><div class="ba-s">STORING FACE SIGNATURE</div>');ov.classList.add('on');
+ try{const p=id+'/face.jpg';await upload(p,s.blob);await rpc('enroll_face',{p_admin:id,p_descriptor:s.descriptor,p_photo_path:p});if(BA.admin&&BA.admin.id===id)BA.admin.photo_path=p;
+  show(`<svg class="ba-tick" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M14 27l8 8 16-17"/></svg><div class="ba-t g">FACE ENROLLED!</div><div class="ba-s">FACE ID IS NOW ACTIVE</div><div class="ba-frame ok" style="width:170px"><img class="ba-still" src="${s.url}"></div><button class="ba-btn" onclick="BA.close()">DONE</button>`);
+  roster();const t=$('#baTab_id');if(t&&t.style.display!=='none')R.id()}catch(e){errStage('Face save failed: '+e.message)}}
+function reveal(title,a,photo,num){show(`<div class="ba-t g">${title}</div><div class="ba-s">SAVE THIS ID NUMBER — SHOWN ONLY ONCE</div>${cardHTML(a,photo,num)}<div class="ba-big">${num}</div>
+ <button class="ba-btn alt" onclick="navigator.clipboard&&navigator.clipboard.writeText('${num}');showToast('COPIED','ID number copied')">COPY</button><button class="ba-btn" onclick="BA.close()">DONE</button>`);ov.classList.add('on')}
+
+/* ── admin room UI ── */
+const R={};let apps=[],seenApps=new Set(),ap={},pollT=null,feed=[],lastId=0,flt='all',shot=null;
+function mountUI(){const pg=$('#page-admin'),tabs=pg&&$('.sm-tabs',pg);if(!tabs)return;
+ if(!$('.ba-tabbtn',tabs)){const su=BA.admin.role==='super_admin';
+  const add=(n,l)=>{const b=document.createElement('button');b.className='sm-tab ba-tabbtn';b.innerHTML=l;b.onclick=function(){baTab(n,this)};tabs.appendChild(b);const d=document.createElement('div');d.className='ba-tab';d.id='baTab_'+n;d.style.display='none';pg.appendChild(d)};
+  add('id','🪪 MY ID');if(su){add('portal','🛡 ADMIN PORTAL');add('office','🛰 SUPER OFFICE <span class="ba-nb" id="baNb2"></span>')}
+  const n=$('#nav-admin');if(n&&!$('#baNb')){n.insertAdjacentHTML('beforeend','<span class="ba-nb" id="baNb"></span>')}}
+ clearInterval(pollT);if(BA.admin.role==='super_admin'){poll(true);pollT=setInterval(poll,10000)}}
+window.baTab=(n,b)=>{$$('.sm-tab').forEach(t=>t.classList.remove('active'));b&&b.classList.add('active');['Matrix','Edit','Artists','Stage','DMP'].forEach(k=>{const e=$('#smTab'+k);e&&(e.style.display='none')});$$('.ba-tab').forEach(e=>e.style.display=e.id==='baTab_'+n?'':'none');R[n]&&R[n]()};
+const _sm=window.smShowTab;window.smShowTab=function(){$$('.ba-tab').forEach(e=>e.style.display='none');return _sm.apply(this,arguments)};
+function endSession(){BA.admin=null;BA.sid=null;state.isAdmin=false;clearInterval(pollT);feed=[];lastId=0;$$('.ba-tabbtn,.ba-tab,.ba-nb').forEach(e=>e.remove())}
+
+R.id=async()=>{const e=$('#baTab_id'),a=BA.admin,p=await photoUrl(a.photo_path);e.innerHTML=`<div class="ba-panel" style="text-align:center"><div class="ba-ph" style="justify-content:center">YOUR ADMIN ID</div>${cardHTML(a,p)}<div class="ba-note" style="margin-top:14px">EVERY UPLOAD AND EDIT YOU MAKE IS LOGGED UNDER THIS ID</div><button class="ba-btn red sm" onclick="BA.lock()">LOCK SESSION</button></div>`};
+
+R.portal=async()=>{$('#baTab_portal').innerHTML=`<div class="ba-panel"><div class="ba-ph">🛡 REGISTER NEW ADMIN</div>
+ <div class="ba-g2"><input class="ba-in" id="rgE" type="email" placeholder="Their Blastr account email"><input class="ba-in" id="rg1" placeholder="Real name 1"><input class="ba-in" id="rg2" placeholder="Real name 2"><input class="ba-in" id="rgA" type="number" min="1" placeholder="Age"></div>
+ <div class="ba-pr"><div class="ba-prev" id="rgP">📷</div><button class="ba-btn alt" onclick="BA.regShot()">TAKE FACE PHOTO</button></div>
+ <button class="ba-btn" id="rgB" onclick="BA.register()">REGISTER ADMIN →</button></div>
+ <div class="ba-panel"><div class="ba-ph">ADMIN ROSTER</div><div id="baRoster"><div class="ba-note">LOADING…</div></div></div>`;shot=null;roster()};
+async function roster(){const rows=await sbFetch('/rest/v1/admins?select=id,full_name_1,full_name_2,age,role,id_last4,active,photo_path&order=created_at.asc'),el=$('#baRoster');if(!el)return;
+ el.innerHTML=Array.isArray(rows)&&rows.length?rows.map(a=>{const su=a.role==='super_admin';return `<div class="ba-rr"><div class="ba-av">${esc(a.full_name_1[0])}</div><div class="ba-ft"><b>${esc(a.full_name_1)} ${esc(a.full_name_2)}</b><small>ID •••• ${esc(a.id_last4)} · AGE ${esc(a.age??'—')}</small></div>${a.photo_path?'<span class="ba-pill">FACE ✓</span>':'<span class="ba-pill off">NO FACE</span>'}<span class="ba-pill${su?' su':a.active?'':' off'}">${su?'SUPER':a.active?'ACTIVE':'DISABLED'}</span>
+ <button class="ba-btn alt sm" onclick="BA.reface('${a.id}')">FACE</button><button class="ba-btn alt sm" onclick="BA.newId('${a.id}')">NEW ID</button>${su?'':`<button class="ba-btn ${a.active?'red':''} sm" onclick="BA.toggle('${a.id}',${!a.active})">${a.active?'DISABLE':'ENABLE'}</button>`}</div>`}).join(''):'<div class="ba-note">NO ADMINS YET</div>'}
+BA.regShot=async()=>{try{shot=await BA.grab('REGISTER FACE');ov.classList.remove('on');$('#rgP').innerHTML=`<img src="${shot.url}">`}catch(e){if(e.message!=='cancel')showToast('CAMERA',e.message)}};
+BA.register=async()=>{const g=i=>$('#'+i).value.trim(),b=$('#rgB'),E=g('rgE'),n1=g('rg1'),n2=g('rg2'),age=parseInt(g('rgA'),10);
+ if(!E||!n1||!n2||!age)return showToast('MISSING INFO','Fill email, both names and age.');if(!shot)return showToast('FACE PHOTO','Take the new admin\'s face photo first.');
+ b.disabled=true;b.textContent='REGISTERING…';
+ try{const r=await rpc('register_admin',{p_email:E,p_name1:n1,p_name2:n2,p_age:age}),path=r.admin_id+'/face.jpg';
+  await upload(path,shot.blob);await rpc('enroll_face',{p_admin:r.admin_id,p_descriptor:shot.descriptor,p_photo_path:path});
+  reveal('ADMIN REGISTERED',{full_name_1:n1,full_name_2:n2,age,role:'admin',id_last4:r.id_number.slice(-4)},shot.url,r.id_number);R.portal()
+ }catch(e){errStage('Registration failed: '+e.message+'. If the admin was created, use FACE in the roster to enroll them.')}finally{b.disabled=false;b.textContent='REGISTER ADMIN →'}};
+BA.reface=async id=>{let s;try{s=await BA.grab('RE-ENROLL FACE')}catch(e){return}await saveFace(id,s)};
+BA.newId=async id=>{if(!confirm('Generate a NEW ID number? The old one stops working.'))return;try{const n=await rpc('regenerate_id_number',{p_admin:id});const rows=await sbFetch('/rest/v1/admins?id=eq.'+id+'&select=*'),a=rows&&rows[0]||{full_name_1:'Admin',full_name_2:'',role:'admin'};reveal('NEW ID NUMBER',{...a,id_last4:n.slice(-4)},await photoUrl(a.photo_path),n);roster()}catch(e){showToast('FAILED',e.message)}};
+BA.toggle=async(id,on)=>{try{await rpc('set_admin_active',{p_admin:id,p_active:on});roster()}catch(e){showToast('FAILED',e.message)}};
+
+/* ── Super Admin Office ── */
+const ago=t=>{const s=Math.max(1,Math.round((Date.now()-new Date(t))/1000));return s<60?s+'s ago':s<3600?Math.round(s/60)+'m ago':s<86400?Math.round(s/3600)+'h ago':Math.round(s/86400)+'d ago'};
+const what=r=>{const k=r.entity_type==='tracks'?'song':'artist';return r.action==='insert'?['i','uploaded '+(k==='song'?'a song':'an artist')]:r.action==='delete'?['d','deleted '+(k==='song'?'a song':'an artist')]:['e','edited '+(k==='song'?'a song':'an artist')]};
+R.office=()=>{$('#baTab_office').innerHTML=`<div id="baApps"></div><div class="ba-panel"><div class="ba-ph">🛰 SUPER ADMIN OFFICE <span class="ba-live">LIVE</span><span style="flex:1"></span><button class="ba-btn alt sm" onclick="BA.readAll()">MARK ALL READ</button></div>
+ <div class="ba-chips">${[['all','ALL'],['insert','UPLOADS'],['update','EDITS'],['delete','DELETES']].map(([k,l])=>`<button class="ba-chip${flt===k?' on':''}" onclick="BA.flt('${k}')">${l}</button>`).join('')}</div><div id="baFeed"></div></div>`;renderApps();renderFeed()};
+function renderFeed(){const el=$('#baFeed');if(!el)return;const rows=feed.filter(r=>flt==='all'||r.action===flt);
+ el.innerHTML=rows.length?rows.map(r=>{const[c,v]=what(r);return `<div class="ba-fi ${c}${r.is_read?'':' u'}"><div class="ba-av">${esc((r.admin_name||'?')[0])}</div><div class="ba-ft"><b>${esc(r.admin_name||'Unknown')}</b> ${v}${r.summary?` <i>“${esc(r.summary)}”</i>`:''}<small>${ago(r.created_at)} · ${esc(r.entity_type.toUpperCase())}</small></div></div>`}).join(''):'<div class="ba-note">NO ADMIN ACTIVITY YET — ALL QUIET.</div>'}
+BA.flt=k=>{flt=k;R.office()};
+BA.readAll=async()=>{await sbFetch('/rest/v1/admin_activity?is_read=eq.false',{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:{is_read:true}});poll()};
+async function poll(first){if(!BA.admin||BA.admin.role!=='super_admin')return;const rows=await sbFetch('/rest/v1/admin_activity?select=*&order=id.desc&limit=80');if(!Array.isArray(rows))return;
+ const aq=await sbFetch('/rest/v1/admin_applications?status=eq.pending&select=id,email,full_name_1,full_name_2,age,photo_path,created_at&order=created_at.asc');if(Array.isArray(aq))apps=aq;const nw=apps.filter(x=>!seenApps.has(x.id));apps.forEach(x=>seenApps.add(x.id));if(first!==true&&nw.length)showToast('NEW ADMIN APPLICATION',nw[0].full_name_1+' '+nw[0].full_name_2,'Review it in Super Office');
+ const fresh=first===true?[]:rows.filter(r=>r.id>lastId&&r.admin_id!==BA.admin.id).reverse();
+ if(rows.length)lastId=Math.max(lastId,rows[0].id);feed=rows;
+ if(fresh.length){const r=fresh[fresh.length-1];showToast('ADMIN ACTIVITY',`${r.admin_name} ${what(r)[1]}`,fresh.length>1?`+${fresh.length-1} more in Super Office`:(r.summary||''))}
+ const u=rows.filter(r=>!r.is_read).length+apps.length;['baNb','baNb2'].forEach(i=>{const e=$('#'+i);if(e){e.textContent=u;e.style.display=u?'inline-block':'none'}});renderApps();renderFeed()}
+
+/* ── wire in: replace old passcode gate, clean up on logout ── */
+window.toggleAdminDoor=window.openAdminModal=()=>BA.open();
+window.handleAdminInput=window.handleAdminModalInput=window.submitAdminModal=()=>{};
+const _lo=window.logout;window.logout=function(){try{rpc('admin_end_session').catch(()=>{})}catch(e){}BA.close();endSession();return _lo.apply(this,arguments)};
+})();
+</script>
+
 </body>
-</html>
+</html>s
