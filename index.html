@@ -13596,6 +13596,7 @@ BA.pin=(msg,left,shake)=>{
 let faceP=null;
 function loadFace(){return faceP||(faceP=(async()=>{
  if(!window.faceapi)await new Promise((ok,no)=>{const s=document.createElement('script');s.src=FA+'/dist/face-api.js';s.onload=ok;s.onerror=()=>no(new Error('Face engine failed to load (check your connection)'));document.head.appendChild(s)});
+ const tf=faceapi.tf;for(const b of['webgl','cpu']){try{if(await tf.setBackend(b)){await tf.ready();break}}catch(e){}}
  const M=FA+'/model/';await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(M),faceapi.nets.faceLandmark68Net.loadFromUri(M),faceapi.nets.faceRecognitionNet.loadFromUri(M)])})().catch(e=>{faceP=null;throw e}))}
 const camHTML=(t,s)=>`<div class="ba-t">${t}</div><div class="ba-s">${s}</div><div class="ba-frame" id="baFrame"><video id="baVid" playsinline muted></video><div class="ba-oval"></div><b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b><div class="ba-count" id="baCount"></div></div><div class="ba-hint" id="baHint">Allow camera access when prompted…</div><button class="ba-x" onclick="BA.close()">Cancel</button>`;
 function sharp(lx){const im=lx.getImageData(0,0,64,64).data,g=new Float32Array(4096);let br=0;for(let i=0;i<4096;i++){g[i]=.299*im[i*4]+.587*im[i*4+1]+.114*im[i*4+2];br+=g[i]}br/=4096;let m=0,m2=0,n=0;for(let y=1;y<63;y++)for(let x=1;x<63;x++){const i=y*64+x,l=4*g[i]-g[i-1]-g[i+1]-g[i-64]-g[i+64];m+=l;m2+=l*l;n++}return{br,v:m2/n-(m/n)**2}}
