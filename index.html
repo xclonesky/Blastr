@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<style id="bxPre">html.bx-pre #loginScreen,html.bx-pre #appScreen{visibility:hidden!important}html.bx-pre,html.bx-pre body{background:#05050f}</style>
-<script>try{if(!JSON.parse(localStorage.getItem('blastr_session_v3')||'null')){document.documentElement.classList.add('bx-pre');setTimeout(function(){document.documentElement.classList.remove('bx-pre')},6000)}}catch(e){document.documentElement.classList.add('bx-pre');setTimeout(function(){document.documentElement.classList.remove('bx-pre')},6000)}</script>
+<style id="bxPre">html.bx-pre #loginScreen,html.bx-pre #appScreen,html.bx-rest #loginScreen{visibility:hidden!important}html.bx-pre,html.bx-pre body,html.bx-rest,html.bx-rest body{background:#05050f}
+html.bx-rest body::after{content:'';position:fixed;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;border:3px solid rgba(143,107,255,.25);border-top-color:#39FF14;animation:bxSp .8s linear infinite;z-index:99998}@keyframes bxSp{to{transform:rotate(360deg)}}</style>
+<script>(function(){var d=document.documentElement,s=null,seen=0,L=null;try{s=JSON.parse(localStorage.getItem('blastr_session_v3')||'null')}catch(e){}try{seen=sessionStorage.getItem('bx_intro')}catch(e){}try{L=localStorage.getItem('blastr_lite')}catch(e){}
+var n=navigator,c=n.connection||{},low=(n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||c.saveData||/2g/.test(c.effectiveType||'');
+if(L==='1'||(L===null&&low))d.classList.add('bx-lite');
+if(!s&&!seen){d.classList.add('bx-pre');setTimeout(function(){d.classList.remove('bx-pre')},6000)}else if(s){d.classList.add('bx-rest');setTimeout(function(){d.classList.remove('bx-rest')},3500)}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>if(localStorage.getItem('blastr_linked_accounts_v1')){document.documentElement.style.visibility='hidden';}</script>
 <title>Blastr — Live Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&family=Cinzel:wght@600;900&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&family=Cinzel:wght@600;900&display=swap" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&family=Great+Vibes&family=Cinzel:wght@600;900&display=swap"></noscript>
 <style>
 :root{
   --bg:#06060E;--panel:#0D0D1C;--panel2:#111122;--border:#1A1A30;
@@ -5444,12 +5449,13 @@ async function blastrRestoreSession() {
   let W,H,flakes=[];
   function resize(){W=canvas.width=canvas.parentElement.offsetWidth;H=canvas.height=canvas.parentElement.offsetHeight;}
   function makeFlake(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+.5,sp:Math.random()*1.2+.4,dx:(Math.random()-.5)*.5,op:Math.random()*.7+.2};}
-  function init(){resize();flakes=Array.from({length:120},makeFlake);}
+  function init(){resize();flakes=Array.from({length:innerWidth<700?50:90},makeFlake);}
   function tick(){
+    if(document.hidden||document.documentElement.classList.contains('bx-lite')||document.getElementById('loginScreen').classList.contains('hidden')){setTimeout(tick,700);return}
     ctx.clearRect(0,0,W,H);
     flakes.forEach(f=>{
       ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${Math.random()>.4?'57,255,20':'0,198,255'},${f.op})`;
+      ctx.fillStyle=`rgba(${f.r>1.2?'57,255,20':'143,107,255'},${f.op})`;
       ctx.fill();
       f.y+=f.sp;f.x+=f.dx;
       if(f.y>H||f.x<0||f.x>W) Object.assign(f,makeFlake(),{y:-4});
@@ -13869,13 +13875,13 @@ const _lo=window.logout;window.logout=function(){try{rpc('admin_end_session').ca
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap';document.head.appendChild(fl);
+const fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap';fl.media='print';fl.onload=()=>{fl.media='all'};document.head.appendChild(fl);
 const gen=g=>(g||'').split(',').map(x=>x.trim()).filter(Boolean);
 
 /* ── brand star on the login screen + intro splash (returning visitors who must sign in) ── */
 const bw=$('.login-brand-wrap');if(bw){const d=document.createElement('div');d.className='bx-logo bx-lstar';bw.prepend(d)}
-let stored=false;try{stored=!!blastrGetStoredAuth()}catch(e){}
-if(!stored){const i=document.createElement('div');i.id='bxIntro';i.innerHTML='<div class="bx-irow"><div class="bx-logo bx-istar"></div><div class="bx-word"><b>B</b><span>LASTR</span></div></div><div class="bx-skip">TAP TO SKIP</div>';document.body.appendChild(i);
+let stored=false,seenI=0;try{stored=!!blastrGetStoredAuth()}catch(e){}try{seenI=sessionStorage.getItem('bx_intro');sessionStorage.setItem('bx_intro','1')}catch(e){}
+if(!stored&&!seenI){const i=document.createElement('div');i.id='bxIntro';i.innerHTML='<div class="bx-irow"><div class="bx-logo bx-istar"></div><div class="bx-word"><b>B</b><span>LASTR</span></div></div><div class="bx-skip">TAP TO SKIP</div>';document.body.appendChild(i);
  const end=()=>{document.documentElement.classList.remove('bx-pre');i.classList.add('out');setTimeout(()=>i.remove(),800)};i.onclick=end;setTimeout(end,3000)}
 
 /* ── mobile bottom tab bar ── */
@@ -13969,5 +13975,65 @@ window.loadHomeContent=async function(){await _lh.apply(this,arguments);
 })();
 </script>
 
+
+<!-- ═══════ BLASTR PERFORMANCE LAYER: lite mode · cache-first data · smooth scrolling ═══════ -->
+<style>
+html{-webkit-tap-highlight-color:transparent}button,a,[onclick],input,select{touch-action:manipulation}
+.page{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+.songs-section{content-visibility:auto;contain-intrinsic-size:auto 340px}
+.toast{z-index:100001!important}#bxBn.kb{display:none!important}
+html.bx-hid *,html.bx-hid *::before,html.bx-hid *::after{animation-play-state:paused!important}
+/* lite mode: weak devices — drop the decorative GPU work, keep every feature */
+.bx-lite *,.bx-lite *::before,.bx-lite *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;text-shadow:none!important}
+.bx-lite .login-snow-canvas,.bx-lite .orb,.bx-lite .bx-bd{display:none!important}
+.bx-lite .bx-wipe::before,.bx-lite .ba-box::before,.bx-lite .login-eq-bar,.bx-lite .bx-lstar,.bx-lite .ba-lock,.bx-lite .ba-tick,.bx-lite .ba-sh{animation:none!important}
+.bx-lite .bx-logo{filter:none!important}.bx-lite .bx-c.s .bx-ai{box-shadow:0 0 0 3px #39FF14}.bx-lite .ba-card,.bx-lite .ba-panel,.bx-lite .bx-card{box-shadow:none!important}
+</style>
+<script>
+(function(){
+'use strict';
+const d=document.documentElement,$$=(s,r=document)=>[...r.querySelectorAll(s)];
+/* tiny IndexedDB key-value store */
+let _p;const open=()=>_p||(_p=new Promise((ok,no)=>{const r=indexedDB.open('blastr_cache',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
+const idb={get:k=>open().then(db=>new Promise(ok=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})).catch(()=>null),
+ set:(k,v)=>open().then(db=>{db.transaction('kv','readwrite').objectStore('kv').put(v,k)}).catch(()=>{}),
+ del:k=>open().then(db=>{db.transaction('kv','readwrite').objectStore('kv').delete(k)}).catch(()=>{})};
+/* cache-first tracks: paint instantly from the last visit, refresh quietly, re-render only if something changed */
+const sig=a=>a.map(x=>x.id+'|'+(x.title||'')+'|'+(x.cover_url||'')+'|'+(x.artist||'')).join(',');
+const _gt=window.getTracks;let inf=null,busy=0;
+const net=()=>inf||(inf=_gt().then(r=>{if(r.length)idb.set('tracks',{d:r});return r}).finally(()=>setTimeout(()=>inf=null,1500)));
+window.getTracks=async function(q){
+ if(q)return _gt.apply(this,arguments);
+ const c=await idb.get('tracks');
+ if(c&&c.d&&c.d.length&&!busy){net().then(r=>{if(sig(r)!==sig(c.d)){busy=1;try{state.allTracks=r;window.loadHomeContent()}catch(e){}setTimeout(()=>busy=0,3000)}}).catch(()=>{});return c.d}
+ return net()};
+/* admin writes invalidate the cache so admins never see stale lists */
+const _sf=window.sbFetch;
+window.sbFetch=function(p,o){const w=o&&o.method&&o.method!=='GET'&&/\/rest\/v1\/(tracks|artists)/.test(p);if(w)idb.del('tracks');const r=_sf.apply(this,arguments);if(w)Promise.resolve(r).finally(()=>idb.del('tracks'));return r};
+/* warm caches for returning users while the session restores */
+try{if(blastrGetStoredAuth()){window.getTracks().catch(()=>{});window.getArtists&&window.getArtists().catch(()=>{})}}catch(e){}
+/* returning users: reveal the app the moment it is ready (no login-screen flash) */
+const app=document.getElementById('appScreen'),done=()=>d.classList.remove('bx-rest');
+new MutationObserver(()=>{if(!app.classList.contains('hidden'))done()}).observe(app,{attributes:true,attributeFilter:['class']});
+const _cs=window.blastrClearStoredAuth;window.blastrClearStoredAuth=function(){done();return _cs.apply(this,arguments)};
+/* images: lazy + async decode, everywhere, including ones added later */
+const fix=i=>{if(!i.loading)i.loading='lazy';i.decoding='async'};
+$$('img').forEach(fix);new MutationObserver(m=>m.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)n.tagName==='IMG'?fix(n):n.querySelectorAll&&n.querySelectorAll('img').forEach(fix)}))).observe(document.body,{childList:true,subtree:true});
+/* pause ambient animation when the tab is hidden; hide tab bar while typing */
+document.addEventListener('visibilitychange',()=>d.classList.toggle('bx-hid',document.hidden));
+const bn=document.getElementById('bxBn');
+document.addEventListener('focusin',e=>{if(bn&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))bn.classList.add('kb')});
+document.addEventListener('focusout',()=>bn&&bn.classList.remove('kb'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&window.BA&&document.getElementById('baOv').classList.contains('on'))BA.close()});
+/* weak-device detection: heuristics set the first guess (head script); a real frame-rate probe confirms it */
+window.blastrLite=on=>{d.classList.toggle('bx-lite',!!on);try{localStorage.setItem('blastr_lite',on?'1':'0')}catch(e){}};
+let L=null;try{L=localStorage.getItem('blastr_lite')}catch(e){}
+if(L===null)setTimeout(()=>{if(document.hidden)return;const t=[];let last=0;
+ const f=ts=>{if(last)t.push(ts-last);last=ts;if(t.length<50)requestAnimationFrame(f);else{const m=t.slice(5).sort((a,b)=>a-b)[22];
+  if(m>26)d.classList.add('bx-lite');else if(m<19)d.classList.remove('bx-lite');
+  if(m>34){try{localStorage.setItem('blastr_lite','1')}catch(e){}}}};
+ requestAnimationFrame(f)},4000);
+})();
+</script>
 </body>
 </html>s
