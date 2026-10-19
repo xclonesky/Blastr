@@ -15627,7 +15627,7 @@ window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
   .follow-panel{position:fixed;left:12px;right:12px;top:calc(max(10px,env(safe-area-inset-top)) + 52px);width:auto}
 
   /* 4 · ONE bottom dock: compact player (tap cover/title = Now Vibing) */
-  .player-bar{gap:10px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));height:auto;min-height:0;background:linear-gradient(180deg,rgba(18,18,36,.98),rgba(8,8,20,.99));border-top:1px solid rgba(255,255,255,.08)}
+  .player-bar{overflow:visible;gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));height:auto;min-height:0;background:linear-gradient(180deg,rgba(18,18,36,.98),rgba(8,8,20,.99));border-top:1px solid rgba(255,255,255,.08)}
   .player-progress-accent{display:none}
   .now-playing{flex:1;min-width:0;width:auto;gap:10px}
   .np-cover{width:44px;height:44px;border-radius:10px;flex-shrink:0}
@@ -15643,13 +15643,27 @@ window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
   .progress-wrap .time-lbl{display:none}
   .progress-bar{height:3px;border-radius:0;overflow:visible;background:rgba(255,255,255,.1)}
   .progress-bar::before{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-12px}
-  .player-right{display:none!important}
+  .ctrl-btn{width:32px;height:32px}
+  #pbMore{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0;font-size:20px;border-radius:50%;flex-shrink:0;color:var(--text)}
+  .player-bar.pb-open #pbMore{background:rgba(57,255,20,.12);color:var(--accent)}
+  .player-right{display:none;position:absolute;right:12px;bottom:calc(100% + 10px);z-index:80;width:min(300px,calc(100vw - 24px));flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:10px;padding:14px;background:rgba(10,10,24,.985);border:1px solid rgba(255,255,255,.12);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  .player-bar.pb-open .player-right{display:flex;animation:pbPop .25s cubic-bezier(.22,1,.36,1)}
+  .player-right .pulse-bars{display:none}
+  .player-right .vol-wrap{flex:1 1 100%;gap:12px}
+  .player-right .vol-icon{font-size:18px}
+  .player-right .vol-bar{flex:1;width:auto!important;height:8px;border-radius:6px}
+  .player-right .btn-vibing,.player-right .btn-zen,.player-right .btn-download{flex:1 1 auto;height:38px;display:flex;align-items:center;justify-content:center}
+  .player-right .btn-download{width:auto;padding:0 14px;gap:7px}
+  .player-right .btn-download::after{content:'DOWNLOAD';font:700 10px var(--mono);letter-spacing:1px}
 
   /* 5 · breathing room + no cut-offs */
   .page{padding:0 12px 16px;overflow-x:hidden}
   .page h1{font-size:clamp(22px,7vw,30px);line-height:1.15}
   .section-title{font-size:19px;margin:14px 0 10px}
-  .song-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .song-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+  .song-tile{border-radius:12px}
+  .song-tile .tile-cover{font-size:26px}
+  .tile-title{font-size:11.5px}.tile-artist,.tile-meta{font-size:10px}
   .page img{max-width:100%}
   .section-header{gap:8px;flex-wrap:wrap}
   .mini-player-shell{left:12px;right:12px;width:auto}
@@ -15661,6 +15675,10 @@ window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
 }
 @media (min-width:701px){.jn-tb-logo{display:none}}
 .jn-tb-logo{width:22px;height:22px;flex-shrink:0}
+
+@keyframes pbPop{from{opacity:0;transform:translateY(8px) scale(.97)}}
+#pbMore{display:none}
+@media (max-width:360px){.ctrl-buttons .ctrl-btn[title="Previous"]{display:none}}
 </style>
 <script id="blastrPhoneJs">
 (function(){
@@ -15668,7 +15686,11 @@ const mq=window.matchMedia('(max-width:700px)');
 // John logo inside the existing top-bar mic button (CSS shows it on phones only)
 function decorate(){const c=document.getElementById('vaCluster');if(c&&!c.querySelector('.jn-tb-logo')){const d=document.createElement('span');d.className='bx-logo jn-tb-logo';c.insertBefore(d,c.firstChild);}}
 decorate();setInterval(decorate,1200);
+function addMore(){const pb=document.querySelector('.player-bar');if(pb&&!document.getElementById('pbMore')){const b=document.createElement('button');b.id='pbMore';b.className='np-heart';b.type='button';b.setAttribute('aria-label','More player controls');b.textContent='⋯';const pc=pb.querySelector('.player-controls');pb.insertBefore(b,pc);}}
+addMore();setInterval(addMore,1500);
 document.addEventListener('click',e=>{
+  const pb=document.querySelector('.player-bar');
+  if(pb){if(e.target.closest('#pbMore'))pb.classList.toggle('pb-open');else if(!e.target.closest('.player-right'))pb.classList.remove('pb-open');}
   if(!mq.matches)return;
   // tap the mini player cover/title → Now Vibing (its button is tucked away on phones)
   if(e.target.closest('#npCover,#npTitle')&&window.state?.currentTrack&&typeof toggleVibing==='function'){toggleVibing();return;}
