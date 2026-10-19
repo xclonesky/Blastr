@@ -3983,6 +3983,7 @@ body.light .search-input{color:var(--text)}
         <div class="section-title"><span id="timeGreeting">Good vibes</span>, <span id="greetUser">User</span> &#9889;</div>
         <div id="becauseSection"></div>
         <div id="homeContent"></div>
+        <div id="albumsRow"></div>
         <div id="playlistsRow"></div>
         <div id="featuredArtistsRow" style="margin-top:0"></div>
         <div id="legendsRow"></div>
@@ -4107,6 +4108,7 @@ body.light .search-input{color:var(--text)}
           </div>
           </div>
           <!-- Popular Tracks -->
+          <div id="artistAlbumsSection" style="display:none"><div class="artist-section-title">Albums</div><div id="artistAlbumsList"></div></div>
           <div id="artistPopularSection" style="display:none">
             <div class="artist-section-title">Popular Tracks</div>
             <div id="artistPopularList"></div>
@@ -4220,6 +4222,7 @@ body.light .search-input{color:var(--text)}
         <div class="section-title">Admin <span>Matrix</span></div>
         <div class="sm-tabs" style="margin-bottom:16px">
           <button class="sm-tab active" onclick="smShowTab('matrix',this)">&#9649; UPLOAD / DELETE</button>
+          <button class="sm-tab" onclick="smShowTab('album',this)">💿 UPLOAD ALBUM</button>
           <button class="sm-tab" onclick="smShowTab('edit',this)">✎ EDIT SONG</button>
           <button class="sm-tab" onclick="smShowTab('artists',this)">★ ARTIST MANAGER</button>
           <button class="sm-tab" onclick="smShowTab('stage',this)">&#9698; STAGE MANAGER</button>
@@ -4267,6 +4270,7 @@ body.light .search-input{color:var(--text)}
           </div>
         </div>
         </div><!-- /smTabMatrix -->
+        <div id="smTabAlbum" style="display:none"></div>
 
         <!-- EDIT SONG TAB -->
         <div id="smTabEdit" style="display:none">
@@ -6003,7 +6007,7 @@ function songTileHTML(t, idx) {
     </div>
     <div class="tile-info">
       <div class="tile-title">${esc(t.title)}</div>
-      <div class="tile-artist">${esc(t.artist||'Unknown')}</div>
+      <div class="tile-artist${t.artist_id?' artist-link':''}"${t.artist_id?` data-artist-id="${esc(t.artist_id)}"`:''}>${esc(t.artist||'Unknown')}</div>
     </div>
   </div>`;
 }
@@ -6224,7 +6228,7 @@ function initiateHandshake(track) {
 function updateNowPlaying(t) {
   if(!t) return;
   document.getElementById('npTitle').textContent=t.title||'Unknown';
-  document.getElementById('npArtist').textContent=t.artist||'Unknown';
+  document.getElementById('npArtist').textContent=t.artist||'Unknown';window.blastrLinkArtistEl&&blastrLinkArtistEl('npArtist',t);
   const npCover=document.getElementById('npCover');
   const miniCover=document.getElementById('miniCover');
   const vibCover=document.getElementById('vibingCover');
@@ -6236,9 +6240,9 @@ function updateNowPlaying(t) {
     npCover.textContent='♪';miniCover.textContent='♪';vibCover.textContent='♪';
   }
   document.getElementById('miniTitle').textContent=t.title||'Unknown';
-  document.getElementById('miniArtist').textContent=t.artist||'Unknown';
+  document.getElementById('miniArtist').textContent=t.artist||'Unknown';window.blastrLinkArtistEl&&blastrLinkArtistEl('miniArtist',t);
   document.getElementById('vibingTitle').textContent=t.title||'Unknown';
-  document.getElementById('vibingArtist').textContent=t.artist||'Unknown';
+  document.getElementById('vibingArtist').textContent=t.artist||'Unknown';window.blastrLinkArtistEl&&blastrLinkArtistEl('vibingArtist',t);
   const liked=state.favorites.some(f=>f.id===t.id);
   document.getElementById('npHeart').textContent=liked?'♥':'♡';
   document.getElementById('npHeart').classList.toggle('liked',liked);
@@ -6389,7 +6393,7 @@ function loadSongProfile(track) {
   if(!track) return;
   state.currentProfileTrack=track;
   document.getElementById('profTitle').textContent=track.title||'Unknown';
-  document.getElementById('profArtist').textContent=track.artist||'Unknown';
+  document.getElementById('profArtist').textContent=track.artist||'Unknown';window.blastrLinkArtistEl&&blastrLinkArtistEl('profArtist',track);
   document.getElementById('profDesc').textContent=track.description||'No description available for this track.';
   const genreTag=[track.genre,track.source].filter(Boolean).join(' • ')||'GENRE • SOURCE';
   {const _pt=document.getElementById('profGenreTag');_pt.textContent=genreTag;
@@ -6432,7 +6436,7 @@ function parseLyricRaw(raw) {
 function loadVibingLyrics(track) {
   const wrap=document.getElementById('vibingLyricsWrap');
   document.getElementById('vibingTitle').textContent=track?.title||'Unknown';
-  document.getElementById('vibingArtist').textContent=track?.artist||'Unknown';
+  document.getElementById('vibingArtist').textContent=track?.artist||'Unknown';window.blastrLinkArtistEl&&blastrLinkArtistEl('vibingArtist',track);
   if(track?.cover_url) document.getElementById('vibingCover').innerHTML=`<img src="${esc(track.cover_url)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='♪'">`;
   const raw=track?.lyrics||'';
   state.vibingLyrics=parseLyricRaw(raw);
@@ -6563,7 +6567,7 @@ function zenUpdateArtEnv(track) {
   img.src = track.cover_url;
   if (sideImg) sideImg.src = track.cover_url;
   if (document.getElementById('zenSideTitle')) document.getElementById('zenSideTitle').textContent = track.title || '—';
-  if (document.getElementById('zenSideArtist')) document.getElementById('zenSideArtist').textContent = track.artist || '—';
+  if (document.getElementById('zenSideArtist')) document.getElementById('zenSideArtist').textContent = track.artist || '—'; window.blastrLinkArtistEl&&blastrLinkArtistEl('zenSideArtist',track);
   img.onload = () => env.classList.add('visible');
   // Extract dominant accent from art
   zenExtractAccent(track.cover_url);
@@ -14571,5 +14575,358 @@ if(L===null)setTimeout(()=>{if(document.hidden)return;const t=[];let last=0;
  requestAnimationFrame(f)},4000);
 })();
 </script>
+<style id="albumCss">
+.artist-link{cursor:pointer}
+.artist-link:hover{color:var(--accent2)!important;text-decoration:underline}
+.al-card{display:grid;grid-template-columns:140px 1fr;gap:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-bottom:14px;transition:box-shadow .3s,border-color .3s}
+.al-card.flash{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(0,198,255,.35)}
+.al-cover{width:140px;height:140px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:42px}
+.al-cover img{width:100%;height:100%;object-fit:cover}
+.al-badge{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--accent2)}
+.al-title{font-size:20px;font-weight:800;margin:2px 0}
+.al-sub{font-size:11px;color:var(--dim);font-family:var(--mono);margin-bottom:10px}
+.al-btns{display:flex;flex-wrap:wrap;gap:8px}
+.al-btns button{padding:7px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-family:var(--mono);font-size:11px;cursor:pointer}
+.al-btns button:first-child{background:var(--accent);color:#000;border-color:transparent;font-weight:700}
+.al-btns button.on{background:rgba(0,198,255,.18);color:var(--accent2);border-color:var(--accent2)}
+.al-tracks{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.06);padding-top:6px}
+.al-trow{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:8px;cursor:pointer;font-size:13px}
+.al-trow:hover{background:rgba(255,255,255,.06)}
+.al-trow span:first-child{width:22px;color:var(--dim);font-family:var(--mono);font-size:11px}
+.al-trow span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al-tg{font-family:var(--mono);font-size:9px;color:var(--dim)}
+.al-modal{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px}
+.al-modal.open{display:flex}
+.al-modal-box{position:relative;background:var(--bg,#0b0b12);border:1px solid rgba(255,255,255,.1);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:16px}
+.al-modal-x{position:absolute;top:8px;right:10px;background:none;border:0;color:inherit;font-size:18px;cursor:pointer;z-index:2}
+.al-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px;margin-bottom:8px}
+.al-row-top{display:flex;gap:8px;align-items:center}
+.al-row-top .admin-input{margin:0;flex:1}
+.al-num{font-family:var(--mono);color:var(--dim);font-size:11px;width:20px}
+.al-x{background:none;border:0;color:#ff5c5c;cursor:pointer;font-size:16px}
+.al-row-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin:4px 0 0 28px}
+.al-row-opts{display:flex;gap:8px;margin:6px 0 0 28px;flex-wrap:wrap}
+.al-row-opts .admin-select,.al-row-opts .admin-file-btn{margin:0;flex:1;min-width:150px}
+@media(max-width:600px){.al-card{grid-template-columns:96px 1fr}.al-cover{width:96px;height:96px;font-size:30px}.al-title{font-size:16px}}
+</style>
+<script>
+(function(){
+'use strict';
+const GENRES=['Pop','Hip-Hop','Rap','R&B','Electronic','Rock','Jazz','Classical','Afrobeats','Gospel','Latin','Country','Indie','Urbantone','Errie'];
+const $=id=>document.getElementById(id);
+const ALB={}, REP={};
+const AL={rows:[],cover:null,artistId:null,unify:false,busy:false};
+let artistTimer=null;
+
+/* ── data ── */
+async function getAlbums(q){
+  let u='/rest/v1/albums?select=*&order=created_at.desc&limit=24';
+  if(q){const e=encodeURIComponent(q);u+=`&or=(title.ilike.*${e}*,artist.ilike.*${e}*)`;}
+  const d=await sbFetch(u);return Array.isArray(d)?d:[];
+}
+async function albumTracks(ids){
+  if(!ids.length)return {};
+  const d=await sbFetch(`/rest/v1/tracks?select=*&album_id=in.(${ids.join(',')})&order=track_number.asc.nullslast,id.asc`);
+  const m={};ids.forEach(i=>m[i]=[]);
+  (Array.isArray(d)?d:[]).forEach(t=>{(m[t.album_id]=m[t.album_id]||[]).push(t);});
+  return m;
+}
+async function artistById(id){
+  const d=await sbFetch(`/rest/v1/artists?select=*&id=eq.${encodeURIComponent(id)}`,{cache:true,cacheTtl:120000});
+  return Array.isArray(d)?d[0]:null;
+}
+
+/* ── clickable artist names ── */
+function closeOverlays(){
+  try{if(state.inZen&&typeof toggleZen==='function')toggleZen();}catch(e){}
+  try{if(state.inVibing&&typeof toggleVibing==='function')toggleVibing();}catch(e){}
+  $('albumModal')?.classList.remove('open');
+}
+window.openArtistById=async function(id){
+  closeOverlays();
+  const a=await artistById(id);
+  if(a)openArtistProfile(a);else showToast('ARTIST','No Blastr profile found for this artist.');
+};
+window.blastrLinkArtistEl=function(elId,t){
+  const e=$(elId);if(!e)return;
+  if(t&&t.artist_id){e.classList.add('artist-link');e.dataset.artistId=t.artist_id;}
+  else{e.classList.remove('artist-link');delete e.dataset.artistId;}
+};
+document.addEventListener('click',function(e){
+  const el=e.target.closest&&e.target.closest('.artist-link[data-artist-id]');
+  if(!el)return;
+  e.preventDefault();e.stopPropagation();
+  openArtistById(el.dataset.artistId);
+},true);
+
+/* ── shared album card ── */
+function cardHTML(a,tracks){
+  const id=esc(a.id),on=!!REP[a.id];
+  const who=a.artist?(a.artist_id?`<span class="artist-link" data-artist-id="${esc(a.artist_id)}">${esc(a.artist)}</span>`:esc(a.artist)):'';
+  return `<div class="al-card" id="alb_${id}">
+    <div class="al-cover">${a.cover_url?`<img decoding="async" loading="lazy" src="${esc(a.cover_url)}">`:'💿'}</div>
+    <div>
+      <div class="al-badge">ALBUM${a.unify?' · UNIFIED':''}</div>
+      <div class="al-title">${esc(a.title)}</div>
+      <div class="al-sub">${who}${a.genre?' · '+esc(a.genre):''} · ${tracks.length} song${tracks.length===1?'':'s'}</div>
+      <div class="al-btns">
+        <button onclick="albumPlay('${id}',false)">▶ PLAY</button>
+        <button onclick="albumPlay('${id}',true)">⇌ SHUFFLE</button>
+        <button class="${on?'on':''}" data-rep="${id}" onclick="albumToggleRepeat('${id}')">⟲ REPEAT: ${on?'ON':'OFF'}</button>
+      </div>
+    </div>
+    <div class="al-tracks">${tracks.length?tracks.map((t,i)=>`<div class="al-trow" onclick="albumPlayFrom('${id}',${i})"><span>${i+1}</span><span>${esc(t.title)}</span><span class="al-tg">${esc(t.genre||'')}</span></div>`).join(''):'<div class="al-sub" style="padding:8px">No songs in this album yet.</div>'}</div>
+  </div>`;
+}
+function startPlay(id,list,from){
+  if(!list.length)return;
+  try{if(state.isRepeat){state.isRepeat=false;audio.loop=false;$('btnRepeat')?.classList.remove('active');}}catch(e){}
+  document.getElementById('plRepeatBtn')?.classList.remove('active');
+  state.queue=list.slice(from+1);
+  state.playlistRepeatQueue=REP[id]?list.slice():null;
+  state.__albumId=id;state.__albumList=list.slice();
+  initiateHandshake(list[from]);
+}
+window.albumPlay=function(id,shuffle){
+  const d=ALB[id];if(!d||!d.tracks.length)return;
+  const l=d.tracks.slice();
+  if(shuffle)for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]];}
+  startPlay(id,l,0);
+  showToast(shuffle?'ALBUM SHUFFLE':'ALBUM',d.album.title,REP[id]?'Repeat on':'');
+};
+window.albumPlayFrom=function(id,i){const d=ALB[id];if(d)startPlay(id,d.tracks,i);};
+window.albumToggleRepeat=function(id){
+  REP[id]=!REP[id];
+  document.querySelectorAll(`[data-rep="${id}"]`).forEach(b=>{b.classList.toggle('on',REP[id]);b.textContent='⟲ REPEAT: '+(REP[id]?'ON':'OFF');});
+  if(state.__albumId===id)state.playlistRepeatQueue=REP[id]?(state.__albumList||[]).slice():null;
+  else showToast('ALBUM REPEAT',REP[id]?'ON — press Play':'OFF');
+};
+
+/* ── artist profile: albums section ── */
+async function renderArtistAlbums(artistId){
+  const sec=$('artistAlbumsSection'),list=$('artistAlbumsList');if(!sec||!list)return;
+  const albums=await sbFetch(`/rest/v1/albums?select=*&artist_id=eq.${encodeURIComponent(artistId)}&order=created_at.desc`);
+  if(!Array.isArray(albums)||!albums.length){sec.style.display='none';return;}
+  const tm=await albumTracks(albums.map(a=>a.id));
+  albums.forEach(a=>{ALB[a.id]={album:a,tracks:tm[a.id]||[]};});
+  list.innerHTML=albums.map(a=>cardHTML(a,tm[a.id]||[])).join('');
+  sec.style.display='';
+  if(window.__albumFocus){
+    const el=$('alb_'+window.__albumFocus);window.__albumFocus=null;
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2200);}
+  }
+}
+const _oap=window.openArtistProfile;
+window.openArtistProfile=async function(artist){
+  const s=$('artistAlbumsSection');if(s)s.style.display='none';
+  const r=await _oap.apply(this,arguments);
+  try{if(artist&&artist.id)await renderArtistAlbums(artist.id);}catch(e){console.warn('[albums]',e);}
+  return r;
+};
+
+/* ── open an album (home / search) ── */
+window.openAlbum=async function(a){
+  try{closeSearch();}catch(e){}
+  if(a.artist_id){
+    const ar=await artistById(a.artist_id);
+    if(ar){closeOverlays();window.__albumFocus=a.id;return openArtistProfile(ar);}
+  }
+  const tm=await albumTracks([a.id]);
+  ALB[a.id]={album:a,tracks:tm[a.id]||[]};
+  let m=$('albumModal');
+  if(!m){
+    m=document.createElement('div');m.id='albumModal';m.className='al-modal';
+    m.innerHTML='<div class="al-modal-box"><button class="al-modal-x" onclick="document.getElementById(\'albumModal\').classList.remove(\'open\')">✕</button><div id="albumModalBody"></div></div>';
+    m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+    document.body.appendChild(m);
+  }
+  $('albumModalBody').innerHTML=cardHTML(a,ALB[a.id].tracks);
+  m.classList.add('open');
+};
+
+/* ── home row ── */
+function tileHTML(a,i){
+  const ac=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'],c=ac[i%ac.length];
+  const who=a.artist?(a.artist_id?`<span class="artist-link" data-artist-id="${esc(a.artist_id)}">${esc(a.artist)}</span>`:esc(a.artist)):'';
+  return `<div class="song-tile" onclick="openAlbum(${jsonAttr(a)})">
+    <div class="tile-cover" style="background:linear-gradient(135deg,${c}22,${c}08)"><span class="pl-tile-badge">ALBUM</span>${a.cover_url?`<img decoding="async" loading="lazy" src="${esc(a.cover_url)}">`:`<span style="color:${c}">💿</span>`}</div>
+    <div class="tile-info"><div class="tile-title">${esc(a.title)}</div><div class="tile-artist">${who}${a.genre?' · '+esc(a.genre):''}</div></div>
+  </div>`;
+}
+async function loadAlbumsRow(){
+  const w=$('albumsRow');if(!w)return;
+  const albums=await getAlbums('');
+  if(!albums.length){w.innerHTML='';return;}
+  w.innerHTML=`<div class="songs-section"><div class="section-header"><div class="section-name">Albums</div></div><div class="song-grid">${albums.slice(0,12).map(tileHTML).join('')}</div></div>`;
+}
+const _lh=window.loadHomeContent;
+window.loadHomeContent=async function(){
+  const r=await _lh.apply(this,arguments);
+  loadAlbumsRow().catch(()=>{});
+  return r;
+};
+
+/* ── search ── */
+const _rs=window.runSearch;
+window.runSearch=async function(q){
+  const pa=getAlbums(q).catch(()=>[]);
+  const r=await _rs.apply(this,arguments);
+  const albums=await pa;
+  if(!albums.length)return r;
+  const si=$('searchInput'),dd=$('searchDropdown');
+  if(!si||!dd||si.value.trim()!==String(q).trim()||!dd.classList.contains('open'))return r;
+  dd.querySelectorAll('.al-sec').forEach(n=>n.remove());
+  if(!dd.querySelector('.search-row,.search-artist-row')&&/No results/.test(dd.textContent))dd.innerHTML='';
+  const html=`<div class="search-section-label al-sec">ALBUMS</div>`+albums.slice(0,4).map(a=>`
+    <div class="search-artist-row al-sec" onclick="openAlbum(${jsonAttr(a)})">
+      <div class="search-artist-avatar" style="border-radius:8px">${a.cover_url?`<img decoding="async" src="${esc(a.cover_url)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`:'💿'}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">${esc(a.title)}</div>
+      <div style="font-size:10px;color:var(--dim);font-family:var(--mono)">ALBUM · ${esc(a.artist||'')}${a.genre?' · '+esc(a.genre):''}</div></div>
+    </div>`).join('');
+  const lbl=[...dd.querySelectorAll('.search-section-label:not(.al-sec)')].find(l=>/PLAYLISTS|TRACKS|GLOBAL CATALOG/.test(l.textContent));
+  if(lbl)lbl.insertAdjacentHTML('beforebegin',html);
+  else if(dd.querySelector('.search-section-label'))dd.insertAdjacentHTML('beforeend',html);
+  else dd.insertAdjacentHTML('afterbegin',html);
+  return r;
+};
+
+/* ── admin: upload album ── */
+function genreOpts(sel,blank){return `<option value="">${blank}</option>`+GENRES.map(g=>`<option${g===sel?' selected':''}>${g}</option>`).join('');}
+function sync(){AL.rows.forEach((r,i)=>{const t=$('alT'+i),g=$('alG'+i);if(t)r.title=t.value;if(g)r.genre=g.value;});}
+function renderRows(){
+  $('alRows').innerHTML=AL.rows.map((r,i)=>`<div class="al-row">
+    <div class="al-row-top"><span class="al-num">${i+1}</span><input class="admin-input" id="alT${i}" value="${esc(r.title)}" placeholder="Song title"><button class="al-x" onclick="albumRemoveRow(${i})">✕</button></div>
+    <div class="al-row-sub">🎵 ${esc(r.audio.name)}</div>
+    ${AL.unify?'':`<div class="al-row-opts"><select class="admin-select" id="alG${i}">${genreOpts(r.genre,'Genre: same as album')}</select><button class="admin-file-btn${r.cover?' loaded':''}" onclick="albumPickRowCover(${i})">${r.cover?'✓ '+esc(r.cover.name):'⬆ Own cover (optional)'}</button></div>`}
+  </div>`).join('')||'<div class="al-sub" style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:6px">NO SONGS YET — ADD AUDIO FILES BELOW</div>';
+}
+function pickFile(accept,multiple,cb){
+  const i=document.createElement('input');i.type='file';i.accept=accept;i.multiple=!!multiple;
+  i.onchange=()=>{if(i.files&&i.files.length)cb([...i.files]);};i.click();
+}
+window.albumPickCover=function(){pickFile('image/*',false,([f])=>{AL.cover=f;const b=$('alCoverBtn');b.textContent='✓ '+f.name;b.classList.add('loaded');});};
+window.albumPickRowCover=function(i){pickFile('image/*',false,([f])=>{sync();AL.rows[i].cover=f;renderRows();});};
+window.albumAddSongs=function(){pickFile('audio/*',true,files=>{sync();files.forEach(f=>AL.rows.push({audio:f,cover:null,genre:'',title:f.name.replace(/\.[^.]+$/,'').replace(/[_]+/g,' ').trim()}));renderRows();});};
+window.albumRemoveRow=function(i){sync();AL.rows.splice(i,1);renderRows();};
+window.albumToggleUnify=function(){
+  sync();AL.unify=!AL.unify;
+  $('alUnify').classList.toggle('on',AL.unify);$('alUnifyCheck').textContent=AL.unify?'✓':'';
+  $('alUnifyLabel').textContent=AL.unify?'✓ UNIFY DATA ON — every song uses the album genre & cover':'UNIFY DATA — make every song use the album genre & cover (titles stay different)';
+  renderRows();
+};
+window.albumArtistSearch=function(val){
+  AL.artistId=null;clearTimeout(artistTimer);
+  const res=$('alArtistResults');
+  if(val.trim().length<2){res.classList.remove('open');return;}
+  artistTimer=setTimeout(async()=>{
+    const l=await getArtists(val.trim());
+    if(!l.length){res.classList.remove('open');return;}
+    res.innerHTML=artistTypeaheadRows(l,'albumPickArtist');res.classList.add('open');
+  },220);
+};
+window.albumPickArtist=function(a){AL.artistId=a.id;$('alArtist').value=a.name;$('alArtistResults').classList.remove('open');};
+function renderForm(){
+  const w=$('smTabAlbum');if(!w)return;
+  if(!w.dataset.ready){
+    w.dataset.ready='1';
+    w.innerHTML=`<div class="admin-grid"><div class="admin-card" style="grid-column:1/-1">
+      <div class="admin-card-title">💿 UPLOAD ALBUM</div>
+      <input type="text" class="admin-input" id="alName" placeholder="Album Name">
+      <div style="position:relative"><input type="text" class="admin-input" id="alArtist" placeholder="Artist Name (select a Blastr artist to link their profile)" autocomplete="off" oninput="albumArtistSearch(this.value)"><div class="am-track-results" id="alArtistResults"></div></div>
+      <select class="admin-select" id="alGenre">${genreOpts('','SELECT ALBUM GENRE...')}</select>
+      <select class="admin-select" id="alCountry"></select>
+      <select class="admin-select" id="alLanguage"></select>
+      <button class="admin-file-btn" id="alCoverBtn" onclick="albumPickCover()">⬆ LOAD_ALBUM_COVER: click to select image</button>
+      <div class="verify-toggle" id="alUnify" onclick="albumToggleUnify()"><div class="check" id="alUnifyCheck"></div><span id="alUnifyLabel">UNIFY DATA — make every song use the album genre & cover (titles stay different)</span></div>
+      <div class="admin-card-title" style="margin-top:14px">TRACKLIST</div>
+      <div id="alRows"></div>
+      <button class="admin-file-btn" onclick="albumAddSongs()">＋ ADD SONGS (select one or many audio files)</button>
+      <div id="alStatus" style="font-family:var(--mono);font-size:11px;color:var(--dim);margin:8px 0"></div>
+      <button class="btn-blast" id="alSubmit" onclick="albumSubmit()">EXECUTE_ALBUM_BLAST()</button>
+    </div></div>`;
+    renderRows();
+  }
+  [['alCountry','adminCountry'],['alLanguage','adminLanguage']].forEach(([to,from])=>{
+    const t=$(to),f=$(from);if(t&&f&&t.options.length<2&&f.options.length>1)t.innerHTML=f.innerHTML;
+  });
+}
+async function exactArtistId(name){
+  try{const l=await getArtists(name);const m=l.find(a=>(a.name||'').toLowerCase()===name.toLowerCase());return m?m.id:null;}catch(e){return null;}
+}
+window.albumSubmit=async function(){
+  if(AL.busy)return;sync();
+  const title=$('alName').value.trim(),artist=$('alArtist').value.trim(),genre=$('alGenre').value,country=$('alCountry').value,language=$('alLanguage').value;
+  if(!title||!artist||!genre)return showToast('ERROR','Album name, artist and genre are required.');
+  if(!country||!language)return showToast('ERROR','Country of origin and Language are required.');
+  if(!AL.cover)return showToast('ERROR','Album cover is required.');
+  if(!AL.rows.length)return showToast('ERROR','Add at least one song.');
+  if(AL.rows.some(r=>!r.title.trim()))return showToast('ERROR','Every song needs a title.');
+  AL.busy=true;const btn=$('alSubmit'),st=$('alStatus');btn.disabled=true;btn.textContent='EXECUTING...';
+  const made=[];let albumRow=null;
+  const up=async(bucket,name,file,label)=>{
+    const u=await blastrUploadStorageFile(bucket,blastrNormalizeObjectName(name,blastrCleanFileStem(title)),file,{fallbackBase:name.replace(/\.[^.]+$/,''),reason:label});
+    made.push(u);return u;
+  };
+  try{
+    const stem=blastrCleanFileStem(title);
+    st.textContent='UPLOADING ALBUM COVER...';
+    const cov=await up('covers',`${stem}-album-cover.${blastrGuessExtension(AL.cover,'png')}`,AL.cover,'uploading the album cover');
+    const artistId=AL.artistId||await exactArtistId(artist);
+    const ins=await sbFetch('/rest/v1/albums',{method:'POST',headers:{Prefer:'return=representation'},body:{title,artist,artist_id:artistId,genre,country,language,cover_url:cov.url,unify:AL.unify}});
+    albumRow=Array.isArray(ins)?ins[0]:ins;
+    if(!albumRow||!albumRow.id)throw new Error('Album insert failed — run blastr_albums.sql in Supabase first.');
+    let ok=0,fail=0;
+    for(let i=0;i<AL.rows.length;i++){
+      const r=AL.rows[i],ts=blastrCleanFileStem(r.title)||('track'+(i+1)),mine=[];
+      st.textContent=`UPLOADING SONG ${i+1}/${AL.rows.length}: ${r.title}`;
+      try{
+        const aud=await up('songs',`${stem}-${i+1}-${ts}-audio.${blastrGuessExtension(r.audio,'mp3')}`,r.audio,'uploading a song');mine.push(aud);
+        let coverUrl=cov.url;
+        if(!AL.unify&&r.cover){const c=await up('covers',`${stem}-${i+1}-${ts}-cover.${blastrGuessExtension(r.cover,'png')}`,r.cover,'uploading a song cover');mine.push(c);coverUrl=c.url;}
+        const row=await sbFetch('/rest/v1/tracks',{method:'POST',headers:{Prefer:'return=representation'},body:{
+          title:r.title.trim(),artist,artist_id:artistId,description:'',genre:AL.unify?genre:(r.genre||genre),country,language,
+          url:aud.url,cover_url:coverUrl,is_verified:false,album_id:albumRow.id,track_number:i+1}});
+        if(!row||(Array.isArray(row)&&!row.length))throw new Error('track insert failed');
+        ok++;
+      }catch(e){
+        console.error('[album track]',e);fail++;
+        for(const u of mine){if(u?.bucket&&u?.objectName)await blastrDeleteStorageObject(u.bucket,u.objectName).catch(()=>{});}
+      }
+    }
+    if(!ok){
+      await sbFetch(`/rest/v1/albums?id=eq.${albumRow.id}`,{method:'DELETE'});
+      if(cov?.bucket)await blastrDeleteStorageObject(cov.bucket,cov.objectName).catch(()=>{});
+      throw new Error('No songs could be uploaded.');
+    }
+    showToast(fail?'ALBUM PARTIAL':'ALBUM LIVE!',`"${title}" — ${ok} song${ok===1?'':'s'} uploaded${fail?`, ${fail} failed`:''}`);
+    st.textContent=fail?`DONE — ${fail} song(s) failed; re-upload them as single tracks.`:'';
+    if(!fail){
+      AL.rows=[];AL.cover=null;AL.artistId=null;if(AL.unify)albumToggleUnify();
+      ['alName','alArtist'].forEach(i=>$(i).value='');$('alGenre').value='';$('alCountry').value='';$('alLanguage').value='';
+      const b=$('alCoverBtn');b.textContent='⬆ LOAD_ALBUM_COVER: click to select image';b.classList.remove('loaded');renderRows();
+    }
+    try{loadAdminTracks();}catch(e){}
+    try{loadHomeContent();}catch(e){}
+  }catch(e){
+    console.error('[ALBUM UPLOAD]',e);
+    if(!albumRow){for(const u of made){if(u?.bucket&&u?.objectName)await blastrDeleteStorageObject(u.bucket,u.objectName).catch(()=>{});}}
+    st.textContent='';
+    showToast('ALBUM FAILED',String(e?.message||e));
+  }finally{AL.busy=false;btn.disabled=false;btn.textContent='EXECUTE_ALBUM_BLAST()';}
+};
+
+/* ── admin tab wiring ── */
+const _sm=window.smShowTab;
+window.smShowTab=function(tab){
+  const r=_sm.apply(this,arguments);
+  const p=$('smTabAlbum');
+  if(p){p.style.display=tab==='album'?'':'none';if(tab==='album')renderForm();}
+  return r;
+};
+const _bt=window.baTab;
+if(_bt)window.baTab=function(){const p=$('smTabAlbum');if(p)p.style.display='none';return _bt.apply(this,arguments);};
+})();
+</script>
+
 </body>
-</html>s
+</html>
