@@ -3288,6 +3288,25 @@ body.light .search-input{color:var(--text)}
   .artist-info-flex{flex-wrap:wrap}
   .artist-phone-wrap{display:none}
 }
+/* v80 viral landscape frame + video controls */
+.artist-viral{margin-top:22px;width:100%;max-width:640px;border-radius:16px;padding:8px 8px 10px;background:linear-gradient(160deg,#1a1a26,#07070c 70%);box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.07) inset,0 0 80px rgba(255,92,92,.10)}
+.viral-bar{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:1.8px;color:rgba(255,255,255,.55);padding:2px 6px 8px}
+.viral-dot{width:7px;height:7px;border-radius:50%;background:#ff5c5c;box-shadow:0 0 10px #ff5c5c;animation:viralPulse 1.6s ease-in-out infinite}
+.viral-live{margin-left:auto;color:#ff5c5c}
+@keyframes viralPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.viral-screen{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#050509}
+.viral-video,.viral-iframe{width:100%;height:100%;object-fit:cover;border:0;display:block;background:#050509}
+.viral-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:linear-gradient(160deg,rgba(255,92,92,.12),rgba(8,8,20,.9))}
+.vctl{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;gap:34px;opacity:0;transition:opacity .2s;background:linear-gradient(transparent 45%,rgba(0,0,0,.5));pointer-events:none}
+.vctl-btn{pointer-events:auto;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(10,10,20,.55);color:#fff;backdrop-filter:blur(6px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.vctl-btn:hover{transform:scale(1.1);background:rgba(255,92,92,.55)}
+.vmute{position:absolute;right:10px;bottom:10px;z-index:6;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(10,10,20,.6);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:.85;transition:opacity .2s,transform .15s}
+.vmute:hover{opacity:1;transform:scale(1.08)}
+.viral-screen:hover .vctl,.artist-phone-screen:hover .vctl,.vctl.show{opacity:1}
+.artist-phone-screen .vctl{gap:16px}
+.artist-phone-screen .vctl-btn{width:38px;height:38px}
+[data-kind="iframe"] .vctl,[data-kind="iframe"] .vmute,[data-kind="none"] .vctl,[data-kind="none"] .vmute{display:none}
+@media(max-width:700px){.artist-viral{margin-top:16px}}
 /* Section headers */
 .artist-section-title{font-size:20px;font-weight:800;letter-spacing:.2px;margin:28px 0 14px;color:#fff}
 /* Popular track rows */
@@ -3955,6 +3974,7 @@ body.light .search-input{color:var(--text)}
               <button class="btn-play-big" id="profPlayBtn" onclick="playCurrentProfile()">▶ PLAY</button>
               <button class="btn-outline" onclick="likeCurrentProfile()">♡ LIKE</button>
               <button class="btn-outline" onclick="queueCurrentProfile()">⊕ QUEUE</button>
+              <button class="btn-outline" onclick="playNextCurrentProfile()">⏭ PLAY NEXT</button>
             </div>
           </div>
         </div>
@@ -3997,6 +4017,16 @@ body.light .search-input{color:var(--text)}
               </button>
               <button class="legend-candle-btn" id="legendCandleBtn" onclick="legendLightCandle()" style="display:none">🕯 LIGHT A CANDLE · <span id="legendCandleCount">0</span></button>
             </div>
+          <div class="artist-viral" id="artistViral">
+            <div class="viral-bar"><span class="viral-dot"></span>THE MOMENT IT WENT VIRAL<span class="viral-live">● LIVE</span></div>
+            <div class="viral-screen" id="artistViralScreen">
+              <video id="artistViralVideo" class="viral-video" autoplay muted loop playsinline preload="auto" style="display:none"></video>
+              <iframe id="artistViralIframe" class="viral-iframe" style="display:none" frameborder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+              <div class="viral-ph" id="artistViralPh"><div class="artist-phone-ph-icon">▶</div><div class="artist-phone-ph-text">VIRAL MOMENT<br>COMING SOON</div></div>
+              <div class="vctl"><button type="button" class="vctl-btn" data-act="rew" title="Rewind 10s"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg></button><button type="button" class="vctl-btn" data-act="fwd" title="Forward 10s"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button></div>
+<button type="button" class="vmute" data-act="mute" title="Sound on/off"></button>
+            </div>
+          </div>
           </div>
           <div class="artist-phone-wrap" id="artistPhoneWrap">
             <div class="artist-phone">
@@ -4008,6 +4038,8 @@ body.light .search-input{color:var(--text)}
                   <div class="artist-phone-ph-icon">♪</div>
                   <div class="artist-phone-ph-text">FEATURED VIDEO<br>COMING SOON</div>
                 </div>
+                <div class="vctl"><button type="button" class="vctl-btn" data-act="rew" title="Rewind 10s"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg></button><button type="button" class="vctl-btn" data-act="fwd" title="Forward 10s"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button></div>
+<button type="button" class="vmute" data-act="mute" title="Sound on/off"></button>
                 <div class="artist-phone-sheen"></div>
               </div>
             </div>
@@ -4149,6 +4181,8 @@ body.light .search-input{color:var(--text)}
               <option>Classical</option><option>Afrobeats</option><option>Gospel</option>
               <option>Latin</option><option>Country</option><option>Indie</option>
             </select>
+            <select class="admin-select" id="adminCountry"></select>
+            <select class="admin-select" id="adminLanguage"></select>
             <div class="admin-emotions-label" style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:5px">SELECT MOOD(S) — CLICK TO TOGGLE</div>
             <div id="adminEmotions" class="emotion-pills"></div>
             <button class="admin-file-btn" id="btnAudio" onclick="selectAdminFile('audio')" ondragover="blastrDragOver(event)" ondragleave="blastrDragLeave(event)" ondrop="blastrDrop(event,'admin','audio',null)">⬆ LOAD_AUDIO: click or drop MP3</button>
@@ -4246,6 +4280,14 @@ body.light .search-input{color:var(--text)}
                   </select>
                 </div>
                 <div class="es-field">
+                  <label class="es-label">COUNTRY OF ORIGIN</label>
+                  <select class="es-select" id="esCountry"></select>
+                </div>
+                <div class="es-field">
+                  <label class="es-label">LANGUAGE</label>
+                  <select class="es-select" id="esLanguage"></select>
+                </div>
+                <div class="es-field">
                   <label class="es-label">EMOTIONS — CLICK TO TOGGLE</label>
                   <div id="esEmotions" class="emotion-pills"></div>
                 </div>
@@ -4330,8 +4372,15 @@ body.light .search-input{color:var(--text)}
                 </div>
                 <div class="am-field">
                   <label class="am-label">FEATURED VIDEO URL</label>
-                  <input type="text" class="am-input" id="amVideoUrl" placeholder="https://…/artist-promo.mp4">
+                  <input type="text" class="am-input" id="amVideoUrl" placeholder="https://res.cloudinary.com/…/artist-promo.mp4">
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:6px"><button type="button" class="btn-outline" onclick="amCldPick('amVideoUrl')">⬆ UPLOAD TO CLOUDINARY</button><span id="amVideoUrlStatus" style="font-family:var(--mono);font-size:10px;color:var(--dim)"></span></div>
                   <div style="font-size:9px;color:var(--dim);font-family:var(--mono);margin-top:5px;line-height:1.5">Direct .mp4 files loop cleanest. TikTok / YouTube Shorts / Instagram Reels links also work via embed.</div>
+                </div>
+                <div class="am-field">
+                  <label class="am-label">VIRAL MOMENT VIDEO (LANDSCAPE FRAME)</label>
+                  <input type="text" class="am-input" id="amViralUrl" placeholder="https://res.cloudinary.com/…/viral-moment.mp4">
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:6px"><button type="button" class="btn-outline" onclick="amCldPick('amViralUrl')">⬆ UPLOAD TO CLOUDINARY</button><span id="amViralUrlStatus" style="font-family:var(--mono);font-size:10px;color:var(--dim)"></span></div>
+                  <div style="font-size:9px;color:var(--dim);font-family:var(--mono);margin-top:5px;line-height:1.5">The clip that made the song blow up (TikTok / Shorts moment). Compress to 720p, under ~30 MB, before uploading.</div>
                 </div>
                 <div class="am-verify" id="amVerifyToggle" onclick="amToggleVerify()" style="margin-top:10px">
                   <div class="am-verify-dot" id="amVerifyDot"></div>
@@ -6272,7 +6321,9 @@ function loadSongProfile(track) {
   document.getElementById('profArtist').textContent=track.artist||'Unknown';
   document.getElementById('profDesc').textContent=track.description||'No description available for this track.';
   const genreTag=[track.genre,track.source].filter(Boolean).join(' • ')||'GENRE • SOURCE';
-  document.getElementById('profGenreTag').textContent=genreTag;
+  {const _pt=document.getElementById('profGenreTag');_pt.textContent=genreTag;
+  const _cb=window.blastrOriginBadge?window.blastrOriginBadge(track):'';
+  if(_cb)_pt.insertAdjacentHTML('beforeend',' • '+_cb);}
   const cover=document.getElementById('profCover');
   cover.innerHTML=track.cover_url?`<img decoding="async" loading="lazy" src="${esc(track.cover_url)}">`:'♪';
   // Dynamic glow based on cover color
@@ -6790,9 +6841,15 @@ async function executeBlast() {
   const artist = document.getElementById('adminArtist').value.trim();
   const desc = document.getElementById('adminDesc').value.trim();
   const genre = document.getElementById('adminGenre').value;
+  const country = document.getElementById('adminCountry').value;
+  const language = document.getElementById('adminLanguage').value;
 
   if (!title || !artist || !genre) {
     showToast('ERROR', 'Title, Artist, and Genre are required.');
+    return;
+  }
+  if (!country || !language) {
+    showToast('ERROR', 'Country of origin and Language are required.');
     return;
   }
   if (!adminAudioFile || !adminImageFile) {
@@ -6835,6 +6892,8 @@ async function executeBlast() {
         artist_id: linkedArtistId,
         description: desc,
         genre,
+        country,
+        language,
         url: uploadedAudio.url,
         cover_url: uploadedCover.url,
         is_verified: pendingIsVerified
@@ -6855,6 +6914,8 @@ async function executeBlast() {
     ['adminTitle','adminArtist','adminDesc'].forEach(id => document.getElementById(id).value = '');
     upArtistId = null;
     document.getElementById('adminGenre').value = '';
+    document.getElementById('adminCountry').value = '';
+    document.getElementById('adminLanguage').value = '';
     populateEmotionSelect('adminEmotions');
     adminAudioFile = null;
     adminImageFile = null;
@@ -7402,6 +7463,221 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
 </script>
 
 <script>
+// ═══ BLASTR v80 — Cloudinary video upload + viral frame + video controls ═══
+(() => {
+  const CLD = { cloud: 'evbf5rjv', preset: 'blastr_videos' }; // unsigned upload preset; NEVER put the API secret in this file
+  const ICON_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+  const ICON_ON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+
+  // ── admin: direct browser → Cloudinary upload ──
+  window.amCldPick = function (inputId) {
+    const pick = document.createElement('input');
+    pick.type = 'file'; pick.accept = 'video/*';
+    pick.onchange = () => {
+      const file = pick.files && pick.files[0]; if (!file) return;
+      const st = document.getElementById(inputId + 'Status');
+      const say = (t, c) => { if (st) { st.textContent = t; st.style.color = c || 'var(--dim)'; } };
+      if (file.size > 100 * 1024 * 1024) { showToast('TOO BIG', 'Free plan max is 100 MB. Compress to 720p first.'); return; }
+      if (file.size > 30 * 1024 * 1024) showToast('HEADS UP', 'Large clip — compress it to save free bandwidth.');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLD.cloud}/video/upload`);
+      xhr.upload.onprogress = e => { if (e.lengthComputable) say('UPLOADING ' + Math.round(e.loaded / e.total * 100) + '%'); };
+      xhr.onload = () => {
+        let r = {}; try { r = JSON.parse(xhr.responseText); } catch {}
+        if (xhr.status < 300 && r.secure_url) {
+          document.getElementById(inputId).value = r.secure_url;
+          say('✓ UPLOADED — press SAVE', '#4ade80');
+        } else say('✗ ' + (r.error && r.error.message || 'Upload failed'), '#ff5c5c');
+      };
+      xhr.onerror = () => say('✗ Network error', '#ff5c5c');
+      const fd = new FormData(); fd.append('file', file); fd.append('upload_preset', CLD.preset);
+      say('UPLOADING 0%'); xhr.send(fd);
+    };
+    pick.click();
+  };
+
+  // ── shared controls: rewind / forward / mute (no pause, by design) ──
+  const setIcon = (btn, muted) => { if (btn) btn.innerHTML = muted ? ICON_OFF : ICON_ON; };
+  function bind(screen, video) {
+    if (!screen || !video || screen.__bound) return;
+    screen.__bound = true;
+    const mute = screen.querySelector('.vmute'), ctl = screen.querySelector('.vctl');
+    setIcon(mute, true);
+    screen.addEventListener('click', e => {
+      const b = e.target.closest('[data-act]');
+      if (!b) { if (ctl) { ctl.classList.add('show'); clearTimeout(ctl.__t); ctl.__t = setTimeout(() => ctl.classList.remove('show'), 2500); } return; }
+      const a = b.dataset.act, d = video.duration || 0;
+      if (a === 'rew') video.currentTime = Math.max(0, video.currentTime - 10);
+      else if (a === 'fwd') video.currentTime = d ? (video.currentTime + 10 >= d ? 0 : video.currentTime + 10) : video.currentTime;
+      else if (a === 'mute') { video.muted = !video.muted; setIcon(mute, video.muted); if (!video.muted && video.paused) video.play().catch(() => {}); }
+    });
+    // play only while on screen (saves free bandwidth when the page is hidden)
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(en => {
+      if (!video.getAttribute('src')) return;
+      if (en.isIntersecting) video.play().catch(() => {}); else video.pause();
+    }), { threshold: 0.15 }).observe(screen);
+  }
+  const cldPoster = u => /\/video\/upload\//.test(u || '') ? u.replace('/video/upload/', '/video/upload/so_0,w_960,q_auto/').replace(/\.[a-z0-9]+(\?.*)?$/i, '.jpg') : '';
+
+  function mount(screenId, vidId, ifrId, phId, url, fallbackPoster) {
+    const screen = document.getElementById(screenId), v = document.getElementById(vidId), f = document.getElementById(ifrId), ph = document.getElementById(phId);
+    if (!screen || !v) return;
+    bind(screen, v);
+    v.pause(); v.removeAttribute('src'); v.style.display = 'none';
+    if (f) { f.removeAttribute('src'); f.style.display = 'none'; }
+    if (ph) ph.style.display = 'flex';
+    v.muted = true; setIcon(screen.querySelector('.vmute'), true);
+    const embed = url ? blastrResolveVideoEmbed(url) : null;
+    screen.dataset.kind = embed ? embed.type : 'none';
+    if (!embed) return;
+    if (typeof blastrPreconnectOrigin === 'function') blastrPreconnectOrigin(url);
+    if (embed.type === 'video') {
+      v.poster = cldPoster(embed.src) || fallbackPoster || '';
+      v.onerror = () => { v.style.display = 'none'; if (ph) ph.style.display = 'flex'; screen.dataset.kind = 'none'; };
+      v.src = embed.src; v.style.display = 'block'; if (ph) ph.style.display = 'none';
+      v.load(); v.play().catch(() => {});
+    } else if (f) { f.src = embed.src; f.style.display = 'block'; if (ph) ph.style.display = 'none'; }
+  }
+
+  window.blastrArtistVideosOpen = async function (artist) {
+    if (!artist) return;
+    let a = artist;
+    if (a.viral_video_url === undefined && a.id) { try { const fr = await getArtistById(a.id); if (fr) a = fr; } catch {} }
+    // phone frame already mounted by openArtistProfile; add controls + reset sound state
+    const ps = document.querySelector('.artist-phone-screen'), pv = document.getElementById('artistPhoneVideo');
+    if (ps && pv) {
+      bind(ps, pv); pv.muted = true; setIcon(ps.querySelector('.vmute'), true);
+      const isVid = pv.style.display !== 'none' && pv.getAttribute('src');
+      const isIfr = document.getElementById('artistPhoneIframe').style.display !== 'none';
+      ps.dataset.kind = isVid ? 'video' : isIfr ? 'iframe' : 'none';
+    }
+    mount('artistViralScreen', 'artistViralVideo', 'artistViralIframe', 'artistViralPh', a.viral_video_url, a.banner_url || a.avatar_url);
+  };
+})();
+
+// ═══ BLASTR v79 — UNIFIED NEXT ENGINE: gospel lane + origin-aware ranking + Play Next ═══
+(() => {
+  const LS = 'blastr_taste_v79';
+  const N = v => String(v ?? '').toLowerCase().trim();
+  let T = { gospel: 0, streak: 0, lane: false, recent: [], picks: 0 };
+  try { Object.assign(T, JSON.parse(localStorage.getItem(LS)) || {}); } catch {}
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(T)); } catch {} };
+  const isGospel = t => N(t?.genre) === 'gospel';
+  const eligible = () => T.gospel >= 3;
+  const allowed = t => !isGospel(t) || eligible();
+  const emo = t => { try { const c = trackMoodClasses(t); return c ? [...c] : []; } catch { return []; } };
+
+  const COUNTRIES = 'KE:Kenya,NG:Nigeria,ZA:South Africa,GH:Ghana,TZ:Tanzania,UG:Uganda,ET:Ethiopia,EG:Egypt,MA:Morocco,SN:Senegal,CD:DR Congo,US:United States,CA:Canada,MX:Mexico,JM:Jamaica,BR:Brazil,AR:Argentina,CO:Colombia,CU:Cuba,PR:Puerto Rico,GB:United Kingdom,IE:Ireland,FR:France,DE:Germany,ES:Spain,IT:Italy,PT:Portugal,SE:Sweden,NL:Netherlands,RU:Russia,UA:Ukraine,TR:Turkey,IL:Israel,SA:Saudi Arabia,AE:UAE,IR:Iran,IN:India,PK:Pakistan,BD:Bangladesh,LK:Sri Lanka,CN:China,JP:Japan,KR:South Korea,TH:Thailand,ID:Indonesia,PH:Philippines,VN:Vietnam,AU:Australia,NZ:New Zealand'.split(',').map(s => s.split(':'));
+  const LANGS = 'English,Swahili,Sheng,Hindi,Tamil,Telugu,Punjabi,Bengali,Urdu,Yoruba,Igbo,Hausa,Pidgin,Zulu,Xhosa,Amharic,Lingala,French,Spanish,Portuguese,Arabic,Korean,Japanese,Mandarin,Turkish,Russian,German,Italian,Instrumental,Other'.split(',');
+  const cName = code => (COUNTRIES.find(c => c[0] === String(code || '').toUpperCase()) || [])[1] || '';
+
+  window.blastrOriginBadge = t => {
+    const code = String(t?.country || '').toUpperCase(), name = cName(code), lang = t?.language || '';
+    if (!name && !lang) return '';
+    const flag = name ? `<img src="https://flagcdn.com/20x15/${code.toLowerCase()}.png" alt="" style="width:18px;height:13px;border-radius:2px;vertical-align:-2px;margin-right:5px">` : '';
+    return `${flag}${name}${name && lang ? ' · ' : ''}${lang}`;
+  };
+
+  function fillSelects() {
+    const fill = (id, ph, opts) => {
+      const el = document.getElementById(id);
+      if (!el || el.options.length > 1) return;
+      el.innerHTML = `<option value="">${ph}</option>` + opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+    };
+    ['adminCountry', 'esCountry'].forEach(id => fill(id, id === 'adminCountry' ? 'SELECT COUNTRY OF ORIGIN...' : '— SELECT COUNTRY —', COUNTRIES));
+    ['adminLanguage', 'esLanguage'].forEach(id => fill(id, id === 'adminLanguage' ? 'SELECT LANGUAGE...' : '— SELECT LANGUAGE —', LANGS.map(l => [l, l])));
+  }
+  fillSelects();
+  document.addEventListener('DOMContentLoaded', fillSelects);
+
+  // ── taste + gospel lane tracking ──
+  let countedId = null;
+  const baseHandshake = window.initiateHandshake;
+  window.initiateHandshake = function (track) {
+    if (track) {
+      countedId = null;
+      T.recent.push({ l: N(track.language), c: N(track.country) });
+      if (T.recent.length > 12) T.recent.shift();
+      if (isGospel(track)) { T.streak = 0; if (eligible()) T.lane = true; }
+      else if (T.lane && ++T.streak >= 4) { T.lane = false; T.streak = 0; }
+      save();
+    }
+    return baseHandshake ? baseHandshake.apply(this, arguments) : undefined;
+  };
+  if (typeof audio !== 'undefined') audio.addEventListener('timeupdate', () => {
+    const t = state.currentTrack;
+    if (t && isGospel(t) && countedId !== t.id && audio.currentTime > 20) {
+      countedId = t.id; T.gospel++;
+      if (eligible()) { T.lane = true; T.streak = 0; }
+      save();
+    }
+  });
+
+  const aff = key => { const m = {}; T.recent.forEach(r => { if (r[key]) m[r[key]] = (m[r[key]] || 0) + 1; }); const n = T.recent.length || 1; return v => (m[v] || 0) / n; };
+
+  // genre 40 > artist 25 > emotion 20 > language 12 > country 8, + taste affinity for language/country
+  function score(cur, c, A) {
+    let s = 0;
+    if (cur?.genre && N(cur.genre) === N(c.genre)) s += 40;
+    if (cur?.artist && N(cur.artist) === N(c.artist)) s += 25;
+    const ce = emo(cur);
+    if (ce.length && emo(c).some(x => ce.includes(x))) s += 20;
+    const L = N(c.language), C = N(c.country);
+    if (L && L === N(cur?.language)) s += 12;
+    if (C && C === N(cur?.country)) s += 8;
+    s += A.l(L) * 20 + A.c(C) * 12;
+    if (state.favorites?.some(f => f?.id === c.id)) s += 8;
+    if (state._notRightNow?.has?.(c.id)) s -= 60;
+    const hi = (state.history || []).slice(-16).findIndex(t => t?.id === c.id);
+    if (hi >= 0) s -= Math.max(0, 18 - hi) * 2;
+    return s + Math.random() * 5;
+  }
+
+  function compute() {
+    const tracks = state.allTracks || [];
+    if (!tracks.length) return null;
+    const cur = state.currentTrack || null, mode = state.shuffleMode | 0;
+    let pool = tracks.filter(t => t?.id && t.id !== cur?.id && allowed(t));
+    if (T.lane) { const g = pool.filter(isGospel); if (g.length) pool = g; }
+    if (!pool.length) return null;
+    if (mode === 0) {
+      const ok = new Set(pool), idx = tracks.findIndex(t => t?.id === cur?.id);
+      for (let i = 1; i <= tracks.length; i++) { const t = tracks[(idx + i + tracks.length) % tracks.length]; if (ok.has(t)) return t; }
+      return pool[0];
+    }
+    if (mode === 1 && cur?.genre) { const g = pool.filter(t => N(t.genre) === N(cur.genre)); if (g.length) pool = g; }
+    const recent = new Set((state.history || []).slice(-10).map(t => t?.id));
+    const fresh = pool.filter(t => !recent.has(t.id)); if (fresh.length) pool = fresh;
+    const A = { l: aff('l'), c: aff('c') };
+    const ranked = pool.map(t => [t, score(cur, t, A)]).sort((a, b) => b[1] - a[1]);
+    // discovery slot: every 5th smart-mix pick steps outside the current genre (never inside the gospel lane)
+    if (mode === 2 && !T.lane && (T.picks + 1) % 5 === 0) {
+      const off = ranked.filter(([t]) => N(t.genre) !== N(cur?.genre));
+      if (off.length) return off[Math.floor(Math.random() * Math.min(4, off.length))][0];
+    }
+    return ranked[0][0];
+  }
+
+  // one decision shared by the "UP NEXT" toast and the real next track
+  let cache = null;
+  const sig = () => [state.currentTrack?.id, state.shuffleMode, (state.allTracks || []).length, T.lane, eligible()].join('|');
+  window.blastrPeekNext = () => {
+    if (state.queue?.length) return state.queue[0];
+    const s = sig();
+    if (!cache || cache.s !== s) cache = { s, t: compute() };
+    return cache.t;
+  };
+  window.blastrConsumeNext = () => { const t = window.blastrPeekNext(); cache = null; T.picks++; save(); return t; };
+
+  window.playNextTrack = t => {
+    if (!t) return;
+    state.queue = (state.queue || []).filter(q => q.id !== t.id);
+    state.queue.unshift(t); cache = null;
+    showToast('PLAY NEXT', t.title, 'Plays right after this song');
+  };
+  window.playNextCurrentProfile = () => window.playNextTrack(state.currentProfileTrack);
+})();
+
 (() => {
   const ORIGINALS = {
     getTracks: window.getTracks,
@@ -7656,6 +7932,7 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
 
   function predictNextTrack() {
     if (state?.queue?.length) return state.queue[0] || null;
+    if (window.blastrPeekNext) return window.blastrPeekNext();
     if (!state?.allTracks?.length) return null;
     const current = state.currentTrack || null;
     if (state.shuffleMode === 1) {
@@ -7757,6 +8034,8 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
       if (queued) initiateHandshake(queued);
       return;
     }
+
+    if (window.blastrConsumeNext) { const nx = window.blastrConsumeNext(); if (nx) { window.initiateHandshake(nx); return; } }
 
     const current = state.currentTrack || null;
     let next = null;
@@ -8084,6 +8363,7 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
 
   function predictNextTrack() {
     if (state?.queue?.length) return state.queue[0] || null;
+    if (window.blastrPeekNext) return window.blastrPeekNext();
     if (!state?.allTracks?.length) return null;
     const current = state.currentTrack || null;
     if (state.shuffleMode === 1) {
@@ -8208,6 +8488,8 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
       return;
     }
 
+    if (window.blastrConsumeNext) { const nx = window.blastrConsumeNext(); if (nx) { window.initiateHandshake(nx); return; } }
+
     const current = state.currentTrack || null;
     let next = null;
 
@@ -8280,9 +8562,7 @@ setInterval(()=>{ try { blastrUpdateTimeBasedCopy(); } catch(e){} }, 60000);
     applyZenTheme(state.currentTrack);
     if (audio) {
       audio.addEventListener('timeupdate', monitorUpNext);
-      audio.addEventListener('ended', () => {
-        if (!state.isRepeat) window.nextTrack();
-      });
+      // v79: duplicate 'ended' listener removed (it double-fired nextTrack and skipped songs)
     }
   });
 
@@ -10020,6 +10300,8 @@ window.SM = SM;
     esArtistIdSel = track.artist_id || null;
     document.getElementById('esDesc').value   = track.description || '';
     document.getElementById('esGenre').value  = track.genre || '';
+    document.getElementById('esCountry').value  = track.country || '';
+    document.getElementById('esLanguage').value = track.language || '';
     sbFetch(`/rest/v1/track_emotions?select=emotion_id&track_id=eq.${track.id}`)
       .then(rows => {
         const ids = (Array.isArray(rows)?rows:[]).map(r=>r.emotion_id);
@@ -10105,6 +10387,8 @@ window.SM = SM;
     const artist = document.getElementById('esArtist').value.trim();
     const desc   = document.getElementById('esDesc').value.trim();
     const genre  = document.getElementById('esGenre').value;
+    const country  = document.getElementById('esCountry').value;
+    const language = document.getElementById('esLanguage').value;
 
     if (!title || !artist) {
       showToast('ERROR', 'Title and Artist are required.');
@@ -10149,6 +10433,8 @@ window.SM = SM;
       if (artist !== (ES.track.artist      || '')) patch.artist      = artist;
       if (desc   !== (ES.track.description || '')) patch.description = desc;
       if (genre  !== (ES.track.genre       || '')) patch.genre       = genre;
+      if (country  !== (ES.track.country  || '')) patch.country  = country || null;
+      if (language !== (ES.track.language || '')) patch.language = language || null;
       if (ES.isVerified !== !!ES.track.is_verified) patch.is_verified = ES.isVerified;
       if (newCoverUrl) patch.cover_url = newCoverUrl;
 
@@ -10457,6 +10743,7 @@ window.openArtistProfile = async function(artist) {
     }
   }
 
+  if (window.blastrArtistVideosOpen) window.blastrArtistVideosOpen(artist);
   showPage('artist', document.getElementById('nav-artist'));
 
   // Load popular + discog in parallel
@@ -11141,7 +11428,7 @@ function amShowEditor() {
   document.getElementById('amEditorFields').style.display='block';
 }
 function amClearEditor() {
-  ['amName','amBio','amVideoUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['amName','amBio','amVideoUrl','amViralUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const g=document.getElementById('amGenre');if(g)g.value='';
   const b=document.getElementById('amBadge');if(b)b.value='';
   const ap=document.getElementById('amAvatarPreview');if(ap)ap.innerHTML='★';
@@ -11160,6 +11447,8 @@ function amPopulateEditor(a) {
   document.getElementById('amGenre').value = a.genre||'';
   document.getElementById('amBadge').value = a.badge||'';
   document.getElementById('amVideoUrl').value = a.featured_video_url||'';
+  document.getElementById('amViralUrl').value = a.viral_video_url||'';
+  ['amVideoUrlStatus','amViralUrlStatus'].forEach(i=>{const s=document.getElementById(i);if(s)s.textContent='';});
   document.getElementById('amPassedDate').value = a.passed_date||'';
   document.getElementById('amTributeLine').value = a.tribute_line||'';
   // Avatar preview
@@ -11411,6 +11700,7 @@ window.amSaveArtist=async function(){
       genre: document.getElementById('amGenre').value||null,
       badge: document.getElementById('amBadge').value||null,
       featured_video_url: document.getElementById('amVideoUrl').value.trim()||null,
+      viral_video_url: document.getElementById('amViralUrl').value.trim()||null,
       verified: AM.isVerified,
       is_legend: AM.isLegend,
       passed_date: document.getElementById('amPassedDate').value || null,
