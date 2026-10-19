@@ -14928,5 +14928,666 @@ if(_bt)window.baTab=function(){const p=$('smTabAlbum');if(p)p.style.display='non
 })();
 </script>
 
+<style id="johnAiCss">
+/* ═══ JOHN AI v1 ═══ */
+:root{--jn-w:410px}
+/* orb + logo animation states */
+.jn-orb{--s:46px;position:relative;width:var(--s);height:var(--s);flex-shrink:0;display:grid;place-items:center}
+.jn-orb .jn-logo{position:relative;z-index:2;width:80%;height:80%;animation:jnFloat 4s ease-in-out infinite}
+.jn-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--accent2);opacity:0;pointer-events:none}
+.jn-orb::before{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 55%,var(--accent) 80%,var(--accent2) 100%);-webkit-mask:radial-gradient(circle,transparent 64%,#000 66%);mask:radial-gradient(circle,transparent 64%,#000 66%);opacity:0;transition:opacity .3s;pointer-events:none}
+.jn-orb[data-s=think]::before,.jn-orb[data-s=search]::before,.jn-orb[data-s=build]::before{opacity:1;animation:jnSpin 1.2s linear infinite}
+.jn-orb[data-s=search]::before{animation-duration:.75s;background:conic-gradient(from 0deg,transparent 0 68%,var(--accent2) 100%)}
+.jn-orb[data-s=build]::before{background:conic-gradient(from 0deg,transparent 0 40%,var(--accent3) 75%,var(--accent4) 100%)}
+.jn-orb[data-s=think] .jn-logo{animation:jnBreath 1.5s ease-in-out infinite}
+.jn-orb[data-s=search] .jn-logo{animation:jnScan .9s ease-in-out infinite}
+.jn-orb[data-s=build] .jn-logo{animation:jnBreath 1s ease-in-out infinite}
+.jn-orb[data-s=listen] .jn-ring{animation:jnRipple 1.5s ease-out infinite;border-color:var(--accent3)}
+.jn-orb[data-s=search] .jn-ring{animation:jnRipple 1.1s ease-out infinite}
+.jn-orb[data-s=done] .jn-logo{animation:jnPop .7s cubic-bezier(.34,1.56,.64,1)}
+.jn-orb[data-s=done] .jn-ring.r1{animation:jnRipple .9s ease-out 1;border-color:var(--accent)}
+.jn-ring.r2{animation-delay:.45s!important}.jn-ring.r3{animation-delay:.9s!important}
+.jn-notes{position:absolute;inset:-16%;opacity:0;transition:opacity .3s;pointer-events:none}
+.jn-notes b{position:absolute;font-size:calc(var(--s)*.22);color:var(--accent4);text-shadow:0 0 10px var(--accent3)}
+.jn-notes b:nth-child(1){left:50%;top:0;transform:translate(-50%,-50%)}
+.jn-notes b:nth-child(2){right:0;top:50%;transform:translate(50%,-50%)}
+.jn-notes b:nth-child(3){left:50%;bottom:0;transform:translate(-50%,50%)}
+.jn-notes b:nth-child(4){left:0;top:50%;transform:translate(-50%,-50%)}
+.jn-orb[data-s=build] .jn-notes{opacity:1;animation:jnSpin 2.6s linear infinite}
+.jn-bars{position:absolute;bottom:-7px;display:flex;gap:2px;align-items:flex-end;height:calc(var(--s)*.22);opacity:0;transition:opacity .3s}
+.jn-bars u{width:3px;background:linear-gradient(var(--accent),var(--accent2));border-radius:2px;height:30%;animation:jnEq .7s ease-in-out infinite}
+.jn-bars u:nth-child(2){animation-delay:.12s}.jn-bars u:nth-child(3){animation-delay:.24s}.jn-bars u:nth-child(4){animation-delay:.36s}.jn-bars u:nth-child(5){animation-delay:.18s}
+.jn-orb[data-s=build] .jn-bars{opacity:1}
+.jn-logo{width:100%;height:100%}
+@keyframes jnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px) scale(1.03)}}
+@keyframes jnBreath{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
+@keyframes jnScan{0%,100%{transform:scale(.95) rotate(-6deg)}50%{transform:scale(1.1) rotate(6deg)}}
+@keyframes jnSpin{to{transform:rotate(360deg)}}
+@keyframes jnRipple{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+@keyframes jnPop{0%{transform:scale(.7)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+@keyframes jnEq{0%,100%{height:25%}50%{height:100%}}
+
+/* panel shell */
+#jnPanel{position:fixed;top:0;right:0;bottom:0;width:var(--jn-w);z-index:9000;display:flex;flex-direction:column;background:radial-gradient(120% 60% at 100% 0%,rgba(0,198,255,.10),transparent 60%),radial-gradient(90% 50% at 0% 100%,rgba(255,20,147,.07),transparent 60%),linear-gradient(180deg,rgba(13,13,28,.97),rgba(6,6,14,.985));border-left:1px solid rgba(255,255,255,.08);transform:translateX(104%);transition:transform .55s cubic-bezier(.22,1,.36,1);box-shadow:-30px 0 90px rgba(0,0,0,.6);font-family:var(--font);color:var(--text)}
+#jnPanel *{box-sizing:border-box}
+@media(min-width:900px){
+  #jnPanel{display:flex}
+  body.jn-open #appScreen{right:var(--jn-w)}
+  #vaCluster{opacity:1!important}
+  body.jn-open #vaCluster{border-color:rgba(57,255,20,.45);box-shadow:0 0 18px rgba(57,255,20,.25)}
+}
+body.jn-open #jnPanel{transform:none}
+.jn-head{display:flex;align-items:center;gap:12px;padding:16px 16px 12px;border-bottom:1px solid rgba(255,255,255,.06);position:relative}
+.jn-head .jn-orb{--s:46px}
+.jn-ttl{flex:1;min-width:0}
+.jn-name{font-weight:800;letter-spacing:.14em;font-size:15px;background:linear-gradient(90deg,#fff,var(--accent2) 60%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.jn-name small{font:700 8px var(--mono);letter-spacing:.12em;padding:2px 6px;margin-left:8px;border-radius:99px;border:1px solid rgba(57,255,20,.4);color:var(--accent);-webkit-text-fill-color:var(--accent);vertical-align:2px}
+.jn-stat{font:11px var(--mono);color:var(--dim);margin-top:3px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jn-stat i{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0}
+.jn-hb{width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--dim);cursor:pointer;font-size:14px;transition:.25s}
+.jn-hb:hover{color:#fff;background:rgba(255,255,255,.09);transform:translateY(-1px)}
+.jn-strip{height:2px;background:transparent;position:relative;overflow:hidden}
+.jn-strip.on{background:rgba(255,255,255,.05)}
+.jn-strip.on::after{content:'';position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,var(--accent2),var(--accent),transparent);animation:jnSlide 1.1s ease-in-out infinite}
+@keyframes jnSlide{from{transform:translateX(-100%)}to{transform:translateX(280%)}}
+
+/* messages */
+.jn-msgs{flex:1;overflow-y:auto;padding:18px 16px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.jn-hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 8px 4px;gap:8px;animation:jnIn .6s ease both}
+.jn-hero .jn-orb{--s:104px;margin-bottom:10px}
+.jn-hero h3{font-size:20px;font-weight:800;letter-spacing:.02em}
+.jn-hero p{font-size:12.5px;color:var(--dim);line-height:1.55;max-width:290px}
+.jn-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.jn-chip{font:600 11.5px var(--font);padding:8px 13px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#d9d9ee;cursor:pointer;transition:.25s}
+.jn-chip:hover{border-color:var(--accent2);color:#fff;background:rgba(0,198,255,.1);transform:translateY(-2px)}
+.jn-m{display:flex;gap:9px;align-items:flex-end;animation:jnIn .4s cubic-bezier(.22,1,.36,1) both;max-width:100%}
+.jn-m.me{justify-content:flex-end}
+@keyframes jnIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.jn-av{width:28px;height:28px;flex-shrink:0;border-radius:50%;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.25);display:grid;place-items:center;padding:4px}
+.jn-bub{padding:10px 14px;border-radius:18px;font-size:13.5px;line-height:1.55;max-width:82%;word-wrap:break-word;white-space:pre-wrap}
+.jn-m.john .jn-bub{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.07);border-bottom-left-radius:6px}
+.jn-m.me .jn-bub{background:linear-gradient(135deg,var(--accent2),#0072ff 60%,#7a3cff);color:#fff;border-bottom-right-radius:6px;box-shadow:0 8px 24px rgba(0,114,255,.28)}
+.jn-m.err .jn-bub{border-color:rgba(255,49,49,.35);background:rgba(255,49,49,.07)}
+.jn-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.jn-ref{font-size:12px;font-style:italic;color:var(--accent2);opacity:.85;padding-left:4px;animation:jnIn .5s ease both;text-shadow:0 0 14px rgba(0,198,255,.45)}
+.jn-typing{display:inline-flex;gap:4px;padding:4px 0}
+.jn-typing u{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:jnDot 1.1s ease-in-out infinite}
+.jn-typing u:nth-child(2){animation-delay:.15s}.jn-typing u:nth-child(3){animation-delay:.3s}
+@keyframes jnDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.jn-pills{display:flex;flex-wrap:wrap;gap:6px}
+.jn-pill{font:700 10px var(--mono);letter-spacing:.05em;padding:4px 9px;border-radius:99px;background:rgba(57,255,20,.09);border:1px solid rgba(57,255,20,.28);color:var(--accent);animation:jnIn .4s ease both}
+
+/* cards */
+.jn-card{border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);overflow:hidden;animation:jnIn .5s cubic-bezier(.22,1,.36,1) both}
+.jn-trk{display:flex;align-items:center;gap:11px;padding:8px 10px;cursor:pointer;transition:.2s;border-bottom:1px solid rgba(255,255,255,.04)}
+.jn-trk:last-child{border-bottom:0}
+.jn-trk:hover{background:rgba(255,255,255,.06)}
+.jn-trk.on{background:linear-gradient(90deg,rgba(57,255,20,.12),transparent)}
+.jn-cv{width:42px;height:42px;border-radius:9px;background:#15152a center/cover;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.jn-tt{flex:1;min-width:0}
+.jn-tt b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jn-tt span{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.jn-pb{width:30px;height:30px;border-radius:50%;border:0;background:var(--accent);color:#000;font-size:11px;cursor:pointer;flex-shrink:0;transition:.2s}
+.jn-trk:hover .jn-pb{transform:scale(1.12);box-shadow:0 0 16px var(--glow)}
+.jn-pl-top{display:flex;gap:12px;padding:12px}
+.jn-col4{width:78px;height:78px;border-radius:12px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;flex-shrink:0;background:#15152a;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.jn-col4 i{background:center/cover #1b1b33}
+.jn-pl-top h4{font-size:14px;font-weight:800;line-height:1.25}
+.jn-pl-top p{font-size:11.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+.jn-pl-top small{font:10px var(--mono);color:var(--accent2);display:block;margin-top:5px}
+.jn-btn{border:0;border-radius:99px;padding:9px 16px;font:800 11px var(--font);letter-spacing:.08em;cursor:pointer;background:var(--accent);color:#000;transition:.25s}
+.jn-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow)}
+.jn-btn.ghost{background:rgba(255,255,255,.07);color:#fff}
+.jn-pl-act{padding:0 12px 12px;display:flex;gap:8px}
+.jn-info{padding:12px;display:flex;gap:12px}
+.jn-info .jn-cv{width:74px;height:74px;border-radius:12px}
+.jn-info h4{font-size:14px;font-weight:800}.jn-info p{font-size:11.5px;color:var(--dim)}
+.jn-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.jn-tags span{font:600 9.5px var(--mono);padding:3px 8px;border-radius:99px;background:rgba(255,20,147,.1);border:1px solid rgba(255,20,147,.3);color:#ff7ac0}
+.jn-tags span.g{background:rgba(0,198,255,.1);border-color:rgba(0,198,255,.3);color:var(--accent2)}
+.jn-desc{padding:0 12px 12px;font-size:12px;line-height:1.55;color:#b9b9d2}
+
+/* composer */
+.jn-comp{padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,.06)}
+.jn-box{display:flex;align-items:flex-end;gap:8px;padding:7px 7px 7px 14px;border-radius:22px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);transition:.3s}
+.jn-box:focus-within{border-color:rgba(0,198,255,.55);box-shadow:0 0 0 3px rgba(0,198,255,.12),0 10px 30px rgba(0,198,255,.1)}
+.jn-box textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--text);font:13.5px/1.45 var(--font);max-height:110px;padding:7px 0}
+.jn-box textarea::placeholder{color:#6b6b88}
+.jn-ib{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;flex-shrink:0;font-size:15px;transition:.25s;display:grid;place-items:center}
+.jn-mic{background:rgba(255,255,255,.07);color:#fff}
+.jn-mic.on{background:var(--accent3);box-shadow:0 0 0 0 rgba(255,20,147,.6);animation:jnMic 1.2s infinite}
+@keyframes jnMic{70%{box-shadow:0 0 0 12px rgba(255,20,147,0)}100%{box-shadow:0 0 0 0 rgba(255,20,147,0)}}
+.jn-send{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-weight:900}
+.jn-send:hover{transform:scale(1.08)}.jn-send:disabled{opacity:.4;cursor:default;transform:none}
+.jn-foot{font:9.5px var(--mono);color:#4d4d68;text-align:center;margin-top:8px;letter-spacing:.04em}
+
+.jn-hero .jn-ring{animation:jnRipple 2.8s ease-out infinite;border-color:var(--accent)}
+
+.jn-sys{align-self:center;font:10px var(--mono);color:#7a7a99;text-align:center;padding:6px 12px;border-radius:99px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);max-width:92%;animation:jnIn .4s ease both}
+.jn-erow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.jn-diag{font:700 9.5px var(--mono);letter-spacing:.06em;color:#ff7b7b;padding:3px 9px;border-radius:99px;background:rgba(255,49,49,.08);border:1px solid rgba(255,49,49,.25)}
+.jn-retry{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;border-radius:99px;padding:5px 13px;font:800 10px var(--mono);letter-spacing:.06em;cursor:pointer;transition:.25s}
+.jn-retry:hover:not(:disabled){background:var(--accent);color:#000;border-color:var(--accent)}
+.jn-retry:disabled{opacity:.5;cursor:default}
+
+/* ── mobile-first panel (bottom sheet) + desktop side panel ── */
+#jnPanel{left:0;width:100%;height:100vh;height:100dvh;transform:translateY(102%);border-left:0;contain:layout paint;will-change:transform;padding-bottom:env(safe-area-inset-bottom)}
+@media(min-width:900px){#jnPanel{left:auto;width:var(--jn-w);height:auto;transform:translateX(104%)}}
+body.jn-open #jnPanel{transform:none}
+.jn-head{padding-top:max(16px,env(safe-area-inset-top))}
+@media(max-width:899px){
+  .jn-bub{max-width:88%}
+  .jn-box textarea{font-size:16px}
+  .jn-hero .jn-orb{--s:84px}
+  .jn-foot{display:none}
+}
+@media(max-height:640px){.jn-hero .jn-orb{--s:64px}.jn-hero p{display:none}}
+/* floating launcher (small screens only) */
+#jnFab{display:none;position:absolute;right:14px;bottom:calc(var(--player-h,88px) + 76px);width:54px;height:54px;border-radius:50%;padding:11px;border:1px solid rgba(0,198,255,.4);background:radial-gradient(circle at 30% 25%,rgba(0,198,255,.28),rgba(13,13,28,.96));box-shadow:0 10px 28px rgba(0,0,0,.5),0 0 20px rgba(0,198,255,.28);z-index:60;cursor:pointer;-webkit-tap-highlight-color:transparent;animation:jnFloat 4s ease-in-out infinite}
+#jnFab:active{transform:scale(.92)}
+@media(max-width:899px){#jnFab{display:block}}
+body.jn-open #jnFab{display:none}
+/* compact intro banner */
+#jnIntro{position:fixed;right:22px;bottom:calc(var(--player-h,88px) + 22px);z-index:9400;display:none;gap:14px;align-items:center;width:min(380px,calc(100vw - 24px));padding:16px 40px 16px 16px;border-radius:20px;background:linear-gradient(160deg,rgba(22,22,44,.98),rgba(9,9,22,.99));border:1px solid rgba(0,198,255,.28);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 36px rgba(0,198,255,.12);opacity:0;transform:translateY(24px);transition:opacity .45s ease,transform .55s cubic-bezier(.22,1,.36,1);font-family:var(--font);color:var(--text)}
+#jnIntro.show{display:flex}#jnIntro.vis{opacity:1;transform:none}
+body.jn-open #jnIntro{display:none}
+#jnIntro .jn-orb{--s:58px}
+#jnIntro .jn-ring{animation:jnRipple 2.8s ease-out infinite;border-color:var(--accent)}
+.jn-ib2{min-width:0}
+.jn-k{font:700 9px var(--mono);letter-spacing:.22em;color:var(--accent)}
+.jn-ib2 h4{font-size:15px;font-weight:800;margin:3px 0 3px}
+.jn-ib2 p{font-size:11.5px;color:#a6a6c2;line-height:1.5}
+.jn-ia{display:flex;gap:8px;margin-top:11px}
+.jn-ia .jn-btn{padding:8px 15px;font-size:10.5px}
+.jn-x{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:var(--dim);cursor:pointer;font-size:11px}
+.jn-x:hover{color:#fff;background:rgba(255,255,255,.12)}
+@media(max-width:899px){#jnIntro{right:12px;left:12px;width:auto;bottom:auto;top:max(12px,env(safe-area-inset-top));transform:translateY(-24px)}#jnIntro.vis{transform:none}}
+@media(prefers-reduced-motion:reduce){#jnPanel *,#jnIntro *,#jnFab{animation:none!important;transition-duration:.01s!important}}
+</style>
+<script id="johnAiJs">
+(function(){
+'use strict';
+// ═══ JOHN AI — Groq-powered personal music companion ═══
+const GROQ_KEY='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';
+const API='https://api.groq.com/openai/v1/chat/completions';
+const PREFERRED=['openai/gpt-oss-120b','openai/gpt-oss-20b','qwen/qwen3.6-27b']; // Groq retired the Llama 3.x models on 16 Aug 2026
+let MODELS=PREFERRED.slice(),modelsReady=null;
+const SKIP_MODEL=/guard|whisper|tts|orpheus|playai|safeguard|embed/i;
+function discoverModels(){ // asks Groq which models are live right now, so a future retirement can't break John again
+  if(modelsReady)return modelsReady;
+  modelsReady=(async()=>{try{
+    const r=await fetch('https://api.groq.com/openai/v1/models',{headers:{Authorization:'Bearer '+GROQ_KEY}});
+    if(!r.ok)return;
+    const live=((await r.json()).data||[]).filter(m=>m.active!==false).map(m=>m.id).filter(id=>!SKIP_MODEL.test(id));
+    if(!live.length)return;
+    const pref=PREFERRED.filter(id=>live.includes(id));
+    const rest=live.filter(id=>!pref.includes(id)&&/gpt-oss|llama|qwen/i.test(id));
+    const list=pref.concat(rest).slice(0,4);if(list.length)MODELS=list;
+  }catch(e){}})();
+  return modelsReady;
+}
+function mk(model,msgs,lean){
+  const b={model,messages:msgs,temperature:.85,max_completion_tokens:/gpt-oss/.test(model)?1500:700};
+  if(!lean){b.response_format={type:'json_object'};if(/gpt-oss/.test(model)){b.reasoning_effort='low';b.include_reasoning=false;}}
+  return b;
+}
+const INTRO_KEY='blastr_john_intro_v1';
+const MOODS=['happy','sad','energetic','calm','romantic','angry','nostalgic','hopeful','melancholic','confident','anxious','chill','euphoric','heartbroken','motivated','dreamy','rebellious','peaceful','lonely','triumphant','playful','sensual','gritty','reflective'];
+const $=id=>document.getElementById(id);
+const S=()=>window.state||{};
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||a));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const isDesk=()=>window.innerWidth>=900;
+const lsGet=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+const uid=()=>S().currentUserProfile?.id||S().session?.user?.id||null;
+const uname=()=>{const u=S().currentUser;return typeof u==='string'?u:(u&&(u.name||u.username))||'friend';};
+const HK=()=>'john_hist_'+(uid()||'guest'), MK=()=>'john_mem_'+(uid()||'guest');
+
+let isOpen=false,busy=false,remoteOK=true,hist=[],memory='',loadedFor=null,lastPl=null,tagMap=null,rec=null,listening=false,built=false;
+
+/* ───────── UI build ───────── */
+const ORB=(cls='')=>`<div class="jn-orb ${cls}" data-s="idle"><i class="jn-ring r1"></i><i class="jn-ring r2"></i><i class="jn-ring r3"></i><div class="bx-logo jn-logo"></div><span class="jn-notes"><b>♪</b><b>♫</b><b>♪</b><b>♬</b></span><span class="jn-bars"><u></u><u></u><u></u><u></u><u></u></span></div>`;
+function build(){
+  if(built)return;built=true;
+  const p=document.createElement('div');p.id='jnPanel';
+  p.innerHTML=`<div class="jn-head">${ORB('jn-hd')}<div class="jn-ttl"><div class="jn-name">JOHN AI<small>SMARTER</small></div><div class="jn-stat"><i></i><span id="jnStat">Online · remembers you</span></div></div><button class="jn-hb" id="jnClear" title="New conversation">⟲</button><button class="jn-hb" id="jnClose" title="Close (Esc)">✕</button></div><div class="jn-strip" id="jnStrip"></div><div class="jn-msgs" id="jnMsgs"></div><div class="jn-comp"><div class="jn-box"><textarea id="jnIn" rows="1" placeholder="Talk to John… (Enter to send)"></textarea><button class="jn-ib jn-mic" id="jnMic" title="Speak">🎙</button><button class="jn-ib jn-send" id="jnSend" title="Send">➤</button></div><div class="jn-foot">JOHN can search · play · like · build playlists · remember</div></div>`;
+  document.body.appendChild(p);
+  const fab=document.createElement('button');fab.id='jnFab';fab.setAttribute('aria-label','Talk to JOHN AI');fab.innerHTML='<div class="bx-logo jn-logo"></div>';fab.onclick=()=>toggle(true);
+  ($('appScreen')||document.body).appendChild(fab);
+  const it=document.createElement('div');it.id='jnIntro';
+  it.innerHTML=`${ORB()}<div class="jn-ib2"><div class="jn-k">NEW · SMARTER</div><h4>JOHN AI is back</h4><p>Tell him how you feel — he plays it, builds playlists, likes songs and remembers you.</p><div class="jn-ia"><button class="jn-btn" id="jnGo">TRY JOHN</button><button class="jn-btn ghost" id="jnLater">NOT NOW</button></div></div><button class="jn-x" id="jnX" aria-label="Dismiss">✕</button>`;
+  document.body.appendChild(it);
+  $('jnClose').onclick=()=>toggle(false);
+  $('jnClear').onclick=clearChat;
+  $('jnSend').onclick=()=>send($('jnIn').value);
+  $('jnMic').onclick=mic;
+  const ta=$('jnIn');
+  ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(ta.value);}});
+  ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(110,ta.scrollHeight)+'px';});
+  $('jnGo').onclick=()=>{lsSet(INTRO_KEY,9);hideIntro();setTimeout(()=>toggle(true),250);};
+  $('jnLater').onclick=hideIntro;
+  $('jnX').onclick=()=>{lsSet(INTRO_KEY,9);hideIntro();};
+  document.addEventListener('keydown',e=>{
+    if(e.altKey&&e.code==='KeyJ'&&!$('appScreen')?.classList.contains('hidden')){e.preventDefault();toggle();}
+    else if(e.key==='Escape'&&isOpen&&p.contains(document.activeElement))toggle(false);
+  });
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition)$('jnMic').style.display='none';
+}
+
+/* ───────── orb / status ───────── */
+function setOrb(s,label){
+  document.querySelectorAll('#jnPanel .jn-orb').forEach(o=>o.dataset.s=s);
+  const strip=$('jnStrip');if(strip)strip.classList.toggle('on',['think','search','build'].includes(s));
+  const st=$('jnStat');if(st)st.textContent=label||(s==='idle'?'Online · remembers you':st.textContent);
+}
+function idle(ms=1500){setTimeout(()=>{if(!busy&&!listening)setOrb('idle','Online · remembers you');},ms);}
+
+/* ───────── panel open/close ───────── */
+async function toggle(force){
+  build();
+  isOpen=force===undefined?!isOpen:force;
+  document.body.classList.toggle('jn-open',isOpen);
+  if(!isOpen){if(listening)try{rec.stop();}catch(e){}return;}
+  if(loadedFor!==(uid()||'guest'))await loadHist();
+  else scroll();
+  setTimeout(()=>$('jnIn')?.focus(),500);
+}
+let scrQ=false;
+function scroll(){if(scrQ)return;scrQ=true;requestAnimationFrame(()=>{scrQ=false;const m=$('jnMsgs');if(m)m.scrollTop=m.scrollHeight;});}
+function hero(){
+  const m=$('jnMsgs');
+  const hr=new Date().getHours(),g=hr<5?'Burning the midnight oil':hr<12?'Morning':hr<18?'Afternoon':'Evening';
+  m.innerHTML=`<div class="jn-hero" id="jnHero">${ORB()}<h3>${g}, ${esc(uname())}.</h3><p>Hi, what's up mate? Tell me how you're feeling or what you fancy — I'll handle the music.</p><div class="jn-chips">${['I\'m feeling down, lift my spirits','Make me a chill study playlist','Pause and like this song','Tell me about this song'].map(t=>`<button class="jn-chip">${esc(t)}</button>`).join('')}</div></div>`;
+  m.querySelectorAll('.jn-chip').forEach(b=>b.onclick=()=>send(b.textContent));
+}
+
+/* ───────── persistence (local always, Supabase when tables exist) ───────── */
+let syncWarned=false;
+function syncWarn(){if(syncWarned||!uid())return;syncWarned=true;try{sysNote('Heads up: chat history is saving on this device only. Run john_ai.sql in Supabase to sync it everywhere.');}catch(e){}}
+const bad=r=>r&&!Array.isArray(r)&&typeof r==='object'&&(r.code||r.message||r.error);
+async function loadHist(){
+  const id=uid();loadedFor=id||'guest';
+  hist=lsGet(HK(),[]);memory=lsGet(MK(),'');
+  if(id&&remoteOK){
+    try{
+      const r=await sbFetch(`/rest/v1/john_messages?select=role,content,meta,created_at&user_id=eq.${id}&order=created_at.desc&limit=40`);
+      if(Array.isArray(r)){if(r.length){hist=r.reverse().map(x=>({role:x.role,content:x.content,meta:x.meta,t:Date.parse(x.created_at)}));lsSet(HK(),hist);}}
+      else remoteOK=false;
+      if(remoteOK){const m=await sbFetch(`/rest/v1/john_memory?select=notes&user_id=eq.${id}`);if(Array.isArray(m)&&m[0]){memory=m[0].notes||'';lsSet(MK(),memory);}}
+    }catch(e){remoteOK=false;}
+  }
+  await pool();await loadTags();
+  const box=$('jnMsgs');box.innerHTML='';
+  if(!hist.length)hero();
+  else{
+    hist.slice(-30).forEach(h=>h.role==='user'?addMe(h.content):renderJohnHist(h));
+    scroll();
+  }
+}
+async function persist(role,content,meta){
+  hist.push({role,content,meta:meta||null,t:Date.now()});lsSet(HK(),hist.slice(-80));
+  const id=uid();if(!id||!remoteOK)return;
+  try{const r=await sbFetch('/rest/v1/john_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:{user_id:id,role,content,meta:meta||null}});if(bad(r)){remoteOK=false;syncWarn();}}catch(e){remoteOK=false;syncWarn();}
+}
+async function saveMemory(txt){
+  memory=String(txt).slice(0,700);lsSet(MK(),memory);
+  const id=uid();if(!id||!remoteOK)return;
+  try{await sbFetch('/rest/v1/john_memory',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:{user_id:id,notes:memory,updated_at:new Date().toISOString()}});}catch(e){}
+}
+async function clearChat(){
+  if(busy)return;
+  if(!confirm('Start a fresh conversation? John will still remember what he learned about you.'))return;
+  hist=[];lsSet(HK(),[]);
+  const id=uid();if(id&&remoteOK){try{await sbFetch(`/rest/v1/john_messages?user_id=eq.${id}`,{method:'DELETE'});}catch(e){}}
+  hero();setOrb('done','Fresh start');idle();
+}
+
+/* ───────── library access ───────── */
+async function pool(){
+  const p=S().allTracks;if(Array.isArray(p)&&p.length)return p;
+  try{const d=await sbFetch('/rest/v1/tracks?select=*&order=id.desc&limit=1500');if(Array.isArray(d)){S().allTracks=d;return d;}}catch(e){}
+  return [];
+}
+async function loadTags(){
+  if(tagMap)return;tagMap={};
+  try{
+    const d=await sbFetch('/rest/v1/track_emotions?select=track_id,emotions(name,class)',{cache:true,cacheTtl:300000});
+    (Array.isArray(d)?d:[]).forEach(r=>{const n=r.emotions?.name;if(!n)return;const s=(tagMap[r.track_id]=tagMap[r.track_id]||new Set());s.add(String(n).toLowerCase());if(r.emotions.class)s.add(String(r.emotions.class).toLowerCase());});
+  }catch(e){}
+}
+const arr=x=>Array.isArray(x)?x:[];
+const norm=s=>String(s||'').toLowerCase().replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ').trim();
+function digest(P){
+  const g={},e={};
+  P.forEach(t=>{const k=String(t.genre||'').trim();if(k)g[k]=(g[k]||0)+1;});
+  Object.values(tagMap).forEach(s=>s.forEach(n=>e[n]=(e[n]||0)+1));
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,32).map(x=>x[0]);
+  return{genres:top(g),tags:top(e),n:P.length};
+}
+const nc=new WeakMap();
+function score(t,q,cur){
+  let s=0;let c=nc.get(t);if(!c){c={title:norm(t.title),art:norm(t.artist),gen:norm(t.genre),desc:norm(t.description)};nc.set(t,c);}
+  const {title,art,gen,desc}=c;
+  const tags=tagMap[t.id]?[...tagMap[t.id]]:[];
+  const x=norm(q.query);
+  if(x){if(title===x)s+=120;else if(title.includes(x))s+=80;else if(art.includes(x))s+=60;else{const w=x.split(' ').filter(k=>k.length>2);const hit=w.filter(k=>title.includes(k)||art.includes(k)).length;if(w.length)s+=hit/w.length*50;}}
+  arr(q.genres).forEach(g=>{g=norm(g);if(g&&gen&&(gen.includes(g)||g.includes(gen)))s+=40;});
+  arr(q.emotions).forEach(e=>{e=norm(e);if(!e)return;if(tags.some(k=>k===e||k.includes(e)||e.includes(k)))s+=50;if(desc.includes(e))s+=8;});
+  arr(q.keywords).forEach(k=>{k=norm(k);if(!k)return;if(title.includes(k))s+=30;if(art.includes(k))s+=25;if(gen.includes(k))s+=20;if(desc.includes(k))s+=12;if(tags.some(z=>z.includes(k)))s+=25;});
+  if(cur&&t.id===cur.id)s-=5;
+  return s;
+}
+function runSearch(P,q,limit){
+  const cur=S().currentTrack;
+  return P.map(t=>({t,s:score(t,q,cur)+Math.random()*4})).filter(x=>x.s>4).sort((a,b)=>b.s-a.s).slice(0,limit).map(x=>x.t);
+}
+const byIds=ids=>{const P=S().allTracks||[];return (ids||[]).map(i=>P.find(t=>t.id===i)).filter(Boolean);};
+
+/* ───────── app control ───────── */
+function playTrack(t){if(t&&typeof initiateHandshake==='function')initiateHandshake(t);}
+function playMany(list){if(!list.length)return;S().queue=list.slice(1);S().playlistRepeatQueue=null;playTrack(list[0]);}
+const A=()=>typeof audio!=='undefined'?audio:$('audioPlayer');
+function pauseApp(){const a=A();if(S().isPlaying){a.pause();S().isPlaying=false;syncPlayState();return true;}return false;}
+function resumeApp(){const a=A();if(S().currentTrack&&!S().isPlaying){a.play();S().isPlaying=true;syncPlayState();return true;}return false;}
+
+async function exec(a,ctx){
+  const P=await pool();const cur=S().currentTrack;
+  if(!P.length&&(a.type==='search'||a.type==='create_playlist')){ctx.notes.push("The library hasn't loaded yet, so I can't search right now — try again in a few seconds.");return;}
+  switch(a&&a.type){
+    case 'search':{
+      setOrb('search','Searching the library…');await wait(950);
+      const lim=clamp(a.limit||8,1,15);let r=runSearch(P,a,lim);
+      if(!r.length&&!norm(a.query)&&P.length){r=shuffle(P).slice(0,Math.min(lim,6));ctx.fallback=true;}
+      if(!r.length){ctx.notes.push("I couldn't find a match for that in the library.");return;}
+      ctx.tracks=r;
+      if(a.play){playTrack(r[0]);ctx.pills.push('▶ NOW PLAYING · '+r[0].title);}
+      break;}
+    case 'create_playlist':{
+      setOrb('build','Crafting your playlist…');await wait(1300);
+      const cnt=clamp(a.count||12,3,25);let r=runSearch(P,a,cnt);
+      if(r.length&&r.length<5&&P.length>=5){const have=new Set(r.map(t=>t.id));r=r.concat(shuffle(P.filter(t=>!have.has(t.id))).slice(0,5-r.length));}
+      if(!r.length){ctx.notes.push("The library doesn't have enough matching songs for that playlist yet.");return;}
+      const gc={};r.forEach(t=>{if(t.genre)gc[t.genre]=(gc[t.genre]||0)+1;});
+      const genre=Object.entries(gc).sort((x,y)=>y[1]-x[1])[0]?.[0]||(typeof PL_GENRES!=='undefined'?PL_GENRES[0]:'Other');
+      let moods=arr(a.moods).map(norm).filter(m=>MOODS.includes(m));
+      for(const m of ['reflective','chill','calm','hopeful'])if(moods.length<3&&!moods.includes(m))moods.push(m);
+      const title=String(a.title||'John\'s Picks').slice(0,60),bio=String(a.bio||'Made by JOHN AI').slice(0,200);
+      const pl={title,bio,ids:r.map(t=>t.id),saved:false};
+      const id=S().session?.user?.id;
+      if(id){
+        try{
+          const c=await createPlaylistRecord({owner_id:id,title,bio,genre,emotions:moods.slice(0,6),is_public:false});
+          if(!c||!c.id)throw new Error('not confirmed');
+          await addTracksToPlaylist(c.id,pl.ids);pl.id=c.id;pl.saved=true;
+          ctx.pills.push('✓ PLAYLIST SAVED');
+        }catch(e){ctx.notes.push("I built it, but couldn't save it to your library (run the JOHN SQL?). You can still play it here.");}
+      }else ctx.notes.push('Sign in and I can save it to your library — playing it here works though.');
+      lastPl=pl;ctx.pl=pl;
+      if(a.play){playMany(byIds(pl.ids));ctx.pills.push('▶ PLAYING PLAYLIST');}
+      break;}
+    case 'play_playlist':{
+      if(!lastPl){ctx.notes.push("There's no playlist to play yet — ask me to make one.");return;}
+      playMany(byIds(lastPl.ids));ctx.pills.push('▶ PLAYING · '+lastPl.title);break;}
+    case 'pause':ctx.pills.push(pauseApp()?'⏸ PAUSED':'ALREADY PAUSED');break;
+    case 'resume':ctx.pills.push(resumeApp()?'▶ RESUMED':(cur?'ALREADY PLAYING':'NOTHING QUEUED'));break;
+    case 'next':nextTrack();ctx.pills.push('⏭ NEXT');break;
+    case 'prev':prevTrack();ctx.pills.push('⏮ PREVIOUS');break;
+    case 'like':case 'unlike':{
+      if(!cur){ctx.notes.push('Nothing is playing to like yet.');return;}
+      const liked=(S().favorites||[]).some(f=>f.id===cur.id);
+      if((a.type==='like'&&!liked)||(a.type==='unlike'&&liked))toggleLike(cur);
+      ctx.pills.push(a.type==='like'?'♥ LIKED · '+cur.title:'♡ REMOVED · '+cur.title);break;}
+    case 'volume':{
+      const v=clamp(a.value,0,100)/100;S().volume=v;S().isMuted=false;A().volume=v;
+      const f=$('volFill');if(f)f.style.width=(v*100)+'%';ctx.pills.push('🔊 VOLUME '+Math.round(v*100)+'%');break;}
+    case 'song_info':{
+      let t=cur;
+      if(a.query){setOrb('search','Looking it up…');await wait(700);t=runSearch(P,{query:a.query},1)[0]||null;}
+      if(!t){ctx.notes.push("I couldn't find that song to pull its details.");return;}
+      await loadTags();ctx.info=t;break;}
+    case 'goto':{
+      const pg=String(a.page||'');const b=$('nav-'+pg);
+      if(b&&typeof showPage==='function'&&['home','explore','favorites','profile','following','account'].includes(pg)){showPage(pg,b);ctx.pills.push('↗ '+pg.toUpperCase());}
+      break;}
+    default:if(a&&a.type)ctx.notes.push('I don\'t know how to "'+a.type+'" yet.');
+  }
+}
+
+/* ───────── rendering ───────── */
+function addMe(text){
+  $('jnHero')?.remove();
+  const d=document.createElement('div');d.className='jn-m me';d.innerHTML=`<div class="jn-bub">${esc(text)}</div>`;
+  $('jnMsgs').appendChild(d);scroll();
+}
+function johnRow(cls=''){
+  $('jnHero')?.remove();
+  const d=document.createElement('div');d.className='jn-m john '+cls;
+  d.innerHTML=`<div class="jn-av"><div class="bx-logo jn-logo"></div></div><div class="jn-col"></div>`;
+  $('jnMsgs').appendChild(d);scroll();return d.querySelector('.jn-col');
+}
+function bubble(col,text){
+  const b=document.createElement('div');b.className='jn-bub';b.style.maxWidth='100%';b.textContent=text||'';col.appendChild(b);return b;
+}
+function typeInto(el,text){
+  return new Promise(res=>{
+    const n=text.length,per=Math.max(3,Math.ceil(n/26)); // whole message lands in ~26 frames (~0.45s) at most
+    let i=0;
+    (function f(){i=Math.min(n,i+per);el.textContent=text.slice(0,i);scroll();i<n?requestAnimationFrame(f):res();})();
+  });
+}
+const trkRow=t=>`<div class="jn-trk${S().currentTrack&&S().currentTrack.id===t.id?' on':''}" data-id="${esc(t.id)}"><div class="jn-cv" style="background-image:url('${esc(t.cover_url||'')}')"></div><div class="jn-tt"><b>${esc(t.title)}</b><span>${esc(t.artist||'Unknown')}${t.genre?' · '+esc(t.genre):''}</span></div><button class="jn-pb">▶</button></div>`;
+function cardsFor(col,m){
+  const tracks=byIds(m.trk);
+  if(tracks.length){
+    const c=document.createElement('div');c.className='jn-card';c.innerHTML=tracks.map(trkRow).join('');
+    c.querySelectorAll('.jn-trk').forEach(r=>r.onclick=()=>{const t=tracks.find(x=>String(x.id)===r.dataset.id);playTrack(t);mark();});
+    col.appendChild(c);
+  }
+  if(m.pl){
+    const ts=byIds(m.pl.ids),covers=ts.map(t=>t.cover_url).filter(Boolean).slice(0,4);
+    const c=document.createElement('div');c.className='jn-card';
+    c.innerHTML=`<div class="jn-pl-top"><div class="jn-col4">${[0,1,2,3].map(i=>`<i style="background-image:url('${esc(covers[i%Math.max(1,covers.length)]||'')}')"></i>`).join('')}</div><div><h4>${esc(m.pl.title)}</h4><p>${esc(m.pl.bio||'')}</p><small>${ts.length} SONGS${m.pl.saved?' · SAVED':''}</small></div></div><div class="jn-pl-act"><button class="jn-btn">▶ PLAY</button><button class="jn-btn ghost">SHUFFLE</button></div>`;
+    const [b1,b2]=c.querySelectorAll('.jn-btn');
+    b1.onclick=()=>{playMany(ts);lastPl=m.pl;};b2.onclick=()=>{playMany(shuffle(ts));lastPl=m.pl;};
+    col.appendChild(c);
+    const l=document.createElement('div');l.className='jn-card';l.innerHTML=ts.slice(0,5).map(trkRow).join('')+(ts.length>5?`<div class="jn-trk" style="cursor:default;justify-content:center"><span style="font:10px var(--mono);color:var(--dim)">+ ${ts.length-5} MORE</span></div>`:'');
+    l.querySelectorAll('.jn-trk[data-id]').forEach(r=>r.onclick=()=>{playTrack(ts.find(x=>String(x.id)===r.dataset.id));mark();});
+    col.appendChild(l);
+  }
+  const it=m.info?byIds([m.info])[0]:null;
+  if(it){
+    const tg=[...(tagMap&&tagMap[it.id]||[])];
+    const c=document.createElement('div');c.className='jn-card';
+    c.innerHTML=`<div class="jn-info"><div class="jn-cv" style="background-image:url('${esc(it.cover_url||'')}')"></div><div><h4>${esc(it.title)}</h4><p>${esc(it.artist||'Unknown')}</p><div class="jn-tags">${it.genre?`<span class="g">${esc(it.genre)}</span>`:''}${it.country?`<span class="g">${esc(it.country)}</span>`:''}${tg.slice(0,6).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div></div>${it.description?`<div class="jn-desc">${esc(String(it.description).slice(0,420))}</div>`:''}`;
+    col.appendChild(c);
+  }
+  if(m.pills&&m.pills.length){const p=document.createElement('div');p.className='jn-pills';p.innerHTML=m.pills.map(x=>`<span class="jn-pill">${esc(x)}</span>`).join('');col.appendChild(p);}
+}
+function renderJohnHist(h){
+  const col=johnRow();const m=h.meta||{};
+  if(m.ref){const r=document.createElement('div');r.className='jn-ref';r.textContent=m.ref;col.appendChild(r);}
+  if(h.content)bubble(col,h.content);
+  cardsFor(col,m);
+}
+function mark(){document.querySelectorAll('#jnMsgs .jn-trk[data-id]').forEach(r=>r.classList.toggle('on',!!S().currentTrack&&String(S().currentTrack.id)===r.dataset.id));}
+setInterval(()=>{if(isOpen)mark();},1500);
+
+/* ───────── LLM ───────── */
+function sysPrompt(P){
+  const s=S(),cur=s.currentTrack,d=digest(P),h=new Date().getHours();
+  const tod=h<5?'late night':h<12?'morning':h<17?'afternoon':h<21?'evening':'night';
+  const now=cur?`"${cur.title}" by ${cur.artist||'?'} | genre ${cur.genre||'?'} | ${s.isPlaying?'playing':'paused'} | liked:${(s.favorites||[]).some(f=>f.id===cur.id)} | tags:${[...(tagMap[cur.id]||[])].join(', ')||'none'} | country:${cur.country||'?'} | about: ${String(cur.description||'').slice(0,500)||'no description'}`:'nothing loaded';
+  const fav=(s.favorites||[]).slice(-8).map(f=>f.title).join('; ')||'none yet';
+  return `You are JOHN — the warm, witty, emotionally intelligent AI friend living inside Blastr, a music streaming app. You were created by XCLONE STUDIOS, the studio behind Blastr — say so proudly if asked who made/built you or who your creators are, and never credit any other company or model for creating you; if asked what technology powers you, say you're JOHN AI by XCLONE STUDIOS and that you don't know deeper technical details. Talk like a close mate: casual, caring, a little humour, 1-3 short sentences, no markdown, no corporate tone. If the user is hurting, lead with genuine empathy (use "reflect"), then help. You control the app through JSON actions. Reply with ONE JSON object only:
+{"reflect":"optional 3-8 word italic thoughtful beat, ONLY for emotional moments","say":"your message to the user","actions":[...],"memory":"optional full updated notes about this user (max 500 chars) ONLY when you learned something new and lasting (name, tastes, what they're going through)"}
+Actions (only when the user wants it; never claim something happened without emitting its action):
+{"type":"search","query":"title/artist words only if they named one","genres":[],"emotions":[],"keywords":[],"limit":8,"play":true|false}
+{"type":"create_playlist","title":"","bio":"one line","genres":[],"emotions":[],"moods":[3-4 from MOODS],"keywords":[],"count":12,"play":false}
+{"type":"play_playlist"}  (plays the playlist just made)
+{"type":"pause"} {"type":"resume"} {"type":"next"} {"type":"prev"} {"type":"like"} {"type":"unlike"} {"type":"volume","value":0-100} {"type":"goto","page":"home|favorites|explore"}
+{"type":"song_info","query":"title; omit for the current song"}
+Rules: "genres" and "emotions" MUST come from the LIBRARY lists (closest match); put free themes/words in "keywords". "Play me something / lift my spirits" → search with play:true. Playlist requests → create_playlist with play:false, then ask if they want it played (play:true only if they said play it). Sad/heartbreak → comfort first, use sad/melancholic/heartbroken/lonely/reflective tags; uplift → happy/hopeful/euphoric/energetic/motivated. For questions about the current song answer from NOW in your own words, no action. Never invent songs or artists; be honest if something isn't possible. Several actions allowed (e.g. pause then like).
+LIBRARY (${d.n} songs) genres: ${d.genres.join(', ')||'unknown'}
+LIBRARY emotion tags: ${d.tags.join(', ')||'none tagged'}
+MOODS: ${MOODS.join(', ')}
+USER: ${uname()} | ${tod} | recent likes: ${fav}
+MEMORY: ${memory||'nothing yet'}
+NOW: ${now}`;
+}
+async function ask(msgs){
+  let last={code:0};
+  await discoverModels();
+  for(const model of MODELS){
+    let lean=false;
+    for(let attempt=0;attempt<2;attempt++){
+      const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),22000);
+      try{
+        const r=await fetch(API,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json',Authorization:'Bearer '+GROQ_KEY},body:JSON.stringify(mk(model,msgs,lean))});
+        clearTimeout(to);
+        if(r.status===401||r.status===403)throw Object.assign(new Error('auth'),{code:401,fatal:true});
+        if(!r.ok){
+          let d='';try{d=(await r.json()).error?.message||'';}catch(x){}
+          last={code:r.status,detail:d,model,retry:parseFloat(r.headers.get('retry-after'))||0};
+          if(r.status===400&&!lean){lean=true;continue;} // param not supported by this model → retry plain
+          if(r.status>=500&&attempt===0){await wait(900);continue;} // transient server error → retry once
+          break; // 429 / 400 / 404 → try fallback model
+        }
+        const j=await r.json();const txt=String(j.choices?.[0]?.message?.content||'').replace(/<think>[\s\S]*?<\/think>/g,'');
+        if(!txt.trim()){last={code:'empty',model};break;}
+        try{return JSON.parse(txt);}catch(x){const m=txt.match(/\{[\s\S]*\}/);try{return JSON.parse(m[0]);}catch(y){return{say:txt};}}
+      }catch(x){
+        clearTimeout(to);
+        if(x.fatal)throw x;
+        if(!navigator.onLine)throw Object.assign(new Error('offline'),{code:'offline'});
+        last={code:x.name==='AbortError'?'timeout':'net',model};
+        if(attempt===0){await wait(700);continue;}
+        break;
+      }
+    }
+  }
+  if(last.code===400||last.code===404)modelsReady=null; // re-check the live model list next time
+  throw Object.assign(new Error('fail'),{code:last.code,detail:last.detail,retry:last.retry,model:last.model});
+}
+function friendly(e){
+  const c=e.code,d=e.detail?' · '+String(e.detail).slice(0,80):'';
+  if(c===401)return["My access key got rejected, mate — the Groq API key needs checking.",'AUTH 401'];
+  if(c==='offline')return["Looks like you're offline — I'll be right here when you're back.",'OFFLINE'];
+  if(c==='timeout')return["That took too long — the line went quiet. Give it another go.",'TIMEOUT 22s'];
+  if(c===429){const s=Math.ceil(e.retry||0);return["I'm catching my breath — rate limit hit"+(s?" — ready in about "+s+"s.":". Give me a few seconds."),'RATE LIMIT 429'];}
+  if(c>=500)return["Groq's servers are having a wobble. Try again in a moment.",'SERVER '+c];
+  if(c===404||c===400)return["I couldn't reach my brain model — it may have been changed on Groq's side.",'MODEL '+c+d];
+  if(c==='empty')return["I came back empty-handed — ask me again?",'EMPTY REPLY'];
+  return["My brain hiccuped — mind trying that again?",'NETWORK'+(e.model?' · '+e.model:'')];
+}
+function sysNote(t){const d=document.createElement('div');d.className='jn-sys';d.textContent=t;$('jnMsgs').appendChild(d);scroll();}
+function errRow(col,e){
+  const [msg,tag]=friendly(e);
+  col.innerHTML='';col.parentElement.classList.add('err');bubble(col,msg);
+  const row=document.createElement('div');row.className='jn-erow';
+  row.innerHTML=`<span class="jn-diag">⚠ ${esc(tag)}</span>`;
+  if(e.code!==401){
+    const b=document.createElement('button');b.className='jn-retry';b.textContent='↻ RETRY';
+    let wsec=e.code===429?Math.min(30,Math.ceil(e.retry||5)):0;
+    const upd=()=>{b.disabled=wsec>0;b.textContent=wsec>0?'RETRY IN '+wsec+'s':'↻ RETRY';};
+    upd();if(wsec>0){const iv=setInterval(()=>{wsec--;upd();if(wsec<=0)clearInterval(iv);},1000);}
+    b.onclick=()=>{col.parentElement.remove();send(lastText,true);};
+    row.appendChild(b);
+  }
+  col.appendChild(row);scroll();
+}
+
+/* ───────── main flow ───────── */
+/* Playback guard: if the browser/OS pauses the song while John is thinking or listening
+   (audio focus, mic start, network stall) but the app never asked for a pause → resume it. */
+let guardUntil=0;
+const holdGuard=(ms=12000)=>{guardUntil=Math.max(guardUntil,Date.now()+ms);};
+function guardResume(){const a=A();if(a&&a.paused&&!a.ended&&S().isPlaying&&S().currentTrack)a.play().catch(()=>{});}
+setTimeout(()=>{const a=A();if(a)a.addEventListener('pause',()=>{if(Date.now()<guardUntil||busy||listening)setTimeout(guardResume,250);});},0);
+let lastText='',warned=false;
+async function send(text,isRetry){
+  text=String(text||'').trim();
+  if(!text||busy)return;lastText=text;
+  busy=true;holdGuard();$('jnSend').disabled=true;$('jnIn').value='';$('jnIn').style.height='auto';
+  if(listening)try{rec.stop();}catch(e){}
+  if(!isRetry){addMe(text);await persist('user',text);}
+  setOrb('think','JOHN is thinking…');
+  const col=johnRow();col.innerHTML='<div class="jn-bub" style="max-width:100%"><span class="jn-typing"><u></u><u></u><u></u></span></div>';
+  try{
+    const P=await pool();await loadTags();
+    const msgs=[{role:'system',content:sysPrompt(P)}].concat(hist.slice(-14).map(h=>({role:h.role,content:h.role==='assistant'?JSON.stringify({say:h.content}):h.content})));
+    const o=await ask(msgs);
+    col.innerHTML='';
+    const meta={};
+    if(o.reflect){meta.ref=String(o.reflect).slice(0,80);const r=document.createElement('div');r.className='jn-ref';r.textContent='✦ '+meta.ref;col.appendChild(r);scroll();await wait(1100);}
+    const say=String(o.say||'').trim();
+    if(say){const b=bubble(col,'');await typeInto(b,say);}
+    const ctx={tracks:null,pl:null,info:null,notes:[],pills:[],fallback:false};
+    const acts=Array.isArray(o.actions)?o.actions.filter(x=>x&&typeof x==='object'):[];
+    if(!say&&!acts.length)bubble(col,"Hmm, I'm not sure what to do with that one — try rephrasing it for me?");
+    for(const a of acts.slice(0,4)){
+      try{await exec(a,ctx);}
+      catch(err){console.warn('JOHN action failed',a,err);ctx.notes.push('⚠ I couldn\'t complete "'+(a.type||'that')+'" ('+String(err&&err.message||'unexpected error').slice(0,60)+').');}
+    }
+    if(ctx.fallback)ctx.notes.unshift("Nothing matched exactly, so here's a few from the library to get us going.");
+    if(ctx.notes.length)bubble(col,ctx.notes.join(' '));
+    meta.trk=ctx.tracks?ctx.tracks.map(t=>t.id):undefined;
+    meta.pl=ctx.pl||undefined;meta.info=ctx.info?ctx.info.id:undefined;meta.pills=ctx.pills.length?ctx.pills:undefined;
+    cardsFor(col,meta);
+    await persist('assistant',[say,...ctx.notes].filter(Boolean).join(' '),meta);
+    if(o.memory&&String(o.memory).trim())saveMemory(o.memory);
+    setOrb(ctx.notes.length&&!ctx.pills.length&&!ctx.tracks&&!ctx.pl&&!ctx.info?'idle':'done',ctx.pills[0]||'Done');
+  }catch(e){
+    console.warn('JOHN error',e);
+    errRow(col,e);
+    setOrb('idle',friendly(e)[1]);
+  }
+  busy=false;holdGuard(1500);guardResume();$('jnSend').disabled=false;scroll();idle(1600);
+  if(isOpen)$('jnIn').focus();
+}
+
+/* ───────── voice input ───────── */
+function mic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR||busy)return;
+  if(listening){try{rec.stop();}catch(e){}return;}
+  rec=new SR();rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
+  let fin='';
+  rec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;fin=t;$('jnIn').value=t;};
+  rec.onerror=()=>{};
+  rec.onend=()=>{listening=false;holdGuard(2500);setTimeout(guardResume,300);$('jnMic').classList.remove('on');if(!busy)setOrb('idle','Online · remembers you');if(fin.trim())send(fin);};
+  try{holdGuard(20000);rec.start();listening=true;$('jnMic').classList.add('on');setOrb('listen','Listening…');}catch(e){listening=false;}
+}
+
+/* ───────── login intro banner (compact, non-blocking) ───────── */
+let introT=null;
+function showIntro(){
+  build();const el=$('jnIntro');el.classList.add('show');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('vis')));
+  lsSet(INTRO_KEY,(lsGet(INTRO_KEY,0)||0)+1); // shown at most twice unless dismissed earlier
+  introT=setTimeout(hideIntro,14000);
+}
+function hideIntro(){const el=$('jnIntro');clearTimeout(introT);el.classList.remove('vis');setTimeout(()=>el.classList.remove('show'),400);}
+function maybeIntro(){
+  if((lsGet(INTRO_KEY,0)||0)>=2||sessionStorage.getItem('jn_intro_sess'))return;
+  if($('appScreen')?.classList.contains('hidden')||isOpen)return;
+  sessionStorage.setItem('jn_intro_sess','1');showIntro();
+}
+
+/* ───────── wiring into existing app (additive) ───────── */
+build();
+const origTap=window.vaHandleTap;
+window.vaHandleTap=function(){toggle();};
+setInterval(()=>{const c=$('vaCluster');if(c&&isDesk()&&c.title!=='Talk to JOHN AI (Alt+J)')c.title='Talk to JOHN AI (Alt+J)';},1500);
+const origEnter=window.enterApp;
+if(typeof origEnter==='function')window.enterApp=function(){const r=origEnter.apply(this,arguments);setTimeout(maybeIntro,1600);return r;};
+const origLogout=window.logout;
+if(typeof origLogout==='function')window.logout=function(){toggle(false);loadedFor=null;hist=[];lastPl=null;sessionStorage.removeItem('jn_intro_sess');return origLogout.apply(this,arguments);};
+setTimeout(maybeIntro,3000);
+window.addEventListener('offline',()=>{if(built)setOrb('idle','Offline — reconnecting…');});
+window.addEventListener('online',()=>{if(built&&!busy)setOrb('idle','Back online');idle(1800);});
+window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
+})();
+</script>
 </body>
 </html>
