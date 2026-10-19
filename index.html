@@ -15589,5 +15589,93 @@ window.addEventListener('online',()=>{if(built&&!busy)setOrb('idle','Back online
 window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
 })();
 </script>
+<style id="blastrPhoneCss">
+/* ═══ BLASTR PHONE UI (≤700px only — tablets & desktop untouched) ═══ */
+@media (max-width:700px){
+  :root{--player-h:calc(66px + env(safe-area-inset-bottom))}
+  /* 1 · lock the app to the visible screen → no more floating / drifting */
+  html,body{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;touch-action:manipulation}
+  #appScreen{position:fixed!important;inset:0;height:100vh;height:100dvh;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) auto!important;grid-template-areas:"main" "player"!important}
+  .main-content,.pages-container{min-height:0;min-width:0}
+
+  /* 2 · sidebar becomes a slide-in drawer (no more stacked menu eating the screen) */
+  #appScreen .sidebar{position:fixed!important;top:0;bottom:0;left:0;width:min(84vw,330px)!important;max-width:none!important;height:auto!important;transform:translateX(-105%)!important;transition:transform .38s cubic-bezier(.22,1,.36,1)!important;z-index:1200!important;overflow-y:auto;background:var(--panel);border-right:1px solid var(--border)!important;border-bottom:0!important;box-shadow:24px 0 70px rgba(0,0,0,.6);padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom))!important}
+  #appScreen.mobile-nav-open .sidebar{transform:none!important}
+  #appScreen .mobile-scrim{display:block!important;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.58);opacity:0;pointer-events:none;transition:opacity .3s}
+  #appScreen.mobile-nav-open .mobile-scrim{opacity:1;pointer-events:auto}
+  #appScreen .sidebar-close-btn{display:flex!important}
+  #appScreen .sidebar-mobile-hint{display:none!important}
+
+  /* 3 · ONE tidy action row, then a modest search bar, then the grid */
+  .top-bar{flex-wrap:wrap;justify-content:space-between;align-items:center;gap:9px 6px;padding:max(10px,env(safe-area-inset-top)) 12px 8px;background:linear-gradient(180deg,rgba(13,13,28,.92),rgba(13,13,28,0))}
+  .top-bar>*{order:5;flex-shrink:0}
+  .top-bar .mobile-nav-btn{display:flex!important;order:1}
+  .top-bar>.icon-btn:nth-child(2){order:2}
+  .top-bar .explore-btn{order:3;height:36px;padding:0 14px;font-size:10px;letter-spacing:1.3px}
+  .top-bar .playlist-create-btn{order:4;width:36px;height:36px;margin:0;font-size:20px}
+  .top-bar .follow-cluster{order:5;max-width:74px;overflow:hidden}
+  .top-bar .follow-cluster .fc-empty-txt{display:none}
+  .top-bar #vaCluster{order:6;width:36px;height:36px;max-width:36px;padding:0;justify-content:center;opacity:1!important;border-color:rgba(0,198,255,.35)}
+  .top-bar #vaCluster .va-mic-dot,.top-bar #vaCluster #vaClusterText{display:none}
+  .top-bar #vaCluster .jn-tb-logo{display:block}
+  .top-bar .topbar-actions{display:contents}
+  .top-bar .topbar-actions>.icon-btn{order:7}
+  .top-bar .icon-btn{width:36px;height:36px;font-size:14px}
+  .top-bar .search-wrap{order:9;flex:1 1 100%;max-width:none}
+  .search-input{height:38px;padding-top:0;padding-bottom:0;font-size:13px;border-radius:12px}
+  .search-dropdown{max-height:55vh;overflow-y:auto}
+  .follow-panel{position:fixed;left:12px;right:12px;top:calc(max(10px,env(safe-area-inset-top)) + 52px);width:auto}
+
+  /* 4 · ONE bottom dock: compact player (tap cover/title = Now Vibing) */
+  .player-bar{gap:10px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));height:auto;min-height:0;background:linear-gradient(180deg,rgba(18,18,36,.98),rgba(8,8,20,.99));border-top:1px solid rgba(255,255,255,.08)}
+  .player-progress-accent{display:none}
+  .now-playing{flex:1;min-width:0;width:auto;gap:10px}
+  .np-cover{width:44px;height:44px;border-radius:10px;flex-shrink:0}
+  .np-info{min-width:0;flex:1}
+  .np-title,.np-artist{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #npNotNow{display:none}
+  .np-heart{width:34px;height:34px;flex-shrink:0}
+  .player-controls{flex:0 0 auto;width:auto;max-width:none;gap:0}
+  .ctrl-buttons{gap:2px}
+  .ctrl-buttons>div,#btnRepeat{display:none}
+  .play-btn-main{width:44px;height:44px}
+  .progress-wrap{position:absolute;top:0;left:0;right:0;height:3px;gap:0;padding:0;width:auto}
+  .progress-wrap .time-lbl{display:none}
+  .progress-bar{height:3px;border-radius:0;overflow:visible;background:rgba(255,255,255,.1)}
+  .progress-bar::before{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-12px}
+  .player-right{display:none!important}
+
+  /* 5 · breathing room + no cut-offs */
+  .page{padding:0 12px 16px;overflow-x:hidden}
+  .page h1{font-size:clamp(22px,7vw,30px);line-height:1.15}
+  .section-title{font-size:19px;margin:14px 0 10px}
+  .song-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .page img{max-width:100%}
+  .section-header{gap:8px;flex-wrap:wrap}
+  .mini-player-shell{left:12px;right:12px;width:auto}
+
+  /* JOHN on phones: top-bar button replaces the floating launcher */
+  #jnFab{display:none!important}
+  #jnIntro{top:auto;bottom:calc(var(--player-h) + 12px);transform:translateY(24px)}
+  #jnIntro.vis{transform:none}
+}
+@media (min-width:701px){.jn-tb-logo{display:none}}
+.jn-tb-logo{width:22px;height:22px;flex-shrink:0}
+</style>
+<script id="blastrPhoneJs">
+(function(){
+const mq=window.matchMedia('(max-width:700px)');
+// John logo inside the existing top-bar mic button (CSS shows it on phones only)
+function decorate(){const c=document.getElementById('vaCluster');if(c&&!c.querySelector('.jn-tb-logo')){const d=document.createElement('span');d.className='bx-logo jn-tb-logo';c.insertBefore(d,c.firstChild);}}
+decorate();setInterval(decorate,1200);
+document.addEventListener('click',e=>{
+  if(!mq.matches)return;
+  // tap the mini player cover/title → Now Vibing (its button is tucked away on phones)
+  if(e.target.closest('#npCover,#npTitle')&&window.state?.currentTrack&&typeof toggleVibing==='function'){toggleVibing();return;}
+  // picking a page in the drawer closes it
+  if(e.target.closest('#appScreen .sidebar .sidebar-btn')&&typeof closeSidebarDrawer==='function')setTimeout(()=>closeSidebarDrawer(),60);
+});
+})();
+</script>
 </body>
 </html>
