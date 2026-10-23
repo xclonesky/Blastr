@@ -4773,16 +4773,16 @@ body.light .search-input{color:var(--text)}
 // BLASTR WEB v2 — CORE STATE ENGINE
 // ═══════════════════════════════════════════════════════
 // ── DUAL-PROJECT ROTATION (Blastr Backup) ──
-// index 1 = P2 (default), index 0 = P3 (standby: takes over when P2 fails). Failover flips ACTIVE, never both at once.
+// index 0 = P3 (default, live). index 1 = P2 (retired: over quota; never used for failover or mirroring).
 const BLASTR_PROJECTS = [
   { label: "P3", url: "https://icpzknawzlrgdbgnpdcj.supabase.co", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcHprbmF3emxyZ2RiZ25wZGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDYwODQsImV4cCI6MjEwODE4MjA4NH0.YnWFy70BV8xoIEmsF1ygZsCbZ-JYDofrJ5p9zS9GO6M" },
-  { label: "P2", url: "https://zlkdlvovnclxqfwpafnc.supabase.co", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsa2Rsdm92bmNseHFmd3BhZm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3Mzg4MzksImV4cCI6MjEwMTMxNDgzOX0.RORueyIi_SDvy3Ub1FL3FB5ETa8y-0syH-0azj3L3ac" }
+  { label: "P2", retired: true, url: "https://zlkdlvovnclxqfwpafnc.supabase.co", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpsa2Rsdm92bmNseHFmd3BhZm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3Mzg4MzksImV4cCI6MjEwMTMxNDgzOX0.RORueyIi_SDvy3Ub1FL3FB5ETa8y-0syH-0azj3L3ac" }
 ];
-const BLASTR_ACTIVE_STORAGE_KEY = 'blastr_active_project_v2'; // new key: old saved values (0 meant the old P1) must not map to P3
+const BLASTR_ACTIVE_STORAGE_KEY = 'blastr_active_project_v3'; // new key: everyone starts on P3, old saved choices are ignored
 let blastrActiveIdx = (() => {
-  try { const v = parseInt(localStorage.getItem(BLASTR_ACTIVE_STORAGE_KEY), 10); return (v === 0 || v === 1) ? v : 1; } catch(e) { return 1; }
+  try { const v = parseInt(localStorage.getItem(BLASTR_ACTIVE_STORAGE_KEY), 10); return (v === 0 || v === 1) ? v : 0; } catch(e) { return 0; }
 })();
-// P2 is the default. After a failover to P3 (index 0) the choice is kept in localStorage so sessions stay valid across reloads.
+// P3 is the default. A retired project (P2) is never switched to, so quota blips on P3 cannot bounce people between projects.
 let SUPABASE_URL = BLASTR_PROJECTS[blastrActiveIdx].url;
 let SUPABASE_KEY = BLASTR_PROJECTS[blastrActiveIdx].key;
 document.addEventListener('DOMContentLoaded', () => { try { blastrUpdateBadge(); } catch(e) {} });
@@ -4815,6 +4815,7 @@ function blastrSwitchProject(reason) {
 // a single blip (cold start, one dropped request) should never cause a switch.
 let blastrQuotaStrikes = 0;
 function blastrRegisterQuotaStrike(reason) {
+  if (BLASTR_PROJECTS[blastrActiveIdx === 0 ? 1 : 0].retired) { blastrQuotaStrikes = 0; return false; }
   blastrQuotaStrikes += 1;
   diag('ROTATE', `Quota strike ${blastrQuotaStrikes}/2`, reason);
   if (blastrQuotaStrikes >= 2) {
@@ -4845,6 +4846,7 @@ function blastrMirrorWrite(path, opts, resultPayload) {
     const method = String(opts.method || 'GET').toUpperCase();
     if (!['POST', 'PATCH', 'DELETE'].includes(method)) return;
     const standby = blastrStandbyProject();
+    if (standby.retired) return;
     let mirrorBody = opts.body;
     if (method === 'POST' && resultPayload) {
       const row = Array.isArray(resultPayload) ? resultPayload[0] : resultPayload;
@@ -4862,11 +4864,12 @@ function blastrMirrorWrite(path, opts, resultPayload) {
     fetch(`${standby.url}${path}`, { method, headers: h, body: sendBody, credentials: 'omit' }).catch(() => {});
   } catch(e) { /* mirroring is best-effort only */ }
 }
-const BLASTR_MIRROR_SKIP_BUCKETS = ['songs']; // P3 (standby) is nearly full on the free plan; empty this list to mirror songs again
+const BLASTR_MIRROR_SKIP_BUCKETS = ['songs']; // song files are never mirrored (free-plan storage); only relevant if a live standby is added
 function blastrMirrorStorageUpload(bucket, objectName, file, mime) {
   if (BLASTR_MIRROR_SKIP_BUCKETS.includes(bucket)) return;
   try {
     const standby = blastrStandbyProject();
+    if (standby.retired) return;
     const encodedName = blastrNormalizePublicObjectPath(objectName);
     const h = new Headers({ apikey: standby.key, Authorization: `Bearer ${standby.key}`, 'x-upsert': 'true' });
     if (mime) h.set('Content-Type', mime);
