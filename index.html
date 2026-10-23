@@ -7,7 +7,7 @@ html.bx-rest body::after{content:'';position:fixed;left:50%;top:50%;width:44px;h
 var n=navigator,c=n.connection||{},low=(n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||c.saveData||/2g/.test(c.effectiveType||'');
 if(L==='1'||(L===null&&low))d.classList.add('bx-lite');
 if(!s&&!seen){d.classList.add('bx-pre');setTimeout(function(){d.classList.remove('bx-pre')},6000)}else if(s){d.classList.add('bx-rest');setTimeout(function(){d.classList.remove('bx-rest')},3500)}})();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://icpzknawzlrgdbgnpdcj.supabase.co" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>if(localStorage.getItem('blastr_linked_accounts_v1')){document.documentElement.style.visibility='hidden';}</script>
@@ -6335,6 +6335,34 @@ audio.addEventListener('timeupdate',()=>{
 audio.addEventListener('ended',()=>{if(!state.isRepeat) nextTrack();});
 audio.addEventListener('play',()=>{state.isPlaying=true;syncPlayState();});
 audio.addEventListener('pause',()=>{state.isPlaying=false;syncPlayState();});
+// ── PLAYBACK RECOVERY (v92): resume on its own when the stream stalls or the connection drops ──
+(function(){
+  const rec={busy:false,busyAt:0,tries:0,src:'',lastT:-1,lastMove:Date.now()};
+  const MAX_TRIES=4, FREEZE_MS=20000;
+  function recover(why){
+    if(rec.busy||!audio.src||(audio.paused&&!state.isPlaying)) return;
+    if(rec.tries>=MAX_TRIES){rec.tries=0;try{showToast('STREAM ERROR','Connection is unstable.','Press play to try again');}catch(e){}return;}
+    rec.tries++;rec.busy=true;rec.busyAt=Date.now();
+    const src=audio.src,t=audio.currentTime||0;
+    diag('PLAYBACK',`Recovering (${why}) try ${rec.tries}/${MAX_TRIES}`,{t});
+    setTimeout(()=>{
+      if(audio.src!==src){rec.busy=false;return;} // another song was started meanwhile
+      const onMeta=()=>{audio.removeEventListener('loadedmetadata',onMeta);try{if(t>1)audio.currentTime=t;}catch(e){}audio.play().catch(()=>{});};
+      audio.addEventListener('loadedmetadata',onMeta);
+      audio.load();
+    },800*rec.tries);
+  }
+  audio.addEventListener('error',()=>{const c=audio.error&&audio.error.code;rec.busy=false;if(c===2||c===4)recover('error '+c);});
+  audio.addEventListener('playing',()=>{rec.busy=false;rec.lastMove=Date.now();});
+  audio.addEventListener('loadstart',()=>{if(audio.src!==rec.src){rec.src=audio.src;rec.tries=0;rec.busy=false;}}); // a new song resets the counters
+  audio.addEventListener('ended',()=>{rec.tries=0;});
+  setInterval(()=>{
+    if(rec.busy&&Date.now()-rec.busyAt>25000) rec.busy=false;
+    if(audio.paused||audio.ended||!state.isPlaying){rec.lastMove=Date.now();return;}
+    if(audio.currentTime!==rec.lastT){rec.lastT=audio.currentTime;rec.lastMove=Date.now();return;}
+    if(Date.now()-rec.lastMove>FREEZE_MS&&!rec.busy){rec.lastMove=Date.now();recover('frozen');}
+  },3000);
+})();
 function fmtTime(s){if(!s||isNaN(s)) return '0:00';return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
 
 // ── FAVORITES ──
