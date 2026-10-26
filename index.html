@@ -6,6 +6,7 @@ html.bx-rest body::after{content:'';position:fixed;left:50%;top:50%;width:44px;h
 <script>(function(){var d=document.documentElement,s=null,seen=0,L=null;try{s=JSON.parse(localStorage.getItem('blastr_session_v3')||'null')}catch(e){}try{seen=sessionStorage.getItem('bx_intro')}catch(e){}try{L=localStorage.getItem('blastr_lite')}catch(e){}
 var n=navigator,c=n.connection||{},low=(n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||c.saveData||/2g/.test(c.effectiveType||'');
 if(L==='1'||(L===null&&low))d.classList.add('bx-lite');
+if(/access_token=/.test(location.hash)&&!s){d.classList.add('bx-rest');setTimeout(function(){d.classList.remove('bx-rest')},6000)}
 if(!s&&!seen){d.classList.add('bx-pre');setTimeout(function(){d.classList.remove('bx-pre')},6000)}else if(s){d.classList.add('bx-rest');setTimeout(function(){d.classList.remove('bx-rest')},3500)}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta charset="UTF-8">
@@ -3821,6 +3822,7 @@ body.light .search-input{color:var(--text)}
           <input type="password" class="form-input" id="passInput" placeholder="••••••••••" onkeydown="if(event.key==='Enter')handleLogin()">
         </div>
         <button class="btn-primary" id="loginBtn" onclick="handleLogin()">INITIALIZE SESSION</button>
+        <button type="button" class="btn-signup" onclick="handleGoogleAuth()" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>CONTINUE WITH GOOGLE</button>
         <div class="login-divider">or</div>
         <button class="btn-signup" onclick="switchToSignup()">CREATE NEW ACCOUNT</button>
       </div>
@@ -5504,6 +5506,7 @@ function blastrIsStorageRetryableStatus(res, payloadText = '') {
 async function blastrDeleteStorageObject(bucket, objectName, token = null) {
   try {
     const safeBucket = String(bucket || '').trim();
+    if (safeBucket === 'b2') { await blastrB2Call('delete', { key: objectName }, token); return true; }
     const safeName = blastrNormalizePublicObjectPath(objectName);
     if (!safeBucket || !safeName) return false;
 
@@ -5586,12 +5589,53 @@ async function blastrEnsureFreshSession(reason = 'storage upload') {
   throw new Error(`Please sign in again before ${reason}.`);
 }
 
+
+// ═══════ BLASTR B2 STORAGE (songs live on Backblaze B2, served by a Cloudflare Worker) ═══════
+const BLASTR_B2 = { worker: 'https://blastr-media.alexadrian-theoriginal.workers.dev', fn: 'b2-admin' };
+function blastrB2On() { return /^https:\/\//i.test(BLASTR_B2.worker) && !/PASTE_YOUR/i.test(BLASTR_B2.worker); }
+function blastrB2PublicUrl(key) { return BLASTR_B2.worker.replace(/\/+$/, '') + '/' + String(key).split('/').map(encodeURIComponent).join('/'); }
+function blastrDlUrl(u, name) { try { if (blastrB2On() && String(u).indexOf(BLASTR_B2.worker.replace(/\/+$/, '')) === 0) return u + (u.indexOf('?') > -1 ? '&' : '?') + 'dl=1&name=' + encodeURIComponent(name); } catch (e) {} return u; }
+async function blastrB2Token() {
+  try { const t = await blastrEnsureFreshSession('B2 storage'); if (t) return t; } catch (e) {}
+  return blastrGetStoredAuth()?.access_token || state.session?.access_token || null;
+}
+async function blastrB2Call(action, payload, token) {
+  const tk = token || await blastrB2Token();
+  if (!tk) throw new Error('Please log in again.');
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${BLASTR_B2.fn}?action=${encodeURIComponent(action)}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload || {}), credentials: 'omit'
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const e = new Error(j.error === 'not_allowed' ? 'Not allowed. Add this ID to ALLOWED_USER_IDS: ' + j.your_user_id : (j.detail || j.error || ('B2 call failed (' + res.status + ')')));
+    e.status = res.status; e.data = j; throw e;
+  }
+  return j;
+}
+async function blastrB2Upload(objectName, file) {
+  const mime = blastrGuessMime(file, blastrGuessExtension(file)) || 'audio/mpeg';
+  const key = 'songs/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '-' + String(objectName).replace(/[^\w.\-]+/g, '_');
+  const token = await blastrB2Token();
+  if (!token) throw new Error('Please log in again before uploading.');
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${BLASTR_B2.fn}?action=upload&key=${encodeURIComponent(key)}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + token, 'Content-Type': mime },
+    body: file, credentials: 'omit'
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error === 'not_allowed' ? 'Not allowed to upload. Add this ID to ALLOWED_USER_IDS: ' + j.your_user_id : (j.detail || j.error || ('B2 upload failed (' + res.status + ')')));
+  return { url: blastrB2PublicUrl(key), bucket: 'b2', objectName: key, mime, authMode: 'b2' };
+}
+
 async function blastrUploadStorageFile(bucket, fileName, file, opts = {}, _retried = false) {
   const safeBucket = String(bucket || '').trim();
   if (!safeBucket) throw new Error('Missing storage bucket.');
   if (!file) throw new Error(`Missing file for ${safeBucket}.`);
 
   const objectName = blastrNormalizeObjectName(fileName, opts.fallbackBase || safeBucket);
+  if (safeBucket === 'songs' && blastrB2On()) return await blastrB2Upload(objectName, file);
   const encodedName = blastrNormalizePublicObjectPath(objectName);
   const mime = blastrGuessMime(file, blastrGuessExtension(file));
   const url = `${SUPABASE_URL}/storage/v1/object/${encodeURIComponent(safeBucket)}/${encodedName}`;
@@ -5813,7 +5857,7 @@ async function blastrRestoreSession() {
     });
     requestAnimationFrame(tick);
   }
-  window.addEventListener('resize',init);
+  let __rt;window.addEventListener('resize',()=>{clearTimeout(__rt);__rt=setTimeout(()=>{if(!document.getElementById('loginScreen').classList.contains('hidden'))init()},250)});
   init();tick();
 })();
 
@@ -6776,6 +6820,7 @@ function animateZenCanvas(){
   g.addColorStop(.5,`hsla(${(zenHue+100)%360},55%,12%,.28)`);
   g.addColorStop(1,`hsla(${(zenHue+180)%360},45%,4%,.12)`);
   ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+  if(document.documentElement.classList.contains('bx-lite')||document.body.classList.contains('blastr-lite-mode'))return;
   state.zenAnimFrame=requestAnimationFrame(animateZenCanvas);
 }
 function toggleZenGradient(){
@@ -7051,7 +7096,7 @@ function syncZenLyric(posMs) {
   zenUpdateProgress();
 }
 
-window.addEventListener('resize', resizeZenCanvas);
+window.addEventListener('resize', () => { if (state.inZen) resizeZenCanvas(); });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&state.inZen) toggleZen();
   if(e.code==='Space'&&state.inZen){e.preventDefault();togglePlayback();}
@@ -7081,7 +7126,7 @@ async function downloadCurrentTrack() {
   const t=state.currentTrack;
   if(!t||!t.url){showToast('ERROR','Nothing playing to download');return;}
   showToast('DOWNLOADING',t.title,'Extracting from grid...','download');
-  try{const a=document.createElement('a');a.href=t.url;a.download=`${t.title} - ${t.artist||'Blastr'}.mp3`;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+  try{const a=document.createElement('a');a.href=blastrDlUrl(t.url,(t.title||'song')+' - '+(t.artist||'Blastr')+'.mp3');a.download=`${t.title} - ${t.artist||'Blastr'}.mp3`;document.body.appendChild(a);a.click();document.body.removeChild(a);}
   catch(e){showToast('ERROR','Download failed');}
 }
 
@@ -9844,7 +9889,7 @@ body.blastr-lite-mode .zen-lyric-line.exiting{animation:none !important}
     if (window.state?.session?.user) renderAccountPage();
   });
 
-  window.addEventListener('resize', () => setPerfClass());
+  { let __pt; window.addEventListener('resize', () => { clearTimeout(__pt); __pt = setTimeout(setPerfClass, 250); }); }
 
   window.blastrRefreshPrefs = autoApplyPrefs;
 })();
@@ -10037,7 +10082,7 @@ function thStartAuto() {
 }
 function thStopAuto() {
   if (TH.timer) { clearTimeout(TH.timer); TH.timer = null; }
-  if (TH.progress) { cancelAnimationFrame(TH.progress); TH.progress = null; }
+  if (TH.progress) { clearTimeout(TH.progress); TH.progress = null; }
 }
 function thPauseProgress() {
   thStopAuto();
@@ -10056,7 +10101,7 @@ function thTickProgress() {
     thTransition((TH.current + 1) % TH.stages.length);
     return;
   }
-  TH.progress = requestAnimationFrame(thTickProgress);
+  TH.progress = setTimeout(thTickProgress, document.hidden ? 600 : ((document.body.classList.contains('blastr-lite-mode')||document.documentElement.classList.contains('bx-lite')) ? 220 : 90));
 }
 
 // Pause when current song is actively playing
@@ -13487,6 +13532,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
   function closeOverlay(){ document.getElementById('nfOverlay')?.classList.remove('open'); document.querySelectorAll('#nfOverlay .nf-stage').forEach(el=>el.classList.remove('active')); }
 
   function runIntro(){
+    if(document.documentElement.classList.contains('bx-lite')){stage('who');renderTiles();window.blastrShowApology?.();return}
     const letter=document.getElementById('nfBootLetter');
     const word=document.getElementById('nfBootWordmark');
     const spin=document.getElementById('nfBootSpinnerWrap');
@@ -13610,7 +13656,7 @@ body.blastr-lite-mode .nf-boot-wordmark{transition:opacity .3s ease}
 
   function boot(){
     const list = getLinked();
-    if(!list.length){ reveal(); return; }
+    if(!list.length||/access_token=/.test(location.hash)){ reveal(); return; }
     stage('intro');
     openOverlay();
     reveal();
@@ -14660,8 +14706,8 @@ const gen=g=>(g||'').split(',').map(x=>x.trim()).filter(Boolean);
 /* ── brand star on the login screen + intro splash (returning visitors who must sign in) ── */
 const bw=$('.login-brand-wrap');if(bw){const d=document.createElement('div');d.className='bx-logo bx-lstar';bw.prepend(d)}
 let stored=false,seenI=0;try{stored=!!blastrGetStoredAuth()}catch(e){}try{seenI=sessionStorage.getItem('bx_intro');sessionStorage.setItem('bx_intro','1')}catch(e){}
-if(!stored&&!seenI){const i=document.createElement('div');i.id='bxIntro';i.innerHTML='<div class="bx-irow"><div class="bx-logo bx-istar"></div><div class="bx-word"><b>B</b><span>LASTR</span></div></div><div class="bx-skip">TAP TO SKIP</div>';document.body.appendChild(i);
- const end=()=>{document.documentElement.classList.remove('bx-pre');i.classList.add('out');setTimeout(()=>i.remove(),800)};i.onclick=end;setTimeout(end,3000)}
+if(!stored&&!seenI&&!document.documentElement.classList.contains('bx-lite')){const i=document.createElement('div');i.id='bxIntro';i.innerHTML='<div class="bx-irow"><div class="bx-logo bx-istar"></div><div class="bx-word"><b>B</b><span>LASTR</span></div></div><div class="bx-skip">TAP TO SKIP</div>';document.body.appendChild(i);
+ const end=()=>{document.documentElement.classList.remove('bx-pre');i.classList.add('out');setTimeout(()=>i.remove(),800)};i.onclick=end;setTimeout(end,3000)}else{document.documentElement.classList.remove('bx-pre')}
 
 /* ── mobile bottom tab bar ── */
 const bn=document.createElement('nav');bn.id='bxBn';bn.innerHTML=[['home','⌂','HOME'],['explore','✦','EXPLORE'],['favorites','♥','LIKED'],['account','◎','ME']].map(([p,i,l])=>`<button data-p="${p}" onclick="showPage('${p}',document.getElementById('nav-${p}'))"><i>${i}</i>${l}</button>`).join('')+'<button onclick="toggleSidebarDrawer()"><i>☰</i>MENU</button>';document.body.appendChild(bn);
@@ -14681,14 +14727,14 @@ function bxStart(){
  <div class="bx-ch" id="bxC0"><div class="bx-hi">HI,<br><b>WELCOME TO BLASTR!</b></div><div class="bx-sub">Let’s tune the grid to you — your music, your vibe, your rules.</div></div>
  <div class="bx-ch" id="bxC1"><div class="bx-h2">Create your <b>account</b></div><div class="bx-card" style="margin-top:20px">
   <input class="bx-in" id="bxN" placeholder="Your name" maxlength="30" autocomplete="given-name"><input class="bx-in" id="bxU" placeholder="Username" autocomplete="username"><input class="bx-in" id="bxE" type="email" placeholder="Email address" autocomplete="email"><input class="bx-in" id="bxP" type="password" placeholder="Password (6+ characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')BX.next()">
-  <div class="bx-or">OR CONTINUE WITH</div><div class="bx-soc"><button onclick="BX.soon()"><b>f</b>Facebook</button><button onclick="BX.soon()"><b>𝕏</b>X</button><button onclick="BX.soon()"><b>◆</b>Apple ID</button></div><div class="bx-msg" id="bxMsg"></div></div></div>
+  <div class="bx-or">OR CONTINUE WITH</div><div class="bx-soc"><button onclick="handleGoogleAuth()"><b style="color:#4285F4">G</b>Google</button><button onclick="BX.soon()"><b>𝕏</b>X</button><button onclick="BX.soon()"><b>◆</b>Apple ID</button></div><div class="bx-msg" id="bxMsg"></div></div></div>
  ${pick(2,'Pick the artists <b>you love</b>','Choose at least 3. Blastr tunes your feed to them — and keeps the rest out of your way.')}${pick(3,'Now pick your <b>songs</b>','Choose at least 3 songs that feel like you.')}
  <div class="bx-ch" id="bxC4"><svg class="bx-ring" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M14 27l8 8 16-17"/></svg><div class="bx-hi" style="margin-top:18px">YOU ARE<br><b>ALL SET UP</b></div><div class="bx-sub">Launching your Blastr…</div></div>
  <button class="bx-next" id="bxNext" onclick="BX.next()">NEXT →</button>`;
  document.body.appendChild(F);
  const fw=$('#loginFormWrap');fw&&fw.classList.add('bxslide');
  requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#bxWipe').style.width='100vw';$('#bxRoll').classList.add('go')}));
- setTimeout(()=>{$('#bxRoll').classList.add('dock');F.classList.add('live');show(0)},1450)}
+ setTimeout(()=>{$('#bxRoll').classList.add('dock');F.classList.add('live');show(BX._go||0);BX._go=0},1450)}
 function show(n){ch=n;$$('.bx-ch',F).forEach((c,i)=>c.classList.toggle('on',i===n));const b=$('#bxNext');b.classList.add('on');
  b.textContent=['NEXT →','CREATE ACCOUNT →','NEXT: PICK SONGS →','FINISH ✓'][n]||'';b.disabled=false;if(n===4)b.classList.remove('on');if(n===2||n===3)upd();$('#bxBack').style.display=n<2?'':'none'}
 BX.close=()=>{if(!F)return;const f=F;F=null;f.classList.add('out');setTimeout(()=>f.remove(),900);const fw=$('#loginFormWrap');fw&&fw.classList.remove('bxslide');try{switchToLogin()}catch(e){}};
@@ -14739,6 +14785,7 @@ async function finish(){
  try{await blastrHydrateSession(S.ses,'signup')}catch(e){}
  const f=F;F=null;f.classList.add('out');setTimeout(()=>f.remove(),950)}
 window.switchToSignup=bxStart;
+BX.afterGoogle=function(ses){Promise.resolve().then(function(){return window.getArtists()}).catch(function(){return[]}).then(function(a){bxStart();if(!F)return;S.ses=ses;S.artists=a||[];BX._go=2;draw(2)})};
 
 /* ── taste-aware home: "Picked For You" row ── */
 async function getTaste(){const uid=state.session?.user?.id;if(!uid)return null;
@@ -14797,7 +14844,7 @@ new MutationObserver(()=>{if(!app.classList.contains('hidden'))done()}).observe(
 const _cs=window.blastrClearStoredAuth;window.blastrClearStoredAuth=function(){done();return _cs.apply(this,arguments)};
 /* images: lazy + async decode, everywhere, including ones added later */
 const fix=i=>{if(!i.loading)i.loading='lazy';i.decoding='async'};
-$$('img').forEach(fix);new MutationObserver(m=>m.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)n.tagName==='IMG'?fix(n):n.querySelectorAll&&n.querySelectorAll('img').forEach(fix)}))).observe(document.body,{childList:true,subtree:true});
+$$('img').forEach(fix);let __it;new MutationObserver(()=>{clearTimeout(__it);__it=setTimeout(()=>$$('img:not([decoding])').forEach(fix),500)}).observe(document.body,{childList:true,subtree:true});
 /* pause ambient animation when the tab is hidden; hide tab bar while typing */
 document.addEventListener('visibilitychange',()=>d.classList.toggle('bx-hid',document.hidden));
 const bn=document.getElementById('bxBn');
@@ -15817,7 +15864,7 @@ function maybeIntro(){
 build();
 const origTap=window.vaHandleTap;
 window.vaHandleTap=function(){toggle();};
-setInterval(()=>{const c=$('vaCluster');if(c&&isDesk()&&c.title!=='Talk to JOHN AI (Alt+J)')c.title='Talk to JOHN AI (Alt+J)';},1500);
+(function(){let n=0;const iv=setInterval(()=>{const c=$('vaCluster');if(c&&isDesk()&&c.title!=='Talk to JOHN AI (Alt+J)')c.title='Talk to JOHN AI (Alt+J)';if(++n>20)clearInterval(iv);},1500);})();
 const origEnter=window.enterApp;
 if(typeof origEnter==='function')window.enterApp=function(){const r=origEnter.apply(this,arguments);setTimeout(maybeIntro,1600);return r;};
 const origLogout=window.logout;
@@ -15924,9 +15971,9 @@ window.JOHN={open:()=>toggle(true),close:()=>toggle(false),send};
 const mq=window.matchMedia('(max-width:700px)');
 // John logo inside the existing top-bar mic button (CSS shows it on phones only)
 function decorate(){const c=document.getElementById('vaCluster');if(c&&!c.querySelector('.jn-tb-logo')){const d=document.createElement('span');d.className='bx-logo jn-tb-logo';c.insertBefore(d,c.firstChild);}}
-decorate();setInterval(decorate,1200);
+decorate();var __dc=0,__di=setInterval(function(){decorate();if(++__dc>12)clearInterval(__di)},1200);
 function addMore(){const pb=document.querySelector('.player-bar');if(pb&&!document.getElementById('pbMore')){const b=document.createElement('button');b.id='pbMore';b.className='np-heart';b.type='button';b.setAttribute('aria-label','More player controls');b.textContent='⋯';const pc=pb.querySelector('.player-controls');pb.insertBefore(b,pc);}}
-addMore();setInterval(addMore,1500);
+addMore();var __am=0,__ai=setInterval(function(){addMore();if(++__am>12)clearInterval(__ai)},1500);
 document.addEventListener('click',e=>{
   const pb=document.querySelector('.player-bar');
   if(pb){if(e.target.closest('#pbMore'))pb.classList.toggle('pb-open');else if(!e.target.closest('.player-right'))pb.classList.remove('pb-open');}
@@ -16144,7 +16191,7 @@ button,a,.song-tile,.artist-card{touch-action:manipulation}
 .artist-card.sp-t{position:relative}
 .artist-card.sp-t .sp-logo{right:calc(50% - 56px);top:2px}
 .song-tile,.artist-card{contain:layout style}
-html.sp-scr *{animation-play-state:paused!important}
+html.sp-scr .sidebar-eq .bar,html.sp-scr .pulse-bar,html.sp-scr .login-eq-bar,html.sp-scr .player-progress-accent,html.sp-scr .th-breath,html.sp-scr .orb,html.sp-scr .vibing-eq .bar,html.sp-scr .xbtn-dot,html.sp-scr .because-badge .dot,html.sp-scr .th-sweep::after,html.sp-scr .account-hero::after,html.sp-scr .explore-hero-card::after,html.sp-scr .explore-live-badge::before{animation-play-state:paused!important}
 html.sp-scr .song-grid,html.sp-scr .artist-row-scroll{pointer-events:none}
 .blastr-lite-mode .sp-banner,.blastr-lite-mode .sp-float,.blastr-lite-mode .sp-sheet{animation:none}
 .blastr-lite-mode .sp-bart{transform:none!important}
@@ -16173,14 +16220,19 @@ function dur(ms){if(!ms)return'';var s=Math.round(ms/1000);return Math.floor(s/6
 function img(u,f){return u?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+E(u)+'" alt="">':(f||'♪')}
 function save(){try{localStorage.setItem('sp_my_orders_v1',JSON.stringify(MY))}catch(e){}}
 
+/* ── persistent cache: reloads reuse Spotify data instead of waiting on the network ── */
+var LSP='spc1:';
+function lsGetC(k,ttl){if(!ttl||ttl<1800000)return null;try{var r=localStorage.getItem(LSP+k);if(!r)return null;var o=JSON.parse(r);if(Date.now()-o.t<ttl)return o.v;localStorage.removeItem(LSP+k)}catch(e){}return null}
+function lsPutC(k,v,ttl){if(!ttl||ttl<1800000)return;try{var s=JSON.stringify({t:Date.now(),v:v});if(s.length>350000)return;localStorage.setItem(LSP+k,s)}catch(e){try{Object.keys(localStorage).forEach(function(x){if(x.indexOf(LSP)===0)localStorage.removeItem(x)})}catch(x){}}}
 /* ── backend call (edge function, deduped + memory cached) ── */
 function call(op,a,ttl){
   var k=op+JSON.stringify(a||{}),m=MEM[k];
   if(m&&(m.p||Date.now()-m.t<(ttl||600000)))return m.p||Promise.resolve(m.v);
+  var pc=lsGetC(k,ttl);if(pc){MEM[k]={t:Date.now(),v:pc};return Promise.resolve(pc)}
   var h=blastrAuthHeaders();h.set('Content-Type','application/json');if(/^sb_/.test(SUPABASE_KEY)&&h.get('Authorization')==='Bearer '+SUPABASE_KEY)h.delete('Authorization');
   var p=fetch(SUPABASE_URL+'/functions/v1/spotify-proxy',{method:'POST',headers:h,body:JSON.stringify(Object.assign({op:op},a||{}))})
     .then(function(r){return r.json().catch(function(){return{error:'bad response'}}).then(function(j){if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));return j})})
-    .then(function(j){MEM[k]={t:Date.now(),v:j};OK=true;return j})
+    .then(function(j){MEM[k]={t:Date.now(),v:j};OK=true;lsPutC(k,j,ttl);return j})
     .catch(function(e){delete MEM[k];if(OK===null)OK=false;throw e});
   MEM[k]={p:p,t:0};return p;
 }
@@ -16502,7 +16554,7 @@ function banner(arts,d){
 var FW,FB,FT='n',FI=0,FTM,FD=null;
 function widget(d){
   FD=d;if($('spFloat')){fTab(FT);return}
-  var min=false;try{min=localStorage.getItem('sp_fmin')==='1'}catch(e){}
+  var min=false;try{var _fm=localStorage.getItem('sp_fmin');min=_fm===null?innerWidth<820:_fm==='1'}catch(e){}
   FW=G.createElement('div');FW.className='sp-float'+(min?' hide':'');FW.id='spFloat';
   FW.innerHTML='<div class="sp-fh" id="spFH"><span class="sp-fl">'+LOGO+'SPOTIFY PULSE</span><span class="sp-fa"><button data-t="n" class="on">NEW</button><button data-t="o">ORDERS</button><button data-t="i">IMPORT</button><button id="spFMin" title="Minimize">–</button></span></div><div class="sp-fb" id="spFB"></div>';
   var fab=G.createElement('button');fab.className='sp-fab'+(min?'':' hide');fab.id='spFab';fab.title='Spotify Pulse';fab.innerHTML=LOGO;
@@ -16527,7 +16579,7 @@ function fSlide(i){
   var L=(FD&&FD.releases)||[];if(!L.length||!FB)return;FI=(i+L.length)%L.length;var a=L[FI];REG[a.id]=a;a.kind='album';
   FB.innerHTML='<div class="sp-fs"><div class="sp-cov" onclick="SP.openAlbum(\''+a.id+'\')" style="cursor:pointer">'+img(a.cover,'💿')+'</div><div class="sp-fi"><b>'+E(a.title)+'</b><small>'+E(a.artist)+(a.date?' · '+a.date.slice(0,4):'')+'</small><div class="sp-bcta"><button class="sp-b" data-spo="'+a.id+'" onclick="SP.order(\''+a.id+'\')">'+obText(a)+'</button><button class="sp-b ghost" onclick="SP.openAlbum(\''+a.id+'\')">VIEW</button></div></div></div><div class="sp-dots">'+L.slice(0,8).map(function(_,j){return'<i class="'+(j===FI?'on':'')+'" onclick="SP.fGo('+j+')"></i>'}).join('')+'</div>';
 }
-function fRun(){clearInterval(FTM);if(FT==='n')FTM=setInterval(function(){if(!G.hidden)fSlide(FI+1)},7000)}
+function fRun(){clearInterval(FTM);if(FT==='n'&&!G.body.classList.contains('blastr-lite-mode')&&!G.documentElement.classList.contains('bx-lite'))FTM=setInterval(function(){if(!G.hidden)fSlide(FI+1)},7000)}
 function myOrders(){var u=S().session&&S().session.user;if(!u)return Promise.resolve([]);return sbFetch('/rest/v1/track_order_votes?select=order_id,track_orders(title,artist,cover_url,status,votes)&user_id=eq.'+u.id+'&order=created_at.desc&limit=12').then(function(r){return Array.isArray(r)?r:[]}).catch(function(){return[]})}
 
 /* ── overlay sheets: artist / album / track ── */
@@ -16627,7 +16679,7 @@ function boot(){
   G.addEventListener('keydown',function(e){if(e.key==='Escape'&&ov.classList.contains('open'))closeOv()});
   hookSearch();adminInit();perfInit();socialInit();afInit();genreInit();setTimeout(genreInit,2500);
   var _lh=window.loadHomeContent;
-  if(_lh)window.loadHomeContent=async function(){var r=await _lh.apply(this,arguments);try{mountHome()}catch(e){}return r};
+  if(_lh)window.loadHomeContent=async function(){var r=await _lh.apply(this,arguments);try{(window.requestIdleCallback||function(f){setTimeout(f,300)})(function(){try{mountHome()}catch(e){}},{timeout:1500})}catch(e){}return r};
   var _oap=window.openArtistProfile;
   if(_oap)window.openArtistProfile=function(a){var p=_oap.apply(this,arguments);try{artistBanner(a);artistEng(a)}catch(e){}Promise.resolve(p).then(function(){if(!$('spArtistBanner'))artistBanner(a)});return p};
   if(S().allTracks&&S().allTracks.length&&$('homeContent')&&$('homeContent').children.length)mountHome();
@@ -16636,6 +16688,7 @@ if(G.body)boot();else G.addEventListener('DOMContentLoaded',boot);
 return{order:order,play:play,openArtist:openArtist,openAlbum:openAlbum,openTrack:openTrack,back:back,close:closeOv,fGo:function(i){fSlide(i);fRun()},fOpen:fOpen,ordF:function(f){OF=f;renderOrders()},ordSet:ordSet,ordFill:ordFill,mountHome:mountHome,cmPost:cmPost,cmMore:function(){cmLoad(false)},cmDel:cmDel,rxChip:function(e,el){react(CMT,e,el)},afPick:afPick,embed:embed,orderMany:orderMany,impGo:impGo,openPlaylist:openPlaylist,avSet:avSet,pickSearch:function(q){return call('search',{q:q},600000).then(function(r){return{artists:r.artists.map(function(a){return{id:'sp:'+a.id,name:a.name,avatar_url:a.avatar,genre:(a.genres||[]).slice(0,3).join(','),kind:'artist',sp:1}}),tracks:r.tracks.map(function(t){return{id:'sp:'+t.id,title:t.title,artist:t.artist,cover_url:t.cover,genre:'',kind:'track',sp:1}})}})}};
 })();
 </script>
+
 
 <script id="xaJs">
 (function(){window.XA_CONFIG={app:"blastr",endpoint:function(){return SUPABASE_URL+"/functions/v1/xa-ingest"},key:function(){return SUPABASE_KEY}};
@@ -16680,5 +16733,210 @@ var _hs=window.handleSignupSubmit;
 if(_hs)window.handleSignupSubmit=async function(){var r=await _hs.apply(this,arguments);try{if(S().session&&S().session.user)xaEv('signup')}catch(e){}return r};
 })();
 </script>
+
+<script id="b2GoogleJs">
+/* ═══════ ADMIN: B2 MIGRATION TAB ═══════ */
+(function(){
+  var D=document, $=function(i){return D.getElementById(i)};
+  var OLD='/storage/v1/object/public/songs/';
+  var rows=[], busy=false, stop=false;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function kind(t){var u=String(t.url||'');if(blastrB2On()&&u.indexOf(BLASTR_B2.worker.replace(/\/+$/,''))===0)return'done';return u.indexOf(OLD)>-1?'pending':'other'}
+  function chip(r){
+    var m={pending:['PENDING','#aaa'],run:['COPYING…','#facc15'],done:['✓ ON B2','#4ade80'],fail:['✗ FAILED','#ff5c5c'],other:['NOT SUPABASE','#666']}[r.st]||['?','#aaa'];
+    return '<span style="color:'+m[1]+';font-family:var(--mono);font-size:10px;letter-spacing:1px">'+m[0]+'</span>'+(r.msg?'<div style="font-size:10px;color:#ff9b9b;margin-top:2px">'+esc(r.msg)+'</div>':'');
+  }
+  function paint(){
+    var c=$('b2List');if(!c)return;
+    var n={pending:0,done:0,fail:0,other:0};rows.forEach(function(r){n[r.st]=(n[r.st]||0)+1});
+    $('b2Stats').textContent=rows.length?('Tracks: '+rows.length+'  ·  On B2: '+(n.done||0)+'  ·  Pending: '+(n.pending||0)+'  ·  Failed: '+(n.fail||0)):'';
+    c.innerHTML=rows.map(function(r,i){
+      var t=r.t,btn='';
+      if(r.st==='pending'||r.st==='fail')btn='<button class="btn-blast" style="padding:4px 10px;font-size:10px" data-b2="mig" data-i="'+i+'">MIGRATE</button>';
+      if(r.st==='done'&&t.legacy_url)btn='<button class="btn-blast" style="padding:4px 10px;font-size:10px;background:#555" data-b2="back" data-i="'+i+'">ROLLBACK</button> <button class="btn-blast" style="padding:4px 10px;font-size:10px;background:#a33" data-b2="purge" data-i="'+i+'">🗑 DELETE OLD COPY</button>';
+      return '<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="min-width:0;flex:1"><div style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.title||'Untitled')+' <span style="color:var(--dim)">— '+esc(t.artist||'')+'</span></div>'+chip(r)+'</div><div style="white-space:nowrap">'+btn+'</div></div>';
+    }).join('');
+  }
+  function setInfo(h,bad){var e=$('b2Info');if(e){e.style.color=bad?'#ff9b9b':'var(--dim)';e.innerHTML=h}}
+  async function testConn(){
+    if(!blastrB2On())return setInfo('Worker URL is not set.',true);
+    setInfo('Testing…');
+    try{
+      var w=await fetch(BLASTR_B2.worker.replace(/\/+$/,'')+'/health').then(function(r){return r.json()});
+      var p=await blastrB2Call('ping',{});
+      setInfo('✓ Worker: '+esc(w.b2)+' &nbsp;·&nbsp; ✓ Edge function OK (bucket '+esc(p.bucket)+')<br>Your user id: <code>'+esc(p.user_id)+'</code>');
+    }catch(e){setInfo('✗ '+esc(e.message),true)}
+  }
+  async function scan(){
+    setInfo('Scanning tracks…');
+    var all=[],from=0;
+    while(true){
+      var batch=await sbFetch('/rest/v1/tracks?select=*&order=id.asc&limit=500&offset='+from);
+      if(!Array.isArray(batch)||!batch.length)break;
+      all=all.concat(batch);if(batch.length<500)break;from+=500;
+    }
+    rows=all.map(function(t){return{t:t,st:kind(t),msg:''}});
+    setInfo(rows.length?'Scan complete.':'No tracks found.');paint();
+  }
+  async function migrateOne(r){
+    if(!blastrB2On()){r.st='fail';r.msg='Worker URL not configured';return paint()}
+    r.st='run';r.msg='';paint();
+    try{
+      var t=r.t,u=String(t.url||''),name=decodeURIComponent(u.split(OLD)[1].split('?')[0]);
+      var key='songs/legacy/'+t.id+'-'+name.replace(/[^\w.\-]+/g,'_');
+      var res=await blastrB2Call('migrate',{source_url:u,key:key});
+      var nu=blastrB2PublicUrl(key);
+      var v=await fetch(nu,{headers:{Range:'bytes=0-1'}});
+      if(v.status!==206&&v.status!==200)throw new Error('Worker could not serve the copy ('+v.status+')');
+      var tot=Number(String(v.headers.get('content-range')||'').split('/')[1]||v.headers.get('content-length')||0);
+      try{v.body&&v.body.cancel()}catch(e){}
+      if(tot&&res.size&&tot!==res.size)throw new Error('Size mismatch: '+tot+' vs '+res.size);
+      var p=await sbFetch('/rest/v1/tracks?id=eq.'+encodeURIComponent(t.id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{url:nu,legacy_url:u}});
+      if(!Array.isArray(p)||!p.length)throw new Error('Database update failed (did you run blastr_b2_setup.sql?)');
+      t.url=nu;t.legacy_url=u;r.st='done';r.msg='';
+    }catch(e){r.st='fail';r.msg=e.message||String(e)}
+    paint();
+  }
+  async function runBatch(limit){
+    if(busy)return;busy=true;stop=false;
+    var todo=rows.filter(function(r){return r.st==='pending'||r.st==='fail'}).slice(0,limit||1e9);
+    for(var i=0;i<todo.length&&!stop;i++)await migrateOne(todo[i]);
+    busy=false;setInfo(stop?'Stopped.':'Batch finished.');
+  }
+  async function rollback(r){
+    var p=await sbFetch('/rest/v1/tracks?id=eq.'+encodeURIComponent(r.t.id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{url:r.t.legacy_url}});
+    if(Array.isArray(p)&&p.length){r.t.url=r.t.legacy_url;r.st='pending';r.msg=''}else{r.msg='Rollback failed'}
+    paint();
+  }
+  async function purge(r){
+    if(!confirm('Delete the OLD Supabase copy of "'+(r.t.title||'this song')+'"? You cannot roll back after this.'))return;
+    try{
+      var name=decodeURIComponent(String(r.t.legacy_url).split(OLD)[1].split('?')[0]);
+      await blastrDeleteStorageObject('songs',name);
+      await sbFetch('/rest/v1/tracks?id=eq.'+encodeURIComponent(r.t.id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{legacy_url:null}});
+      r.t.legacy_url=null;r.msg='';
+    }catch(e){r.msg='Delete failed: '+e.message}
+    paint();
+  }
+  function build(){
+    var bar=D.querySelector('#page-admin .sm-tabs'),after=$('smTabDMP');
+    if(!bar||!after||$('b2Tab'))return!!$('b2Tab');
+    var b=D.createElement('button');b.className='sm-tab';b.id='b2Tab';b.setAttribute('onclick',"smShowTab('b2',this)");b.textContent='☁ B2 STORAGE';bar.appendChild(b);
+    var c=D.createElement('div');c.id='smTabB2';c.style.display='none';
+    c.innerHTML='<div class="admin-card" style="max-width:760px"><div class="admin-card-title">☁ SONG STORAGE → BACKBLAZE B2</div>'+
+      '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:10px">Copies songs from Supabase to B2, checks the copy plays, then switches the track link. Old files stay until you delete them.</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn-blast" data-b2="test">TEST CONNECTION</button><button class="btn-blast" data-b2="scan">SCAN TRACKS</button><button class="btn-blast" data-b2="next5">MIGRATE NEXT 5</button><button class="btn-blast" data-b2="all">MIGRATE ALL PENDING</button><button class="btn-blast" style="background:#555" data-b2="stop">STOP</button></div>'+
+      '<div id="b2Info" style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:6px"></div><div id="b2Stats" style="font-family:var(--mono);font-size:11px;margin-bottom:8px"></div><div id="b2List"></div></div>';
+    after.parentNode.insertBefore(c,after.nextSibling);
+    c.addEventListener('click',function(e){
+      var t=e.target.closest('[data-b2]');if(!t)return;var a=t.getAttribute('data-b2'),r=rows[+t.getAttribute('data-i')];
+      if(a==='test')testConn();else if(a==='scan')scan().catch(function(x){setInfo('✗ '+esc(x.message),true)});
+      else if(a==='next5')runBatch(5);else if(a==='all')runBatch();else if(a==='stop'){stop=true}
+      else if(a==='mig'&&r&&!busy){busy=true;migrateOne(r).then(function(){busy=false})}
+      else if(a==='back'&&r)rollback(r);else if(a==='purge'&&r)purge(r);
+    });
+    var _s=window.smShowTab;window.smShowTab=function(tab){var r=_s.apply(this,arguments);c.style.display=tab==='b2'?'':'none';return r};
+    var _b=window.baTab;if(typeof _b==='function')window.baTab=function(){c.style.display='none';return _b.apply(this,arguments)};
+    return true;
+  }
+  var tries=0,iv=setInterval(function(){if(build()||++tries>60)clearInterval(iv)},500);
+})();
+
+/* ═══════ GOOGLE SIGN-IN: returning user -> straight in · new user -> name/username -> taste picker ═══════ */
+(function(){
+  var D=document;
+  function clean(){try{history.replaceState(null,'',location.pathname)}catch(e){}}
+  window.handleGoogleAuth=function(){
+    location.href=SUPABASE_URL+'/auth/v1/authorize?provider=google&prompt=select_account&redirect_to='+encodeURIComponent(location.origin+location.pathname);
+  };
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function step2(session,user){
+    D.documentElement.classList.remove('bx-rest');
+    var old=D.getElementById('gStep2');if(old)old.remove();
+    var meta=user.user_metadata||{};
+    var o=D.createElement('div');o.id='gStep2';
+    o.style.cssText='position:fixed;inset:0;z-index:100050;background:rgba(5,5,10,.92);display:flex;align-items:center;justify-content:center;padding:20px';
+    o.innerHTML='<div style="width:100%;max-width:400px;background:#0e0e16;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:26px">'+
+      '<div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);margin-bottom:6px">ALMOST THERE</div>'+
+      '<div class="login-form-title" style="margin-bottom:4px">Pick your name</div>'+
+      '<div class="login-form-sub" style="margin-bottom:16px">'+esc(user.email||'')+'</div>'+
+      '<div class="form-group"><label class="form-label">YOUR NAME</label><input class="form-input" id="gName" maxlength="30" value="'+esc(meta.full_name||meta.name||'')+'"></div>'+
+      '<div class="form-group"><label class="form-label">USERNAME</label><input class="form-input" id="gUser" maxlength="32" value="'+esc(blastrSafeUsername(blastrEmailLocalPart(user.email)))+'"></div>'+
+      '<button class="btn-primary" id="gGo">CONTINUE →</button>'+
+      '<div style="text-align:center;margin-top:12px"><a id="gCancel" style="cursor:pointer;font-size:12px;color:var(--dim)">Cancel</a></div></div>';
+    D.body.appendChild(o);
+    D.getElementById('gCancel').onclick=function(){o.remove();showToast('CANCELLED','Sign-up cancelled.')};
+    D.getElementById('gGo').onclick=async function(){
+      var btn=this,name=D.getElementById('gName').value.trim(),uname=blastrSafeUsername(D.getElementById('gUser').value);
+      if(name.length<2){showToast('ERROR','Name must be at least 2 characters.');return}
+      if(uname.length<2){showToast('ERROR','Pick a username.');return}
+      btn.disabled=true;btn.textContent='SAVING...';
+      try{
+        var tok=session.access_token;
+        state.session=session;
+        await blastrLoadProfile(user,{username:uname,email:user.email||''});
+        var res=await sbFetch('/rest/v1/profiles?id=eq.'+encodeURIComponent(user.id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{username:uname,display_name:name}},tok);
+        if(!Array.isArray(res)||!res.length)throw new Error('That username may already be taken. Try another.');
+        try{await sbFetch('/auth/v1/user',{method:'PUT',body:{data:{username:uname,display_name:name}}},tok)}catch(e){}
+        o.remove();
+        if(window.BX&&BX.afterGoogle)BX.afterGoogle(session);else await blastrHydrateSession(session,'signup');
+      }catch(e){showToast('SIGNUP FAILED',String(e&&e.message||e));btn.disabled=false;btn.textContent='CONTINUE →'}
+    };
+  }
+  async function handleReturn(p){
+    var at=p.get('access_token');
+    var user=await sbFetch('/auth/v1/user',{},at);
+    if(!user||!user.id)throw new Error('Could not verify your Google sign-in.');
+    var session={access_token:at,refresh_token:p.get('refresh_token')||'',token_type:'bearer',expires_at:Number(p.get('expires_at'))||null,user:user};
+    var rows=await sbFetch('/rest/v1/profiles?select=id,username,display_name&id=eq.'+encodeURIComponent(user.id),{},at);
+    var prof=Array.isArray(rows)&&rows.length?rows[0]:null;
+    var fresh=(Date.now()-new Date(user.created_at).getTime())<10*60*1000;
+    var isNew=!prof||(!(prof.display_name||'').trim()&&fresh);
+    if(isNew)step2(session,user);
+    else await blastrHydrateSession(session,'login');
+    return true;
+  }
+  var _orig=blastrRestoreSession;
+  blastrRestoreSession=async function(){
+    var hp=new URLSearchParams((location.hash||'').replace(/^#/,'')),q=new URLSearchParams(location.search);
+    var err=hp.get('error_description')||q.get('error_description');
+    if(err){clean();D.documentElement.classList.remove('bx-rest');showToast('GOOGLE SIGN-IN FAILED',err);return _orig()}
+    if(hp.get('access_token')&&hp.get('refresh_token')!==null&&hp.get('token_type')){
+      clean();
+      try{return await handleReturn(hp)}catch(e){D.documentElement.classList.remove('bx-rest');showToast('GOOGLE SIGN-IN FAILED',String(e&&e.message||e))}
+    }
+    return _orig();
+  };
+})();
+</script>
+<style id="perfPlusCss">
+/* ═══ PERF+ (v100) — smoother scrolling & interactions on low-end phones ═══ */
+/* lyric scrollers are eased in JS; CSS smooth-scroll fought it (jank) */
+.zen-lyrics-scroll,.vibing-lyrics-wrap{scroll-behavior:auto!important}
+/* static gradient instead of an always-running full-width animation */
+.player-progress-accent{animation:none!important;background-size:100% 100%!important}
+/* keep layout/paint work inside each card & region */
+.song-tile,.artist-card,.fav-row,.fw-card,.sp-tile,.sp-art,.al-card,.artist-track-row,.search-row,.search-artist-row,.sp-sr{contain:layout style paint}
+.main-content,.pages-container,.player-bar{contain:layout style}
+.progress-bar,.zen-progress-track,.vol-bar{contain:layout paint style}
+.sp-rail{contain:layout style}
+@media (max-width:900px),(prefers-reduced-motion:reduce){
+  .th-breath,.sidebar-eq .bar,.login-eq-bar,.orb,.because-badge .dot,.xbtn-dot{animation:none!important}
+  .th-sweep::after,.account-hero::after,.explore-hero-card::after{display:none!important}
+}
+@media (hover:none){
+  .song-tile,.artist-card,.sp-tile,.sp-art,.fav-row,.tile-hover-layer{transition:none!important}
+  .song-tile:hover,.artist-card:hover,.sp-tile:hover,.sp-art:hover{transform:none!important;box-shadow:none!important}
+}
+html.bx-lite .sidebar-eq .bar,html.bx-lite .login-eq-bar,html.bx-lite .player-progress-accent,html.bx-lite .th-breath,html.bx-lite .orb,html.bx-lite .vibing-eq .bar,html.bx-lite .xbtn-dot,html.bx-lite .because-badge .dot,html.bx-lite .legends-row-flame,html.bx-lite #jnFab,html.bx-lite .jn-orb .jn-logo,html.bx-lite .jn-hero .jn-ring,html.bx-lite .bx-lstar,html.bx-lite .ba-lock,html.bx-lite .sp-fab::after,html.bx-lite .th-sweep::after,html.bx-lite .account-hero::after,html.bx-lite .explore-hero-card::after,html.bx-lite .explore-live-badge::before,html.bx-lite .skeleton,html.bx-lite .page.active,body.blastr-lite-mode .sidebar-eq .bar,body.blastr-lite-mode .login-eq-bar,body.blastr-lite-mode .player-progress-accent,body.blastr-lite-mode .th-breath,body.blastr-lite-mode .orb,body.blastr-lite-mode .vibing-eq .bar,body.blastr-lite-mode .xbtn-dot,body.blastr-lite-mode .because-badge .dot,body.blastr-lite-mode .legends-row-flame,body.blastr-lite-mode #jnFab,body.blastr-lite-mode .jn-orb .jn-logo,body.blastr-lite-mode .jn-hero .jn-ring,body.blastr-lite-mode .bx-lstar,body.blastr-lite-mode .ba-lock,body.blastr-lite-mode .sp-fab::after,body.blastr-lite-mode .th-sweep::after,body.blastr-lite-mode .account-hero::after,body.blastr-lite-mode .explore-hero-card::after,body.blastr-lite-mode .explore-live-badge::before,body.blastr-lite-mode .skeleton,body.blastr-lite-mode .page.active{animation:none!important}
+html.bx-lite .zen-art-env,html.bx-lite .reels-bg i,body.blastr-lite-mode .zen-art-env,body.blastr-lite-mode .reels-bg i{display:none!important}
+html.bx-lite .th-left-bg,html.bx-lite .discover-hero-bg,body.blastr-lite-mode .th-left-bg,body.blastr-lite-mode .discover-hero-bg{filter:brightness(.4)!important;transform:none!important}
+html.bx-lite .song-tile,html.bx-lite .artist-card,html.bx-lite .sp-tile,html.bx-lite .sp-art,html.bx-lite .tile-hover-layer,html.bx-lite .fav-row,html.bx-lite .explore-tile,body.blastr-lite-mode .song-tile,body.blastr-lite-mode .artist-card,body.blastr-lite-mode .sp-tile,body.blastr-lite-mode .sp-art,body.blastr-lite-mode .tile-hover-layer,body.blastr-lite-mode .fav-row,body.blastr-lite-mode .explore-tile{transition:none!important}
+html.bx-lite .song-tile:hover,html.bx-lite .artist-card:hover,html.bx-lite .sp-tile:hover,html.bx-lite .sp-art:hover,html.bx-lite .explore-tile.visible:hover,body.blastr-lite-mode .song-tile:hover,body.blastr-lite-mode .artist-card:hover,body.blastr-lite-mode .sp-tile:hover,body.blastr-lite-mode .sp-art:hover,body.blastr-lite-mode .explore-tile.visible:hover{transform:none!important;box-shadow:none!important}
+html.bx-lite .profile-cover,html.bx-lite .account-card,html.bx-lite .account-rail,html.bx-lite .explore-hero-card,html.bx-lite .sp-float,html.bx-lite .sp-banner,html.bx-lite .up-next-toast,html.bx-lite .toast,html.bx-lite .song-tile,body.blastr-lite-mode .profile-cover,body.blastr-lite-mode .account-card,body.blastr-lite-mode .account-rail,body.blastr-lite-mode .explore-hero-card,body.blastr-lite-mode .sp-float,body.blastr-lite-mode .sp-banner,body.blastr-lite-mode .up-next-toast,body.blastr-lite-mode .toast,body.blastr-lite-mode .song-tile{box-shadow:none!important}
+html.bx-lite .vibing-lyric-line,html.bx-lite .zen-lyric-line,body.blastr-lite-mode .vibing-lyric-line,body.blastr-lite-mode .zen-lyric-line{transition-duration:.12s!important}
+html.bx-lite *,body.blastr-lite-mode *{will-change:auto!important}
+
+</style>
 </body>
 </html>
