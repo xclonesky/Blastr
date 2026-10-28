@@ -17397,20 +17397,20 @@ body.light .ctrl-btn:hover{background:rgba(0,0,0,.07)}
 #zenStage .zen-bg-canvas,#zenStage .zen-art-env{display:none!important}
 .zbg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#07070f}
 .zbg i{position:absolute;inset:-22%;background:center/cover;filter:blur(54px) saturate(1.5);opacity:0;transition:opacity .9s ease}
-.zbg i.on{opacity:.56}
+.zbg i.on{opacity:.82}
 .zbg b{position:absolute;left:-20%;bottom:-25%;width:140%;height:75%;background:radial-gradient(closest-side,var(--zc),transparent);opacity:.26;animation:zDrift 10s ease-in-out infinite alternate}
-.zbg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,15,.55),rgba(7,7,15,.86))}
+.zbg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 62% 50%,rgba(5,5,12,.34),transparent 70%),linear-gradient(0deg,rgba(5,5,12,.72),transparent 32%),linear-gradient(180deg,rgba(7,7,15,.14),rgba(7,7,15,.2))}
 @keyframes zDrift{from{transform:translate3d(-6%,0,0)}to{transform:translate3d(8%,-8%,0)}}
-#zenStage[data-grad="off"] .zbg i.on{opacity:.2}
+#zenStage[data-grad="off"] .zbg i.on{opacity:.4}
 #zenStage[data-grad="off"] .zbg b{display:none}
 html.tb-on .zbg i{inset:-8%;filter:blur(32px) saturate(1.4)}
 html.bx-lite .zbg i,html.tb-lite .zbg i,body.blastr-lite-mode .zbg i{filter:none;inset:0}
-html.bx-lite .zbg i.on,html.tb-lite .zbg i.on,body.blastr-lite-mode .zbg i.on{opacity:.28}
+html.bx-lite .zbg i.on,html.tb-lite .zbg i.on,body.blastr-lite-mode .zbg i.on{opacity:.45}
 html.bx-lite .zbg b,html.tb-lite .zbg b,body.blastr-lite-mode .zbg b{animation:none}
 #zenLyricsScroll{overflow:hidden!important;touch-action:none;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 78%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 78%,transparent)}
 .zl-in{width:100%;will-change:transform;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
 .zl-in.man{transition:transform .12s linear}
-.zl{position:relative;font:800 clamp(22px,3.4vw,46px)/1.22 var(--font);color:rgba(255,255,255,.26);padding:.28em 0;transform:scale(.94);transform-origin:0 50%;opacity:.7;cursor:pointer;transition:color .5s,transform .55s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.zl{position:relative;font:800 clamp(20px,2.9vw,40px)/1.22 var(--font);color:rgba(255,255,255,.26);padding:.28em 0;transform:scale(.94);transform-origin:0 50%;opacity:.7;cursor:pointer;transition:color .5s,transform .55s cubic-bezier(.2,.8,.2,1),opacity .5s}
 .zl:hover{color:rgba(255,255,255,.55)}
 .zl.pv,.zl.nx{color:rgba(255,255,255,.5);opacity:1;transform:scale(.97)}
 .zl.n2{opacity:.5}
@@ -17426,14 +17426,55 @@ html.bx-lite .zl.act .zw,html.tb-lite .zl.act .zw,body.blastr-lite-mode .zl.act 
 .zen-stage[data-layout="spatial"] .zl.act{transform:translate3d(0,0,22px) scale(1.04)}
 .zen-stage[data-effect-magnet="true"] .zl.pv{translate:0 2px}
 .zen-stage[data-effect-magnet="true"] .zl.nx{translate:0 -2px}
-.zg{height:2.4em;display:flex;align-items:center;gap:.7em;opacity:0;transform:scale(.8);transition:opacity .4s,transform .5s}
+.zg{display:flex;align-items:center;gap:16px;min-height:3.4em;padding:.3em 0;opacity:0;transform:scale(.9);pointer-events:none;transition:opacity .35s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
 .zen-stage[data-layout="center"] .zg,.zen-stage[data-layout="spatial"] .zg{justify-content:center}
-.zg.act{opacity:1;transform:scale(1)}
-.zg i{width:.7em;height:.7em;font-size:clamp(16px,2.4vw,30px);border-radius:50%;background:rgba(255,255,255,.25);transition:background .3s,transform .3s,box-shadow .3s}
-.zg i.on{background:var(--zc);box-shadow:0 0 16px var(--zc);transform:scale(1.2)}
-.zg.act i{animation:zBreath 1.8s ease-in-out infinite}.zg.act i:nth-child(2){animation-delay:.25s}.zg.act i:nth-child(3){animation-delay:.5s}
-@keyframes zBreath{50%{opacity:.55}}
-html.bx-lite .zg.act i,html.tb-lite .zg.act i,body.blastr-lite-mode .zg.act i{animation:none}
+.zg.act,.zg.est.on{opacity:1;transform:scale(1)}
+.zr{width:36px;height:36px;transform:rotate(-90deg);flex:none}
+.zr circle{fill:none;stroke-width:3;stroke-linecap:round}
+.zr .r0{stroke:rgba(255,255,255,.16)}
+.zr .r1{stroke:var(--zc);stroke-dasharray:100;stroke-dashoffset:100}
+.zd{display:flex;gap:10px}
+.zd i{position:relative;width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.2)}
+.zd i::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--zc);box-shadow:0 0 14px var(--zc);transform:scale(0)}
+.zd i:nth-child(1){--k:0}.zd i:nth-child(2){--k:1}.zd i:nth-child(3){--k:2}
+.zg.act .r1,.zg.est.on .r1{animation:zRing var(--gd,4000ms) linear both;animation-delay:calc(var(--ge,0ms) * -1)}
+.zg.act .zd i::after,.zg.est.on .zd i::after{animation:zFill calc(var(--gd,4000ms) / 3) cubic-bezier(.3,0,.3,1) both;animation-delay:calc(var(--gd,4000ms) / 3 * var(--k) - var(--ge,0ms))}
+.zg.act .zd,.zg.est.on .zd{animation:zReady var(--gd,4000ms) linear both;animation-delay:calc(var(--ge,0ms) * -1)}
+.zg.act .zd i,.zg.est.on .zd i{animation:zBeat var(--beat,.6s) ease-in-out infinite}
+.zg.act .zd i:nth-child(2),.zg.est.on .zd i:nth-child(2){animation-delay:calc(var(--beat,.6s) / 3)}
+.zg.act .zd i:nth-child(3),.zg.est.on .zd i:nth-child(3){animation-delay:calc(var(--beat,.6s) * 2 / 3)}
+.zg.pz .r1,.zg.pz .zd,.zg.pz .zd i,.zg.pz .zd i::after{animation-play-state:paused!important}
+@keyframes zRing{to{stroke-dashoffset:0}}
+@keyframes zFill{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes zReady{0%,86%{transform:scale(1)}95%{transform:scale(1.16)}100%{transform:scale(1)}}
+@keyframes zBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+.zg small{display:none;font:700 10px var(--mono);letter-spacing:.24em;color:rgba(255,255,255,.6)}
+.zg.lb small{display:block}
+html.bx-lite .zg .zd i,html.tb-lite .zg .zd i,body.blastr-lite-mode .zg .zd i{animation:none!important}
+.zw{display:inline-block}
+.zl:not(.act){text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.zen-stage[data-karaoke="true"] .zl.act .zw.cur{background-image:linear-gradient(90deg,var(--zc) var(--p,0%),rgba(255,255,255,.55) var(--p,0%));filter:drop-shadow(0 0 .35em var(--zc));animation:zwPop .5s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes zwPop{0%{transform:translateY(0) scale(1)}45%{transform:translateY(-.16em) scale(1.2)}100%{transform:translateY(-.05em) scale(1.1)}}
+html.bx-lite .zw.cur,html.tb-lite .zw.cur,body.blastr-lite-mode .zw.cur{animation:none!important;filter:none!important}
+.zn-act{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:16px}
+.zn-b{font:800 12px var(--mono);letter-spacing:.14em;padding:12px 22px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
+.zn-b.main{background:var(--zc);color:var(--zon);border-color:var(--zc);box-shadow:0 0 22px var(--zc)}
+.zn-b:disabled{opacity:.6;cursor:default}
+.zn-st{font:700 10px var(--mono);letter-spacing:.12em;color:rgba(255,255,255,.65);min-height:14px;text-align:center}
+.zs{position:absolute;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,5,12,.7)}
+.zs.on{display:flex}
+.zs-card{width:min(640px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:22px;background:rgba(14,14,26,.95);border:1px solid color-mix(in srgb,var(--zc) 45%,transparent);box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 40px color-mix(in srgb,var(--zc) 25%,transparent)}
+.zs-h{display:flex;align-items:center;gap:10px}.zs-h b{font:900 14px var(--font);letter-spacing:.14em;color:var(--zc)}.zs-h small{flex:1;font:600 11px var(--font);color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.zs-h button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;cursor:pointer}
+.zs-off{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:700 10px var(--mono);letter-spacing:.08em}
+.zs-off span{margin-right:4px;color:rgba(255,255,255,.55)}.zs-off b{min-width:52px;text-align:center;color:var(--zc);font-size:13px}.zs-off em{flex-basis:100%;font-style:normal;color:rgba(255,255,255,.4)}
+.zs-off button,.zs-ft button{font:800 11px var(--mono);letter-spacing:.1em;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;cursor:pointer}
+.zs-ft{display:flex;gap:8px;flex-wrap:wrap}.zs-ft .main{flex:1 1 220px;background:var(--zc);color:var(--zon);border-color:var(--zc);box-shadow:0 0 18px var(--zc)}.zs-ft .main small{opacity:.7}.zs-ft .sv{border-color:var(--zc);color:var(--zc)}
+.zs-list{overflow:auto;max-height:42vh;border-radius:14px;background:rgba(255,255,255,.04);padding:6px}
+.zs-ln{display:flex;gap:12px;padding:8px 10px;border-radius:10px;cursor:pointer;font:600 14px var(--font);color:rgba(255,255,255,.55)}
+.zs-ln i{font:700 11px var(--mono);font-style:normal;min-width:62px;color:var(--zc)}.zs-ln.old i{color:rgba(255,255,255,.35)}
+.zs-ln.cur{background:color-mix(in srgb,var(--zc) 22%,transparent);color:#fff;box-shadow:inset 3px 0 0 var(--zc)}
+.zs-tip,.zs-paste p{font:500 11px/1.5 var(--font);color:rgba(255,255,255,.5)}
+.zs-paste{display:flex;flex-direction:column;gap:10px}.zs-paste textarea{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:500 14px/1.5 var(--font);padding:12px;resize:vertical}
 #zenStage .zen-ctrl{width:46px;height:46px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;font-size:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.88);transition:transform .15s,background .15s,box-shadow .15s}
 #zenStage .zen-ctrl svg{width:22px;height:22px;fill:currentColor}
 #zenStage .zen-ctrl:hover{background:rgba(255,255,255,.16)}
@@ -17870,11 +17911,12 @@ function build(win){
     mp.style.setProperty('--bg',t&&t.cover_url?'url("'+String(t.cover_url).replace(/"/g,'%22')+'")':'none');
     q('mCov').outerHTML='<div id="mCov" style="display:contents">'+cover(t)+'</div>';
     q('mT').textContent=t?t.title||'Unknown':'Nothing playing';q('mA').textContent=t?(t.artist||'Unknown'):'Search a song to start';
+    if(t&&W.blastrApplyLyrics)W.blastrApplyLyrics(t);
     lines=t?W.parseLyricRaw(t.lyrics||''):[];
     inn.innerHTML=lines.length?lines.map(function(l){return'<div class="ln">'+H(l.text)+'</div>'}).join(''):'';
     els=[].slice.call(inn.children);
     nol.className='nol'+(lines.length?'':' on');
-    nol.innerHTML=lines.length?'':cover(t)+'<small>'+(t?'NO LYRICS FOR THIS TRACK':'PLAY SOMETHING TO SEE LYRICS')+'</small><div class="eq"><i></i><i></i><i></i><i></i></div>';
+    nol.innerHTML=lines.length?'':cover(t)+'<small>'+(t?'NO LYRICS YET':'PLAY SOMETHING TO SEE LYRICS')+'</small>'+(t?'<button class="ic" data-find="1">FIND LYRICS</button>':'')+'<div class="eq"><i></i><i></i><i></i><i></i></div>';
     if(lines.length)setAct(-1);
     var cur=d.querySelector('.rs.cur');if(cur)cur.classList.remove('cur');
   }
@@ -17889,7 +17931,7 @@ function build(win){
   function tick(){
     if(!pw||pw.closed)return;
     var t=S.currentTrack;if(t!==shown)setTrack(t);
-    var pos=audio.currentTime||0,ms=pos*1000;
+    var pos=audio.currentTime||0,ms=pos*1000-(W.blastrNud||0);
     if(lines.length){
       var i=act;while(i+1<lines.length&&ms>=lines[i+1].ms)i++;while(i>=0&&ms<lines[i].ms)i--;
       if(i!==act)setAct(i);
@@ -17913,6 +17955,7 @@ function build(win){
   d.addEventListener('input',function(e){if(e.target.id==='mQ'){pw.clearTimeout(sT);var v=e.target.value;sT=pw.setTimeout(function(){search(v)},260)}});
   d.addEventListener('click',function(e){
     var b=e.target.closest('button,.rs,.bar');if(!b)return;
+    if(b.dataset&&b.dataset.find){b.textContent='SEARCHING…';W.blastrFindLyrics(S.currentTrack).then(function(r){if(r!==1)b.textContent=r===2?'FOUND TEXT — SYNC IN ZEN':r===0?'NOT FOUND':'OFFLINE'});return}
     if(b.dataset&&b.dataset.sz){W.blastrSetMiniSize(b.dataset.sz);q('mCh').classList.remove('on');return}
     if(b.dataset&&b.dataset.v&&b.closest('.tabs')){view(b.dataset.v);return}
     if(b.id==='mAuto'){W.blastrSetMiniAuto(!autoOn());return}
@@ -17927,8 +17970,9 @@ function build(win){
     if(b.dataset&&b.dataset.q!=null){var t=res[+b.dataset.q];if(t)W.addToQueue(t);e.stopPropagation();return}
     if(b.classList.contains('rs')){var t2=res[+b.dataset.i];if(t2){W.initiateHandshake(t2);view('now')}}
   });
+  W.blastrMiniRefresh=function(){shown=undefined};
   new win.ResizeObserver(function(){var tn=win.innerWidth<300;mp.classList.toggle('tiny',tn);mp.classList.toggle('cmp',!tn&&win.innerHeight<300);layout()}).observe(d.body);
-  win.addEventListener('pagehide',function(){try{win.cancelAnimationFrame(raf)}catch(e){}pw=null;syncUI=function(){};var b=D.getElementById('btnMini');if(b)b.classList.remove('active')});
+  win.addEventListener('pagehide',function(){W.blastrMiniRefresh=null;try{win.cancelAnimationFrame(raf)}catch(e){}pw=null;syncUI=function(){};var b=D.getElementById('btnMini');if(b)b.classList.remove('active')});
   var b=D.getElementById('btnMini');if(b)b.classList.add('active');
   setTrack(S.currentTrack);btns();progress(audio.currentTime||0);syncUI();
   if(!sizeKey())q('mCh').classList.add('on');
@@ -17939,6 +17983,9 @@ W.blastrToggleMini=function(){return open(false)};
 (function(){var b=D.getElementById('btnMini');if(b&&!SUP)b.style.display='none'})();
 })();
 </script>
+
+
+
 
 <script id="blastrBtns">
 (function(){
@@ -18015,7 +18062,7 @@ var oTz=W.toggleZen;
 W.toggleZen=function(){var r=oTz.apply(this,arguments);stage.dataset.grad=S.zenGradient===false?'off':'on';if(S.inZen)start();return r};
 
 /* ───────── lyric engine: transform-based glide, word fill, instrumental dots, tap-to-seek ───────── */
-var items=[],els=[],act=-1,inn=null,off=0,offT=0,raf=0,fr=0,tag=/<(\d{1,2}):(\d{2}(?:\.\d+)?)>/;
+var items=[],els=[],act=-1,curGap=-1,inn=null,off=0,offT=0,raf=0,fr=0,tag=/<(\d{1,2}):(\d{2}(?:\.\d+)?)>/;
 function blank(t){return!t||/^[\s♪♫♬\-–—.·*]*$/.test(t)}
 function build(){
   var L=S.parsedLyrics||[];items=[];els=[];act=-1;off=0;
@@ -18023,7 +18070,7 @@ function build(){
   L.forEach(function(l,i){
     var nx=L[i+1],gap=nx?nx.ms-l.ms:6000,raw=String(l.text||''),clean=raw.replace(/<\d{1,2}:\d{2}(?:\.\d+)?>/g,'').trim();
     if(blank(clean)){if(gap>=2500)items.push({g:1,ms:l.ms,end:nx?nx.ms:l.ms+4000});return}
-    var dur=Math.min(gap,Math.max(1600,clean.length*115)),end=l.ms+dur,ws=[],k;
+    var dur=Math.min(gap,Math.max(2200,clean.length*135)),end=l.ms+dur,hold=l.ms+Math.min(gap,Math.max(3200,clean.length*200)),ws=[],k;
     if(tag.test(raw)){
       var p=raw.split(/<(\d{1,2}):(\d{2}(?:\.\d+)?)>/);
       for(k=1;k<p.length;k+=3){var tx=(p[k+2]||'').trim();if(tx)ws.push({w:tx,t:(+p[k]*60+parseFloat(p[k+1]))*1000})}
@@ -18033,19 +18080,19 @@ function build(){
       var parts=clean.split(/\s+/),tot=0,cum=0;parts.forEach(function(w){tot+=w.length+1});
       parts.forEach(function(w){var a=cum/tot;cum+=w.length+1;ws.push({w:w,t:l.ms+a*dur,e:l.ms+cum/tot*dur})});
     }
-    if(!items.length&&l.ms>=5500)items.push({g:1,ms:600,end:l.ms});
+    if(!items.length&&l.ms>=3500)items.push({g:1,ms:600,end:l.ms});
     items.push({ms:l.ms,end:end,text:clean,words:ws,li:i});
-    if(nx&&nx.ms-end>=5000)items.push({g:1,ms:end+300,end:nx.ms});
+    if(nx&&nx.ms-hold>=4500)items.push({g:1,est:1,ms:hold+500,end:nx.ms});   // estimated break: shown UNDER the line, which stays lit
   });
   if(!items.length){inn=null;return}
   var h='';
   items.forEach(function(it,k){
-    h+=it.g?'<div class="zg" data-k="'+k+'"><i></i><i></i><i></i></div>'
+    h+=it.g?'<div class="zg'+(it.est?' est':'')+(it.end-it.ms>=6000?' lb':'')+'" data-k="'+k+'"><svg class="zr" viewBox="0 0 36 36"><circle class="r0" cx="18" cy="18" r="15"/><circle class="r1" cx="18" cy="18" r="15" pathLength="100"/></svg><div class="zd"><i></i><i></i><i></i></div><small>INSTRUMENTAL</small></div>'
       :'<div class="zl" data-k="'+k+'">'+it.words.map(function(w){return'<span class="zw">'+H(w.w)+'</span>'}).join(' ')+'</div>';
   });
   box.innerHTML='<div class="zl-in" id="zlIn">'+h+'</div>';
   inn=Z('zlIn');els=[].slice.call(inn.children);
-  els.forEach(function(e,k){if(items[k].words)items[k].spans=[].slice.call(e.children)});
+  els.forEach(function(e,k){var it=items[k];if(it.words)it.spans=[].slice.call(e.children);else{it.dots=[].slice.call(e.querySelectorAll('.zd i'));it.ring=e.querySelector('.r1')}});
   S.zenLineEls=[];S.lastZenIdx=-1;
   setAct(-1);
 }
@@ -18057,38 +18104,48 @@ function place(){
 }
 function setAct(i){
   var from=Math.max(0,Math.min(act,i)-3),to=Math.min(els.length-1,Math.max(act,i)+3),k,df,it;
+  if(curGap>=0){if(els[curGap])els[curGap].classList.remove('on');curGap=-1}   // collapse before measuring
   act=i;
   for(k=from;k<=to;k++){
     df=k-i;it=items[k];
-    if(it.g){els[k].className='zg'+(df===0?' act':'');if(df!==0)[].forEach.call(els[k].children,function(d){d.className=''})}
+    if(it.g){var live=it.est?k===curGap:df===0;els[k].className='zg'+(it.est?' est':'')+(it.end-it.ms>=6000?' lb':'')+(live?(it.est?' on':' act'):'');if(live&&!it.est)bindGap(k)}
     else els[k].className='zl'+(df===0?' act':df===-1?' pv':df===1?' nx':Math.abs(df)===2?' n2':'');
   }
-  if(i>=0&&items[i].spans){items[i].spans.forEach(function(s){s._p=-1;s.style.setProperty('--p','0%')})}
+  if(i>=0&&items[i].spans){items[i].spans.forEach(function(s){s._p=-1;s.classList.remove('cur');s.style.setProperty('--p','0%')});items[i]._c=-1}
   if(i>=0&&items[i].li!=null&&W.zenDetectChorus)W.zenDetectChorus(items[i].li,(S.parsedLyrics||[]).length);
   if(!offT)off=0;
   place();
 }
+/* instrumental break: the browser runs the ring + dot timelines (smooth, no per-frame JS); we only tell it where we are */
+function bindGap(k){
+  var it=items[k],e=els[k];if(!it||!e)return;
+  var ms=(audio.currentTime||0)*1000-(W.blastrNud||0);
+  e.style.setProperty('--gd',Math.max(600,it.end-it.ms)+'ms');
+  e.style.setProperty('--ge',Math.max(0,Math.min(it.end-it.ms,ms-it.ms))+'ms');
+  e.classList.toggle('pz',audio.paused);
+}
+function rebind(){var k=curGap>=0?curGap:(act>=0&&items[act]&&items[act].g?act:-1);if(k>=0)bindGap(k)}
+audio.addEventListener('seeked',rebind);audio.addEventListener('pause',rebind);audio.addEventListener('play',rebind);
 function fill(ms){
-  var it=items[act];if(!it)return;
-  if(it.g){
-    var p=Math.max(0,Math.min(1,(ms-it.ms)/Math.max(1,it.end-it.ms))),n=Math.ceil(p*3),d=els[act].children;
-    for(var q=0;q<3;q++){var on=q<n?'on':'';if(d[q].className!==on)d[q].className=on}
-    return;
-  }
-  var sp=it.spans,w,v;if(!sp)return;
+  var it=items[act];if(!it||it.g)return;
+  var sp=it.spans,w,v,cu=-1;if(!sp)return;
   for(var k=0;k<sp.length;k++){
     w=it.words[k];v=Math.max(0,Math.min(1,(ms-w.t)/Math.max(60,w.e-w.t)))*100;v=Math.round(v*2)/2;
     if(sp[k]._p!==v){sp[k]._p=v;sp[k].style.setProperty('--p',v+'%')}
+    if(ms>=w.t)cu=k;
   }
+  if(stage.dataset.karaoke==='true'&&cu!==it._c){if(it._c>=0&&sp[it._c])sp[it._c].classList.remove('cur');if(cu>=0)sp[cu].classList.add('cur');it._c=cu}
 }
 function loop(){
   if(!S.inZen){raf=0;return}
   if(items.length){
-    var ms=(audio.currentTime||0)*1000,i=act;
+    var ms=(audio.currentTime||0)*1000-(W.blastrNud||0),i=act;
     while(i+1<items.length&&ms>=items[i+1].ms)i++;
     while(i>=0&&ms<items[i].ms)i--;
+    var gi=-1;if(i>=0&&items[i].g&&items[i].est){gi=i;i--}          // estimated break: keep the previous line lit
     if(i!==act)setAct(i);
-    if(act>=0&&(lite()?fr%4===0:(fr&1)===0))fill(ms);
+    if(gi!==curGap){if(curGap>=0&&els[curGap])els[curGap].classList.remove('on');curGap=gi;if(gi>=0){els[gi].classList.add('on');bindGap(gi)}}
+    if(act>=0&&(lite()?fr%4===0:(fr&1)===0))fill(ms)
   }
   if((fr&7)===0&&W.zenUpdateProgress)W.zenUpdateProgress();
   fr++;raf=requestAnimationFrame(loop);
@@ -18096,8 +18153,9 @@ function loop(){
 function start(){if(!raf)raf=requestAnimationFrame(loop)}
 var oLoad=W.loadZenLyrics;
 W.loadZenLyrics=function(t){
+  if(t&&W.blastrApplyLyrics)W.blastrApplyLyrics(t);
   if(typeof oLoad==='function')oLoad.apply(this,arguments);
-  try{build();if(t)W.blastrAccent(t.cover_url,t.title).then(function(a){if(S.currentTrack===t||!S.currentTrack)setAccent(a)})}catch(e){}
+  try{build();if(t){var bp=parseFloat(t.bpm);stage.style.setProperty('--beat',(bp>40&&bp<220?60/bp:.6)+'s');if(!items.length&&W.blastrNoLyricsUI)W.blastrNoLyricsUI(box,t)}if(t)W.blastrAccent(t.cover_url,t.title).then(function(a){if(S.currentTrack===t||!S.currentTrack)setAccent(a)})}catch(e){}
   if(S.inZen)start();
 };
 W.syncZenLyric=function(){if(W.zenUpdateProgress)W.zenUpdateProgress()};
@@ -18138,5 +18196,174 @@ function browse(dy){
 })();
 })();
 </script>
+
+
+<script id="blastrLyr">
+(function(){
+'use strict';
+var D=document,W=window,S=W.state,Z=function(i){return D.getElementById(i)};
+function lsg(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lss(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function H(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function tid(t){return t&&t.id!=null?String(t.id):null}
+function rpc(fn,b){try{return Promise.resolve(W.sbFetch('/rest/v1/rpc/'+fn,{method:'POST',body:b}))}catch(e){return Promise.resolve(null)}}
+function toast(a,b){try{W.showToast(a,b)}catch(e){}}
+
+/* per-song local fixes (your own sync / offset) are re-applied every time a song loads */
+W.blastrNud=0;
+W.blastrApplyLyrics=function(t){
+  if(!t)return;var id=tid(t),o=lsg('blastr_lrc_'+id);
+  if(o&&o!==t.lyrics)t.lyrics=o;
+  W.blastrNud=parseInt(lsg('blastr_sync_'+id)||'0',10)||0;
+};
+function setLyrics(t,lrc){
+  t.lyrics=lrc;
+  (S.allTracks||[]).forEach(function(x){if(String(x.id)===String(t.id))x.lyrics=lrc});
+  var c=S.currentTrack;if(c&&String(c.id)===String(t.id)){c.lyrics=lrc;
+    if(S.inZen)W.loadZenLyrics(c);
+    if(S.inVibing&&W.loadVibingLyrics)try{W.loadVibingLyrics(c)}catch(e){}
+    if(W.blastrMiniRefresh)W.blastrMiniRefresh();
+  }
+}
+W.blastrCacheLyrics=function(t){
+  if(!t||t.lyrics||t._lc)return Promise.resolve(false);t._lc=1;
+  return rpc('lyrics_get',{p_track:tid(t)}).then(function(v){if(typeof v==='string'&&v.length>10){setLyrics(t,v);return true}return false},function(){return false});
+};
+/* smarter search: cleaned title / main artist ladder, loose title match, duration check.
+   1 = synced lyrics applied · 2 = text found but untimed (opens Sync Studio) · 0 = nothing · -1 = couldn't reach LRCLIB */
+function clean(s){return String(s||'').replace(/\(.*?\)|\[.*?\]|\{.*?\}/g,' ').replace(/\s*[-–—|]\s*(official|lyric|audio|video|music|visuali[sz]er|hd|4k)\b.*$/i,' ').replace(/\b(official\s*(music\s*)?(video|audio)|lyrics?\s*video|visuali[sz]er)\b/ig,' ').replace(/\b(ft\.?|feat\.?|featuring|prod\.?)\b.*$/i,' ').replace(/\s+/g,' ').trim()}
+function mainArtist(s){return String(s||'').split(/\s*(?:,|&|;|\/|\bx\b|\band\b|\bft\.?\b|\bfeat\.?\b|\bfeaturing\b|\bwith\b)\s*/i)[0].trim()}
+function norm(s){return clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()}
+function similar(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;if(a===b||a.indexOf(b)>=0||b.indexOf(a)>=0)return true;var A=a.split(' '),B=b.split(' '),n=0;A.forEach(function(w){if(B.indexOf(w)>=0)n++});return n/Math.max(A.length,B.length)>=.6}
+function lrc(q){
+  var c=typeof AbortController!=='undefined'?new AbortController():null,tm=setTimeout(function(){c&&c.abort()},6500);
+  return fetch('https://lrclib.net/api/search?'+new URLSearchParams(q).toString(),c?{signal:c.signal}:{}).then(function(r){clearTimeout(tm);if(!r.ok)throw 0;return r.json()});
+}
+W.blastrFindLyrics=function(t){
+  t=t||S.currentTrack;if(!t)return Promise.resolve(0);
+  var dur=(typeof audio!=='undefined'&&audio.duration)||0,title=String(t.title||''),ar=String(t.artist||''),pp=title.split(/\s[-–—]\s/);
+  if(pp.length>1&&similar(pp[0],ar))title=pp.slice(1).join(' - ');
+  var ct=clean(title),ma=mainArtist(ar),seen={},qs=[];
+  [{track_name:t.title||'',artist_name:t.artist||''},{track_name:ct,artist_name:ma},{q:(ct+' '+ma).trim()},{track_name:ct}].forEach(function(q){var k=JSON.stringify(q);if(!seen[k]&&(q.track_name||q.q)){seen[k]=1;qs.push(q)}});
+  var plain=null,ok=false,i=0;
+  function usable(x){if(!x||x.instrumental||!similar(x.trackName,ct))return false;if(dur&&x.duration&&Math.abs(x.duration-dur)>12)return false;return true}
+  function next(){
+    if(i>=qs.length)return Promise.resolve(plain?2:(ok?0:-1));
+    return lrc(qs[i++]).then(function(j){
+      ok=true;var l=(Array.isArray(j)?j:[]).filter(usable);
+      var s=l.filter(function(x){return x.syncedLyrics});
+      if(s.length){
+        if(dur)s.sort(function(a,b){return Math.abs((a.duration||0)-dur)-Math.abs((b.duration||0)-dur)});
+        setLyrics(t,s[0].syncedLyrics);rpc('lyrics_put',{p_track:tid(t),p_lyrics:s[0].syncedLyrics,p_source:'lrclib'});
+        toast('LYRICS FOUND','Synced lyrics from LRCLIB are now playing');return 1;
+      }
+      if(!plain){var p=l.filter(function(x){return x.plainLyrics})[0];if(p)plain=p.plainLyrics}
+      return next();
+    },function(){return next()});
+  }
+  return next().then(function(r){if(r===2)t._plain=plain;return r});
+};
+
+/* ───────── no-lyrics panel (ZEN) ───────── */
+W.blastrNoLyricsUI=function(box,t){
+  var fb=box.querySelector('.zen-cover-fallback');if(!fb||!t)return;
+  var n=fb.querySelector('.zen-no-lyrics');if(n)n.textContent='NO LYRICS YET';
+  var a=D.createElement('div');a.className='zn-act';
+  a.innerHTML='<button type="button" class="zn-b main" data-a="find">FIND LYRICS</button><button type="button" class="zn-b" data-a="sync">ADD &amp; SYNC YOURSELF</button><div class="zn-st"></div>';
+  fb.appendChild(a);
+  W.blastrCacheLyrics(t);   // silently picks up lyrics someone already found/synced
+};
+D.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.zn-b');if(!b)return;
+  if(b.dataset.a==='sync'){openEd();return}
+  var st=b.parentNode.querySelector('.zn-st'),t=S.currentTrack;
+  b.disabled=true;b.textContent='SEARCHING LRCLIB…';
+  W.blastrFindLyrics(t).then(function(r){
+    if(r===1)return;                       // the stage already refreshed itself
+    b.disabled=false;b.textContent='FIND LYRICS';
+    if(r===2){st.textContent='FOUND THE WORDS BUT NOT THE TIMING — STAMP THEM IN SYNC STUDIO';openEd(t._plain);return}
+    st.textContent=r===0?'NOT ON LRCLIB YET — TRY ADD & SYNC YOURSELF':'COULDN’T REACH LRCLIB — CHECK YOUR CONNECTION';
+  });
+});
+
+/* ───────── header buttons: KARAOKE + SYNC ───────── */
+(function(){
+  var st=Z('zenStage'),hr=st&&st.querySelector('.zen-header-right'),ex=hr&&hr.querySelector('.zen-exit');if(!hr)return;
+  var kOn=lsg('blastr_zen_kara')==='1';st.dataset.karaoke=String(kOn);
+  var k=D.createElement('button');k.className='zen-effect-btn'+(kOn?' active':'');k.id='zenKaraBtn';k.title='Bouncy karaoke word highlight';k.textContent='KARAOKE';
+  k.onclick=function(){kOn=!kOn;lss('blastr_zen_kara',kOn?'1':'0');st.dataset.karaoke=String(kOn);k.classList.toggle('active',kOn)};
+  var s=D.createElement('button');s.className='zen-effect-btn';s.id='zenSyncBtn';s.title='Fix lyric timing or add lyrics';s.textContent='SYNC';s.onclick=function(){openEd()};
+  hr.insertBefore(k,ex);hr.insertBefore(s,ex);
+})();
+
+/* ───────── sync studio: whole-song offset + tap-to-stamp lines ───────── */
+var ed=null,lines=[],ptr=0,key=null;
+function fmt(ms){ms=Math.max(0,ms);var m=Math.floor(ms/60000),s=(ms%60000)/1000;return(m<10?'0':'')+m+':'+(s<10?'0':'')+s.toFixed(2)}
+function offTxt(){var v=W.blastrNud/1000;return(v>0?'+':'')+v.toFixed(1)+'s'}
+function openEd(plain){
+  var t=S.currentTrack;if(!t){toast('SYNC','Play a song first');return}
+  var st=Z('zenStage');if(!st)return;
+  W.blastrApplyLyrics(t);
+  if(!ed){ed=D.createElement('div');ed.id='zsEd';ed.className='zs';st.appendChild(ed);ed.addEventListener('click',edClick)}
+  var L=(S.parsedLyrics||[]).filter(function(l){return l.text&&String(l.text).replace(/<[^>]+>/g,'').trim()});
+  lines=L.map(function(l){return{text:String(l.text).replace(/<[^>]+>/g,'').trim(),ms:l.ms,old:true}});ptr=0;
+  if(!lines.length&&plain){var px=String(plain).split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);if(px.length>1)lines=px.map(function(x){return{text:x,ms:null}})}
+  draw();ed.classList.add('on');
+  if(!key){key=function(e){
+    if(!ed||!ed.classList.contains('on'))return;
+    if(e.target&&e.target.tagName==='TEXTAREA'){if(e.key==='Escape')close();return}
+    if(e.code==='Space'||e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();tap()}
+    else if(e.key==='Escape'){e.stopImmediatePropagation();close()}
+  };D.addEventListener('keydown',key,true)}
+}
+function close(){if(ed)ed.classList.remove('on')}
+function draw(){
+  var t=S.currentTrack;
+  ed.innerHTML='<div class="zs-card"><div class="zs-h"><b>SYNC STUDIO</b><small>'+H(t.title)+'</small><button type="button" data-a="close">✕</button></div>'
+   +'<div class="zs-off"><span>WHOLE-SONG OFFSET</span><button data-o="-500">−0.5</button><button data-o="-100">−0.1</button><b id="zsOff">'+offTxt()+'</b><button data-o="100">+0.1</button><button data-o="500">+0.5</button><button data-o="0" class="rs">RESET</button><em>+ = lyrics appear later</em></div>'
+   +(lines.length?'<div class="zs-list" id="zsList">'+lines.map(function(l,i){return'<div class="zs-ln'+(i===ptr?' cur':'')+(l.old?' old':'')+'" data-i="'+i+'"><i>'+(l.ms!=null?fmt(l.ms):'--:--')+'</i><span>'+H(l.text)+'</span></div>'}).join('')+'</div>'
+     +'<div class="zs-ft"><button class="main" data-a="tap">TAP — STAMP NEXT LINE <small>(SPACE)</small></button><button data-a="back">UNDO</button><button data-a="top">RESTART SONG</button><button data-a="save" class="sv">SAVE</button></div>'
+     +'<div class="zs-tip">Play the song, then tap as each line starts. Click any line to restart stamping from it.</div>'
+   :'<div class="zs-paste"><p>No lyrics for this track yet. Paste them here (one line per lyric line), then stamp the timing.</p><textarea id="zsTxt" rows="9" placeholder="Paste lyrics…"></textarea><div class="zs-ft"><button class="main" data-a="build">BUILD LINES</button></div></div>')
+   +'</div>';
+}
+function edClick(e){
+  var b=e.target.closest('button,.zs-ln');if(!b)return;
+  if(b.dataset.o!=null){var v=+b.dataset.o,t=S.currentTrack;W.blastrNud=v===0?0:Math.max(-15000,Math.min(15000,W.blastrNud+v));lss('blastr_sync_'+tid(t),String(W.blastrNud));Z('zsOff').textContent=offTxt();return}
+  if(b.classList.contains('zs-ln')){ptr=+b.dataset.i;mark();return}
+  var a=b.dataset.a;
+  if(a==='close')close();
+  else if(a==='tap')tap();
+  else if(a==='back'){if(ptr>0){ptr--;lines[ptr].ms=null;lines[ptr].old=false;redraw(ptr)}}
+  else if(a==='top'){audio.currentTime=0;if(audio.paused)W.togglePlayback();ptr=0;mark()}
+  else if(a==='build'){
+    var tx=Z('zsTxt').value.split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+    if(tx.length<2){toast('SYNC','Paste at least two lines');return}
+    lines=tx.map(function(x){return{text:x,ms:null}});ptr=0;draw();
+  }
+  else if(a==='save')save();
+}
+function mark(){var l=ed.querySelectorAll('.zs-ln');[].forEach.call(l,function(n,i){n.classList.toggle('cur',i===ptr)});var c=l[ptr];if(c&&c.scrollIntoView)c.scrollIntoView({block:'center',behavior:'smooth'})}
+function redraw(i){var n=ed.querySelectorAll('.zs-ln')[i];if(n){n.querySelector('i').textContent=lines[i].ms!=null?fmt(lines[i].ms):'--:--';n.classList.remove('old')}mark()}
+function tap(){
+  if(!lines.length||ptr>=lines.length)return;
+  if(audio.paused)W.togglePlayback();
+  lines[ptr].ms=Math.max(0,audio.currentTime*1000-120);lines[ptr].old=false;
+  var i=ptr;ptr++;redraw(i);
+  if(ptr>=lines.length)toast('SYNC','All lines stamped — press SAVE');
+}
+function save(){
+  var t=S.currentTrack;
+  if(lines.some(function(l){return l.ms==null})){toast('SYNC','Some lines still have no time');return}
+  var lrc=lines.slice().sort(function(a,b){return a.ms-b.ms}).map(function(l){return'['+fmt(l.ms)+']'+l.text}).join('\n');
+  lss('blastr_lrc_'+tid(t),lrc);W.blastrNud=0;lss('blastr_sync_'+tid(t),'0');
+  setLyrics(t,lrc);rpc('lyrics_put',{p_track:tid(t),p_lyrics:lrc,p_source:'user_sync'});
+  toast('SYNC SAVED','Your timing is live');close();
+}
+})();
+</script>
+
+
+
 </body>
 </html>
