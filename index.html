@@ -19089,5 +19089,248 @@ W.blastrArtistPromo=function(){open(true)};
 </script>
 
 
+<style id="blastrMobileV2">
+/* ═══ BLASTR MOBILE V2 (≤700px only — desktop, tablet & login untouched) ═══ */
+#bxDock,.bx-libbar,.bx-np-head{display:none}
+@media (max-width:700px){
+  :root{--bx-dock-h:calc(54px + env(safe-area-inset-bottom));--bx-mini-h:58px;--player-h:calc(var(--bx-dock-h) + var(--bx-mini-h) + 14px);--bx-top-real:60px}
+
+  /* 1 · one navigation: drawer retired, dock takes over */
+  #appScreen .sidebar,#appScreen .mobile-scrim{display:none!important}
+  #appScreen .top-bar .mobile-nav-btn,#appScreen .top-bar>.icon-btn:nth-child(2),#appScreen .top-bar .explore-btn,#appScreen .top-bar .playlist-create-btn,#appScreen .top-bar .follow-cluster,#appScreen .top-bar .topbar-actions{display:none!important}
+
+  /* 2 · slim single-row top bar that tucks away on scroll (more room for content) */
+  #appScreen .top-bar{flex-wrap:nowrap!important;gap:8px;padding:max(8px,env(safe-area-inset-top)) 12px 8px;transition:margin-top .28s cubic-bezier(.4,0,.2,1),opacity .2s}
+  #appScreen .top-bar .search-wrap{order:1;flex:1 1 auto;min-width:0;max-width:none}
+  #appScreen .top-bar #vaCluster{order:2}
+  #appScreen .search-input{height:40px;border-radius:14px;background:rgba(255,255,255,.06)}
+  #appScreen.bx-top-off .top-bar{margin-top:calc(-1 * var(--bx-top-real));opacity:0;pointer-events:none}
+
+  /* 3 · glass dock */
+  #bxDock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:260;height:var(--bx-dock-h);padding:0 6px env(safe-area-inset-bottom);background:rgba(8,8,20,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.07)}
+  .bx-tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--dim);font:700 9.5px var(--mono);letter-spacing:.6px;position:relative;-webkit-tap-highlight-color:transparent;transition:color .2s,transform .12s}
+  .bx-tab svg{width:23px;height:23px;transition:transform .2s,filter .2s}
+  .bx-tab:active{transform:scale(.93)}
+  .bx-tab.on{color:var(--accent)}
+  .bx-tab.on svg{transform:translateY(-1px) scale(1.08);filter:drop-shadow(0 0 6px var(--accent))}
+  .bx-tab.on::before{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;border-radius:0 0 3px 3px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .bx-tab .bx-badge{display:none;position:absolute;top:5px;left:calc(50% + 7px);min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--accent3);color:#fff;font:700 9px var(--mono);align-items:center;justify-content:center}
+  .bx-tab .bx-badge.show{display:flex}
+
+  /* 4 · Library chips (Favorites · Downloads · Following · + Playlist) */
+  #appScreen.bx-lib .bx-libbar{display:flex}
+  .bx-libbar{gap:8px;padding:2px 12px 8px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+  .bx-libbar::-webkit-scrollbar{display:none}
+  .bx-chip{flex:0 0 auto;height:34px;padding:0 14px;border-radius:17px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);font:700 11px var(--mono);letter-spacing:.8px;display:flex;align-items:center;gap:6px}
+  .bx-chip.on{background:var(--accent);border-color:var(--accent);color:#06060E}
+  .bx-chip.add{border-style:dashed;color:var(--accent2)}
+  .bx-chip .n:empty{display:none}
+
+  /* 5 · Me hub */
+  .bx-me-head{display:flex;align-items:center;gap:12px;margin-top:12px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(0,198,255,.14),rgba(57,255,20,.07));border:1px solid rgba(255,255,255,.08)}
+  .bx-av{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#06060E;font:800 20px var(--font);display:grid;place-items:center}
+  .bx-me-name{font:800 17px var(--font)}
+  .bx-me-role{font:400 10px var(--mono);letter-spacing:1.2px;color:var(--dim);margin-top:3px}
+  .bx-me-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}
+  .bx-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:80px;padding:14px;border-radius:16px;background:var(--panel2);border:1px solid var(--border);color:var(--text);text-align:left;font:700 13px var(--font);-webkit-tap-highlight-color:transparent}
+  .bx-card:active{transform:scale(.97)}
+  .bx-card .ic{font-size:20px;line-height:1}
+  .bx-card small{font:400 10px var(--mono);color:var(--dim);letter-spacing:.3px}
+  .bx-card.earn{background:linear-gradient(135deg,rgba(255,20,147,.18),rgba(255,209,102,.12));border-color:rgba(255,20,147,.3)}
+
+  /* 6 · mini player = slim floating card, thin inset progress (no edge-to-edge line) */
+  #appScreen .player-bar:not(.bx-open){margin:0 8px calc(var(--bx-dock-h) + 6px);min-height:var(--bx-mini-h);padding:7px 10px 10px;gap:6px;border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.45);background:linear-gradient(180deg,rgba(24,24,46,.97),rgba(12,12,26,.98))}
+  #appScreen .player-bar:not(.bx-open) .np-cover{width:40px;height:40px}
+  #appScreen .player-bar:not(.bx-open) .ctrl-btn[title="Previous"],#appScreen .player-bar:not(.bx-open) #pbMore{display:none!important}
+  #appScreen .player-bar:not(.bx-open) .progress-wrap{position:absolute;left:12px;right:12px;top:auto;bottom:3px;height:2px}
+  #appScreen .player-bar:not(.bx-open) .progress-bar{height:2px;border-radius:2px}
+
+  /* 7 · full Now Playing sheet: proper slider with times, centered transport, download + extras */
+  #appScreen .player-bar.bx-open{position:fixed;inset:0;z-index:450;margin:0;border:0;border-radius:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;padding:max(14px,env(safe-area-inset-top)) 22px calc(18px + env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto;box-shadow:none;background:radial-gradient(120% 55% at 50% 0%,rgba(0,198,255,.18),transparent 62%),radial-gradient(90% 45% at 50% 100%,rgba(57,255,20,.09),transparent 70%),#06060E;animation:bxUp .32s cubic-bezier(.22,1,.36,1)}
+  @keyframes bxUp{from{transform:translateY(40px);opacity:0}}
+  .player-bar.bx-open .bx-np-head{display:flex;position:absolute;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;height:44px;align-items:center;justify-content:space-between;font:700 10px var(--mono);letter-spacing:2px;color:var(--dim)}
+  .bx-close{width:44px;height:44px;border:0;background:none;color:var(--text);font-size:26px;line-height:1}
+  .bx-np-head i{width:44px}
+  .player-bar.bx-open .now-playing{order:1;flex:none;width:100%;margin-top:48px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"cv cv cv" "inf hrt nn";align-items:center;gap:20px 4px}
+  .player-bar.bx-open .np-cover{grid-area:cv;justify-self:center;width:min(76vw,40dvh);height:min(76vw,40dvh);border-radius:20px;font-size:64px;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 60px rgba(0,198,255,.16)}
+  .player-bar.bx-open .np-cover img{width:100%;height:100%;object-fit:cover}
+  .player-bar.bx-open .np-info{grid-area:inf;min-width:0}
+  .player-bar.bx-open .np-title{white-space:normal;font-size:21px;font-weight:800;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .player-bar.bx-open .np-artist{font-size:14px;margin-top:4px}
+  .player-bar.bx-open #npHeart{grid-area:hrt;width:44px;height:44px;font-size:24px}
+  .player-bar.bx-open #npNotNow{display:flex!important;grid-area:nn;width:44px;height:44px;font-size:20px}
+  .player-bar.bx-open .player-controls{order:2;flex:none;width:100%;max-width:none;margin-top:20px;display:flex;flex-direction:column-reverse;gap:8px}
+  .player-bar.bx-open .progress-wrap{position:static;display:flex;flex-wrap:wrap;align-items:center;width:100%;height:auto;padding:0}
+  .player-bar.bx-open .progress-bar{order:1;flex:1 1 100%;height:6px;margin:12px 0 6px;border-radius:6px;overflow:visible;background:rgba(255,255,255,.14);touch-action:none}
+  .player-bar.bx-open .progress-bar::before{top:-18px;bottom:-18px}
+  .player-bar.bx-open .progress-fill{position:relative;border-radius:6px}
+  .player-bar.bx-open .progress-fill::after{content:'';position:absolute;right:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(0,198,255,.85)}
+  .player-bar.bx-open .progress-wrap .time-lbl{display:block!important;order:2;font:600 11px var(--mono);color:var(--dim)}
+  .player-bar.bx-open #durLbl{margin-left:auto}
+  .player-bar.bx-open .ctrl-buttons{display:flex;justify-content:space-between;align-items:center;gap:0;width:100%}
+  .player-bar.bx-open .ctrl-buttons>div{display:block!important;order:1}
+  .player-bar.bx-open .ctrl-btn[title="Previous"]{display:flex!important;order:2}
+  .player-bar.bx-open .play-btn-main{order:3;width:68px;height:68px;font-size:26px}
+  .player-bar.bx-open .ctrl-btn[title="Next"]{order:4}
+  .player-bar.bx-open #btnRepeat{display:flex!important;order:5}
+  .player-bar.bx-open #btnMini{order:6}
+  .player-bar.bx-open .ctrl-btn{flex:0 1 42px;width:42px;height:42px;font-size:20px}
+  .player-bar.bx-open .player-right{order:3;display:flex!important;position:static;width:100%;max-width:none;flex-wrap:wrap;gap:10px;margin-top:22px;padding:0;background:none;border:0;box-shadow:none;animation:none;bottom:auto;right:auto}
+  .player-bar.bx-open .player-right .btn-download,.player-bar.bx-open .player-right .btn-vibing,.player-bar.bx-open .player-right .btn-zen{flex:1 1 0;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:10px;padding:0 8px}
+  .player-bar.bx-open .player-right .btn-download{order:1;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:var(--text)}
+  .player-bar.bx-open .player-right .btn-vibing{order:2}
+  .player-bar.bx-open .player-right .btn-zen{order:3}
+  .player-bar.bx-open .player-right .vol-wrap{order:4;flex:1 1 100%;margin-top:6px}
+
+  /* 8 · tighter home shelves */
+  .sp-rail{gap:10px;scroll-snap-type:x mandatory}
+  .sp-tile{flex:0 0 124px}
+  .section-title{font-size:17px;margin:12px 0 8px}
+}
+</style>
+<script id="blastrMobileV2Js">
+(function(){
+const mq=window.matchMedia('(max-width:700px)');
+const $=id=>document.getElementById(id);
+const app=$('appScreen'),pc=document.querySelector('.pages-container'),pb=document.querySelector('.player-bar');
+if(!app||!pc||!pb||$('bxDock'))return;
+const S=(d)=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+const TABS=[
+ ['home','Home',S('<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>')],
+ ['explore','Explore',S('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>')],
+ ['lib','Library',S('<path d="M4 4v16M9 4v16M14.5 5.5l5 14.5"/>')],
+ ['me','Me',S('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>')]
+];
+const dock=document.createElement('nav');dock.id='bxDock';
+dock.innerHTML=TABS.map(t=>'<button class="bx-tab" data-t="'+t[0]+'" aria-label="'+t[1]+'">'+t[2]+'<span>'+t[1]+'</span>'+(t[0]==='lib'?'<i class="bx-badge" id="bxLibBadge"></i>':'')+'</button>').join('');
+app.appendChild(dock);
+
+// Library chip bar
+const bar=document.createElement('div');bar.className='bx-libbar';
+bar.innerHTML='<button class="bx-chip" data-p="favorites">♥ FAVORITES</button><button class="bx-chip" data-p="downloads">⬇ DOWNLOADS <span class="n"></span></button><button class="bx-chip" data-p="following">★ FOLLOWING</button><button class="bx-chip add" data-a="pl">＋ PLAYLIST</button>';
+pc.parentNode.insertBefore(bar,pc);
+
+// Me hub (its own page; reuses the existing handlers)
+const me=document.createElement('div');me.className='page';me.id='page-me';
+me.innerHTML='<div class="bx-me-head"><div class="bx-av" id="bxAv">A</div><div><div class="bx-me-name" id="bxName">User</div><div class="bx-me-role" id="bxRole"></div></div></div>'+
+'<div class="bx-me-grid">'+
+'<button class="bx-card" data-c="account"><span class="ic">◎</span>My Account<small>Your profile</small></button>'+
+'<button class="bx-card" data-c="lab"><span class="ic">⚗</span>Lyric Lab<small>Lyrics tools</small></button>'+
+'<button class="bx-card" data-c="settings"><span class="ic">⚙</span>Settings<small>Preferences</small></button>'+
+'<button class="bx-card earn" data-c="earn"><span class="ic">★</span>Earn as an Artist<small>Join Blastr Studios</small></button>'+
+'<button class="bx-card" data-c="admin" id="bxAdminCard" style="display:none"><span class="ic">⬡</span>Admin Matrix<small>Staff only</small></button>'+
+'</div><div class="bx-door-slot"></div>';
+pc.appendChild(me);
+
+const LIB=['favorites','downloads','following'];
+const MAP={home:'home',explore:'explore',genre:'explore',discover:'explore',favorites:'lib',downloads:'lib',following:'lib',playlist:'lib',me:'me',account:'me',lab:'me',admin:'me'};
+let lastLib='favorites';
+const go=n=>window.showPage(n,$('nav-'+n)||null);
+
+function refreshMe(){
+  const g=id=>($(id)||{}).textContent||'';
+  $('bxAv').textContent=g('sidebarAvatar')||'A';$('bxName').textContent=g('sidebarUser')||'User';$('bxRole').textContent=g('sidebarRole');
+  $('bxAdminCard').style.display=(typeof state!=='undefined'&&state.isAdmin)?'':'none';
+}
+function badge(){
+  const t=((document.querySelector('#nav-downloads .dl-badge')||{}).textContent||'').trim();
+  const n=bar.querySelector('.n');if(n)n.textContent=t;
+  const b=$('bxLibBadge');if(b){b.textContent=t;b.classList.toggle('show',!!t&&/^\d+$/.test(t));}
+}
+function sync(name){
+  const t=MAP[name];
+  if(t)dock.querySelectorAll('.bx-tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const lib=LIB.includes(name);
+  app.classList.toggle('bx-lib',lib&&mq.matches);
+  if(lib){lastLib=name;bar.querySelectorAll('.bx-chip[data-p]').forEach(c=>c.classList.toggle('on',c.dataset.p===name));}
+  app.classList.remove('bx-top-off');badge();
+}
+const _sp=window.showPage;
+window.showPage=function(n){const r=_sp.apply(this,arguments);try{if(n==='me')refreshMe();sync(n);}catch(e){}return r;};
+
+dock.addEventListener('click',e=>{
+  const b=e.target.closest('.bx-tab');if(!b)return;
+  const t=b.dataset.t;go(t==='lib'?lastLib:t);
+  if(navigator.vibrate)navigator.vibrate(8);
+});
+bar.addEventListener('click',e=>{
+  const c=e.target.closest('.bx-chip');if(!c)return;
+  if(c.dataset.a==='pl'){if(typeof openCreatePlaylistModal==='function')openCreatePlaylistModal();return;}
+  go(c.dataset.p);
+});
+me.addEventListener('click',e=>{
+  const c=e.target.closest('.bx-card');if(!c)return;
+  const k=c.dataset.c;
+  if(k==='settings'){if(typeof toggleSettings==='function')toggleSettings();}
+  else if(k==='earn'){const b=$('nav-earn');if(b)b.click();}
+  else if(k==='admin'){const b=$('nav-admin');if(b)b.click();}
+  else go(k);
+});
+const dl=document.querySelector('#nav-downloads .dl-badge');
+if(dl)new MutationObserver(badge).observe(dl,{childList:true,characterData:true,subtree:true});
+
+// admin door lives in Me on phones, back in the sidebar on desktop
+function placeDoor(){
+  const d=$('adminDoor');if(!d)return;
+  if(mq.matches)me.querySelector('.bx-door-slot').appendChild(d);
+  else{const sb=document.querySelector('.sidebar-bottom');if(sb&&sb.parentNode)sb.parentNode.insertBefore(d,sb);}
+}
+placeDoor();
+
+// retire the drawer on phones (edge-swipe / hamburger no longer open it)
+['openSidebarDrawer','toggleSidebarDrawer'].forEach(n=>{
+  const o=window[n];
+  if(typeof o==='function')window[n]=function(){if(mq.matches)return;return o.apply(this,arguments);};
+});
+
+// search placeholder + top bar measuring + hide-on-scroll
+const si=$('searchInput'),ph=si?si.placeholder:'';
+function setPh(){if(si)si.placeholder=mq.matches?'Search songs, artists…':ph;}
+setPh();
+const tb=document.querySelector('.top-bar');
+if(tb&&window.ResizeObserver)new ResizeObserver(()=>{if(tb.offsetHeight)document.documentElement.style.setProperty('--bx-top-real',tb.offsetHeight+'px');}).observe(tb);
+const lastY=new WeakMap();
+document.addEventListener('scroll',e=>{
+  if(!mq.matches)return;
+  const t=e.target;if(!t||!t.classList||!t.classList.contains('page'))return;
+  const y=t.scrollTop,p=lastY.get(t)||0;if(Math.abs(y-p)<8)return;
+  app.classList.toggle('bx-top-off',y>p&&y>60);lastY.set(t,y);
+},true);
+
+// Now Playing sheet
+const head=document.createElement('div');head.className='bx-np-head';
+head.innerHTML='<button class="bx-close" aria-label="Close">⌄</button><span>NOW PLAYING</span><i></i>';
+pb.insertBefore(head,pb.firstChild);
+const openNP=()=>{if(typeof state==='undefined'||!state.currentTrack)return;pb.classList.add('bx-open');pb.classList.remove('pb-open');};
+const closeNP=()=>pb.classList.remove('bx-open');
+document.addEventListener('click',e=>{
+  if(!mq.matches)return;
+  if(pb.classList.contains('bx-open')){
+    if(e.target.closest('.bx-close')){closeNP();return;}
+    if(e.target.closest('#btnVibing,#btnZen'))setTimeout(closeNP,60);
+    if(e.target.closest('.now-playing')&&!e.target.closest('.np-heart'))e.stopImmediatePropagation();
+    return;
+  }
+  if(e.target.closest('.player-bar .now-playing')&&!e.target.closest('.np-heart')){e.stopImmediatePropagation();e.preventDefault();openNP();}
+},true);
+// drag-to-seek on the big slider + swipe-down to close
+const pbar=$('progressBar');
+if(pbar)pbar.addEventListener('touchmove',e=>{
+  if(!pb.classList.contains('bx-open')||typeof audio==='undefined'||!audio.duration)return;
+  e.preventDefault();const r=pbar.getBoundingClientRect();
+  audio.currentTime=Math.max(0,Math.min(1,(e.touches[0].clientX-r.left)/r.width))*audio.duration;
+},{passive:false});
+let ty=null;
+pb.addEventListener('touchstart',e=>{ty=(pb.classList.contains('bx-open')&&pb.scrollTop<=0&&!e.target.closest('#progressBar,.vol-bar'))?e.touches[0].clientY:null;},{passive:true});
+pb.addEventListener('touchend',e=>{if(ty==null)return;const dy=e.changedTouches[0].clientY-ty;ty=null;if(dy>110)closeNP();},{passive:true});
+
+mq.addEventListener&&mq.addEventListener('change',()=>{
+  setPh();placeDoor();closeNP();app.classList.remove('bx-top-off','bx-lib');
+  if(!mq.matches&&me.classList.contains('active'))window.showPage('home',$('nav-home'));
+});
+sync('home');
+})();
+</script>
+
 </body>
 </html>
