@@ -14436,8 +14436,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const BA=window.BA={admin:null,sid:null,stream:null};
 const FA='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12';
 const BLUR_MIN=12,DARK_MIN=45;           // tune if the camera check is too strict / too loose
-const device=()=>{let d;try{d=localStorage.getItem('blastr_device_id');if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('blastr_device_id',d)}}catch(e){d=d||'dev-'+Math.random().toString(36).slice(2,12)}return d};
-async function rpc(fn,args){if(/^admin_(lock_status|verify_pin|verify_face)$/.test(fn)){try{await blastrEnsureFreshSession('the admin door')}catch(e){}}const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
+let _dv=null;const device=()=>{if(_dv)return _dv;let d=null;try{d=localStorage.getItem('blastr_device_id_v2')}catch(e){}if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));try{localStorage.setItem('blastr_device_id_v2',d)}catch(e){}}_dv=d;return d};
+async function rpc(fn,args){const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
 async function photoUrl(p){if(!p)return null;try{const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/storage/v1/object/sign/admin-faces/${p}`,{method:'POST',headers:h,body:JSON.stringify({expiresIn:3600})});const j=await r.json();return j.signedURL?`${SUPABASE_URL}/storage/v1${j.signedURL}`:null}catch(e){return null}}
 async function upload(path,blob){const r=await fetch(`${SUPABASE_URL}/storage/v1/object/admin-faces/${path}`,{method:'POST',headers:blastrAuthHeaders(null,{'x-upsert':'true','Content-Type':'image/jpeg'}),body:blob});if(!r.ok)throw new Error('Photo upload failed ('+r.status+')')}
 
@@ -14480,10 +14480,10 @@ function locked(u){
 /* ── PIN ── */
 BA.pin=(msg,left,shake)=>{
  show(`<div class="ba-lock">⌗</div><div class="ba-t">ID NUMBER</div><div class="ba-s">${esc(msg||'ENTER YOUR 8-DIGIT ADMIN ID')}</div>
- <div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" inputmode="numeric" maxlength="8" autocomplete="off" type="password">
+ <div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" inputmode="numeric" pattern="[0-9]*" maxlength="16" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" type="text" style="-webkit-text-security:disc">
  <div class="ba-note">${left!=null?left+' ATTEMPT'+(left==1?'':'S')+' LEFT':''}</div><button class="ba-x" onclick="BA.open()">← Back</button>`);
  const inp=$('#baPinIn'),dots=$$('#baPin span');inp.focus();$('#baPin').onclick=()=>inp.focus();
- inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'');dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
+ const clean=s=>String(s||'').normalize('NFKC').replace(/[\u0660-\u0669]/g,c=>c.charCodeAt(0)-1632).replace(/[\u06F0-\u06F9]/g,c=>c.charCodeAt(0)-1776).replace(/\D/g,'').slice(0,8);inp.oninput=async()=>{inp.value=clean(inp.value);dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
   if(inp.value.length===8){inp.disabled=true;let r;try{r=await rpc('admin_verify_pin',{p_device:device(),p_pin:inp.value})}catch(e){r={ok:false,error:'net',msg:e.message}}
    r.ok?success(r,null):fail(r,'pin')}}};
 
@@ -19312,10 +19312,8 @@ document.addEventListener('scroll',e=>{
 
 // Now Playing sheet
 const head=document.createElement('div');head.className='bx-np-head';
-head.innerHTML='<button class="bx-close" aria-label="Close">⌄</button><span>NOW PLAYING</span><button class="bx-hdl" aria-label="Download" onclick="if(typeof downloadCurrentTrack===\'function\')downloadCurrentTrack()">⬇</button>';
+head.innerHTML='<button class="bx-close" aria-label="Close">⌄</button><span>NOW PLAYING</span><i></i>';
 pb.insertBefore(head,pb.firstChild);
-const mdl=document.createElement('button');mdl.id='bxMiniDl';mdl.className='np-heart';mdl.title='Download';mdl.setAttribute('aria-label','Download');mdl.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>';mdl.onclick=function(e){e.stopPropagation();if(typeof downloadCurrentTrack==='function')downloadCurrentTrack();};
-const hb=$('npHeart');if(hb&&hb.parentNode)hb.parentNode.insertBefore(mdl,hb.nextSibling);
 const openNP=()=>{if(typeof state==='undefined'||!state.currentTrack)return;pb.classList.add('bx-open');pb.classList.remove('pb-open');};
 const closeNP=()=>pb.classList.remove('bx-open');
 document.addEventListener('click',e=>{
@@ -19507,21 +19505,5 @@ window.executeBlast=async function(){
 })();
 </script>
 
-<style id="blastrV117Css">
-#bxMiniDl{display:none}
-.bx-hdl{width:44px;height:44px;border:0;background:none;color:var(--text);font-size:20px}
-@media (max-width:700px){
-  #appScreen .player-bar:not(.bx-open) .ctrl-btn[title="Previous"]{display:flex!important}
-  #appScreen .player-bar:not(.bx-open) #bxMiniDl{display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  #appScreen .player-bar.bx-open #bxMiniDl{display:none!important}
-  #appScreen .player-bar:not(.bx-open) .np-heart{width:28px;height:28px;font-size:16px}
-  #appScreen .player-bar:not(.bx-open) .now-playing{gap:4px}
-  #appScreen .player-bar:not(.bx-open) .ctrl-btn{width:28px;height:28px;font-size:15px}
-  #appScreen .player-bar:not(.bx-open) .play-btn-main{width:40px;height:40px}
-  #appScreen .player-bar:not(.bx-open) .ctrl-buttons{gap:2px}
-  #appScreen .player-bar:not(.bx-open){gap:4px;padding-left:8px;padding-right:8px}
-}
-@media (max-width:340px){#appScreen .player-bar:not(.bx-open) #npHeart{display:none}}
-</style>
 </body>
 </html>
