@@ -14361,7 +14361,7 @@ function plToggleRepeat() {
 .ba-pin span{width:34px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);position:relative;transition:.2s}
 .ba-pin span.f{border-color:var(--accent);box-shadow:0 0 14px rgba(57,255,20,.35)}.ba-pin span.f::after{content:'';position:absolute;inset:0;margin:auto;width:10px;height:10px;border-radius:50%;background:var(--accent)}
 .ba-pin.shake{animation:baShake .45s}@keyframes baShake{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
-.ba-pin-in{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.ba-pinwrap{position:relative;width:max-content;margin:0 auto}.ba-pin-in{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:auto;font-size:16px;border:0;background:none;color:transparent;caret-color:transparent;padding:0;margin:0}
 /* CAMERA */
 .ba-frame{position:relative;width:min(300px,76vw);aspect-ratio:1;margin:4px auto 12px;border-radius:24px;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 40px rgba(0,198,255,.2);transition:box-shadow .3s}
 .ba-frame.ok{box-shadow:0 0 0 2px #39FF14,0 0 46px rgba(57,255,20,.45)}.ba-frame.bad{box-shadow:0 0 0 2px #FF9F1C,0 0 40px rgba(255,159,28,.35)}
@@ -14440,7 +14440,7 @@ const BA=window.BA={admin:null,sid:null,stream:null};
 const FA='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12';
 const BLUR_MIN=12,DARK_MIN=45;           // tune if the camera check is too strict / too loose
 const device=()=>{let d;try{d=localStorage.getItem('blastr_device_id');if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('blastr_device_id',d)}}catch(e){d=d||'dev-'+Math.random().toString(36).slice(2,12)}return d};
-async function rpc(fn,args){if(/^admin_(lock_status|verify_pin|verify_face)$/.test(fn)){try{await blastrEnsureFreshSession('the admin door')}catch(e){}}const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
+async function rpc(fn,args){if(/^admin_(lock_status|verify_pin|verify_face)$/.test(fn)){try{await blastrEnsureFreshSession('the admin door')}catch(e){throw new Error(/sign in again/i.test(e&&e.message)?'Your login expired — log out, sign in again, then retry the admin door':'Could not check your login (network). Try again')}}const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
 async function photoUrl(p){if(!p)return null;try{const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/storage/v1/object/sign/admin-faces/${p}`,{method:'POST',headers:h,body:JSON.stringify({expiresIn:3600})});const j=await r.json();return j.signedURL?`${SUPABASE_URL}/storage/v1${j.signedURL}`:null}catch(e){return null}}
 async function upload(path,blob){const r=await fetch(`${SUPABASE_URL}/storage/v1/object/admin-faces/${path}`,{method:'POST',headers:blastrAuthHeaders(null,{'x-upsert':'true','Content-Type':'image/jpeg'}),body:blob});if(!r.ok)throw new Error('Photo upload failed ('+r.status+')')}
 
@@ -14483,10 +14483,10 @@ function locked(u){
 /* ── PIN ── */
 BA.pin=(msg,left,shake)=>{
  show(`<div class="ba-lock">⌗</div><div class="ba-t">ID NUMBER</div><div class="ba-s">${esc(msg||'ENTER YOUR 8-DIGIT ADMIN ID')}</div>
- <div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" inputmode="numeric" maxlength="8" autocomplete="off" type="password">
+ <div class="ba-pinwrap"><div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"></div><div class="ba-note" style="margin-top:2px">TAP THE BOXES TO TYPE</div>
  <div class="ba-note">${left!=null?left+' ATTEMPT'+(left==1?'':'S')+' LEFT':''}</div><button class="ba-x" onclick="BA.open()">← Back</button>`);
  const inp=$('#baPinIn'),dots=$$('#baPin span');inp.focus();$('#baPin').onclick=()=>inp.focus();
- inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'');dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
+ inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'').slice(0,8);dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
   if(inp.value.length===8){inp.disabled=true;let r;try{r=await rpc('admin_verify_pin',{p_device:device(),p_pin:inp.value})}catch(e){r={ok:false,error:'net',msg:e.message}}
    r.ok?success(r,null):fail(r,'pin')}}};
 
@@ -14570,7 +14570,7 @@ BA.enter=()=>{BA.close();showPage('admin',$('#nav-admin'))};
 BA.lock=async()=>{try{await rpc('admin_end_session')}catch(e){}endSession();BA.close();showToast('SESSION LOCKED','Admin session closed.');showPage('home',$('#nav-home'))};
 function fail(r,from){
  stop();if(r.error==='locked')return locked(r.locked_until);
- const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
+ const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:/login expired|sign in/i.test(r.msg||'')?'SESSION EXPIRED':'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
  if(from==='pin'&&r.error==='no_match')return BA.pin(m,r.attempts_left,true);
  show(`<svg class="ba-tick x" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M17 17l18 18M35 17L17 35"/></svg><div class="ba-t r">${m}</div><div class="ba-s">${r.attempts_left!=null?r.attempts_left+' ATTEMPTS LEFT ON THIS DEVICE':'TRY AGAIN OR USE YOUR ID NUMBER'}</div>
  <div class="ba-note">${esc(r.msg||'')}</div><button class="ba-btn" onclick="BA.face()">TRY AGAIN</button><button class="ba-btn alt" onclick="BA.pin()">USE ID NUMBER</button><br><button class="ba-x" onclick="BA.close()">Cancel</button>`)}
