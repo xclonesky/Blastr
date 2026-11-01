@@ -14568,7 +14568,7 @@ BA.lock=async()=>{try{await rpc('admin_end_session')}catch(e){}endSession();BA.c
 function fail(r,from){
  stop();if(r.error==='locked')return locked(r.locked_until);
  const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
- if(from==='pin'&&r.error==='no_match')return BA.pin(m,r.attempts_left,true);
+ if(from==='pin'&&r.error==='no_match')return BA.pin(m+' · v118 · P'+(blastrActiveIdx+1)+' · '+r.error,r.attempts_left,true);
  show(`<svg class="ba-tick x" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M17 17l18 18M35 17L17 35"/></svg><div class="ba-t r">${m}</div><div class="ba-s">${r.attempts_left!=null?r.attempts_left+' ATTEMPTS LEFT ON THIS DEVICE':'TRY AGAIN OR USE YOUR ID NUMBER'}</div>
  <div class="ba-note">${esc(r.msg||'')}</div><button class="ba-btn" onclick="BA.face()">TRY AGAIN</button><button class="ba-btn alt" onclick="BA.pin()">USE ID NUMBER</button><br><button class="ba-x" onclick="BA.close()">Cancel</button>`)}
 
