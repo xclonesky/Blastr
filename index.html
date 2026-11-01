@@ -5015,7 +5015,7 @@ window.Collabo=(function(){
   document.addEventListener('click',function(e){
     if(!(e.target.closest&&e.target.closest('.collabo-field'))){closeRes('up');closeRes('es');}
   });
-  return {norm:norm,ft:ft,render:render,search:search,key:key,pickIdx:pickIdx,remove:remove,resolve:resolve,clear:clear,setMain:setMain,load:load,sbSafe:sbSafe,fetchFeatured:fetchFeatured,renderProfile:renderProfile};
+  return {norm:norm,ft:ft,render:render,search:search,key:key,pickIdx:pickIdx,remove:remove,resolve:resolve,clear:clear,setMain:setMain,load:load,sbSafe:sbSafe,fetchFeatured:fetchFeatured,renderProfile:renderProfile,add:add};
 })();
 </script>
 
@@ -5654,7 +5654,7 @@ async function blastrB2Upload(objectName, file) {
     try {
       const s = await blastrB2Call('sign', { key }, token);
       let sha = 'do_not_verify';
-      if (file.size <= 80 * 1048576 && window.crypto && crypto.subtle) {
+      if (file.size <= 12 * 1048576 && window.crypto && crypto.subtle) {
         const d = await crypto.subtle.digest('SHA-1', await file.arrayBuffer());
         sha = [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, '0')).join('');
       }
@@ -15456,9 +15456,9 @@ body.jn-open #jnIntro{display:none}
 (function(){
 'use strict';
 // ═══ JOHN AI — Groq-powered personal music companion ═══
-const GROQ_KEY='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';
+const GROQ_KEY='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';
 const API='https://api.groq.com/openai/v1/chat/completions';
-const PREFERRED=['openai/gpt-oss-120b','openai/gpt-oss-20b','qwen/qwen3.6-27b']; // Groq retired the Llama 3.x models on 16 Aug 2026
+const PREFERRED=['openai/gpt-oss-120b','openai/gpt-oss-20b','qwen/qwen3.8-27b','qwen/qwen3.6-27b']; // Groq retired the Llama 3.x models on 16 Aug 2026
 let MODELS=PREFERRED.slice(),modelsReady=null;
 const SKIP_MODEL=/guard|whisper|tts|orpheus|playai|safeguard|embed/i;
 function discoverModels(){ // asks Groq which models are live right now, so a future retirement can't break John again
@@ -15769,7 +15769,7 @@ function sysPrompt(P){
   const tod=h<5?'late night':h<12?'morning':h<17?'afternoon':h<21?'evening':'night';
   const now=cur?`"${cur.title}" by ${cur.artist||'?'} | genre ${cur.genre||'?'} | ${s.isPlaying?'playing':'paused'} | liked:${(s.favorites||[]).some(f=>f.id===cur.id)} | tags:${[...(tagMap[cur.id]||[])].join(', ')||'none'} | country:${cur.country||'?'} | about: ${String(cur.description||'').slice(0,500)||'no description'}`:'nothing loaded';
   const fav=(s.favorites||[]).slice(-8).map(f=>f.title).join('; ')||'none yet';
-  return `You are JOHN — the warm, witty, emotionally intelligent AI friend living inside Blastr, a music streaming app. You were created by XCLONE STUDIOS, the studio behind Blastr — say so proudly if asked who made/built you or who your creators are, and never credit any other company or model for creating you; if asked what technology powers you, say you're JOHN AI by XCLONE STUDIOS and that you don't know deeper technical details. Talk like a close mate: casual, caring, a little humour, 1-3 short sentences, no markdown, no corporate tone. If the user is hurting, lead with genuine empathy (use "reflect"), then help. You control the app through JSON actions. Reply with ONE JSON object only:
+  return `You are JOHN — the warm, witty, emotionally intelligent AI friend living inside Blastr, a music streaming app. You were created by XCLONE STUDIOS, the studio behind Blastr — say so proudly if asked who made/built you or who your creators are, and never credit any other company or model for creating you; if asked what technology powers you, say you're JOHN AI by XCLONE STUDIOS and that you don't know deeper technical details. Talk like a warm, hyped Gen Z bestie and a proper TALKER: chatty, playful, full of current slang (no cap, fr fr, lowkey, highkey, bet, slay, ngl, it's giving, rizz, vibes, bestie, W, ate) with a few emojis, 3-6 sentences, and often a fun follow-up question or music hot take to keep the chat flowing. Stay warm and caring, never corporate, no markdown. When someone is genuinely hurting, drop the slang and be gentle first. If the user is hurting, lead with genuine empathy (use "reflect"), then help. You control the app through JSON actions. Reply with ONE JSON object only:
 {"reflect":"optional 3-8 word italic thoughtful beat, ONLY for emotional moments","say":"your message to the user","actions":[...],"memory":"optional full updated notes about this user (max 500 chars) ONLY when you learned something new and lasting (name, tastes, what they're going through)"}
 Actions (only when the user wants it; never claim something happened without emitting its action):
 {"type":"search","query":"title/artist words only if they named one","genres":[],"emotions":[],"keywords":[],"limit":8,"play":true|false}
@@ -16694,18 +16694,31 @@ function setGenre(id,v){var s=$(id);if(!s||!v)return;if(![].some.call(s.options,
 function afInit(){
   var t=$('adminTitle');if(!t||$('spAf'))return;
   var d=G.createElement('div');d.className='sp-af';d.id='spAf';
-  d.innerHTML='<b>'+LOGO.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-2px;margin-right:5px"')+'SPOTIFY AUTOFILL · title, artist, cover, genre</b><input class="admin-input" id="spAfQ" placeholder="Search a song on Spotify…" autocomplete="off" style="margin-bottom:0"><div class="sp-afr" id="spAfR"></div>';
+  d.innerHTML='<b>'+LOGO.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-2px;margin-right:5px"')+'SPOTIFY AUTOFILL · title, artist, ft., cover, genre + country, language, bio</b><input class="admin-input" id="spAfQ" placeholder="Search a song on Spotify…" autocomplete="off" style="margin-bottom:0"><div class="sp-afr" id="spAfR"></div>';
   t.parentNode.insertBefore(d,t);var tm;
   $('spAfQ').addEventListener('input',function(){clearTimeout(tm);var q=this.value.trim();if(q.length<2){$('spAfR').innerHTML='';return}
     tm=setTimeout(function(){call('search',{q:q},600000).then(function(r){$('spAfR').innerHTML=r.tracks.slice(0,6).map(function(x){REG[x.id]=x;return'<div class="sp-tr" onclick="SP.afPick(\''+x.id+'\')"><span class="sp-tc">'+img(x.cover)+'</span><span class="sp-tm"><b>'+E(x.title)+'</b><small>'+E(x.artist)+(x.album?' · '+E(x.album):'')+'</small></span><span class="sp-b">USE</span></div>'}).join('')||'<div class="sp-d" style="padding:8px">No matches</div>'}).catch(function(){$('spAfR').innerHTML='<div class="sp-d" style="padding:8px">Spotify unavailable</div>'})},320)})}
-function afPick(id){var t=REG[id];if(!t)return;var set=function(i,v){var e=$(i);if(e)e.value=v},names=String(t.artist).split(', ');
-  set('adminTitle',t.title);set('adminArtist',names[0]);try{uploadOnArtistSearch(names[0])}catch(e){}
-  if(names.length>1&&$('adminDesc')&&!$('adminDesc').value)set('adminDesc','feat. '+names.slice(1).join(', '));
-  $('spAfR').innerHTML='';$('spAfQ').value='';
+function langFor(cc,s){if(/[\uAC00-\uD7AF]/.test(s))return'Korean';if(/[\u3040-\u30FF]/.test(s))return'Japanese';if(/[\u4E00-\u9FFF]/.test(s))return'Mandarin';if(/[\u0400-\u04FF]/.test(s))return'Russian';if(/[\u0600-\u06FF]/.test(s))return'Arabic';if(/[\u0900-\u097F]/.test(s))return'Hindi';
+  var m={NG:'English',GH:'English',ZA:'English',UG:'English',TZ:'Swahili',US:'English',GB:'English',CA:'English',AU:'English',NZ:'English',IE:'English',JM:'English',FR:'French',SN:'French',ES:'Spanish',MX:'Spanish',AR:'Spanish',CO:'Spanish',CU:'Spanish',PR:'Spanish',BR:'Portuguese',PT:'Portuguese',DE:'German',IT:'Italian',RU:'Russian',TR:'Turkish',KR:'Korean',JP:'Japanese',CN:'Mandarin',IN:'Hindi',SA:'Arabic',EG:'Arabic',AE:'Arabic',MA:'Arabic',CD:'Lingala',ET:'Amharic'};return m[cc]||''}
+function enrich(name){var o={};
+  var p1=fetch('https://musicbrainz.org/ws/2/artist/?query='+encodeURIComponent('artist:"'+name+'"')+'&fmt=json&limit=3').then(function(r){return r.json()}).then(function(j){var l=j.artists||[],a=l.filter(function(x){return String(x.name).toLowerCase()===name.toLowerCase()})[0]||l[0];if(a&&a.score>=90&&a.country)o.cc=a.country}).catch(function(){});
+  var p2=fetch('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(name+' musician')+'&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&exsentences=3&format=json&origin=*').then(function(r){return r.json()}).then(function(j){var p=j.query&&Object.keys(j.query.pages).map(function(k){return j.query.pages[k]})[0],x=p&&p.extract;if(x&&x.toLowerCase().indexOf(name.toLowerCase().split(' ')[0])>-1&&/singer|rapper|musician|songwriter|band|producer|\bDJ\b|duo|group|artist/i.test(x))o.bio=x.trim().slice(0,480)}).catch(function(){});
+  return Promise.all([p1,p2]).then(function(){return o})}
+function afPick(id){var t=REG[id];if(!t)return;var set=function(i,v){var e=$(i);if(e)e.value=v},names=String(t.artist).split(', ').map(function(s){return s.trim()}).filter(Boolean),title=String(t.title||''),fm=[],re=/\s*[\(\[]\s*(?:feat\.?|ft\.?|featuring|with)\s+([^\)\]]+)[\)\]]/ig,m;
+  while((m=re.exec(title)))fm=fm.concat(m[1].split(/\s*(?:,|&|\band\b)\s*/i));
+  title=title.replace(re,'').replace(/\s+-\s*(?:feat\.?|ft\.?|featuring)\s.*$/i,'').trim()||String(t.title||'');
+  var main=names[0]||'',feats=names.slice(1).concat(fm).map(function(s){return s.trim()}).filter(function(s,i,a){return s&&s.toLowerCase()!==main.toLowerCase()&&a.findIndex(function(x){return x.toLowerCase()===s.toLowerCase()})===i});
+  set('adminTitle',title);set('adminArtist',main);try{uploadOnArtistSearch(main)}catch(e){}
+  try{Collabo.clear('up');feats.forEach(function(n){Collabo.add('up',{name:n})})}catch(e){if(feats.length&&$('adminDesc')&&!$('adminDesc').value)set('adminDesc','feat. '+feats.join(', '))}
+  $('spAfR').innerHTML='';$('spAfQ').value='';window.__bxBio=null;
   var cu=t.cover_hd||t.cover;
   if(cu&&window.blastrApplyDropFile)fetch(cu).then(function(r){return r.blob()}).then(function(bl){blastrApplyDropFile('admin','image',new File([bl],'cover-'+id+'.jpg',{type:bl.type||'image/jpeg'}),null)}).catch(function(){toast('Cover not copied','Save it from Spotify and attach it')});
-  if(t.artist_id)call('artist',{id:t.artist_id},43200000).then(function(d){var g=matchGenre(d.artist.genres||[]);if(g)setGenre('adminGenre',g);toast('Autofilled ✓',t.title+(g?' · '+g:''))}).catch(function(){toast('Autofilled ✓',t.title)});
-  else toast('Autofilled ✓',t.title)}
+  var g='',pG=t.artist_id?call('artist',{id:t.artist_id},43200000).then(function(d){g=matchGenre(d.artist.genres||[])||'';if(g)setGenre('adminGenre',g)}).catch(function(){}):Promise.resolve();
+  var pE=enrich(main).then(function(o){var bits=[],sc=$('adminCountry'),sl=$('adminLanguage'),lg=langFor(o.cc||'',title+' '+main);
+    if(o.cc&&sc&&[].some.call(sc.options,function(x){return x.value===o.cc})){sc.value=o.cc;bits.push(o.cc)}
+    if(lg&&sl&&[].some.call(sl.options,function(x){return x.value===lg})){sl.value=lg;bits.push(lg)}
+    if(o.bio){window.__bxBio={name:main,bio:o.bio};bits.push('bio ✓')}return bits}).catch(function(){return[]});
+  Promise.all([pG,pE]).then(function(r){toast('Autofilled ✓',title+(feats.length?' · ft. '+feats.join(', '):'')+(g?' · '+g:'')+(r[1].length?' · '+r[1].join(' · '):''))})}
 function genreFill(id,gen){
   var s=$(id);if(!s||s.dataset.spg===String(gen.length))return;s.dataset.spg=gen.length;
   var cur=s.value,ph=s.options[0]?s.options[0].textContent:'SELECT GENRE...',fam={};
@@ -19329,6 +19342,166 @@ mq.addEventListener&&mq.addEventListener('change',()=>{
   if(!mq.matches&&me.classList.contains('active'))window.showPage('home',$('nav-home'));
 });
 sync('home');
+})();
+</script>
+
+<style id="blastrV116Css">
+/* duplicate blue bottom bar retired — the dock + Me hub cover it */
+#bxBn,#bxBn.show{display:none!important}
+#bxUp{position:fixed;inset:0;z-index:100002;display:none;align-items:flex-end;justify-content:center;background:rgba(3,3,12,.74);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#bxUp.on{display:flex}
+.bxu-card{width:min(420px,100%);padding:22px 20px calc(22px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;background:linear-gradient(180deg,#14142a,#0a0a18);border:1px solid rgba(255,255,255,.09);text-align:center;animation:bxuIn .35s cubic-bezier(.22,1,.36,1)}
+@media(min-width:701px){#bxUp{align-items:center}.bxu-card{border-radius:24px;padding-bottom:22px}}
+@keyframes bxuIn{from{transform:translateY(40px);opacity:0}}
+.bxu-ring{position:relative;width:132px;height:132px;margin:0 auto 14px}
+.bxu-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bxu-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.bxu-t{stroke:rgba(255,255,255,.08)}
+.bxu-f{stroke:url(#bxuG);stroke-dasharray:314.16;stroke-dashoffset:314.16;filter:drop-shadow(0 0 8px rgba(0,198,255,.7));transition:stroke-dashoffset .25s linear}
+.bxu-pct{position:absolute;inset:0;display:grid;place-items:center;font:800 30px var(--font);color:var(--text)}
+.bxu-pct small{font:700 14px var(--mono);opacity:.6}
+.bxu-ring::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid transparent;border-top-color:var(--accent2);animation:bxuSpin 1.1s linear infinite;opacity:.55}
+#bxUp.ok .bxu-ring::after,#bxUp.err .bxu-ring::after{display:none}
+@keyframes bxuSpin{to{transform:rotate(360deg)}}
+.bxu-st{font:800 16px var(--font);color:var(--text)}
+.bxu-sub{font:400 11px var(--mono);color:var(--dim);margin-top:6px;letter-spacing:.4px;word-break:break-word;line-height:1.5}
+.bxu-bar{height:5px;border-radius:5px;background:rgba(255,255,255,.08);margin:16px 0 8px;overflow:hidden}
+.bxu-bar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:bxuSh 1.2s linear infinite;transition:width .25s linear}
+@keyframes bxuSh{to{background-position:-200% 0}}
+.bxu-btns{display:flex;gap:10px;margin-top:16px}
+.bxu-btns button{flex:1;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);font:700 12px var(--mono);letter-spacing:1px}
+.bxu-btns .pri{background:var(--accent);border-color:var(--accent);color:#06060E}
+#bxUp.ok .bxu-f{stroke:var(--accent)}
+#bxUp.err .bxu-f{stroke:var(--red);filter:drop-shadow(0 0 8px rgba(255,49,49,.7))}
+#bxUp.ok .bxu-bar,#bxUp.err .bxu-bar{display:none}
+#bxUp.err .bxu-st{color:var(--red)}
+</style>
+<script id="blastrV116Js">
+(function(){
+if(window.__bxV116)return;window.__bxV116=1;
+const $=id=>document.getElementById(id);
+
+/* ── scrolling browser-tab title with the playing song ── */
+(function(){
+  let iv=null,i=0;const base=document.title;
+  const txt=()=>{const t=(typeof state!=='undefined'&&state.currentTrack)||null;return t?('♪ '+t.title+' — '+(t.artist||'')+'   ✦   '):'';};
+  function tick(){const s=txt();if(!s){stop();return;}const r=s.repeat(Math.ceil(70/s.length)+1);i=(i+1)%s.length;document.title=r.slice(i,i+28);}
+  function start(){if(!iv)iv=setInterval(tick,380);}
+  function stop(){clearInterval(iv);iv=null;i=0;document.title=base;}
+  if(typeof audio!=='undefined'){audio.addEventListener('play',start);audio.addEventListener('pause',stop);audio.addEventListener('ended',stop);if(!audio.paused&&txt())start();}
+})();
+
+/* ── upload progress: real-time ring, speed + ETA, readable errors ── */
+const U={on:false,xhrs:new Set(),pts:[],shown:0};
+const HTML='<div id="bxUp"><div class="bxu-card"><div class="bxu-ring"><svg viewBox="0 0 120 120"><defs><linearGradient id="bxuG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#39FF14"/><stop offset="1" stop-color="#00C6FF"/></linearGradient></defs><circle class="bxu-t" cx="60" cy="60" r="50"/><circle class="bxu-f" id="bxuF" cx="60" cy="60" r="50"/></svg><div class="bxu-pct" id="bxuP">0<small>%</small></div></div><div class="bxu-st" id="bxuS"></div><div class="bxu-sub" id="bxuD"></div><div class="bxu-bar"><i id="bxuB"></i></div><div class="bxu-sub" id="bxuE"></div><div class="bxu-btns" id="bxuBt"></div></div></div>';
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const mark=b=>{const t=performance.now();U.pts.push({t,b});while(U.pts.length>2&&t-U.pts[0].t>5000)U.pts.shift();};
+
+const _f=window.fetch.bind(window);
+window.fetch=function(input,init){
+  if(U.on&&init&&init.method==='POST'&&init.body instanceof Blob){
+    if(U.cancelled)return Promise.reject(new TypeError('Upload cancelled'));
+    if(init.body===U.cover)U.stage='cover';
+    if(init.body.size>262144)return xhrPost(typeof input==='string'?input:input.url,init);
+    if(init.body===U.cover)return _f(input,init).then(r=>{if(r.ok){U.coverDone=true;U.stage='save';}return r;});
+  }
+  return _f(input,init);
+};
+function xhrPost(url,init){return new Promise((res,rej)=>{
+  const x=new XMLHttpRequest(),isA=init.body===U.audio,isC=init.body===U.cover;
+  x.open('POST',url,true);x.responseType='arraybuffer';
+  try{const h=init.headers;if(h instanceof Headers)h.forEach((v,k)=>x.setRequestHeader(k,v));else if(h)Object.keys(h).forEach(k=>x.setRequestHeader(k,h[k]));}catch(e){}
+  if(isA){U.stage='audio';U.pts=[];mark(0);}
+  x.upload.onprogress=e=>{if(isA&&e.lengthComputable){U.aLoaded=e.loaded;U.aTot=e.total||U.aTot;mark(e.loaded);}};
+  x.onload=()=>{
+    U.xhrs.delete(x);if(isA){U.aLoaded=U.aTot;mark(U.aTot);}if(isC&&x.status<300){U.coverDone=true;U.stage='save';}
+    const hd=new Headers();(x.getAllResponseHeaders()||'').trim().split(/\r?\n/).forEach(l=>{const k=l.indexOf(':');if(k>0)try{hd.append(l.slice(0,k).trim(),l.slice(k+1).trim());}catch(e){}});
+    if(x.status<200||x.status>599){rej(new TypeError('Network error'));return;}
+    res(new Response([204,205,304].includes(x.status)?null:x.response,{status:x.status,statusText:x.statusText,headers:hd}));
+  };
+  x.onerror=x.ontimeout=()=>{U.xhrs.delete(x);rej(new TypeError('Network error'));};
+  x.onabort=()=>{U.xhrs.delete(x);rej(new TypeError('Upload cancelled'));};
+  U.xhrs.add(x);x.send(init.body);
+});}
+
+function explain(m){
+  const l=String(m||'').toLowerCase();
+  if(U.cancelled)return['Upload cancelled','You stopped it — nothing was saved.'];
+  if(/413|too large|exceed|payload|maximum/.test(l))return['File too big for the server','Try a smaller or compressed audio file (MP3 under ~50 MB is ideal).'];
+  if(/network|failed to fetch|load failed|typeerror|timeout|abort/.test(l))return['Connection dropped','Your internet cut out mid-upload. Check your signal or Wi-Fi, then tap Retry.'];
+  if(/jwt|expired|401|403|not allowed|log in|unauthor|row-level|policy/.test(l))return['Not allowed / session expired','Log out and back in, then retry. If it repeats, this account may lack upload rights.'];
+  if(/mime|unsupported|invalid/.test(l))return['Unsupported file type','Use MP3, M4A, WAV or FLAC for audio and JPG or PNG for the cover.'];
+  if(/quota|storage|402|429|limit/.test(l))return['Storage or rate limit hit','The server is full or busy right now. Wait a minute, then retry.'];
+  if(/duplicate|already exists|409/.test(l))return['Duplicate file','A file with this name already exists — tweak the title slightly and retry.'];
+  if(/track insert|insert failed|violates|column/.test(l))return['Files uploaded, track record failed','The database refused the entry: '+String(m).slice(0,140)];
+  return['Upload failed',String(m||'Unknown error — please try again.').slice(0,160)];
+}
+function ui(){if(!U.ov){document.body.insertAdjacentHTML('beforeend',HTML);U.ov=$('bxUp');}}
+function tick(){
+  const st=U.stage;
+  const tg=st==='prep'?3:st==='audio'?Math.max(3,U.aLoaded/Math.max(U.aTot,1)*88):st==='cover'?91:96;
+  U.shown+=(tg-U.shown)*.25;if(Math.abs(tg-U.shown)<.3)U.shown=tg;
+  $('bxuF').style.strokeDashoffset=314.16*(1-U.shown/100);$('bxuB').style.width=U.shown+'%';
+  const p=$('bxuP').firstChild;if(p)p.nodeValue=Math.round(U.shown);
+  $('bxuS').textContent={prep:'Getting your file ready…',audio:'Uploading audio',cover:'Uploading cover art',save:'Saving to the Grid…'}[st];
+  let e='Elapsed '+fmt((performance.now()-U.t0)/1000);
+  if(st==='audio'&&U.pts.length>1){const a=U.pts[0],b=U.pts[U.pts.length-1],sp=(b.b-a.b)/Math.max((b.t-a.t)/1000,.1);
+    if(sp>1024)e=(sp/1048576).toFixed(1)+' MB/s  ·  ETA '+fmt((U.aTot-U.aLoaded)/sp+3)+'  ·  '+e;}
+  else if(st!=='audio'&&st!=='prep')e='Almost there  ·  '+e;
+  $('bxuE').textContent=e;
+}
+function begin(af,imf){
+  ui();Object.assign(U,{on:true,audio:af,cover:imf,stage:'prep',aLoaded:0,aTot:af.size,coverDone:false,pts:[],shown:0,cancelled:false,lastToast:null,t0:performance.now()});
+  U.ov.className='on';$('bxuP').innerHTML='0<small>%</small>';
+  $('bxuD').textContent=(af.name||'audio')+' · '+(af.size/1048576).toFixed(1)+' MB';
+  $('bxuBt').innerHTML='<button id="bxuX">CANCEL</button>';
+  $('bxuX').onclick=()=>{U.cancelled=true;$('bxuS').textContent='Cancelling…';U.xhrs.forEach(x=>x.abort());};
+  clearInterval(U.iv);U.iv=setInterval(tick,140);tick();
+}
+function finish(ok,msg,sub){
+  clearInterval(U.iv);U.on=false;
+  if(ok){
+    $('bxuF').style.strokeDashoffset=0;$('bxuB').style.width='100%';U.ov.className='on ok';
+    $('bxuP').textContent='✓';$('bxuS').textContent='Blasted to the Grid!';$('bxuD').textContent=sub;$('bxuE').textContent='';$('bxuBt').innerHTML='';
+    setTimeout(()=>{if(U.ov.classList.contains('ok'))U.ov.className='';},2300);
+  }else{
+    U.ov.className='on err';$('bxuP').textContent='✕';$('bxuS').textContent=msg[0];$('bxuD').textContent=msg[1];$('bxuE').textContent='';
+    $('bxuBt').innerHTML='<button id="bxuC">CLOSE</button><button class="pri" id="bxuR">RETRY</button>';
+    $('bxuC').onclick=()=>{U.ov.className='';};
+    $('bxuR').onclick=()=>{U.ov.className='';setTimeout(()=>window.executeBlast(),60);};
+  }
+}
+function shrink(f){return new Promise(res=>{
+  if(!/^image\/(jpeg|png|webp)/.test(f.type))return res(null);
+  const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{URL.revokeObjectURL(u);const k=Math.min(1,1400/Math.max(im.naturalWidth,im.naturalHeight));
+    if(k===1&&f.size<1.5e6)return res(null);
+    const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    c.toBlob(b=>res(b?new File([b],(f.name||'cover').replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):null),'image/jpeg',.88);};
+  im.onerror=()=>res(null);im.src=u;});}
+async function saveBio(){
+  const b=window.__bxBio;window.__bxBio=null;if(!b||!b.name||!b.bio)return;
+  try{const r=await sbFetch('/rest/v1/artists?name=eq.'+encodeURIComponent(b.name)+'&select=id,bio&limit=1');
+    const a=Array.isArray(r)?r[0]:null;
+    if(a&&!String(a.bio||'').trim())await sbFetch('/rest/v1/artists?id=eq.'+a.id,{method:'PATCH',body:{bio:b.bio}});}catch(e){}
+}
+const _st=window.showToast;
+window.showToast=function(a,b){if(U.on)U.lastToast=[a,b];return _st.apply(this,arguments);};
+const _eb=window.executeBlast;
+window.executeBlast=async function(){
+  if(U.on)return;
+  const af=typeof adminAudioFile!=='undefined'?adminAudioFile:null;let imf=typeof adminImageFile!=='undefined'?adminImageFile:null;
+  const v=i=>(($(i)||{}).value||'').trim();
+  if(!(v('adminTitle')&&v('adminArtist')&&v('adminGenre')&&v('adminCountry')&&v('adminLanguage')&&af&&imf))return _eb();
+  try{if(imf.size>600*1024){const s=await shrink(imf);if(s&&s.size<imf.size){adminImageFile=s;imf=s;}}}catch(e){}
+  begin(af,imf);
+  const title=v('adminTitle');
+  try{await _eb();}catch(e){U.lastToast=['UPLOAD FAILED',e&&e.message];}
+  const ok=typeof adminAudioFile!=='undefined'&&adminAudioFile===null;
+  if(ok){finish(true,null,title);saveBio();}
+  else finish(false,explain(U.lastToast&&U.lastToast[1]));
+};
 })();
 </script>
 
