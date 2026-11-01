@@ -7276,7 +7276,6 @@ async function executeBlast() {
 
     const linkedArtistId = await blastrResolveArtistId(artist, upArtistId);
     const collaboFeats = await Collabo.resolve('up');
-    const bxLy = await (window.bxLyWait ? window.bxLyWait() : null);
 
     const inserted = await Collabo.sbSafe('/rest/v1/tracks', {
       method: 'POST',
@@ -7292,7 +7291,6 @@ async function executeBlast() {
         genre,
         country,
         language,
-        ...(bxLy ? { lyrics: bxLy } : {}),
         url: uploadedAudio.url,
         cover_url: uploadedCover.url,
         is_verified: pendingIsVerified
@@ -7445,7 +7443,7 @@ async function autoFetchLyrics(){
   document.getElementById('labStatus').className='lab-status active';
   try{
     const q=new URLSearchParams({track_name:track.title||'',artist_name:track.artist||''});
-    const res=await blastrLrcFetch(`https://lrclib.net/api/search?${q.toString()}`);
+    const res=await fetch(`https://lrclib.net/api/search?${q.toString()}`);
     if(!res.ok) throw new Error('LRCLIB request failed');
     const results=await res.json();
     const match=Array.isArray(results)?results.find(r=>r.syncedLyrics):null;
@@ -7460,9 +7458,9 @@ async function autoFetchLyrics(){
       showToast('NO MATCH','LRCLIB has no synced lyrics for this track.');
     }
   }catch(e){
-    document.getElementById('labStatus').textContent='LRCLIB lookup failed ('+(window.__lrcWhy||'network/CORS')+') — sync manually instead.';
+    document.getElementById('labStatus').textContent='LRCLIB lookup failed (network/CORS) — sync manually instead.';
     document.getElementById('labStatus').className='lab-status';
-    showToast('LOOKUP FAILED','Could not reach LRCLIB: '+(window.__lrcWhy||'unknown reason'));
+    showToast('LOOKUP FAILED','Could not reach LRCLIB.');
   }
   btn.textContent=original;btn.disabled=false;
 }
@@ -14361,7 +14359,7 @@ function plToggleRepeat() {
 .ba-pin span{width:34px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);position:relative;transition:.2s}
 .ba-pin span.f{border-color:var(--accent);box-shadow:0 0 14px rgba(57,255,20,.35)}.ba-pin span.f::after{content:'';position:absolute;inset:0;margin:auto;width:10px;height:10px;border-radius:50%;background:var(--accent)}
 .ba-pin.shake{animation:baShake .45s}@keyframes baShake{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
-.ba-pinwrap{position:relative;width:max-content;margin:0 auto}.ba-pin-in{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:auto;font-size:16px;border:0;background:none;color:transparent;caret-color:transparent;padding:0;margin:0}
+.ba-pin-in{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
 /* CAMERA */
 .ba-frame{position:relative;width:min(300px,76vw);aspect-ratio:1;margin:4px auto 12px;border-radius:24px;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 40px rgba(0,198,255,.2);transition:box-shadow .3s}
 .ba-frame.ok{box-shadow:0 0 0 2px #39FF14,0 0 46px rgba(57,255,20,.45)}.ba-frame.bad{box-shadow:0 0 0 2px #FF9F1C,0 0 40px rgba(255,159,28,.35)}
@@ -14440,7 +14438,7 @@ const BA=window.BA={admin:null,sid:null,stream:null};
 const FA='https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12';
 const BLUR_MIN=12,DARK_MIN=45;           // tune if the camera check is too strict / too loose
 const device=()=>{let d;try{d=localStorage.getItem('blastr_device_id');if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('blastr_device_id',d)}}catch(e){d=d||'dev-'+Math.random().toString(36).slice(2,12)}return d};
-async function rpc(fn,args){if(/^admin_(lock_status|verify_pin|verify_face)$/.test(fn)){try{await blastrEnsureFreshSession('the admin door')}catch(e){throw new Error(/sign in again/i.test(e&&e.message)?'Your login expired — log out, sign in again, then retry the admin door':'Could not check your login (network). Try again')}}const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
+async function rpc(fn,args){if(/^admin_(lock_status|verify_pin|verify_face)$/.test(fn)){try{await blastrEnsureFreshSession('the admin door')}catch(e){}}const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:h,body:JSON.stringify(args||{})});const t=await r.json().catch(()=>null);if(!r.ok)throw new Error(t?.message==='forbidden'?'Session expired — pass the admin door again':(t?.message||'Error '+r.status));return t}
 async function photoUrl(p){if(!p)return null;try{const h=blastrAuthHeaders();h.set('Content-Type','application/json');const r=await fetch(`${SUPABASE_URL}/storage/v1/object/sign/admin-faces/${p}`,{method:'POST',headers:h,body:JSON.stringify({expiresIn:3600})});const j=await r.json();return j.signedURL?`${SUPABASE_URL}/storage/v1${j.signedURL}`:null}catch(e){return null}}
 async function upload(path,blob){const r=await fetch(`${SUPABASE_URL}/storage/v1/object/admin-faces/${path}`,{method:'POST',headers:blastrAuthHeaders(null,{'x-upsert':'true','Content-Type':'image/jpeg'}),body:blob});if(!r.ok)throw new Error('Photo upload failed ('+r.status+')')}
 
@@ -14483,10 +14481,10 @@ function locked(u){
 /* ── PIN ── */
 BA.pin=(msg,left,shake)=>{
  show(`<div class="ba-lock">⌗</div><div class="ba-t">ID NUMBER</div><div class="ba-s">${esc(msg||'ENTER YOUR 8-DIGIT ADMIN ID')}</div>
- <div class="ba-pinwrap"><div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"></div><div class="ba-note" style="margin-top:2px">TAP THE BOXES TO TYPE</div>
+ <div class="ba-pin${shake?' shake':''}" id="baPin">${'<span></span>'.repeat(8)}</div><input class="ba-pin-in" id="baPinIn" inputmode="numeric" maxlength="8" autocomplete="off" type="password">
  <div class="ba-note">${left!=null?left+' ATTEMPT'+(left==1?'':'S')+' LEFT':''}</div><button class="ba-x" onclick="BA.open()">← Back</button>`);
  const inp=$('#baPinIn'),dots=$$('#baPin span');inp.focus();$('#baPin').onclick=()=>inp.focus();
- inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'').slice(0,8);dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
+ inp.oninput=async()=>{inp.value=inp.value.replace(/\D/g,'');dots.forEach((d,i)=>d.classList.toggle('f',i<inp.value.length));
   if(inp.value.length===8){inp.disabled=true;let r;try{r=await rpc('admin_verify_pin',{p_device:device(),p_pin:inp.value})}catch(e){r={ok:false,error:'net',msg:e.message}}
    r.ok?success(r,null):fail(r,'pin')}}};
 
@@ -14570,7 +14568,7 @@ BA.enter=()=>{BA.close();showPage('admin',$('#nav-admin'))};
 BA.lock=async()=>{try{await rpc('admin_end_session')}catch(e){}endSession();BA.close();showToast('SESSION LOCKED','Admin session closed.');showPage('home',$('#nav-home'))};
 function fail(r,from){
  stop();if(r.error==='locked')return locked(r.locked_until);
- const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:/login expired|sign in/i.test(r.msg||'')?'SESSION EXPIRED':'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
+ const m={no_match:from==='face'?'FACE NOT RECOGNIZED':'WRONG ID NUMBER',noface:'NO FACE READ FROM CAPTURE',no_face_enrolled:'NO FACE ENROLLED',not_admin:'NOT AN ADMIN',cam:'CAMERA PROBLEM',net:'CONNECTION PROBLEM'}[r.error]||'ACCESS DENIED';
  if(from==='pin'&&r.error==='no_match')return BA.pin(m,r.attempts_left,true);
  show(`<svg class="ba-tick x" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M17 17l18 18M35 17L17 35"/></svg><div class="ba-t r">${m}</div><div class="ba-s">${r.attempts_left!=null?r.attempts_left+' ATTEMPTS LEFT ON THIS DEVICE':'TRY AGAIN OR USE YOUR ID NUMBER'}</div>
  <div class="ba-note">${esc(r.msg||'')}</div><button class="ba-btn" onclick="BA.face()">TRY AGAIN</button><button class="ba-btn alt" onclick="BA.pin()">USE ID NUMBER</button><br><button class="ba-x" onclick="BA.close()">Cancel</button>`)}
@@ -18452,7 +18450,8 @@ function mainArtist(s){return String(s||'').split(/\s*(?:,|&|;|\/|\bx\b|\band\b|
 function norm(s){return clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()}
 function similar(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;if(a===b||a.indexOf(b)>=0||b.indexOf(a)>=0)return true;var A=a.split(' '),B=b.split(' '),n=0;A.forEach(function(w){if(B.indexOf(w)>=0)n++});return n/Math.max(A.length,B.length)>=.6}
 function lrc(q){
-  return blastrLrcFetch('https://lrclib.net/api/search?'+new URLSearchParams(q).toString()).then(function(r){if(!r.ok)throw 0;return r.json()});
+  var c=typeof AbortController!=='undefined'?new AbortController():null,tm=setTimeout(function(){c&&c.abort()},6500);
+  return fetch('https://lrclib.net/api/search?'+new URLSearchParams(q).toString(),c?{signal:c.signal}:{}).then(function(r){clearTimeout(tm);if(!r.ok)throw 0;return r.json()});
 }
 W.blastrFindLyrics=function(t){
   t=t||S.currentTrack;if(!t)return Promise.resolve(0);
@@ -18497,7 +18496,7 @@ D.addEventListener('click',function(e){
     if(r===1)return;                       // the stage already refreshed itself
     b.disabled=false;b.textContent='FIND LYRICS';
     if(r===2){st.textContent='FOUND THE WORDS BUT NOT THE TIMING — STAMP THEM IN SYNC STUDIO';openEd(t._plain);return}
-    st.textContent=r===0?'NOT ON LRCLIB YET — TRY ADD & SYNC YOURSELF':'COULDN’T REACH LRCLIB ('+String(window.__lrcWhy||'no response').toUpperCase()+') — CHECK YOUR CONNECTION';
+    st.textContent=r===0?'NOT ON LRCLIB YET — TRY ADD & SYNC YOURSELF':'COULDN’T REACH LRCLIB — CHECK YOUR CONNECTION';
   });
 });
 
@@ -19379,10 +19378,6 @@ sync('home');
 #bxUp.err .bxu-f{stroke:var(--red);filter:drop-shadow(0 0 8px rgba(255,49,49,.7))}
 #bxUp.ok .bxu-bar,#bxUp.err .bxu-bar{display:none}
 #bxUp.err .bxu-st{color:var(--red)}
-.bxu-ly{margin:10px auto 0;max-width:340px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.05);font:700 11px var(--mono);color:var(--dim);letter-spacing:.3px;line-height:1.45}
-.bxu-ly:empty,#bxUp.ok .bxu-ly,#bxUp.err .bxu-ly{display:none}
-.bxu-ly.ok{color:var(--accent);background:rgba(57,255,20,.09)}
-.bxu-ly.warn{color:#FFD166;background:rgba(255,209,102,.08)}
 </style>
 <script id="blastrV116Js">
 (function(){
@@ -19401,7 +19396,7 @@ const $=id=>document.getElementById(id);
 
 /* ── upload progress: real-time ring, speed + ETA, readable errors ── */
 const U={on:false,xhrs:new Set(),pts:[],shown:0};
-const HTML='<div id="bxUp"><div class="bxu-card"><div class="bxu-ring"><svg viewBox="0 0 120 120"><defs><linearGradient id="bxuG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#39FF14"/><stop offset="1" stop-color="#00C6FF"/></linearGradient></defs><circle class="bxu-t" cx="60" cy="60" r="50"/><circle class="bxu-f" id="bxuF" cx="60" cy="60" r="50"/></svg><div class="bxu-pct" id="bxuP">0<small>%</small></div></div><div class="bxu-st" id="bxuS"></div><div class="bxu-sub" id="bxuD"></div><div class="bxu-ly" id="bxuL"></div><div class="bxu-bar"><i id="bxuB"></i></div><div class="bxu-sub" id="bxuE"></div><div class="bxu-btns" id="bxuBt"></div></div></div>';
+const HTML='<div id="bxUp"><div class="bxu-card"><div class="bxu-ring"><svg viewBox="0 0 120 120"><defs><linearGradient id="bxuG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#39FF14"/><stop offset="1" stop-color="#00C6FF"/></linearGradient></defs><circle class="bxu-t" cx="60" cy="60" r="50"/><circle class="bxu-f" id="bxuF" cx="60" cy="60" r="50"/></svg><div class="bxu-pct" id="bxuP">0<small>%</small></div></div><div class="bxu-st" id="bxuS"></div><div class="bxu-sub" id="bxuD"></div><div class="bxu-bar"><i id="bxuB"></i></div><div class="bxu-sub" id="bxuE"></div><div class="bxu-btns" id="bxuBt"></div></div></div>';
 const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 const mark=b=>{const t=performance.now();U.pts.push({t,b});while(U.pts.length>2&&t-U.pts[0].t>5000)U.pts.shift();};
 
@@ -19448,8 +19443,7 @@ function explain(m){
 function ui(){if(!U.ov){document.body.insertAdjacentHTML('beforeend',HTML);U.ov=$('bxUp');}}
 function tick(){
   const st=U.stage;
-  const A=(st==='prep'||st==='audio')?U.aLoaded/Math.max(U.aTot,1):1,base=A*80+(U.ly||0)*8;
-  const tg=(st==='prep'||st==='audio')?Math.max(3,base):st==='cover'?Math.max(base,88)+4:97;
+  const tg=st==='prep'?3:st==='audio'?Math.max(3,U.aLoaded/Math.max(U.aTot,1)*88):st==='cover'?91:96;
   U.shown+=(tg-U.shown)*.25;if(Math.abs(tg-U.shown)<.3)U.shown=tg;
   $('bxuF').style.strokeDashoffset=314.16*(1-U.shown/100);$('bxuB').style.width=U.shown+'%';
   const p=$('bxuP').firstChild;if(p)p.nodeValue=Math.round(U.shown);
@@ -19458,42 +19452,10 @@ function tick(){
   if(st==='audio'&&U.pts.length>1){const a=U.pts[0],b=U.pts[U.pts.length-1],sp=(b.b-a.b)/Math.max((b.t-a.t)/1000,.1);
     if(sp>1024)e=(sp/1048576).toFixed(1)+' MB/s  ·  ETA '+fmt((U.aTot-U.aLoaded)/sp+3)+'  ·  '+e;}
   else if(st!=='audio'&&st!=='prep')e='Almost there  ·  '+e;
-  const L=$('bxuL'),s=U.lyState;
-  if(L){L.className='bxu-ly'+(s==='found'?' ok':s==='search'||!s?'':' warn');
-    L.textContent=!s?'':s==='search'?'🎤 Searching LRCLIB for synced lyrics…':s==='found'?'🎤 Synced lyrics found ✓ '+(U.lyInfo||''):s==='plain'?'🎤 Only untimed lyrics exist — sync them in Lyric Lab later':s==='unreachable'?'🎤 LRCLIB unreachable ('+(U.lyInfo||'no response')+') — add lyrics later in Lyric Lab':'🎤 No synced lyrics on LRCLIB yet — add them in Lyric Lab';}
   $('bxuE').textContent=e;
 }
-const cl=s=>String(s||'').replace(/\(.*?\)|\[.*?\]|\{.*?\}/g,' ').replace(/\s*[-–—|]\s*(official|lyric|audio|video|visuali[sz]er|hd|4k)\b.*$/i,' ').replace(/\s+/g,' ').trim();
-const nm=s=>cl(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
-const sim=(a,b)=>{a=nm(a);b=nm(b);if(!a||!b)return false;if(a===b||a.indexOf(b)>=0||b.indexOf(a)>=0)return true;const A=a.split(' '),B=b.split(' ');let n=0;A.forEach(w=>{if(B.indexOf(w)>=0)n++});return n/Math.max(A.length,B.length)>=.6;};
-const mainA=s=>String(s||'').split(/\s*(?:,|&|;|\/|\bx\b|\band\b|\bft\.?\b|\bfeat\.?\b|\bfeaturing\b|\bwith\b)\s*/i)[0].trim();
-function fileDur(f){return new Promise(res=>{try{const a=new Audio(),u=URL.createObjectURL(f);const fin=v=>{try{URL.revokeObjectURL(u);a.removeAttribute('src');a.load();}catch(e){}res(v);};a.preload='metadata';a.onloadedmetadata=()=>fin(isFinite(a.duration)?a.duration:0);a.onerror=()=>fin(0);setTimeout(()=>fin(0),1500);a.src=u;}catch(e){res(0);}});}
-/* background lyrics hunt: 3 query variants in parallel, first valid synced match wins, hard cap 9s so it never slows the upload */
-function lyricsJob(f,title,artist){
-  return new Promise(async res=>{
-    let fin=false;
-    const done=r=>{if(fin)return;fin=true;clearTimeout(dl);U.ly=1;U.lyState=r.state;U.lyInfo=r.info||'';U.lyText=r.text||null;res(r);};
-    const dl=setTimeout(()=>done({state:'unreachable',info:'timed out'}),9000);
-    try{
-      const dur=await fileDur(f),ct=cl(title),ma=mainA(artist);
-      if(!ct)return done({state:'none'});
-      const qs=[{track_name:ct,artist_name:ma},{q:(ct+' '+ma).trim()},{track_name:ct}];
-      let fails=0,n=0,plain=false;
-      qs.forEach(q=>{
-        window.blastrLrcFetch('https://lrclib.net/api/search?'+new URLSearchParams(q)).then(r=>r.ok?r.json():[]).then(j=>{
-          const l=(Array.isArray(j)?j:[]).filter(x=>x&&!x.instrumental&&sim(x.trackName,ct)&&(!dur||!x.duration||Math.abs(x.duration-dur)<=12));
-          const s=l.filter(x=>x.syncedLyrics).sort((a,b)=>Math.abs((a.duration||dur)-dur)-Math.abs((b.duration||dur)-dur))[0];
-          if(s)done({state:'found',text:s.syncedLyrics,info:'· '+s.syncedLyrics.split('\n').filter(x=>/^\[\d+:\d+/.test(x)).length+' lines'});
-          else if(l.some(x=>x.plainLyrics))plain=true;
-        }).catch(()=>{fails++;}).finally(()=>{n++;U.ly=Math.max(U.ly||0,Math.min(.95,n/qs.length));
-          if(n===qs.length&&!fin)done(fails===qs.length?{state:'unreachable',info:window.__lrcWhy||'no response'}:{state:plain?'plain':'none'});});
-      });
-    }catch(e){done({state:'none'});}
-  });
-}
-window.bxLyWait=()=>U.lyP?U.lyP.then(r=>(r&&r.text)||null).catch(()=>null):Promise.resolve(null);
 function begin(af,imf){
-  ui();Object.assign(U,{on:true,audio:af,cover:imf,stage:'prep',aLoaded:0,aTot:af.size,coverDone:false,pts:[],shown:0,cancelled:false,lastToast:null,t0:performance.now(),ly:0,lyState:'search',lyInfo:'',lyText:null,lyP:null});
+  ui();Object.assign(U,{on:true,audio:af,cover:imf,stage:'prep',aLoaded:0,aTot:af.size,coverDone:false,pts:[],shown:0,cancelled:false,lastToast:null,t0:performance.now()});
   U.ov.className='on';$('bxuP').innerHTML='0<small>%</small>';
   $('bxuD').textContent=(af.name||'audio')+' · '+(af.size/1048576).toFixed(1)+' MB';
   $('bxuBt').innerHTML='<button id="bxuX">CANCEL</button>';
@@ -19501,7 +19463,7 @@ function begin(af,imf){
   clearInterval(U.iv);U.iv=setInterval(tick,140);tick();
 }
 function finish(ok,msg,sub){
-  clearInterval(U.iv);U.on=false;U.lyP=null;
+  clearInterval(U.iv);U.on=false;
   if(ok){
     $('bxuF').style.strokeDashoffset=0;$('bxuB').style.width='100%';U.ov.className='on ok';
     $('bxuP').textContent='✓';$('bxuS').textContent='Blasted to the Grid!';$('bxuD').textContent=sub;$('bxuE').textContent='';$('bxuBt').innerHTML='';
@@ -19538,11 +19500,10 @@ window.executeBlast=async function(){
   if(!(v('adminTitle')&&v('adminArtist')&&v('adminGenre')&&v('adminCountry')&&v('adminLanguage')&&af&&imf))return _eb();
   try{if(imf.size>600*1024){const s=await shrink(imf);if(s&&s.size<imf.size){adminImageFile=s;imf=s;}}}catch(e){}
   begin(af,imf);
-  U.lyP=lyricsJob(af,v('adminTitle'),v('adminArtist'));
   const title=v('adminTitle');
   try{await _eb();}catch(e){U.lastToast=['UPLOAD FAILED',e&&e.message];}
   const ok=typeof adminAudioFile!=='undefined'&&adminAudioFile===null;
-  if(ok){finish(true,null,title+(U.lyState==='found'?' · lyrics synced ✓':''));saveBio();}
+  if(ok){finish(true,null,title);saveBio();}
   else finish(false,explain(U.lastToast&&U.lastToast[1]));
 };
 })();
@@ -19564,20 +19525,5 @@ window.executeBlast=async function(){
 }
 @media (max-width:340px){#appScreen .player-bar:not(.bx-open) #npHeart{display:none}}
 </style>
-<script id="blastrLrcJs">
-/* LRCLIB fetch: plain request first (no CORS preflight), then one retry that identifies the app; says WHY it failed */
-window.blastrLrcFetch=async function(url){
-  var hdr={'X-User-Agent':'Blastr ('+location.origin+')'},tries=[{},{headers:hdr}],why='';
-  for(var i=0;i<tries.length;i++){
-    var c=new AbortController(),tm=setTimeout(function(){c.abort()},10000);
-    try{
-      var r=await fetch(url,Object.assign({signal:c.signal},tries[i]));clearTimeout(tm);
-      if(r.ok||r.status===404){window.__lrcWhy='';return r;}
-      why='server answered '+r.status;
-    }catch(e){clearTimeout(tm);why=(e&&e.name==='AbortError')?'timed out after 10s':'no response — blocked by network/ISP or offline';}
-  }
-  window.__lrcWhy=why;throw new Error(why);
-};
-</script>
 </body>
 </html>
