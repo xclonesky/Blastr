@@ -15510,7 +15510,37 @@ const HK=()=>'john_hist_'+(uid()||'guest'), MK=()=>'john_mem_'+(uid()||'guest');
 let isOpen=false,busy=false,remoteOK=true,hist=[],memory='',loadedFor=null,lastPl=null,tagMap=null,rec=null,listening=false,built=false;
 
 /* ───────── VOICE · Fish Audio (s2.1-pro-free) ───────── */
-const FISH={voice:'8d21b053e2804e2a890e1cf62f267b6f',fn:'fish-tts'}; // key lives in the Supabase function secret, not in this page
+const FISH={fn:'fish-tts'}; // key lives in the Supabase function secret, not in this page
+const VOICES=[
+  {id:'c8926b5848ef41d78dbcd2a8aaee7bfd',n:'John',d:'The official voice'},
+  {id:'536d3a5e000945adb7038665781a4aca',n:'Ethan',rec:1},
+  {id:'644c1556ad2243a28eb57160b9601037',n:'Amber',rec:1},
+  {id:'98655a12fa944e26b274c535e5e03842',n:'E-girl'},
+  {id:'261d0da23ee44250ac9867c5bacc24f2',n:'Mika'},
+  {id:'6d44fe261c8a44fd8aeddf5127ff1ff3',n:'Peter'},
+  {id:'6fd8fe7620e04442820d66d6ad09befd',n:'Mike'},
+  {id:'9f54cc686fdb481ebb756006a3000b86',n:'Scary'},
+  {id:'8d21b053e2804e2a890e1cf62f267b6f',n:'Classic',d:'The original John voice'}
+];
+const VID='blastr_john_vid',SAMPLE="Hey, it's John. Tell me how you feel and I'll handle the music.";
+const curVoice=()=>{const v=lsGet(VID,null);return VOICES.some(x=>x.id===v)?v:VOICES[0].id;};
+let pvId=null;
+function pvMark(id){pvId=id;document.querySelectorAll('#jnVList .jn-pv').forEach(b=>{b.textContent=b.dataset.id===id?'◼':'▶';});}
+function renderVoices(){
+  const L=$('jnVList');if(!L)return;const cur=curVoice();
+  L.innerHTML=VOICES.map(v=>`<div class="jn-vrow${v.id===cur?' on':''}" data-id="${v.id}"><button class="jn-pv" data-id="${v.id}" title="Preview this voice">▶</button><div class="jn-vn"><b>${esc(v.n)}</b>${v.d?`<small>${esc(v.d)}</small>`:''}</div>${v.rec?'<em class="jn-rec">RECOMMENDED</em>':''}<span class="jn-ck">${v.id===cur?'✓':''}</span></div>`).join('');
+  L.querySelectorAll('.jn-vrow').forEach(r=>r.onclick=e=>{if(e.target.closest('.jn-pv'))return;lsSet(VID,r.dataset.id);renderVoices();});
+  L.querySelectorAll('.jn-pv').forEach(b=>b.onclick=()=>{if(pvId===b.dataset.id){stopVoice();return;}vUnlock();speak(SAMPLE,b.dataset.id,true);pvMark(b.dataset.id);});
+  pvMark(pvId);
+}
+function buildSettings(p){
+  const d=document.createElement('div');d.id='jnSet';
+  d.innerHTML=`<div class="jn-sh"><button class="jn-hb" id="jnSetBack" title="Back">←</button><div class="jn-st">John's voice</div></div><div class="jn-sb"><div class="jn-sw"><div><b>Voice output</b><small>John speaks his replies out loud</small></div><button class="jn-switch" id="jnVoiceSw" role="switch" aria-label="Voice output"><i></i></button></div><div class="jn-sl">CHOOSE A VOICE · TAP ▶ TO PREVIEW</div><div id="jnVList"></div></div>`;
+  p.appendChild(d);
+  $('jnSetBack').onclick=()=>{stopVoice();d.classList.remove('on');};
+  $('jnVoiceSw').onclick=()=>setVoice(!voiceOn);
+  renderVoices();
+}
 const VK='blastr_john_voice';
 let voiceOn=lsGet(VK,true)!==false,vAud=null,vCtl=null,vTok=0,vUnlocked=false,vDiagAt=0,vObj=null,ducked=false;
 const vEl=()=>vAud||(vAud=new Audio());
@@ -15539,12 +15569,12 @@ function whyVoice(e){
   if(e&&(e.name==='TypeError'||/fetch|network/i.test(e.message||'')))return 'the request to the fish-tts function was blocked (network, ad-blocker, or the function is not deployed). Open DevTools > Console for the exact error.';
   return 'unexpected error: '+String(e&&(e.message||e.name||e)).slice(0,100);
 }
-function endVoice(){unduck();if(!busy&&!listening)setOrb('idle','Online · remembers you');}
+function endVoice(){pvMark(null);unduck();if(!busy&&!listening)setOrb('idle','Online · remembers you');}
 function stopVoice(){
   vTok++;try{vCtl&&vCtl.abort();}catch(e){}vCtl=null;
   const a=vAud;if(a){a.onended=a.onerror=null;try{a.pause();a.removeAttribute('src');a.load();}catch(e){}}
   vUrl(null);try{window.speechSynthesis&&speechSynthesis.cancel();}catch(e){}
-  unduck();
+  pvMark(null);unduck();
 }
 function voiceFail(e,text){
   console.warn('JOHN voice',e);
@@ -15579,25 +15609,26 @@ async function playRes(r,tok,st){
   const b=await r.blob();st.first=true;if(tok!==vTok)return;if(!b.size)throw{code:'empty'};
   const u=URL.createObjectURL(b);vUrl(u);a.src=u;beginPlay(a,tok);
 }
-async function speak(raw){
-  if(!voiceOn)return;
+async function speak(raw,vid,force){
+  if(!voiceOn&&!force)return;
   const text=vClean(raw);if(!text)return;
   stopVoice();const tok=++vTok,ctl=vCtl=new AbortController(),st={first:false,timedOut:false};
   const to=setTimeout(()=>{if(!st.first){st.timedOut=true;ctl.abort();}},12000);
   try{
-    const r=await fetch(SUPABASE_URL+'/functions/v1/'+FISH.fn,{method:'POST',signal:ctl.signal,headers:blastrAuthHeaders(null,{'Content-Type':'application/json'}),body:JSON.stringify({text,voice:FISH.voice})});
+    const r=await fetch(SUPABASE_URL+'/functions/v1/'+FISH.fn,{method:'POST',signal:ctl.signal,headers:blastrAuthHeaders(null,{'Content-Type':'application/json'}),body:JSON.stringify({text,voice:vid||curVoice()})});
     if(!r.ok){let d='';try{d=await r.text();}catch(x){}throw{code:r.status,detail:d};}
     if(tok!==vTok)return;
     await playRes(r,tok,st);
   }catch(e){
     if(st.timedOut)e={code:'timeout'};
     else if(tok!==vTok)return;
-    voiceFail(e,text);
+    voiceFail(e,force?null:text);
   }finally{clearTimeout(to);}
 }
 function setVoice(on){
   voiceOn=on;lsSet(VK,on);const b=$('jnVoice');
   if(b){b.textContent=on?'🔊':'🔇';b.title=on?'Voice on (click to mute John)':'Voice off (click to let John talk)';}
+  const sw=$('jnVoiceSw');if(sw){sw.classList.toggle('on',on);sw.setAttribute('aria-checked',on);}
   if(on)vUnlock();else stopVoice();
 }
 
@@ -15609,7 +15640,7 @@ function build(){
   const p=document.createElement('div');p.id='jnPanel';
   p.innerHTML=`<div class="jn-head">${ORB('jn-hd')}<div class="jn-ttl"><div class="jn-name">JOHN AI<small>SMARTER</small></div><div class="jn-stat"><i></i><span id="jnStat">Online · remembers you</span></div></div><button class="jn-hb" id="jnClear" title="New conversation">⟲</button><button class="jn-hb" id="jnClose" title="Close (Esc)">✕</button></div><div class="jn-strip" id="jnStrip"></div><div class="jn-msgs" id="jnMsgs"></div><div class="jn-comp"><div class="jn-box"><textarea id="jnIn" rows="1" placeholder="Talk to John… (Enter to send)"></textarea><button class="jn-ib jn-mic" id="jnMic" title="Speak">🎙</button><button class="jn-ib jn-send" id="jnSend" title="Send">➤</button></div><div class="jn-foot">JOHN can search · play · like · build playlists · remember</div></div>`;
   document.body.appendChild(p);
-  {const vb=document.createElement('button');vb.className='jn-hb';vb.id='jnVoice';vb.onclick=()=>setVoice(!voiceOn);const cl=p.querySelector('#jnClear');if(cl)cl.before(vb);else p.querySelector('.jn-head')?.appendChild(vb);setVoice(voiceOn);}
+  {const vb=document.createElement('button');vb.className='jn-hb';vb.id='jnVoice';vb.onclick=()=>setVoice(!voiceOn);const gb=document.createElement('button');gb.className='jn-hb';gb.id='jnGear';gb.title='Voice settings';gb.textContent='⚙';buildSettings(p);gb.onclick=()=>{renderVoices();$('jnSet').classList.add('on');};const cl=p.querySelector('#jnClear');if(cl){cl.before(gb);cl.before(vb);}else{const h=p.querySelector('.jn-head');h&&h.append(gb,vb);}setVoice(voiceOn);}
   const fab=document.createElement('button');fab.id='jnFab';fab.setAttribute('aria-label','Talk to JOHN AI');fab.innerHTML='<div class="bx-logo jn-logo"></div>';fab.onclick=()=>toggle(true);
   ($('appScreen')||document.body).appendChild(fab);
   const it=document.createElement('div');it.id='jnIntro';
@@ -20230,5 +20261,24 @@ window.enterApp=function(){
 })();
 
 </script>
+<style id="blastrV126Css">
+#jnSet{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;background:#0b0b14;transform:translateX(100%);visibility:hidden;transition:transform .28s ease,visibility 0s .28s}
+#jnSet.on{transform:none;visibility:visible;transition:transform .28s ease}
+.jn-sh{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.jn-st{font:800 15px var(--display,system-ui,sans-serif);letter-spacing:.3px}
+.jn-sb{flex:1;overflow:auto;padding:14px}
+.jn-sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.jn-sw b{display:block;font-size:14px}.jn-sw small{color:#8a8aa6;font-size:11px}
+.jn-switch{width:46px;height:26px;border-radius:99px;border:0;background:#2a2a3d;position:relative;cursor:pointer;flex:none;transition:.2s}
+.jn-switch i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.jn-switch.on{background:#39FF14}.jn-switch.on i{left:23px;background:#04140a}
+.jn-sl{font:700 9px var(--mono,monospace);letter-spacing:2px;color:#8a8aa6;margin:18px 4px 10px}
+.jn-vrow{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:.2s}
+.jn-vrow.on{border-color:#39FF14;background:rgba(57,255,20,.07)}
+.jn-pv{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;flex:none;font-size:12px}
+.jn-vn{flex:1;min-width:0}.jn-vn b{display:block;font-size:14px}.jn-vn small{color:#8a8aa6;font-size:11px}
+.jn-rec{font:800 8px var(--mono,monospace);letter-spacing:1.2px;color:#FFD166;border:1px solid rgba(255,209,102,.4);border-radius:99px;padding:3px 8px;font-style:normal;white-space:nowrap}
+.jn-ck{width:18px;color:#39FF14;font-weight:900;text-align:center}
+</style>
 </body>
 </html>
