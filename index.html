@@ -4153,7 +4153,7 @@ body.light .search-input{color:var(--text)}
             <div class="profile-tags" id="plTags"></div>
             <div class="profile-actions">
               <button class="btn-play-big" onclick="plPlayAll()">▶ PLAY</button>
-              <button class="btn-outline" onclick="plShufflePlay()">⇌ SHUFFLE</button>
+              <button class="btn-outline" onclick="plShufflePlay()"><svg class="bx-sh" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.6L5 17H2v-2h2.2L13.6 6H17zM2 7h3l3.6 4-1.4 1.6L4.2 9H2zm12.4 7.2L16 16h1v-3l4 4-4 4v-3h-2.6l-2.3-2.7z"/></svg> SHUFFLE</button>
               <button class="btn-outline" id="plRepeatBtn" onclick="plToggleRepeat()">↻ REPEAT</button>
             </div>
           </div>
@@ -4565,7 +4565,7 @@ body.light .search-input{color:var(--text)}
     <div class="player-controls">
       <div class="ctrl-buttons">
         <div style="position:relative">
-          <button class="ctrl-btn" id="btnShuffle" onclick="cycleShuffle()" title="Shuffle Mode">⇌</button>
+          <button class="ctrl-btn" id="btnShuffle" onclick="cycleShuffle()" title="Shuffle Mode"><svg class="bx-sh" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.6L5 17H2v-2h2.2L13.6 6H17zM2 7h3l3.6 4-1.4 1.6L4.2 9H2zm12.4 7.2L16 16h1v-3l4 4-4 4v-3h-2.6l-2.3-2.7z"/></svg></button>
         </div>
         <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
         <button class="play-btn-main" id="mainPlayBtn" onclick="togglePlayback()">▶</button>
@@ -6280,7 +6280,7 @@ async function loadHomeContent() {
   // Genre rows
   Object.entries(genres).slice(0,5).forEach(([genre,songs])=>{
     if(songs.length<2) return;
-    html+=`<div class="songs-section"><div class="section-header"><div class="section-name">${esc(genre)}</div><button class="section-more" onclick="genreShuffle('${esc(genre)}')">⇌ SHUFFLE</button></div><div class="song-grid">`;
+    html+=`<div class="songs-section"><div class="section-header"><div class="section-name">${esc(genre)}</div><button class="section-more" onclick="genreShuffle('${esc(genre)}')"><svg class="bx-sh" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.6L5 17H2v-2h2.2L13.6 6H17zM2 7h3l3.6 4-1.4 1.6L4.2 9H2zm12.4 7.2L16 16h1v-3l4 4-4 4v-3h-2.6l-2.3-2.7z"/></svg> SHUFFLE</button></div><div class="song-grid">`;
     songs.slice(0,8).forEach((t,i)=>{html+=songTileHTML(t,i);});
     html+='</div></div>';
   });
@@ -15032,7 +15032,7 @@ function cardHTML(a,tracks){
       <div class="al-sub">${who}${a.genre?' · '+esc(a.genre):''} · ${tracks.length} song${tracks.length===1?'':'s'}</div>
       <div class="al-btns">
         <button onclick="albumPlay('${id}',false)">▶ PLAY</button>
-        <button onclick="albumPlay('${id}',true)">⇌ SHUFFLE</button>
+        <button onclick="albumPlay('${id}',true)"><svg class="bx-sh" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4V8h-2.6L5 17H2v-2h2.2L13.6 6H17zM2 7h3l3.6 4-1.4 1.6L4.2 9H2zm12.4 7.2L16 16h1v-3l4 4-4 4v-3h-2.6l-2.3-2.7z"/></svg> SHUFFLE</button>
         <button class="${on?'on':''}" data-rep="${id}" onclick="albumToggleRepeat('${id}')">⟲ REPEAT: ${on?'ON':'OFF'}</button>
       </div>
     </div>
@@ -19836,7 +19836,7 @@ const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('')
 const MED=[['#FFD166','255,209,102','🥇 CHAMPION'],['#C9D1E3','201,209,227','🥈 RUNNER-UP'],['#E0894B','224,137,75','🥉 THIRD PLACE']];
 
 /* ── data ── */
-function active(){return D?D.rows.filter(r=>r.points>0):[];}
+function active(){return D?D.rows:[];}
 function base(){
   const day=new Date().toDateString();let b=null;
   try{b=JSON.parse(localStorage.getItem('bxlb_base')||'null');}catch(e){}
@@ -19849,14 +19849,14 @@ async function refresh(force){
   if(document.hidden&&!force)return;
   try{const d=await rpc('admin_leaderboard');skew=new Date(d.now).getTime()-Date.now();
     if(D)D.rows.forEach(r=>{prevPts[r.admin_id]=r.points;});
-    D=d;ERR=null;
+    D=d;(D.rows||[]).forEach((r,i)=>{if(r.rank==null)r.rank=i+1;});ERR=null;
   }catch(e){ERR=e.message||'error';}
   paint();
 }
 function rankFor(a){
   if(!D||!a)return null;
   const r=D.rows.find(x=>x.admin_id===String(a.id));
-  return r&&r.points>0?'#'+r.rank+' · '+r.points+' PTS':null;
+  return r?'#'+r.rank+' · '+r.points+' PTS':null;
 }
 
 /* ── pieces ── */
@@ -19900,9 +19900,10 @@ function tabHTML(){
     return heroHTML()+'<div class="bxl-empty"><div>🛠</div>'+(miss?'The leaderboard is not switched on yet.<br>Run <b>blastr_leaderboard.sql</b> once in Supabase.':'Could not load the standings ('+esc(ERR)+').<br>Retrying automatically…')+'</div>';
   }
   if(!D)return heroHTML()+'<div class="bxl-skel"></div><div class="bxl-skel"></div><div class="bxl-skel"></div>';
-  const rows=active().slice(0,10),top=rows[0]?rows[0].points:0,bs=base();
+  const rows=active(),top=rows[0]?rows[0].points:0,bs=base();
   let h=heroHTML();
   if(!rows.length)return h+'<div class="bxl-empty"><div>🚀</div>No points yet this week.<br>Upload a song or stay active — the first points get the lead!</div>'+rulesHTML();
+  if(!(rows[0].points>0))h+='<div class="bxl-empty" style="padding:12px">No points yet this week. Upload a song or stay active to take the lead!</div>';
   h+=podHTML(rows);
   if(rows.length>3){h+='<div class="bxl-sec">RANKS 4 – '+rows.length+'</div>'+rows.slice(3).map((r,i)=>rowHTML(r,i,top,bs)).join('');}
   const mine=D.rows.find(r=>r.admin_id===D.me);
@@ -19929,7 +19930,7 @@ function renderTab(el){
   if(D)painted=true;countUp(el);tick();
 }
 function bannerHTML(){
-  const t=active().slice(0,3);
+  const t=active().filter(r=>r.points>0).slice(0,3);
   return '<span class="bxl-live"><i></i>LIVE</span><div class="bxl-bn-t"><b>🏆 WEEKLY ADMIN AWARDS — TOP 3 GET AWARDED</b><span>3 pts per song · 1 pt per 5 min active · final results Sunday midnight</span></div>'+
   '<div class="bxl-bn-top">'+t.map(r=>'<div class="bxl-av" title="'+esc(r.name)+'" style="background:'+col(r.name).bg+'">'+esc(ini(r.name))+'</div>').join('')+'</div><div class="bxl-bn-cd" data-bncd>--</div>';
 }
@@ -20082,6 +20083,7 @@ const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h
 const rng=seed=>()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
 const sh=(a,r)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const MIXC=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
+const SHARE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
 
 /* ── remember what the listener actually plays (feeds "More like …") ── */
 const RK='bx_recent_artists';
@@ -20249,12 +20251,12 @@ window.enterApp=function(){
 
 /* ── share buttons: player bar + song profile ── */
 {
-  const b=$('btnShuffle');
-  if(b&&!$('btnShare'))b.insertAdjacentHTML('afterend','<button class="ctrl-btn" id="btnShare" onclick="bxShare(\'c\')" title="Share this song">⤴</button>');
+  const pr=document.querySelector('.player-right'),vb=$('btnVibing');
+  if(pr&&!$('btnShare')){const sb=document.createElement('button');sb.className='ctrl-btn bx-pshare';sb.id='btnShare';sb.title='Share this song';sb.setAttribute('aria-label','Share this song');sb.innerHTML=SHARE_SVG;sb.onclick=()=>bxShare('c');vb?pr.insertBefore(sb,vb):pr.appendChild(sb);}
   const _lsp=window.loadSongProfile;
   if(typeof _lsp==='function')window.loadSongProfile=function(t){
     const r=_lsp.apply(this,arguments);
-    try{const box=$('profTags');if(box&&!box.querySelector('.bx-sharebtn'))box.insertAdjacentHTML('beforeend','<button type="button" class="bx-sharebtn" onclick="bxShare(\'p\')">⤴ SHARE</button>');}catch(e){}
+    try{const box=$('profTags');if(box&&!box.querySelector('.bx-sharebtn'))box.insertAdjacentHTML('beforeend','<button type="button" class="bx-sharebtn" onclick="bxShare(\'p\')">'+SHARE_SVG.replace('<svg','<svg class="bx-shi"')+' SHARE</button>');}catch(e){}
     return r;
   };
 }
@@ -20279,6 +20281,14 @@ window.enterApp=function(){
 .jn-vn{flex:1;min-width:0}.jn-vn b{display:block;font-size:14px}.jn-vn small{color:#8a8aa6;font-size:11px}
 .jn-rec{font:800 8px var(--mono,monospace);letter-spacing:1.2px;color:#FFD166;border:1px solid rgba(255,209,102,.4);border-radius:99px;padding:3px 8px;font-style:normal;white-space:nowrap}
 .jn-ck{width:18px;color:#39FF14;font-weight:900;text-align:center}
+</style>
+<style id="blastrV127Css">
+.bx-sh{width:1.05em;height:1.05em;fill:currentColor;vertical-align:-.17em;margin-right:6px;flex:none}
+.ctrl-btn .bx-sh{display:block;width:19px;height:19px;margin:0 auto;vertical-align:middle}
+.bx-shi{width:13px;height:13px;fill:currentColor;vertical-align:-2px;margin-right:6px}
+.ctrl-btn.bx-pshare{color:var(--dim)}
+.ctrl-btn.bx-pshare:hover{color:#39FF14}
+.ctrl-btn.bx-pshare svg{display:block;width:18px;height:18px;fill:currentColor;margin:0 auto}
 </style>
 </body>
 </html>
