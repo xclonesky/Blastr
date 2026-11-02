@@ -6260,12 +6260,14 @@ async function loadHomeContent() {
   const home=document.getElementById('homeContent');
   home.innerHTML=renderSkeletons();
   blastrUpdateTimeBasedCopy();
-  const tracks=await getTracks();
+  let tracks=await getTracks();
+  if(!tracks.length){try{await blastrEnsureFreshSession('the home grid');}catch(e){} tracks=await getTracks();}   // idle too long? refresh the session and retry once
+  if(!tracks.length&&Array.isArray(state.allTracks)&&state.allTracks.length)tracks=state.allTracks;               // still failing? keep the last good catalogue instead of wiping it
   state.allTracks=tracks;
   getTrackEmotionMap().then(m=>state.trackEmotionMap=m);
   loadPersonalAffinity();
   populateEmotionSelect('adminEmotions');
-  if(!tracks.length){home.innerHTML='<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS IN THE GRID YET.</p>';return;}
+  if(!tracks.length){home.innerHTML='<p style="color:var(--dim);padding:20px;font-family:var(--mono);font-size:12px">NO TRACKS IN THE GRID YET.</p><button class="btn-outline" style="margin:0 20px" onclick="loadHomeContent()">TRY AGAIN</button>';return;}
 
   const genres={};
   tracks.forEach(t=>{const g=t.genre||'Uncategorized';if(!genres[g])genres[g]=[];genres[g].push(t);});
@@ -20290,5 +20292,339 @@ window.enterApp=function(){
 .ctrl-btn.bx-pshare:hover{color:#39FF14}
 .ctrl-btn.bx-pshare svg{display:block;width:18px;height:18px;fill:currentColor;margin:0 auto}
 </style>
+<style id="blastrBrainCss">
+/* ═══ AURA ═══ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@800;900&display=swap');
+.aura-gold{font-family:'Orbitron','Syne','Arial Black',system-ui,sans-serif;font-weight:900;text-transform:uppercase;background:linear-gradient(110deg,#7a5410 0%,#d9a93a 20%,#fff3b8 35%,#f7c948 48%,#a87614 62%,#ffe38a 78%,#8a5e12 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:auraShine 3.6s linear infinite;filter:drop-shadow(0 0 10px rgba(255,196,60,.38))}
+@keyframes auraShine{from{background-position:130% 0}to{background-position:-130% 0}}
+.bb-wm{position:relative;display:inline-block;font-size:clamp(56px,14vw,132px);line-height:1;letter-spacing:.14em;padding-left:.14em;margin:0 0 8px}
+.bb-wm::before,.bb-wm::after{content:'✦';position:absolute;font-size:.2em;-webkit-text-fill-color:#fff0b0;color:#fff0b0;filter:drop-shadow(0 0 8px #ffd25a);animation:auraTw 2.4s ease-in-out infinite}
+.bb-wm::before{left:1%;top:4%}.bb-wm::after{right:2%;bottom:8%;animation-delay:1.2s}
+@keyframes auraTw{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(45deg)}}
+.bb-tag{font-size:9px;letter-spacing:2.4px;border:1px solid rgba(255,200,70,.5);border-radius:99px;padding:3px 9px;margin-left:8px;vertical-align:middle;background-color:rgba(255,196,60,.08)}
+.bb-sub{font:600 10px var(--mono,monospace);letter-spacing:1px;color:var(--dim,#7a7a99)}
+.bb-ov{position:fixed;inset:0;z-index:100002;display:none;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 0%,#101030 0%,#06060f 60%,#030308 100%);overflow:hidden}
+.bb-ov.on{display:flex;animation:bbIn .6s ease both}
+.bb-ov.out{animation:bbOut .45s ease forwards}
+@keyframes bbIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+@keyframes bbOut{to{opacity:0;transform:scale(.98)}}
+.bb-ov canvas{position:absolute;inset:0;pointer-events:none}
+.bb-in{position:relative;z-index:1;width:min(760px,100%);max-height:100%;overflow:auto;padding:30px 22px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.bb-in>*{opacity:0;animation:bbUp .7s cubic-bezier(.2,.9,.3,1) both}
+.bb-in>:nth-child(1){animation-delay:.15s}.bb-in>:nth-child(2){animation-delay:.3s}.bb-in>:nth-child(3){animation-delay:.55s}.bb-in>:nth-child(4){animation-delay:1s}.bb-in>:nth-child(5){animation-delay:1.25s}.bb-in>:nth-child(6){animation-delay:2.2s}.bb-in>:nth-child(7){animation-delay:2.5s}.bb-in>:nth-child(8){animation-delay:2.7s}
+@keyframes bbUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.bb-k{display:inline-flex;align-items:center;gap:9px;font:800 11px var(--mono,monospace);letter-spacing:4px;color:#39FF14;margin-bottom:18px}
+.bb-k i{width:8px;height:8px;border-radius:50%;background:#39FF14;box-shadow:0 0 0 0 rgba(57,255,20,.6);animation:bbPing 1.6s infinite}
+@keyframes bbPing{to{box-shadow:0 0 0 14px rgba(57,255,20,0)}}
+.bb-h{margin:0 0 14px;font:900 clamp(34px,7.4vw,72px)/.98 var(--display,'Syne',system-ui,sans-serif);letter-spacing:-2px;color:#fff}
+.bb-h span,.bb-h em{display:block}
+.bb-h span:nth-child(1){animation:bbUp .7s .4s both}.bb-h span:nth-child(2){animation:bbUp .7s .7s both}.bb-h em{animation:bbUp .7s 1s both}
+.bb-h em{font-style:normal;background:linear-gradient(90deg,#39FF14,#00C6FF 55%,#FF6B9D);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bb-p{max-width:540px;margin:0 0 26px;color:#b4b4cc;font-size:clamp(14px,2.1vw,17px);line-height:1.6}
+.bb-flow{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.bb-st{width:150px;padding:14px 10px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);opacity:0;animation:bbUp .6s calc(1.4s + var(--i)*.25s) both}
+.bb-st b{display:block;font-size:24px;color:#39FF14;margin-bottom:6px}
+.bb-st:nth-of-type(2) b{color:#00C6FF}.bb-st:nth-of-type(3) b{color:#FFD166}.bb-st:nth-of-type(4) b{color:#FF6B9D}
+.bb-st span{display:block;font:800 11px var(--mono,monospace);letter-spacing:2.4px;color:#fff}
+.bb-st small{display:block;margin-top:4px;font-size:11px;color:#8d8dab}
+.bb-ar{align-self:center;color:#39FF14;font-style:normal;opacity:0;animation:bbUp .5s both,bbNudge 1.4s 3s infinite}
+.bb-ar:nth-of-type(1){animation-delay:1.6s,3s}.bb-ar:nth-of-type(2){animation-delay:1.85s,3.2s}.bb-ar:nth-of-type(3){animation-delay:2.1s,3.4s}
+.bb-ar::before{content:'→';font-size:22px}
+@keyframes bbNudge{50%{transform:translateX(5px)}}
+.bb-chips{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-bottom:24px;min-height:30px}
+.bb-chips small{font:700 9px var(--mono,monospace);letter-spacing:2.4px;color:#8d8dab;margin-right:4px}
+.bb-chips span{padding:6px 14px;border-radius:99px;border:1px solid rgba(57,255,20,.4);background:rgba(57,255,20,.08);color:#d8ffd0;font:700 11px var(--mono,monospace);letter-spacing:1px;text-transform:uppercase;animation:bbPop .5s calc(2.4s + var(--i)*.15s) both}
+@keyframes bbPop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+.bb-go{border:0;border-radius:16px;padding:17px 44px;background:linear-gradient(90deg,#39FF14,#00E5A0);color:#04140a;font:900 14px var(--mono,monospace);letter-spacing:3px;cursor:pointer;box-shadow:0 14px 40px rgba(57,255,20,.35);animation:bbUp .7s 2.5s both,bbGlow 2.2s 3.3s infinite}
+@keyframes bbGlow{50%{box-shadow:0 14px 56px rgba(57,255,20,.6)}}
+.bb-go:active{transform:scale(.97)}
+.bb-sk{margin-top:12px;background:none;border:0;color:#7d7d99;font:700 11px var(--mono,monospace);letter-spacing:1.4px;cursor:pointer;padding:8px}
+@media(max-width:620px){.bb-st{width:46%}.bb-ar{display:none}.bb-in{padding:24px 16px}}
+@media(prefers-reduced-motion:reduce){.aura-gold,.bb-wm::before,.bb-wm::after{animation:none!important}.bb-in>*,.bb-st,.bb-go,.bb-h span,.bb-h em,.bb-chips span{animation:none!important;opacity:1}}
+
+</style>
+<script id="blastrBrainJs">
+/* ═══ AURA 1 — Blastr's algorithm: one engine that listens, learns, finds, adapts ═══
+   phases (each has its own switch):  unify · taste · crowd · measure
+   console:  blastrBrain.set('crowd',false)  ·  blastrBrain.weights({genre:35})  ·  blastrBrainAnnounce()          */
+(function(){
+'use strict';
+const W=window,D=document,$=id=>D.getElementById(id);
+const N=v=>String(v==null?'':v).toLowerCase().trim();
+const LSG=k=>{try{return localStorage.getItem(k)}catch(e){return null}},LSS=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const VER='aura-1',E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ── config: every weight lives here ── */
+const DEF={on:{unify:true,taste:true,crowd:true,measure:true},
+ w:{genre:30,artist:12,mood:16,lang:10,country:6,energy:8,fav:8,ver:3,sess:5,hour:3,rej:-60,rec:-2,streak:-45,
+    tAffG:20,tAffA:16,tAffL:8,tAffM:12,tAffC:4,qual:14,crowd:28,fresh:12,temp:5},
+ decay:.97,sig:{complete:1,replay:2,like:3,skip:-1.5,reject:-3},every:{wild:5,fresh:7},tune:{}};
+const cfg=JSON.parse(JSON.stringify(DEF));
+try{const o=JSON.parse(LSG('blastr_brain_cfg')||'null');if(o){['on','w','sig','every'].forEach(k=>Object.assign(cfg[k],o[k]||{}));if(o.decay)cfg.decay=o.decay;}}catch(e){}
+try{cfg.tune=JSON.parse(LSG('blastr_brain_tune')||'{}')||{};}catch(e){}
+const saveCfg=()=>LSS('blastr_brain_cfg',JSON.stringify({on:cfg.on,w:cfg.w,sig:cfg.sig,every:cfg.every,decay:cfg.decay}));
+
+/* ── state ── */
+const uid=()=>{const p=state.currentUserProfile||{};return p.id||(state.session&&state.session.user&&state.session.user.id)||null;};
+function blank(){return{g:{},a:{},l:{},m:{},c:{},n:0,t:0};}
+let P=blank(),STATS={},CO={},ready=false,cache=null,saveT=0,picks=+LSG('blastr_brain_picks')||0,inited=null;
+const pend=new Map(),DIMS=['g','a','l','m','c'];
+const pKey=()=>'blastr_brain_p_'+(uid()||'anon');
+function loadLocal(){try{const o=JSON.parse(LSG(pKey())||'null');P=o&&o.g?o:blank();}catch(e){P=blank();}}
+const aff=(d,k)=>k?Math.tanh(((P[d]||{})[k]||0)/3):0;
+function moods(t){const m=(state.trackEmotionMap||{})[t&&t.id];return m&&m.classes?[...m.classes]:[];}
+
+/* ── PHASE 2 · learn: every signal nudges a decaying taste profile ── */
+function learn(track,type){
+  const w=cfg.sig[type];if(!w||!track)return;
+  DIMS.forEach(d=>{const o=P[d];for(const k in o){o[k]*=cfg.decay;if(Math.abs(o[k])<.05)delete o[k];}});
+  const add=(d,k,x)=>{if(k)P[d][k]=(P[d][k]||0)+x;};
+  add('g',N(track.genre),w);add('a',N(track.artist),w);add('l',N(track.language),w*.8);add('c',N(track.country),w*.5);
+  const ms=moods(track);ms.forEach(c=>add('m',c,w*1.5/Math.max(1,ms.length)));
+  P.n++;P.t=Date.now();LSS(pKey(),JSON.stringify(P));
+  clearTimeout(saveT);saveT=setTimeout(pushRemote,8000);
+}
+async function pushRemote(){
+  const u=uid();if(!u||!cfg.on.taste)return;
+  try{await sbFetch('/rest/v1/user_taste?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:[{user_id:u,profile:P,updated_at:new Date().toISOString()}]});}catch(e){}
+}
+
+/* ── scoring ── */
+const jac=(A,B)=>{if(!A.size||!B.size)return 0;let i=0;B.forEach(x=>{if(A.has(x))i++;});return i/(A.size+B.size-i);};
+function gSim(a,b){a=N(a);b=N(b);if(!a||!b)return 0;if(a===b)return 1;if(a.includes(b)||b.includes(a))return .65;
+  const ta=a.split(/[^a-z0-9]+/),tb=b.split(/[^a-z0-9]+/);return ta.some(x=>x.length>2&&tb.includes(x))?.4:0;}
+function context(cur){
+  const hist=state.history||[],hour=new Date().getHours(),ca=N(cur&&cur.artist);
+  let streak=cur?1:0;for(let i=hist.length-1;i>=0;i--){if(ca&&N(hist[i]&&hist[i].artist)===ca)streak++;else break;}
+  const skips={},reps={};
+  (state.signalMemory||[]).forEach(s=>{if(s.type==='skip')skips[s.key]=(skips[s.key]||0)+1;else if(s.type==='reject')skips[s.key]=(skips[s.key]||0)+3;else if(s.type==='replay')reps[s.key]=(reps[s.key]||0)+1;});
+  const tr=state.energyTrail||[],trend=tr.length>=2?tr[tr.length-1]-tr[tr.length-2]:0;
+  const exp=tr.length?Math.max(0,Math.min(1,tr[tr.length-1]+trend*.6)):null;
+  const ha=(state.personalHourAffinity||{})[hour],hp=ha&&Object.values(ha).reduce((a,b)=>a+b,0)>=5?ha:null;
+  const h16=hist.slice(-16),rIdx=new Map();h16.forEach((t,i)=>{if(t)rIdx.set(t.id,h16.length-1-i);});   // 0 = just played
+  return{streak,skips,reps,exp,hp,rIdx,curM:new Set(cur?moods(cur):[]),
+    last:[cur].concat(hist.slice(-4).reverse()).filter(Boolean).slice(0,5),
+    favs:new Set((state.favorites||[]).map(f=>f&&f.id)),recentArtists:new Set(hist.slice(-3).map(t=>N(t&&t.artist)))};
+}
+const SRCW={similar:.5,taste:1,crowd:1.6,fresh:3};
+function score(cur,c,x){
+  const w=cfg.w,g=N(c.genre),cm=moods(c);let content=0,taste=0,crowd=0,fresh=0;
+  if(cur){
+    content+=w.genre*gSim(cur.genre,c.genre);
+    if(N(cur.artist)&&N(cur.artist)===N(c.artist))content+=x.streak>=2?w.streak:w.artist;
+    content+=w.mood*jac(x.curM,new Set(cm));
+    if(N(cur.language)&&N(cur.language)===N(c.language))content+=w.lang;
+    if(N(cur.country)&&N(cur.country)===N(c.country))content+=w.country;
+  }
+  if(x.exp!=null)content+=w.energy*(1-Math.abs(trackEnergy(c)-x.exp));
+  const key=g+'|'+cm.slice().sort().join(',');
+  content+=w.sess*((x.reps[key]||0)*1.6-(x.skips[key]||0));          /* PHASE 1 · skips & replays now steer the pick */
+  if(x.hp)content+=w.hour*(x.hp[g]||0);
+  if(x.favs.has(c.id))content+=w.fav;
+  if(c.is_verified)content+=w.ver;
+  if(x.recentArtists.has(N(c.artist))&&!(cur&&N(cur.artist)===N(c.artist)))content-=8;
+  const ri=x.rIdx.get(c.id);if(ri!=null)content+=w.rec*(16-ri);          /* newest play = biggest penalty */
+  if(state._notRightNow&&state._notRightNow.has(c.id))content+=w.rej;
+  const st=STATS[String(c.id)];
+  if(cfg.on.taste){
+    taste=w.tAffG*aff('g',g)+w.tAffA*aff('a',N(c.artist))+w.tAffL*aff('l',N(c.language))+w.tAffC*aff('c',N(c.country));
+    if(cm.length)taste+=w.tAffM*cm.reduce((a,m)=>a+aff('m',m),0)/cm.length;
+    if(st&&st.n>=3)taste+=w.qual*2*(st.q-.5);                              /* song quality prior */
+  }
+  if(cfg.on.crowd){
+    let cs=0;x.last.forEach((t,i)=>{const m=CO[String(t.id)];if(m){const n=m[String(c.id)];if(n)cs+=Math.min(1,n/5)*Math.pow(.6,i);}});
+    crowd=w.crowd*Math.min(1,cs);                                          /* PHASE 3 · listeners who play X also play Y */
+    const age=c.created_at?(Date.now()-new Date(c.created_at).getTime())/864e5:999;
+    if(age<21)fresh+=w.fresh*(1-age/21);
+    if(ready&&(!st||st.plays<8))fresh+=w.fresh*.4;                         /* barely-heard songs get a chance */
+  }
+  const parts={similar:content,taste,crowd,fresh};let src='similar',best=-1e9;
+  for(const k in parts){const v=parts[k]*SRCW[k];if(v>best){best=v;src=k;}}
+  return{s:content+taste+crowd+fresh+(cfg.on.measure?(cfg.tune[src]||0):0),src};
+}
+
+/* ── pick: pool rules (gospel gate/lane, shuffle modes) → score → exploration slots → weighted draw ── */
+function readT(){try{return JSON.parse(LSG('blastr_taste_v79')||'null')||{};}catch(e){return{};}}
+function pick(){
+  const tracks=state.allTracks||[];if(!tracks.length)return null;
+  const cur=state.currentTrack||null,mode=state.shuffleMode|0,T=readT(),elig=(T.gospel|0)>=3,gos=t=>N(t.genre)==='gospel';
+  let pool=tracks.filter(t=>t&&t.id&&(!cur||t.id!==cur.id)&&(!gos(t)||elig));
+  if(T.lane){const g=pool.filter(gos);if(g.length)pool=g;}
+  if(!pool.length)return null;
+  if(mode===0){const ok=new Set(pool),i=tracks.findIndex(t=>cur&&t.id===cur.id);
+    for(let k=1;k<=tracks.length;k++){const t=tracks[(i+k+tracks.length)%tracks.length];if(ok.has(t))return{track:t,source:'order'};}
+    return{track:pool[0],source:'order'};}
+  if(mode===1&&cur&&cur.genre){const g=pool.filter(t=>N(t.genre)===N(cur.genre));if(g.length)pool=g;}
+  const recent=new Set((state.history||[]).slice(-10).map(t=>t&&t.id)),fr=pool.filter(t=>!recent.has(t.id));if(fr.length)pool=fr;
+  const x=context(cur),R=pool.map(t=>{const r=score(cur,t,x);return{t,s:r.s,src:r.src};}).sort((a,b)=>b.s-a.s);
+  const seen=new Set((state.history||[]).map(t=>t&&t.id)),n=picks+1;
+  if(mode===2&&!T.lane){
+    if(cfg.on.crowd&&n%cfg.every.fresh===0){const med=R[R.length>>1].s,f=R.filter(r=>r.src==='fresh'&&r.s>med);if(f.length)return{track:f[0].t,source:'fresh'};}
+    if(n%cfg.every.wild===0){const o=R.filter(r=>gSim(cur&&cur.genre,r.t.genre)<.4&&!seen.has(r.t.id)).slice(0,4);if(o.length)return{track:o[Math.floor(Math.random()*o.length)].t,source:'wild'};}
+  }
+  const top=R.slice(0,6),mx=top[0].s,ws=top.map(r=>Math.exp((r.s-mx)/Math.max(1,cfg.w.temp)));
+  let u=Math.random()*ws.reduce((a,b)=>a+b,0),i=0;for(;i<top.length-1;i++){u-=ws[i];if(u<=0)break;}
+  return{track:top[i].t,source:top[i].src};
+}
+const ORIG={peek:W.blastrPeekNext,consume:W.blastrConsumeNext};
+const sig=()=>{const T=readT();return[state.currentTrack&&state.currentTrack.id,state.shuffleMode,(state.allTracks||[]).length,(state.history||[]).length,T.lane,(T.gospel|0)>=3,ready].join('|');};
+W.blastrPeekNext=function(){
+  if(!cfg.on.unify&&ORIG.peek)return ORIG.peek.apply(this,arguments);
+  if(state.queue&&state.queue.length)return state.queue[0];
+  const s=sig();if(!cache||cache.s!==s)cache={s,r:pick()};return cache.r&&cache.r.track;
+};
+W.blastrConsumeNext=function(){
+  if(!cfg.on.unify&&ORIG.consume)return ORIG.consume.apply(this,arguments);
+  const s=sig(),r=cache&&cache.s===s?cache.r:pick();cache=null;picks++;LSS('blastr_brain_picks',String(picks));
+  if(r&&r.track){pend.set(r.track.id,r.source);if(pend.size>6)pend.delete(pend.keys().next().value);}
+  return r&&r.track;
+};
+
+/* ── hooks: learn from signals + likes, log outcomes, toast discovery picks ── */
+const _rls=W.recordListeningSignal;
+W.recordListeningSignal=function(track,type){try{learn(track,type);outcome(track,type);}catch(e){}return _rls.apply(this,arguments);};
+const _tl=W.toggleLike;
+if(typeof _tl==='function')W.toggleLike=function(t){
+  const isFav=()=>(state.favorites||[]).some(f=>f&&t&&f.id===t.id),was=isFav(),r=_tl.apply(this,arguments);
+  setTimeout(()=>{try{if(!was&&isFav())learn(t,'like');}catch(e){}},700);return r;
+};
+const _hs=W.initiateHandshake;
+W.initiateHandshake=function(track){
+  try{const s=track&&pend.get(track.id);if(s==='wild'||s==='fresh')setTimeout(()=>showToast('AURA',s==='wild'?'Discovery pick':'New on Blastr',s==='wild'?'Something outside your usual lane':'A fresh artist worth hearing'),700);}catch(e){}
+  return _hs.apply(this,arguments);
+};
+
+/* ── PHASE 4 · measure: log how each pick did, tune the source bonuses from the results ── */
+function outcome(track,type){
+  if(!cfg.on.measure||!track||(type!=='complete'&&type!=='skip'))return;
+  const src=pend.get(track.id);if(!src)return;pend.delete(track.id);
+  const u=uid();if(!u)return;
+  sbFetch('/rest/v1/algo_log',{method:'POST',headers:{Prefer:'return=minimal'},body:[{user_id:u,algo_version:VER,source:src,track_id:String(track.id),outcome:type}]}).catch(()=>{});
+}
+function tuneFrom(rows){
+  const ok=rows.filter(r=>+r.n>=40&&r.source!=='order'&&r.source!=='wild');if(ok.length<2)return;
+  const sc=r=>(+r.complete_rate||0)-(+r.skip_rate||0),tot=ok.reduce((a,r)=>a+ +r.n,0),avg=ok.reduce((a,r)=>a+sc(r)*r.n,0)/tot,t={};
+  ok.forEach(r=>{t[r.source]=Math.max(-8,Math.min(8,(sc(r)-avg)*40));});
+  cfg.tune=t;LSS('blastr_brain_tune',JSON.stringify(t));
+}
+const rpcC=fn=>sbFetch('/rest/v1/rpc/'+fn,{method:'POST',body:{}}).catch(()=>null);
+async function loadServer(){
+  if(!uid())return;
+  const [st,co,rp]=await Promise.all([rpcC('blastr_track_stats'),rpcC('blastr_co_listen'),cfg.on.measure?rpcC('blastr_algo_report'):null]);
+  if(Array.isArray(st)){STATS={};st.forEach(r=>{const c=+r.completes||0,s=+r.skips||0,p=+r.replays||0,n=c+s+p;STATS[String(r.track_id)]={plays:n,n,q:(c+1.5*p+2)/(n+4)};});}
+  if(Array.isArray(co)){CO={};co.forEach(r=>{(CO[r.a]=CO[r.a]||{})[r.b]=+r.n;});}
+  if(Array.isArray(rp))tuneFrom(rp);
+  ready=true;cache=null;renderForYou();
+}
+async function loadRemoteProfile(){
+  const u=uid();if(!u||!cfg.on.taste)return;
+  const r=await sbFetch('/rest/v1/user_taste?user_id=eq.'+u+'&select=profile').catch(()=>null),row=Array.isArray(r)&&r[0];
+  if(row&&row.profile&&row.profile.g&&(row.profile.t||0)>(P.t||0)){P=row.profile;LSS(pKey(),JSON.stringify(P));cache=null;renderForYou();}
+}
+function init(){const k=uid()||'anon';if(inited===k)return;inited=k;loadLocal();loadRemoteProfile();loadServer();}
+const _ea=W.enterApp;
+W.enterApp=function(){const r=_ea.apply(this,arguments);setTimeout(init,1600);setTimeout(armAnn,300);return r;};
+loadLocal();
+
+/* ── home: smarter "Because you liked" + new "Picked for you" row ── */
+const _rb=W.renderBecauseSection;
+W.renderBecauseSection=function(){
+  if(!cfg.on.unify)return _rb.apply(this,arguments);
+  const sec=$('becauseSection');if(!sec)return;const favs=state.favorites||[],all=state.allTracks||[];
+  if(!favs.length||!all.length){sec.innerHTML='';return;}
+  const ref=favs[favs.length-1],x=context(ref);
+  const recs=all.filter(t=>t.id!==ref.id).map(t=>({t,s:score(ref,t,x).s})).sort((a,b)=>b.s-a.s).slice(0,6).map(r=>r.t);
+  if(!recs.length){sec.innerHTML='';return;}
+  sec.innerHTML=`<div class="because-section"><div class="because-header"><div class="because-badge"><div class="dot"></div><div class="because-label">BECAUSE YOU LIKED</div></div><div class="because-song-name">${E(ref.title)}</div></div><div class="song-grid">${recs.map((t,i)=>songTileHTML(t,i)).join('')}</div></div>`;
+};
+function forYou(n){
+  const all=state.allTracks||[];if(!all.length)return[];
+  const x=context(null),per={},out=[];
+  all.map(t=>({t,s:score(null,t,x).s})).sort((a,b)=>b.s-a.s).forEach(r=>{
+    if(out.length>=n)return;const a=N(r.t.artist);if((per[a]||0)>=2)return;per[a]=(per[a]||0)+1;out.push(r.t);});
+  return out;
+}
+function topGenre(){const e=Object.entries(P.g||{}).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1])[0];return e?e[0]:null;}
+let fyTok=0;
+function renderForYou(){
+  const home=$('homeContent');if(!home||!cfg.on.unify)return;
+  let w=$('bxBrainRow');if(!w){w=D.createElement('div');w.id='bxBrainRow';home.parentNode.insertBefore(w,$('bxV124Rows')||home);}
+  const list=forYou(8);if(!list.length){w.innerHTML='';return;}
+  const g=topGenre(),sub=P.n>=5&&g?'Tuned to your '+g:'Warming up · play a few songs and watch it learn';
+  w.innerHTML=`<div class="songs-section"><div class="section-header"><div class="section-name">Picked For You <span class="bb-tag aura-gold">AURA</span></div><span class="bb-sub">${E(sub)}</span></div><div class="song-grid">${list.map((t,i)=>songTileHTML(t,i)).join('')}</div></div>`;
+}
+const _lh=W.loadHomeContent;
+W.loadHomeContent=async function(){const r=await _lh.apply(this,arguments);try{renderForYou();}catch(e){console.warn('brain row',e);}return r;};
+
+/* ── public API ── */
+W.blastrBrain={version:VER,config:()=>cfg,profile:()=>P,
+  set(phase,on){if(phase in cfg.on){cfg.on[phase]=!!on;saveCfg();cache=null;}return cfg.on;},
+  weights(o){Object.assign(cfg.w,o||{});saveCfg();cache=null;return cfg.w;},
+  reset(){P=blank();LSS(pKey(),JSON.stringify(P));cache=null;renderForYou();},
+  explain(t){return score(state.currentTrack||null,t,context(state.currentTrack||null));}};
+W.blastrAura=W.blastrBrain;
+
+/* ═══ the announcement: appears once, right after the Blastr for Artists screen is done ═══ */
+const AK=()=>'blastr_aura_ann_v1_'+(uid()||'x');
+let ov=null,raf=0;
+function shouldShow(){return !!uid()&&!LSG(AK())&&!state.guest;}
+function armAnn(){
+  if(!shouldShow())return;let tries=0;
+  const iv=setInterval(()=>{
+    if(++tries>150){clearInterval(iv);return;}
+    const lg=$('loginScreen');if(lg&&!lg.classList.contains('hidden')){clearInterval(iv);return;}
+    const ap=$('apOv'),nf=$('nfOverlay');
+    if((ap&&ap.classList.contains('on'))||(nf&&nf.classList.contains('open')))return;
+    if(tries<6)return;                                   /* ~3.6s: the artists screen has had its chance to open */
+    clearInterval(iv);setTimeout(()=>{if(shouldShow())show(false);},700);
+  },600);
+}
+function buildOv(){
+  ov=D.createElement('div');ov.id='bbOv';ov.className='bb-ov';
+  ov.innerHTML='<canvas id="bbCv"></canvas><div class="bb-in"><div class="bb-k"><i></i>NEW ALGORITHM</div><div class="bb-wm aura-gold">AURA</div>'
+   +'<h1 class="bb-h"><span>It listens.</span><span>It learns.</span><em>It adapts.</em></h1>'
+   +'<p class="bb-p">Meet AURA, the brand-new Blastr algorithm. Every play, skip, replay and like now teaches it your taste, and it keeps tuning itself.</p>'
+   +'<div class="bb-flow">'
+   +'<div class="bb-st" style="--i:0"><b>♪</b><span>LISTENS</span><small>plays · skips · likes</small></div><i class="bb-ar"></i>'
+   +'<div class="bb-st" style="--i:1"><b>✦</b><span>LEARNS</span><small>your taste profile</small></div><i class="bb-ar"></i>'
+   +'<div class="bb-st" style="--i:2"><b>⌖</b><span>FINDS</span><small>crowd · new artists</small></div><i class="bb-ar"></i>'
+   +'<div class="bb-st" style="--i:3"><b>↻</b><span>ADAPTS</span><small>tunes itself</small></div></div>'
+   +'<div class="bb-chips" id="bbChips"></div>'
+   +'<button class="bb-go" id="bbGo">EXPERIENCE IT</button><button class="bb-sk" id="bbSk">maybe later</button></div>';
+  D.body.appendChild(ov);
+  $('bbGo').onclick=()=>{hide();setTimeout(()=>{try{showToast('AURA','It is learning now','Play a few songs and watch your picks change');}catch(e){}},500);};
+  $('bbSk').onclick=hide;
+  D.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('on'))hide();});
+}
+function chips(){
+  let g=Object.entries(P.g||{}).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,4).map(e=>e[0]);
+  let lead='TUNED FOR YOU';
+  if(g.length<2){const c={};(state.allTracks||[]).forEach(t=>{const k=String(t.genre||'').trim();if(k)c[k]=(c[k]||0)+1;});g=Object.keys(c).sort((a,b)=>c[b]-c[a]).slice(0,4);lead='STARTING WITH';}
+  $('bbChips').innerHTML=g.length?'<small>'+lead+'</small>'+g.map((x,i)=>'<span style="--i:'+i+'">'+E(x)+'</span>').join(''):'';
+}
+function web(){
+  const cv=$('bbCv');if(!cv)return;const cx=cv.getContext('2d');let w,h,pts=[];
+  const fit=()=>{const r=Math.min(2,W.devicePixelRatio||1);w=cv.width=innerWidth*r;h=cv.height=innerHeight*r;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+    const n=innerWidth<700?34:62;pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.5*r,vy:(Math.random()-.5)*.5*r,c:['#39FF14','#00C6FF','#FF6B9D','#FFD166'][Math.random()*4|0],p:Math.random()*6}));};
+  fit();addEventListener('resize',fit);
+  const link=Math.min(w,h)*.16,still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  (function step(t){
+    cx.clearRect(0,0,w,h);
+    for(const a of pts){if(!still){a.x+=a.vx;a.y+=a.vy;}if(a.x<0||a.x>w)a.vx*=-1;if(a.y<0||a.y>h)a.vy*=-1;}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<link){cx.globalAlpha=(1-d/link)*.35;cx.strokeStyle=a.c;cx.lineWidth=1;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}}
+    for(const a of pts){const k=.5+.5*Math.sin(t/600+a.p);cx.globalAlpha=.55+.45*k;cx.fillStyle=a.c;cx.beginPath();cx.arc(a.x,a.y,1.6+1.8*k,0,6.3);cx.fill();}
+    cx.globalAlpha=1;raf=requestAnimationFrame(step);
+  })(0);
+}
+function show(force){
+  if(!force&&!shouldShow())return;if(!ov)buildOv();LSS(AK(),'1');chips();
+  ov.classList.remove('out');ov.classList.add('on');cancelAnimationFrame(raf);web();
+}
+function hide(){if(!ov)return;ov.classList.add('out');setTimeout(()=>{ov.classList.remove('on','out');cancelAnimationFrame(raf);},450);}
+W.blastrBrainAnnounce=W.blastrAuraAnnounce=()=>show(true);
+})();
+
+</script>
 </body>
 </html>
