@@ -15509,6 +15509,99 @@ const HK=()=>'john_hist_'+(uid()||'guest'), MK=()=>'john_mem_'+(uid()||'guest');
 
 let isOpen=false,busy=false,remoteOK=true,hist=[],memory='',loadedFor=null,lastPl=null,tagMap=null,rec=null,listening=false,built=false;
 
+/* ───────── VOICE · Fish Audio (s2.1-pro-free) ───────── */
+const FISH={voice:'8d21b053e2804e2a890e1cf62f267b6f',fn:'fish-tts'}; // key lives in the Supabase function secret, not in this page
+const VK='blastr_john_voice';
+let voiceOn=lsGet(VK,true)!==false,vAud=null,vCtl=null,vTok=0,vUnlocked=false,vDiagAt=0,vObj=null,ducked=false;
+const vEl=()=>vAud||(vAud=new Audio());
+function vUrl(u){if(vObj){try{URL.revokeObjectURL(vObj);}catch(e){}}vObj=u||null;}
+function vUnlock(){if(vUnlocked)return;try{const a=vEl();a.src='data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';a.play().then(()=>{vUnlocked=true;}).catch(()=>{});}catch(e){}}
+function duck(){const a=A();if(!a)return;ducked=true;a.volume=Math.max(0,(S().isMuted?0:(S().volume??.7))*.28);}
+function unduck(){if(!ducked)return;ducked=false;const a=A();if(a)a.volume=S().isMuted?0:(S().volume??.7);}
+function vClean(t){
+  t=String(t||'').replace(/https?:\/\/\S+/g,' ').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,' ').replace(/[*_`#~>|]/g,' ').replace(/\s+/g,' ').trim();
+  if(t.length>1000){const c=t.slice(0,1000),i=Math.max(c.lastIndexOf('. '),c.lastIndexOf('! '),c.lastIndexOf('? '));t=i>300?c.slice(0,i+1):c;}
+  return t;
+}
+function whyVoice(e){
+  const c=e&&e.code,d=e&&e.detail?String(e.detail).replace(/\s+/g,' ').slice(0,120):'';
+  if(e&&e.name==='NotAllowedError')return 'the browser blocked autoplay. Click anywhere in the app, then send again.';
+  if(c===401||c===403)return 'the key was rejected ('+c+'). Check the FISH_API_KEY secret in Supabase and that s2.1-pro-free is enabled on the Fish account. '+d;
+  if(c===402)return 'Fish Audio says the account is out of credit (402).';
+  if(c===404&&/function|not.?found/i.test(d))return 'the fish-tts edge function is not deployed on this Supabase project yet.';
+  if(c===400||c===404||c===422)return 'Fish Audio rejected the request ('+c+'), usually a wrong voice ID or model name. '+d;
+  if(c===429)return 'free-tier rate limit hit (429). Try again in a minute.';
+  if(typeof c==='number'&&c>=500)return 'Fish Audio server error ('+c+').';
+  if(c==='timeout')return 'no audio arrived from Fish Audio within 12 seconds.';
+  if(c==='empty')return 'Fish Audio returned empty audio.';
+  if(c==='decode')return 'the audio arrived but the browser could not decode it. '+d;
+  if(!navigator.onLine)return 'you are offline.';
+  if(e&&(e.name==='TypeError'||/fetch|network/i.test(e.message||'')))return 'the request to the fish-tts function was blocked (network, ad-blocker, or the function is not deployed). Open DevTools > Console for the exact error.';
+  return 'unexpected error: '+String(e&&(e.message||e.name||e)).slice(0,100);
+}
+function endVoice(){unduck();if(!busy&&!listening)setOrb('idle','Online · remembers you');}
+function stopVoice(){
+  vTok++;try{vCtl&&vCtl.abort();}catch(e){}vCtl=null;
+  const a=vAud;if(a){a.onended=a.onerror=null;try{a.pause();a.removeAttribute('src');a.load();}catch(e){}}
+  vUrl(null);try{window.speechSynthesis&&speechSynthesis.cancel();}catch(e){}
+  unduck();
+}
+function voiceFail(e,text){
+  console.warn('JOHN voice',e);
+  const now=Date.now(),fb=!!(text&&window.speechSynthesis&&!(e&&e.name==='NotAllowedError'));
+  if(now-vDiagAt>6000){vDiagAt=now;try{sysNote('🔇 Voice failed: '+whyVoice(e)+(fb?' Using the browser voice instead.':''));}catch(x){}}
+  unduck();
+  if(fb){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.onend=u.onerror=endVoice;duck();speechSynthesis.speak(u);return;}catch(x){}}
+  endVoice();
+}
+function beginPlay(a,tok){duck();const st=$('jnStat');if(st&&isOpen)st.textContent='Speaking…';a.play().catch(e=>{if(tok===vTok)voiceFail(e);});}
+async function playRes(r,tok,st){
+  const a=vEl(),MS=window.MediaSource;
+  a.onended=()=>{if(tok===vTok)endVoice();};
+  a.onerror=()=>{if(tok===vTok)voiceFail({code:'decode',detail:a.error&&a.error.message});};
+  if(MS&&MS.isTypeSupported&&MS.isTypeSupported('audio/mpeg')&&r.body&&r.body.getReader){
+    const ms=new MS(),u=URL.createObjectURL(ms);vUrl(u);a.src=u;
+    await new Promise(res=>ms.addEventListener('sourceopen',res,{once:true}));
+    const sb=ms.addSourceBuffer('audio/mpeg'),q=[];let end=false;
+    const pump=()=>{if(sb.updating)return;if(q.length){try{sb.appendBuffer(q.shift());}catch(e){}}else if(end&&ms.readyState==='open'){try{ms.endOfStream();}catch(e){}}};
+    sb.addEventListener('updateend',pump);
+    const rd=r.body.getReader();let bytes=0,started=false;
+    for(;;){
+      const {done,value}=await rd.read();
+      if(tok!==vTok){try{rd.cancel();}catch(e){}return;}
+      if(done)break;
+      bytes+=value.length;st.first=true;q.push(value);pump();
+      if(!started){started=true;beginPlay(a,tok);}
+    }
+    if(!bytes)throw{code:'empty'};
+    end=true;pump();return;
+  }
+  const b=await r.blob();st.first=true;if(tok!==vTok)return;if(!b.size)throw{code:'empty'};
+  const u=URL.createObjectURL(b);vUrl(u);a.src=u;beginPlay(a,tok);
+}
+async function speak(raw){
+  if(!voiceOn)return;
+  const text=vClean(raw);if(!text)return;
+  stopVoice();const tok=++vTok,ctl=vCtl=new AbortController(),st={first:false,timedOut:false};
+  const to=setTimeout(()=>{if(!st.first){st.timedOut=true;ctl.abort();}},12000);
+  try{
+    const r=await fetch(SUPABASE_URL+'/functions/v1/'+FISH.fn,{method:'POST',signal:ctl.signal,headers:blastrAuthHeaders(null,{'Content-Type':'application/json'}),body:JSON.stringify({text,voice:FISH.voice})});
+    if(!r.ok){let d='';try{d=await r.text();}catch(x){}throw{code:r.status,detail:d};}
+    if(tok!==vTok)return;
+    await playRes(r,tok,st);
+  }catch(e){
+    if(st.timedOut)e={code:'timeout'};
+    else if(tok!==vTok)return;
+    voiceFail(e,text);
+  }finally{clearTimeout(to);}
+}
+function setVoice(on){
+  voiceOn=on;lsSet(VK,on);const b=$('jnVoice');
+  if(b){b.textContent=on?'🔊':'🔇';b.title=on?'Voice on (click to mute John)':'Voice off (click to let John talk)';}
+  if(on)vUnlock();else stopVoice();
+}
+
+
 /* ───────── UI build ───────── */
 const ORB=(cls='')=>`<div class="jn-orb ${cls}" data-s="idle"><i class="jn-ring r1"></i><i class="jn-ring r2"></i><i class="jn-ring r3"></i><div class="bx-logo jn-logo"></div><span class="jn-notes"><b>♪</b><b>♫</b><b>♪</b><b>♬</b></span><span class="jn-bars"><u></u><u></u><u></u><u></u><u></u></span></div>`;
 function build(){
@@ -15516,6 +15609,7 @@ function build(){
   const p=document.createElement('div');p.id='jnPanel';
   p.innerHTML=`<div class="jn-head">${ORB('jn-hd')}<div class="jn-ttl"><div class="jn-name">JOHN AI<small>SMARTER</small></div><div class="jn-stat"><i></i><span id="jnStat">Online · remembers you</span></div></div><button class="jn-hb" id="jnClear" title="New conversation">⟲</button><button class="jn-hb" id="jnClose" title="Close (Esc)">✕</button></div><div class="jn-strip" id="jnStrip"></div><div class="jn-msgs" id="jnMsgs"></div><div class="jn-comp"><div class="jn-box"><textarea id="jnIn" rows="1" placeholder="Talk to John… (Enter to send)"></textarea><button class="jn-ib jn-mic" id="jnMic" title="Speak">🎙</button><button class="jn-ib jn-send" id="jnSend" title="Send">➤</button></div><div class="jn-foot">JOHN can search · play · like · build playlists · remember</div></div>`;
   document.body.appendChild(p);
+  {const vb=document.createElement('button');vb.className='jn-hb';vb.id='jnVoice';vb.onclick=()=>setVoice(!voiceOn);const cl=p.querySelector('#jnClear');if(cl)cl.before(vb);else p.querySelector('.jn-head')?.appendChild(vb);setVoice(voiceOn);}
   const fab=document.createElement('button');fab.id='jnFab';fab.setAttribute('aria-label','Talk to JOHN AI');fab.innerHTML='<div class="bx-logo jn-logo"></div>';fab.onclick=()=>toggle(true);
   ($('appScreen')||document.body).appendChild(fab);
   const it=document.createElement('div');it.id='jnIntro';
@@ -15551,7 +15645,7 @@ async function toggle(force){
   build();
   isOpen=force===undefined?!isOpen:force;
   document.body.classList.toggle('jn-open',isOpen);
-  if(!isOpen){if(listening)try{rec.stop();}catch(e){}return;}
+  if(!isOpen){if(listening)try{rec.stop();}catch(e){}stopVoice();return;}
   if(loadedFor!==(uid()||'guest'))await loadHist();
   else scroll();
   setTimeout(()=>$('jnIn')?.focus(),500);
@@ -15601,6 +15695,7 @@ async function saveMemory(txt){
 async function clearChat(){
   if(busy)return;
   if(!confirm('Start a fresh conversation? John will still remember what he learned about you.'))return;
+  stopVoice();
   hist=[];lsSet(HK(),[]);
   const id=uid();if(id&&remoteOK){try{await sbFetch(`/rest/v1/john_messages?user_id=eq.${id}`,{method:'DELETE'});}catch(e){}}
   hero();setOrb('done','Fresh start');idle();
@@ -15871,7 +15966,7 @@ let lastText='',warned=false;
 async function send(text,isRetry){
   text=String(text||'').trim();
   if(!text||busy)return;lastText=text;
-  busy=true;holdGuard();$('jnSend').disabled=true;$('jnIn').value='';$('jnIn').style.height='auto';
+  busy=true;vUnlock();stopVoice();holdGuard();$('jnSend').disabled=true;$('jnIn').value='';$('jnIn').style.height='auto';
   if(listening)try{rec.stop();}catch(e){}
   if(!isRetry){addMe(text);await persist('user',text);}
   setOrb('think','JOHN is thinking…');
@@ -15880,6 +15975,7 @@ async function send(text,isRetry){
     const P=await pool();await loadTags();
     const msgs=[{role:'system',content:sysPrompt(P)}].concat(hist.slice(-14).map(h=>({role:h.role,content:h.role==='assistant'?JSON.stringify({say:h.content}):h.content})));
     const o=await ask(msgs);
+    {const sv=String(o.say||'').trim();if(sv)speak(sv);}
     col.innerHTML='';
     const meta={};
     if(o.reflect){meta.ref=String(o.reflect).slice(0,80);const r=document.createElement('div');r.className='jn-ref';r.textContent='✦ '+meta.ref;col.appendChild(r);scroll();await wait(1100);}
@@ -15892,6 +15988,7 @@ async function send(text,isRetry){
       try{await exec(a,ctx);}
       catch(err){console.warn('JOHN action failed',a,err);ctx.notes.push('⚠ I couldn\'t complete "'+(a.type||'that')+'" ('+String(err&&err.message||'unexpected error').slice(0,60)+').');}
     }
+    if(ducked)duck();
     if(ctx.fallback)ctx.notes.unshift("Nothing matched exactly, so here's a few from the library to get us going.");
     if(ctx.notes.length)bubble(col,ctx.notes.join(' '));
     meta.trk=ctx.tracks?ctx.tracks.map(t=>t.id):undefined;
@@ -15913,7 +16010,7 @@ async function send(text,isRetry){
 function mic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR||busy)return;
   if(listening){try{rec.stop();}catch(e){}return;}
-  rec=new SR();rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
+  vUnlock();rec=new SR();rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
   let fin='';
   rec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;fin=t;$('jnIn').value=t;};
   rec.onerror=()=>{};
@@ -15943,7 +16040,7 @@ window.vaHandleTap=function(){toggle();};
 const origEnter=window.enterApp;
 if(typeof origEnter==='function')window.enterApp=function(){const r=origEnter.apply(this,arguments);setTimeout(maybeIntro,1600);return r;};
 const origLogout=window.logout;
-if(typeof origLogout==='function')window.logout=function(){toggle(false);loadedFor=null;hist=[];lastPl=null;sessionStorage.removeItem('jn_intro_sess');return origLogout.apply(this,arguments);};
+if(typeof origLogout==='function')window.logout=function(){toggle(false);stopVoice();loadedFor=null;hist=[];lastPl=null;sessionStorage.removeItem('jn_intro_sess');return origLogout.apply(this,arguments);};
 setTimeout(maybeIntro,3000);
 window.addEventListener('offline',()=>{if(built)setOrb('idle','Offline — reconnecting…');});
 window.addEventListener('online',()=>{if(built&&!busy)setOrb('idle','Back online');idle(1800);});
@@ -19399,13 +19496,34 @@ sync('home');
 if(window.__bxV116)return;window.__bxV116=1;
 const $=id=>document.getElementById(id);
 
-/* ── scrolling browser-tab title with the playing song ── */
+/* ── scrolling browser-tab title with the playing song (v123: worker clock = no throttling/jank, resets per song, short titles stay still) ── */
 (function(){
-  let iv=null,i=0;const base=document.title;
-  const txt=()=>{const t=(typeof state!=='undefined'&&state.currentTrack)||null;return t?('♪ '+t.title+' — '+(t.artist||'')+'   ✦   '):'';};
-  function tick(){const s=txt();if(!s){stop();return;}const r=s.repeat(Math.ceil(70/s.length)+1);i=(i+1)%s.length;document.title=r.slice(i,i+28);}
-  function start(){if(!iv)iv=setInterval(tick,380);}
-  function stop(){clearInterval(iv);iv=null;i=0;document.title=base;}
+  const base=document.title,WIN=26;let w=null,iv=null,url=null,i=0,last='',miss=0,running=false;
+  const cur=()=>(typeof state!=='undefined'&&state.currentTrack)||null;
+  const txt=()=>{const t=cur();return t?('♪ '+(t.title||'')+(t.artist?' — '+t.artist:'')+'   ✦   '):''};
+  function tick(){
+    const s=txt();
+    if(!s){if(++miss>8)stop();return}
+    miss=0;
+    if(s!==last){last=s;i=0}
+    if(s.length-7<=WIN){document.title=s.replace(/\s*✦\s*$/,'').trim();return}
+    const r=s.repeat(Math.ceil(WIN*2/s.length)+1);
+    i=(i+1)%s.length;document.title=r.slice(i,i+WIN);
+  }
+  function fallback(){if(!iv)iv=setInterval(tick,260)}
+  function start(){
+    if(running)return;running=true;miss=0;
+    try{
+      url=URL.createObjectURL(new Blob(['setInterval(function(){postMessage(1)},260)'],{type:'text/javascript'}));
+      w=new Worker(url);w.onmessage=tick;w.onerror=()=>{try{w.terminate()}catch(e){}w=null;fallback()};
+    }catch(e){fallback()}
+  }
+  function stop(){
+    running=false;clearInterval(iv);iv=null;
+    if(w){try{w.terminate()}catch(e){}w=null}
+    if(url){try{URL.revokeObjectURL(url)}catch(e){}url=null}
+    i=0;last='';document.title=base;
+  }
   if(typeof audio!=='undefined'){audio.addEventListener('play',start);audio.addEventListener('pause',stop);audio.addEventListener('ended',stop);if(!audio.paused&&txt())start();}
 })();
 
@@ -19854,5 +19972,263 @@ window.BXLB={
 .bxl-sec{text-align:center;margin:8px 0 14px}
 @media (max-width:520px){.bxl-title{font-size:23px}.bxl-ped{margin:-8px 4px 0}.bxl-ped b{font-size:34px}.bxl-p1 .bxl-pts{font-size:25px}}
 </style>
+<style id="bxV123">
+/* v123: song/playlist/artist profile alignment — cover & text share one top line, rank card no longer drags the cover down */
+.profile-hero{align-items:flex-start!important}
+.profile-cover-wrap{align-self:flex-start;margin-top:2px}
+.profile-meta{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-start;min-width:0}
+.profile-meta .profile-tags{margin-bottom:14px}
+.profile-meta .rk-card{width:100%;box-sizing:border-box;margin:0 0 16px}
+.profile-meta .profile-actions{margin-top:2px}
+.profile-title{overflow-wrap:anywhere}
+@media(min-width:861px){.profile-cover-wrap{position:sticky;top:12px}}
+@media(max-width:860px){.profile-hero{flex-direction:column!important;align-items:flex-start!important}.profile-cover{width:min(210px,62vw);height:min(210px,62vw)}}
+.artist-info-flex{align-items:flex-start!important}
+.artist-info-row{padding-top:24px}
+.artist-phone-wrap{padding-top:24px!important}
+.artist-content>.rk-card{margin:18px 32px 0;box-sizing:border-box;width:auto}
+@media(max-width:860px){.artist-info-flex{flex-direction:column;align-items:stretch!important}.artist-phone-wrap{padding:0 0 20px!important}.artist-content>.rk-card{margin:14px 12px 0}}
+</style>
+<style id="blastrV124Css">
+/* ═══ V124 · Made For You mixes · More-like rows · Share card · Guest preview ═══ */
+.bx-mix .tile-cover{position:relative;overflow:hidden}
+.bx-mix .tile-cover img{width:100%;height:100%;object-fit:cover;filter:saturate(1.15) brightness(.8)}
+.bx-mixshade{position:absolute;inset:0;pointer-events:none}
+.bx-mixttl{position:absolute;left:12px;right:10px;bottom:11px;font:900 clamp(17px,2.2vw,25px)/.98 var(--display,'Syne',system-ui,sans-serif);letter-spacing:-.4px;color:#fff;text-transform:uppercase;text-shadow:0 2px 14px rgba(0,0,0,.55);pointer-events:none}
+.bx-mix .tile-info .tile-title{font-size:12px;font-weight:600;color:#c9c9dc;white-space:normal;line-height:1.3}
+.bx-ml-h{display:flex;align-items:center;gap:12px;min-width:0;cursor:pointer}
+.bx-ml-av{width:46px;height:46px;border-radius:50%;overflow:hidden;flex:none;background:#1b1b2b;border:2px solid #39FF14;display:grid;place-items:center;font-weight:800;color:#39FF14;box-shadow:0 0 18px rgba(57,255,20,.25)}
+.bx-ml-av img{width:100%;height:100%;object-fit:cover}
+.bx-ml-h small{display:block;font:700 9px var(--mono,monospace);letter-spacing:2.2px;color:var(--dim,#7a7a99)}
+.bx-ml-h b{display:block;font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.bx-sharebtn{padding:5px 13px;border-radius:99px;border:1px solid rgba(57,255,20,.4);background:rgba(57,255,20,.07);color:#39FF14;font:700 10px var(--mono,monospace);letter-spacing:1.5px;cursor:pointer}
+.bx-sharebtn:hover{background:rgba(57,255,20,.16)}
+/* share / gate card */
+#bxShare{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:18px;overflow:hidden}
+#bxShare.on{display:flex;animation:bsIn .35s ease}
+@keyframes bsIn{from{opacity:0}to{opacity:1}}
+#bxShare .bs-bg{position:absolute;inset:-50px;background:#0a0a14 center/cover no-repeat;filter:blur(36px) brightness(.5) saturate(1.6);transform:scale(1.1)}
+#bxShare .bs-veil{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,transparent 10%,rgba(5,5,12,.88))}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes bsSpin{to{--a:360deg}}
+.bs-card{position:relative;width:min(360px,100%);padding:3px;border-radius:32px;background:conic-gradient(from var(--a),#39FF14,#00C6FF,#FF6B9D,#FFD166,#9D78FF,#39FF14);animation:bsSpin 7s linear infinite,bsPop .5s cubic-bezier(.2,1.2,.3,1);box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 70px rgba(57,255,20,.16)}
+@keyframes bsPop{from{transform:translateY(24px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+.bs-in{position:relative;border-radius:29px;background:linear-gradient(180deg,#15151f,#0a0a13);padding:24px 22px 18px;text-align:center;overflow:hidden}
+.bs-in::before{content:'';position:absolute;inset:8px;border:1.5px dashed rgba(255,255,255,.13);border-radius:23px;pointer-events:none}
+.bs-d{position:absolute;font-size:20px;opacity:.75;pointer-events:none;animation:bsFloat 5s ease-in-out infinite;color:#39FF14}
+@keyframes bsFloat{50%{transform:translateY(-9px) rotate(14deg)}}
+.bs-brand{font:900 16px var(--display,'Syne',system-ui,sans-serif);letter-spacing:7px;background:linear-gradient(90deg,#39FF14,#00C6FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bs-kick{font:700 9px var(--mono,monospace);letter-spacing:2.6px;color:#9a9ab5;margin:7px 0 18px}
+.bs-cv{position:relative;width:200px;height:200px;max-width:70%;aspect-ratio:1;margin:0 auto 18px;border-radius:22px;overflow:hidden;transform:rotate(-3deg);box-shadow:0 20px 44px rgba(0,0,0,.6);border:3px solid rgba(255,255,255,.18);background:#1b1b2b}
+.bs-cv img{width:100%;height:100%;object-fit:cover;display:block}
+.bs-tape{position:absolute;top:16px;right:-34px;transform:rotate(38deg);background:#FFD166;color:#171200;font:800 8px var(--mono,monospace);letter-spacing:1.6px;padding:4px 36px;font-style:normal}
+.bs-t{font:800 23px/1.15 var(--display,'Syne',system-ui,sans-serif);margin:0 0 5px;word-break:break-word}
+.bs-a{color:#39FF14;font-weight:700;font-size:14px}
+.bs-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.bs-chips span{padding:4px 11px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font:700 9px var(--mono,monospace);letter-spacing:1.4px;color:#c9c9dc;text-transform:uppercase}
+.bs-play{width:100%;margin-top:20px;padding:15px;border:0;border-radius:16px;background:linear-gradient(90deg,#39FF14,#00E5A0);color:#04140a;font:900 13px var(--mono,monospace);letter-spacing:2.2px;cursor:pointer;box-shadow:0 12px 32px rgba(57,255,20,.3)}
+.bs-play:active{transform:scale(.98)}
+.bs-note{font:600 10px var(--mono,monospace);color:#8a8aa6;margin-top:10px;letter-spacing:.6px;min-height:12px}
+.bs-ghost{margin-top:6px;background:none;border:0;color:#9a9ab5;font:700 10px var(--mono,monospace);letter-spacing:1.6px;cursor:pointer;padding:8px}
+/* guest preview */
+#bxGuest{position:fixed;left:50%;bottom:calc(var(--player-h,84px) + 14px);transform:translateX(-50%);z-index:9000;display:none;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:99px;background:rgba(14,14,24,.92);backdrop-filter:blur(14px);border:1px solid rgba(57,255,20,.35);box-shadow:0 10px 34px rgba(0,0,0,.5);font:600 11px var(--mono,monospace);color:#c9c9dc;white-space:nowrap;max-width:94vw}
+body.bx-guest #bxGuest{display:flex}
+#bxGuest button{border:0;border-radius:99px;padding:9px 14px;background:#39FF14;color:#04140a;font:900 10px var(--mono,monospace);letter-spacing:1.4px;cursor:pointer}
+@media(max-width:560px){#bxGuest span{display:none}#bxGuest{padding:6px}}
+body.bx-guest #jnFab,body.bx-guest #jnPanel,body.bx-guest #jnIntro,body.bx-guest #adminDoor{display:none!important}
+
+</style>
+<script id="blastrV124Js">
+/* ═══ V124 · Made For You mixes · More-like rows · Share links + guest preview ═══ */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const nk=n=>String(n||'').trim().toLowerCase();
+const dayKey=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();};
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+const rng=seed=>()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+const sh=(a,r)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const MIXC=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
+
+/* ── remember what the listener actually plays (feeds "More like …") ── */
+const RK='bx_recent_artists';
+const recents=()=>{try{return JSON.parse(localStorage.getItem(RK))||[];}catch(e){return[];}};
+function noteArtist(t){const n=t&&t.artist;if(!n)return;const l=recents().filter(x=>nk(x)!==nk(n));l.unshift(n);try{localStorage.setItem(RK,JSON.stringify(l.slice(0,12)));}catch(e){}}
+
+/* ── 3 · auto mixes (temporary, reshuffled daily, never saved) ── */
+function spread(tracks,r,max){
+  const by={};tracks.forEach(t=>{const k=nk(t.artist)||'?';(by[k]=by[k]||[]).push(t);});
+  const qs=sh(Object.values(by),r),out=[];
+  while(out.length<max&&qs.some(q=>q.length))qs.forEach(q=>{if(q.length&&out.length<max)out.push(q.shift());});
+  return out;
+}
+function buildMixes(){
+  const all=(state.allTracks||[]).filter(t=>t&&t.url),dk=dayKey(),mixes=[],used=new Set();
+  const add=(key,title,pool)=>{
+    if(used.has(title))return;
+    const artists=[...new Set(pool.map(t=>t.artist).filter(Boolean))];
+    if(pool.length<4||artists.length<3)return;
+    const r=rng(hash(key+dk)),tracks=spread(sh(pool,r),r,25);
+    const wc=tracks.filter(t=>t.cover_url),cover=wc.length?wc[Math.floor(r()*wc.length)].cover_url:'';
+    const names=sh([...new Set(tracks.map(t=>t.artist).filter(Boolean))],r).slice(0,3);
+    used.add(title);mixes.push({key,title,tracks,cover,names,more:artists.length>3});
+  };
+  const by={};all.forEach(t=>{const g=String(t.genre||'').trim();if(g)(by[g]=by[g]||[]).push(t);});
+  Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,5).forEach(([g,p])=>add('g:'+g,g.toUpperCase()+' MIX',p));
+  const em=state.trackEmotionMap||{};
+  const MOOD={Calm:'CHILL MIX',Joy:'FEEL GOOD MIX',Intense:'HYPE MIX',Love:'LOVE MIX',Sad:'RAINY DAY MIX',Empowered:'POWER MIX',Dark:'MIDNIGHT MIX',Reflective:'LATE NIGHT MIX'};
+  Object.entries(MOOD).forEach(([c,title])=>{const pool=all.filter(t=>{const x=em[t.id];return x&&x.classes&&x.classes.has&&x.classes.has(c);});add('m:'+c,title,pool);});
+  return mixes.slice(0,8);
+}
+function mixTile(m,i){
+  const c=MIXC[i%MIXC.length];
+  return `<div class="song-tile bx-mix" onclick="bxOpenMix(${i})"><div class="tile-cover" style="background:${c}22">${m.cover?`<img decoding="async" loading="lazy" src="${E(m.cover)}" referrerpolicy="no-referrer">`:''}<div class="bx-mixshade" style="background:linear-gradient(155deg,${c}99,transparent 60%),linear-gradient(0deg,rgba(0,0,0,.72),transparent 58%)"></div><span class="pl-tile-badge">DAILY MIX</span><div class="bx-mixttl">${E(m.title)}</div></div><div class="tile-info"><div class="tile-title">${E(m.names.join(', '))}${m.more?' and more':''}</div></div></div>`;
+}
+window.bxOpenMix=function(i){
+  const m=(window.__bxMixList||[])[i];if(!m)return;
+  openPlaylistProfile({id:'mix-'+hash(m.key),title:m.title,genre:m.title.replace(/ MIX$/,''),bio:'Made for you from artists on Blastr. Temporary, and it reshuffles every day.',is_public:false,is_mix:true,emotions:[]},m.tracks);
+};
+
+/* ── 2 · "More like <artist>" (artist needs ≥3 songs) ── */
+async function moreLike(){
+  const all=state.allTracks||[],cnt={};
+  all.forEach(t=>{const k=nk(t.artist);if(k)cnt[k]=(cnt[k]||0)+1;});
+  const seen=[],push=n=>{const k=nk(n);if(k&&cnt[k]>=3&&!seen.includes(k))seen.push(k);};
+  (state.history||[]).slice().reverse().forEach(t=>push(t&&t.artist));
+  (state.favorites||[]).slice().reverse().forEach(t=>push(t&&t.artist));
+  recents().forEach(push);
+  if(!seen.length){const pool=Object.keys(cnt).filter(k=>cnt[k]>=3);if(pool.length)seen.push(pool[Math.floor(rng(hash('ml'+dayKey()))()*pool.length)]);}
+  let artists=[];try{artists=await getArtists();}catch(e){}
+  return seen.slice(0,2).map(k=>{const tr=all.filter(t=>nk(t.artist)===k);return{name:tr[0].artist,a:(artists||[]).find(x=>nk(x.name)===k)||null,tr};});
+}
+window.bxMoreArtist=function(i){const x=(window.__bxML||[])[i];if(x&&x.a&&window.openArtistProfile)openArtistProfile(x.a);};
+function mlHTML(x,i){
+  const pic=(x.a&&x.a.avatar_url)||(x.tr.find(t=>t.cover_url)||{}).cover_url||'';
+  return `<div class="songs-section"><div class="section-header"><div class="bx-ml-h" onclick="bxMoreArtist(${i})"><span class="bx-ml-av">${pic?`<img decoding="async" loading="lazy" src="${E(pic)}" referrerpolicy="no-referrer">`:E((x.name||'A')[0].toUpperCase())}</span><span><small>MORE LIKE</small><b>${E(x.name)}</b></span></div>${x.a?`<button class="section-more" onclick="bxMoreArtist(${i})">VIEW ARTIST →</button>`:''}</div><div class="song-grid">${x.tr.slice(0,8).map((t,j)=>songTileHTML(t,j)).join('')}</div></div>`;
+}
+let rowsTok=0;
+async function renderRows(){
+  const tk=++rowsTok,home=$('homeContent');if(!home)return;
+  let w=$('bxV124Rows');if(!w){w=document.createElement('div');w.id='bxV124Rows';home.parentNode.insertBefore(w,home);}
+  const mixes=buildMixes();window.__bxMixList=mixes;
+  const mixHTML=mixes.length?`<div class="songs-section"><div class="section-header"><div class="section-name">Made For You</div></div><div class="song-grid">${mixes.map(mixTile).join('')}</div></div>`:'';
+  w.innerHTML=mixHTML;
+  const ml=await moreLike();if(tk!==rowsTok)return;
+  window.__bxML=ml;w.innerHTML=mixHTML+ml.map(mlHTML).join('');
+}
+const _lh=window.loadHomeContent;
+window.loadHomeContent=async function(){
+  const r=await _lh.apply(this,arguments);
+  try{await renderRows();const m=state.trackEmotionMap;if(!m||!Object.keys(m).length)setTimeout(()=>renderRows().catch(()=>{}),3200);}catch(e){console.warn('v124 rows',e);}
+  return r;
+};
+
+/* ── 4 · share links ── */
+const SK='bx_share';
+const shareUrl=id=>location.origin+location.pathname+'?s='+encodeURIComponent(id);
+window.bxShare=async function(w){
+  let t=w&&typeof w==='object'?w:(w==='p'?state.currentProfileTrack:state.currentTrack);
+  t=t||state.currentProfileTrack||state.currentTrack;
+  if(!t||t.id==null){showToast('SHARE','Play or open a song first');return;}
+  const url=shareUrl(t.id),text='Listen to “'+t.title+'” by '+(t.artist||'Unknown')+' on Blastr';
+  try{if(navigator.share){await navigator.share({title:t.title,text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(url);}catch(e){const i=document.createElement('input');i.value=url;document.body.appendChild(i);i.select();try{document.execCommand('copy');}catch(x){}i.remove();}
+  showToast('LINK COPIED',t.title,'Paste it anywhere to share');
+};
+let cardTrack=null;
+function closeCard(){const c=$('bxShare');if(c)c.classList.remove('on');}
+function ensureCard(){
+  if($('bxShare'))return;
+  const d=document.createElement('div');d.id='bxShare';
+  d.innerHTML=`<div class="bs-bg"></div><div class="bs-veil"></div><div class="bs-card"><div class="bs-in"><span class="bs-d" style="left:16px;top:64px">♪</span><span class="bs-d" style="right:18px;top:128px;animation-delay:-1.5s;color:#FF6B9D">✦</span><span class="bs-d" style="left:20px;bottom:104px;animation-delay:-3s;color:#00C6FF">✿</span><span class="bs-d" style="right:22px;bottom:84px;animation-delay:-2s;color:#FFD166">♫</span><div class="bs-brand">BLASTR</div><div class="bs-kick" id="bsKick"></div><div class="bs-cv"><img id="bsImg" alt=""><i class="bs-tape">LISTEN NOW</i></div><div class="bs-t" id="bsT"></div><div class="bs-a" id="bsA"></div><div class="bs-chips" id="bsC"></div><button class="bs-play" id="bsPlay"></button><div class="bs-note" id="bsN"></div><button class="bs-ghost" id="bsX"></button></div></div>`;
+  document.body.appendChild(d);
+  $('bsX').onclick=closeCard;
+  d.addEventListener('click',e=>{if(e.target===d||e.target.classList.contains('bs-veil'))closeCard();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCard();});
+  $('bsPlay').onclick=()=>{const t=cardTrack;if(!t)return;if(state.guest){exitGuest(t.id);return;}closeCard();if(t.url)initiateHandshake(t);else showToast('ERROR','No audio URL for this track.');};
+}
+function showCard(t,kick){
+  ensureCard();cardTrack=t;window.__bxLastShare=t.id;
+  $('bsT').textContent=t.title||'Untitled';$('bsA').textContent=t.artist||'Unknown artist';
+  const im=$('bsImg');im.src=t.cover_url||'';im.style.display=t.cover_url?'':'none';
+  $('bsC').innerHTML=[t.genre,t.is_verified?'✓ Verified':''].filter(Boolean).map(x=>`<span>${E(x)}</span>`).join('');
+  $('bsKick').textContent=kick||'SOMEONE SENT YOU A SONG';
+  $('bsPlay').textContent=state.guest?'SIGN IN TO LISTEN':'▶  PLAY ON BLASTR';
+  $('bsN').textContent=state.guest?'Free account · takes under a minute':'';
+  $('bsX').textContent=state.guest?'BROWSE BLASTR FIRST →':'CLOSE';
+  const bg=$('bxShare').querySelector('.bs-bg'),setBg=u=>{bg.style.backgroundImage=u?'url('+JSON.stringify(u)+')':'';};
+  setBg(t.cover_url);$('bxShare').classList.add('on');
+  try{getArtists().then(l=>{const a=(l||[]).find(x=>nk(x.name)===nk(t.artist)),u=a&&(a.banner_url||a.cover_url||a.avatar_url);if(u&&cardTrack===t)setBg(u);}).catch(()=>{});}catch(e){}
+}
+async function fetchTrack(id){
+  const hit=(state.allTracks||[]).find(x=>String(x.id)===String(id));if(hit)return hit;
+  try{const d=await sbFetch('/rest/v1/tracks?select=*&id=eq.'+encodeURIComponent(id));return Array.isArray(d)&&d[0]||null;}catch(e){return null;}
+}
+async function consume(){
+  const id=sessionStorage.getItem(SK);if(!id)return;sessionStorage.removeItem(SK);
+  const t=await fetchTrack(id);
+  if(!t){showToast('LINK','That song is no longer available');return;}
+  showCard(t,state.guest?'SOMEONE SENT YOU A SONG':'A SONG IS WAITING FOR YOU');
+}
+
+/* ── guest preview: search & browse, no playback ── */
+function ensureGuestPill(){
+  if($('bxGuest'))return;
+  const d=document.createElement('div');d.id='bxGuest';d.innerHTML='<span>👋 Guest preview · browse &amp; search freely</span><button id="bxGuestBtn">SIGN IN TO LISTEN</button>';
+  document.body.appendChild(d);$('bxGuestBtn').onclick=()=>exitGuest(null);
+}
+function enterGuest(){
+  state.guest=true;document.body.classList.add('bx-guest');ensureGuestPill();
+  $('loginScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');
+  try{blastrSetUiUser('Guest',false);}catch(e){}
+  try{loadHomeContent();}catch(e){}
+  try{blastrUpdateTimeBasedCopy();}catch(e){}
+}
+function exitGuest(id){
+  const keep=id!=null?id:window.__bxLastShare;if(keep!=null)sessionStorage.setItem(SK,String(keep));
+  closeCard();state.guest=false;document.body.classList.remove('bx-guest');
+  try{audio.pause();}catch(e){}
+  $('appScreen').classList.add('hidden');$('loginScreen').classList.remove('hidden');
+  try{switchToLogin();}catch(e){}
+}
+const _hs=window.initiateHandshake;
+window.initiateHandshake=function(t){
+  if(state.guest){if(t)showCard(t,'JOIN BLASTR TO PLAY THIS');return;}
+  try{noteArtist(t);}catch(e){}
+  return _hs.apply(this,arguments);
+};
+try{audio.addEventListener('play',()=>{if(state.guest)audio.pause();});}catch(e){}
+const _ea=window.enterApp;
+window.enterApp=function(){
+  if(state.guest){state.guest=false;document.body.classList.remove('bx-guest');}
+  const r=_ea.apply(this,arguments);setTimeout(()=>consume().catch(()=>{}),1400);return r;
+};
+{
+  const q=new URLSearchParams(location.search),sid=q.get('s');
+  if(sid){sessionStorage.setItem(SK,sid);try{q.delete('s');const qs=q.toString();history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash);}catch(e){}}
+  const _rs=window.blastrRestoreSession;
+  window.blastrRestoreSession=async function(){
+    const ok=await _rs.apply(this,arguments);
+    try{if(sessionStorage.getItem(SK)){if(!ok)enterGuest();await wait(600);await consume();}}catch(e){console.warn('v124 boot',e);}
+    return ok;
+  };
+}
+
+/* ── share buttons: player bar + song profile ── */
+{
+  const b=$('btnShuffle');
+  if(b&&!$('btnShare'))b.insertAdjacentHTML('afterend','<button class="ctrl-btn" id="btnShare" onclick="bxShare(\'c\')" title="Share this song">⤴</button>');
+  const _lsp=window.loadSongProfile;
+  if(typeof _lsp==='function')window.loadSongProfile=function(t){
+    const r=_lsp.apply(this,arguments);
+    try{const box=$('profTags');if(box&&!box.querySelector('.bx-sharebtn'))box.insertAdjacentHTML('beforeend','<button type="button" class="bx-sharebtn" onclick="bxShare(\'p\')">⤴ SHARE</button>');}catch(e){}
+    return r;
+  };
+}
+})();
+
+</script>
 </body>
 </html>
