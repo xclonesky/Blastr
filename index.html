@@ -20956,5 +20956,196 @@ if(window.BXLB&&BXLB.mount&&!BXLB.__tg){const m=BXLB.mount;BXLB.mount=function()
 setInterval(()=>{if(isAdmin()&&!tmr)mount()},3000);
 })();
 </script>
+<style id="blastrV130SearchCss">
+.bxs-fix{margin:6px 8px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(255,209,102,.14),rgba(0,198,255,.08));border:1px solid rgba(255,209,102,.3);font:500 12px/1.5 var(--font,sans-serif);color:var(--text,#F0F0F8)}
+.bxs-fix b{color:#FFD166}.bxs-fix a{color:var(--accent2,#00C6FF);cursor:pointer;margin-left:8px;font:700 10px var(--mono,monospace);letter-spacing:1px;text-decoration:none}
+.bxs-chips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 8px 8px}
+.bxs-chip{display:inline-block;padding:5px 11px;border-radius:99px;font:700 10px var(--mono,monospace);letter-spacing:1px;cursor:pointer;color:var(--text,#F0F0F8);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:.2s}
+.bxs-chip:hover{border-color:var(--accent2,#00C6FF);color:var(--accent2,#00C6FF);transform:translateY(-1px)}
+.bxs-chip.on{background:rgba(0,198,255,.14);border-color:rgba(0,198,255,.4);color:var(--accent2,#00C6FF)}
+.bxs-badge{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:6px;font:700 8px var(--mono,monospace);letter-spacing:1.5px;vertical-align:1px}
+.bxs-badge.lyrics{background:rgba(255,20,147,.15);color:#FF6BB5;border:1px solid rgba(255,20,147,.35)}
+.bxs-badge.fuzzy{background:rgba(255,209,102,.14);color:#FFD166;border:1px solid rgba(255,209,102,.35)}
+.bxs-badge.tag{background:rgba(57,255,20,.12);color:#39FF14;border:1px solid rgba(57,255,20,.3)}
+.bxs-snip{margin-top:3px;font:italic 500 12px/1.4 var(--font,sans-serif);color:#b9bcd6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bxs-snip mark,.bxs-card mark{background:rgba(255,209,102,.28);color:#fff;border-radius:3px;padding:0 2px}
+.bxs-more{margin:6px 8px 8px;padding:11px;border-radius:12px;text-align:center;cursor:pointer;font:700 10px var(--mono,monospace);letter-spacing:2px;color:var(--accent2,#00C6FF);background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.22);transition:.2s}
+.bxs-more:hover{background:rgba(0,198,255,.16)}
+/* results page */
+.bxs-pg{padding:26px clamp(14px,3vw,34px) 120px;max-width:980px;margin:0 auto;font-family:var(--font,sans-serif)}
+.bxs-back{background:none;border:0;color:var(--dim,#8a8fb5);font:700 11px var(--mono,monospace);letter-spacing:2px;cursor:pointer;margin-bottom:14px;padding:0}.bxs-back:hover{color:var(--accent2,#00C6FF)}
+.bxs-h{font:800 clamp(22px,3.4vw,34px)/1.15 var(--font,sans-serif);margin-bottom:10px}.bxs-h b{background:linear-gradient(90deg,var(--accent2,#00C6FF),var(--accent,#39FF14));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bxs-sec{margin-top:26px}.bxs-sec>h4{font:700 11px var(--mono,monospace);letter-spacing:3px;color:var(--dim,#8a8fb5);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.bxs-sec>h4 i{font-style:normal;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.07);letter-spacing:1px}
+.bxs-dym{position:relative;display:flex;gap:18px;align-items:center;padding:20px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(0,198,255,.08));border:1px solid rgba(255,209,102,.35);box-shadow:0 20px 60px rgba(255,209,102,.08);animation:bxsIn .5s both}
+.bxs-dym .cv{width:96px;height:96px;border-radius:18px;flex:none;background:#14142a center/cover;display:grid;place-items:center;font-size:34px;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.bxs-dym small{font:700 10px var(--mono,monospace);letter-spacing:3px;color:#FFD166}.bxs-dym h3{font:800 clamp(20px,3vw,30px)/1.1 var(--font,sans-serif);margin:6px 0 2px}.bxs-dym p{color:var(--dim,#8a8fb5);font-size:13px;margin-bottom:12px}
+.bxs-btn{height:38px;padding:0 18px;border-radius:11px;border:0;cursor:pointer;background:linear-gradient(90deg,var(--accent2,#00C6FF),var(--accent,#39FF14));color:#06060E;font:800 11px var(--mono,monospace);letter-spacing:2px;transition:.15s}.bxs-btn:hover{filter:brightness(1.12)}.bxs-btn:active{transform:scale(.96)}
+.bxs-btn.alt{background:rgba(255,255,255,.07);color:var(--text,#F0F0F8);border:1px solid rgba(255,255,255,.14)}.bxs-btn:disabled{opacity:.5;cursor:default}
+.bxs-list{display:grid;gap:9px}
+.bxs-card{display:flex;align-items:center;gap:13px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:transform .2s,border-color .2s,background .2s;animation:bxsIn .4s both}
+.bxs-card:hover{transform:translateX(4px);border-color:rgba(0,198,255,.45);background:rgba(0,198,255,.06)}
+.bxs-card .cv{width:54px;height:54px;border-radius:12px;flex:none;background:#14142a center/cover;display:grid;place-items:center;font-size:20px}
+.bxs-card .mt{flex:1;min-width:0}.bxs-card .tt{font:700 14px var(--font,sans-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bxs-card .sb{font:500 11px var(--mono,monospace);color:var(--dim,#8a8fb5);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bxs-card .ly{margin-top:5px;padding:6px 10px;border-left:3px solid #FF6BB5;border-radius:0 8px 8px 0;background:rgba(255,20,147,.07);font:italic 500 12.5px/1.45 var(--font,sans-serif);color:#d9dbee}
+.bxs-card .pl{width:40px;height:40px;border-radius:50%;border:0;flex:none;cursor:pointer;background:linear-gradient(135deg,var(--accent2,#00C6FF),var(--accent,#39FF14));color:#06060E;font-size:14px}
+@keyframes bxsIn{from{opacity:0;transform:translateY(10px)}}
+.bxs-empty{padding:50px 18px;text-align:center;border-radius:24px;border:1px dashed rgba(255,255,255,.15);background:rgba(255,255,255,.03)}.bxs-empty .e{font-size:42px}.bxs-empty b{display:block;font:800 19px var(--font,sans-serif);margin:8px 0 6px}.bxs-empty span{display:block;color:var(--dim,#8a8fb5);font-size:13px;margin-bottom:14px}
+.bxs-art{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}.bxs-art>div{flex:none;width:96px;text-align:center;cursor:pointer;font:600 12px var(--font,sans-serif)}.bxs-art .av{width:78px;height:78px;border-radius:50%;margin:0 auto 6px;background:#14142a center/cover;display:grid;place-items:center;font-size:26px;border:2px solid rgba(255,255,255,.1)}
+/* engine card (super office) */
+.bxs-eng{margin-bottom:14px;padding:18px 20px;border-radius:22px;background:linear-gradient(160deg,rgba(255,20,147,.08),rgba(0,198,255,.07));border:1px solid rgba(255,20,147,.28)}
+.bxs-eh{font:800 14px var(--mono,monospace);letter-spacing:2px;margin-bottom:12px}.bxs-eh small{font:500 11px var(--font,sans-serif);color:var(--dim,#8a8fb5);letter-spacing:0;margin-left:8px}
+.bxs-es{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.bxs-es span{padding:6px 11px;border-radius:10px;background:rgba(255,255,255,.06);font:700 10px var(--mono,monospace);letter-spacing:1px;color:var(--dim,#8a8fb5)}.bxs-es b{color:#fff;font-size:13px;margin-left:4px}
+.bxs-ef{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}.bxs-ef label{flex:1;min-width:200px;font:700 9px var(--mono,monospace);letter-spacing:2px;color:var(--dim,#8a8fb5)}
+.bxs-ef input{display:block;width:100%;margin-top:6px;height:42px;padding:0 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.35);color:var(--text,#F0F0F8);font:600 14px var(--font,sans-serif);outline:0}.bxs-ef input:focus{border-color:var(--accent2,#00C6FF)}
+.bxs-pb{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:14px 0 6px}.bxs-pb i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#FF1493,#00C6FF,#39FF14);transition:width .6s}
+.bxs-em{font:600 12px var(--font,sans-serif);color:var(--dim,#8a8fb5);min-height:18px}.bxs-ea{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:620px){.bxs-dym{flex-direction:column;text-align:center}.bxs-card .ly{font-size:12px}}
+</style>
+<script id="blastrV130SearchJs">
+/* ═══════ BLASTR v130 · SMART SEARCH ═══════ */
+(function(){
+if(window.BXSR)return;
+const D=document,$=s=>D.querySelector(s),$$=s=>[...D.querySelectorAll(s)];
+const E=s=>(typeof esc==='function'?esc(s):String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])));
+const fmt=n=>Number(n||0).toLocaleString('en-US'),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const isSuper=()=>!!(window.BA&&BA.admin&&BA.admin.role==='super_admin');
+const orig=window.runSearch;let tok=0,ROWS=[],prevPage='home',lastQ='';
+function call(fn,body){const h=blastrAuthHeaders();h.set('Content-Type','application/json');
+  return fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:h,body:JSON.stringify(body||{})}).then(async r=>{
+    if(!r.ok){const t=await r.json().catch(()=>({}));throw new Error(t.message||('Error '+r.status));}return r.json();});}
+const safe=p=>Promise.resolve(p).catch(()=>[]);
+async function fetchTracks(ids){if(!ids.length)return[];
+  const d=await sbFetch('/rest/v1/tracks?select=*&id=in.('+ids.map(encodeURIComponent).join(',')+')');
+  const m=new Map((Array.isArray(d)?d:[]).map(t=>[String(t.id),t]));return ids.map(i=>m.get(String(i))).filter(Boolean);}
+function hl(text,q){let s=E(text);const ws=[...new Set(String(q||'').toLowerCase().replace(/['’`]/g,'').split(/[^a-z0-9\u00C0-\u024F]+/).filter(w=>w.length>1&&!/^(amp|quot|lt|gt)$/.test(w)))];
+  ws.forEach(w=>{s=s.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>')});return s;}
+function pack(sm,tracks){ // attach match info to track rows, keep server order
+  const info=new Map((sm.results||[]).map(r=>[String(r.id),r]));
+  return tracks.map(t=>({t,m:info.get(String(t.id))||{}}));}
+const cover=t=>t.cover_url?'style="background-image:url(\''+E(t.cover_url).replace(/'/g,'%27')+'\')"':'';
+const badge=m=>m.why==='lyrics'?'<span class="bxs-badge lyrics">♪ LYRICS</span>':m.why==='fuzzy'?'<span class="bxs-badge fuzzy">CLOSE MATCH</span>':m.why==='tag'?'<span class="bxs-badge tag">SMART PICK</span>':'';
+
+/* ── dropdown ── */
+async function run(q){
+  const my=++tok,dd=$('#searchDropdown');if(!dd)return orig&&orig(q);
+  dd.innerHTML='<div style="padding:16px;text-align:center"><div class="spinner"></div></div>';dd.classList.add('open');
+  let sm=null;try{sm=await call('smart_search',{p_q:q,p_lim:10})}catch(e){sm=null}
+  if(!sm||my!==tok){if(!sm&&orig)return orig(q);return;}
+  const [arts,pls,tr]=await Promise.all([safe(getArtists(q)),safe(getPlaylists(q)),fetchTracks((sm.results||[]).map(r=>r.id))]);
+  if(my!==tok)return;
+  const items=pack(sm,tr).slice(0,8);ROWS=items.map(x=>x.t);
+  const hasAny=items.length||(arts&&arts.length)||(pls&&pls.length);
+  if(!hasAny&&!(sm.alts||[]).length&&orig)return orig(q);   // nothing local → original flow (global catalog fallback)
+  let h='';
+  if(sm.mode==='fuzzy'&&sm.corrected)h+='<div class="bxs-fix">✨ Showing results for <b>'+E(sm.corrected)+'</b><a onclick="BXSR.literal()">SEARCH “'+E(q)+'” INSTEAD</a></div>';
+  if(!items.length&&(sm.alts||[]).length)h+='<div class="search-section-label">DID YOU MEAN</div><div class="bxs-chips">'+sm.alts.map(a=>'<span class="bxs-chip" onclick="BXSR.set(\''+E(a.title).replace(/'/g,"\\'")+'\')">'+E(a.title)+' · '+E(a.artist||'')+'</span>').join('')+'</div>';
+  if(arts&&arts.length){h+='<div class="search-section-label">ARTISTS</div>'+arts.slice(0,3).map(a=>'<div class="search-artist-row" onclick="openArtistProfile('+jsonAttr(a)+')"><div class="search-artist-avatar'+(a.is_legend?' legend-halo':'')+'">'+(a.avatar_url?'<img decoding="async" src="'+E(a.avatar_url)+'" loading="lazy" referrerpolicy="no-referrer">':'★')+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+E(a.name)+(a.verified?'<span class="artist-verified-dot">✓</span>':'')+'</div><div style="font-size:10px;color:var(--dim);font-family:var(--mono)">'+E(a.genre||'ARTIST')+'</div></div></div>').join('')}
+  if(pls&&pls.length&&typeof plSearchRowHTML==='function')h+='<div class="search-section-label">PLAYLISTS</div>'+pls.slice(0,3).map(p=>plSearchRowHTML(p)).join('');
+  const ac=['#39FF14','#00C6FF','#FF6B9D','#FFD166','#9D78FF','#FF8C42'];
+  if(items.length){h+='<div class="search-section-label">'+(sm.mode==='lyrics'?'FOUND IN LYRICS':sm.mode==='tags'?'SMART PICKS':'TRACKS')+'</div>'+items.map((x,i)=>{const t=x.t;
+    return '<div class="search-row" onclick="BXSR.play('+i+')"><div class="search-bar-accent" style="background:'+ac[i%6]+'"></div><div class="search-thumb">'+(t.cover_url?'<img decoding="async" src="'+E(t.cover_url)+'" loading="lazy">':'♪')+'</div><div class="search-meta"><div class="title">'+E(t.title)+badge(x.m)+'</div><div class="sub">'+E(t.artist||'')+(t.genre?' · '+E(t.genre):'')+'</div>'+(x.m.snippet?'<div class="bxs-snip">“'+hl(x.m.snippet,q)+'”</div>':'')+'</div><button class="search-go-profile" onclick="event.stopPropagation();BXSR.prof('+i+')">↗ PROFILE</button><button class="search-play-btn" style="background:'+ac[i%6]+';color:#000" onclick="event.stopPropagation();BXSR.play('+i+')">▶</button></div>'}).join('')}
+  if(items.length||(sm.alts||[]).length)h+='<div class="bxs-more" onclick="BXSR.page()">SEE ALL RESULTS →</div>';
+  dd.innerHTML=h;
+}
+window.runSearch=function(q){lastQ=q;return run(q)};
+
+/* ── full results page ── */
+function ensurePage(){let p=$('#page-search');if(p)return p;const par=($('#page-explore')||$('#page-home')).parentNode;
+  p=D.createElement('div');p.className='page';p.id='page-search';par.appendChild(p);return p;}
+function cardHTML(x,i,q,big){const t=x.t,m=x.m;
+  return '<div class="bxs-card" style="animation-delay:'+Math.min(i,12)*35+'ms" onclick="BXSR.play('+i+',1)"><div class="cv" '+cover(t)+'>'+(t.cover_url?'':'♪')+'</div><div class="mt"><div class="tt">'+hl(t.title,q)+badge(m)+'</div><div class="sb">'+E(t.artist||'')+(t.genre?' · '+E(t.genre):'')+'</div>'+(m.snippet?'<div class="ly">“'+hl(m.snippet,q)+'”</div>':'')+'</div><button class="pl" onclick="event.stopPropagation();BXSR.play('+i+',1)">▶</button></div>';}
+async function page(q){
+  q=String(q||(lastQ||($('#searchInput')||{}).value)||'').trim();if(q.length<2)return;lastQ=q;
+  const cur=$('.page.active');if(cur&&cur.id!=='page-search')prevPage=cur.id.replace('page-','');
+  const p=ensurePage();p.innerHTML='<div class="bxs-pg"><button class="bxs-back" onclick="BXSR.back()">← BACK</button><div class="bxs-h">Searching for <b>“'+E(q)+'”</b>…</div><div style="padding:30px;text-align:center"><div class="spinner"></div></div></div>';
+  if(typeof closeSearch==='function')closeSearch();showPage('search',null);const inp=$('#searchInput');if(inp&&inp.value!==q)inp.value=q;
+  let sm=null;try{sm=await call('smart_search',{p_q:q,p_lim:40})}catch(e){}
+  if(!sm){p.innerHTML='<div class="bxs-pg"><button class="bxs-back" onclick="BXSR.back()">← BACK</button><div class="bxs-empty"><div class="e">🛠</div><b>Smart search isn\'t switched on yet</b><span>Run blastr_v130.sql once in Supabase (P3).</span></div></div>';return;}
+  const [tr,arts]=await Promise.all([fetchTracks((sm.results||[]).map(r=>r.id)),safe(getArtists(q))]);
+  const items=pack(sm,tr);ROWS=items.map(x=>x.t);
+  const grp={main:[],ly:[],tag:[]};items.forEach((x,i)=>{(x.m.why==='lyrics'?grp.ly:x.m.why==='tag'?grp.tag:grp.main).push([x,i])});
+  const it=sm.intent||{},chips=[];if(it.popular)chips.push('POPULAR');if(it.new)chips.push('NEWEST');(it.kw||[]).forEach(k=>chips.push('#'+k.toUpperCase()));
+  let h='<div class="bxs-pg"><button class="bxs-back" onclick="BXSR.back()">← BACK</button><div class="bxs-h">Results for <b>“'+E(q)+'”</b></div>';
+  if(chips.length&&sm.mode==='tags')h+='<div class="bxs-chips" style="padding:0 0 4px">'+chips.map(c=>'<span class="bxs-chip on">'+E(c)+'</span>').join('')+'</div>';
+  if(sm.mode==='fuzzy'&&items[0]){const t=items[0].t;h+='<div class="bxs-dym"><div class="cv" '+cover(t)+'>'+(t.cover_url?'':'♪')+'</div><div style="flex:1;min-width:0"><small>DID YOU MEAN…</small><h3>'+E(t.title)+'</h3><p>'+E(t.artist||'')+' · closest match to “'+E(q)+'”</p><button class="bxs-btn" onclick="BXSR.play(0,1)">▶ PLAY IT</button> <button class="bxs-btn alt" onclick="BXSR.literal()">SEARCH EXACTLY “'+E(q.length>18?q.slice(0,18)+'…':q).toUpperCase()+'”</button></div></div>';}
+  if(grp.main.length)h+='<div class="bxs-sec"><h4>'+(sm.mode==='fuzzy'?'CLOSE MATCHES':'SONGS')+'<i>'+grp.main.length+'</i></h4><div class="bxs-list">'+grp.main.map(([x,i])=>cardHTML(x,i,q)).join('')+'</div></div>';
+  if(grp.ly.length)h+='<div class="bxs-sec"><h4>FOUND IN LYRICS<i>'+grp.ly.length+'</i></h4><div class="bxs-list">'+grp.ly.map(([x,i])=>cardHTML(x,i,q)).join('')+'</div></div>';
+  if(grp.tag.length)h+='<div class="bxs-sec"><h4>SMART PICKS'+(it.popular?' · MOST PLAYED FIRST':'')+'<i>'+grp.tag.length+'</i></h4><div class="bxs-list">'+grp.tag.map(([x,i])=>cardHTML(x,i,q)).join('')+'</div></div>';
+  if(arts&&arts.length)h+='<div class="bxs-sec"><h4>ARTISTS<i>'+Math.min(arts.length,8)+'</i></h4><div class="bxs-art">'+arts.slice(0,8).map(a=>'<div onclick="openArtistProfile('+jsonAttr(a)+')"><div class="av" style="'+(a.avatar_url?'background-image:url(\''+E(a.avatar_url)+'\')':'')+'">'+(a.avatar_url?'':'★')+'</div>'+E(a.name)+'</div>').join('')+'</div></div>';
+  if(!items.length){h+='<div class="bxs-empty"><div class="e">🔍</div><b>Nothing close to “'+E(q)+'”</b><span>Try a line from the lyrics, a mood, or something like “popular afrobeat”.</span>'+((sm.alts||[]).length?'<div class="bxs-chips" style="justify-content:center">'+sm.alts.map(a=>'<span class="bxs-chip" onclick="BXSR.set(\''+E(a.title).replace(/'/g,"\\'")+'\')">'+E(a.title)+'</span>').join('')+'</div>':'')+'<div class="bxs-chips" style="justify-content:center"><span class="bxs-chip" onclick="BXSR.set(\'popular songs\')">POPULAR SONGS</span><span class="bxs-chip" onclick="BXSR.set(\'newest songs\')">NEWEST</span><span class="bxs-chip" onclick="BXSR.set(\'AI songs\')">AI SONGS</span></div></div>';}
+  else if((sm.tags||[]).length)h+='<div class="bxs-sec"><h4>EXPLORE BY TAG</h4><div class="bxs-chips" style="padding:0">'+sm.tags.map(t=>'<span class="bxs-chip" onclick="BXSR.set(\''+E(t).replace(/'/g,"\\'")+'\')">#'+E(t).toUpperCase()+'</span>').join('')+'</div></div>';
+  p.innerHTML=h+'</div>';
+}
+function playRow(i,keep){const t=ROWS[i];if(!t)return;if(keep)initiateHandshake(t);else playTrackFromSearch(t);}
+window.BXSR={page,play:playRow,prof(i){const t=ROWS[i];t&&openSongProfile(t)},
+  back(){showPage(prevPage||'home',null)},
+  set(v){const i=$('#searchInput');if(i){i.value=v;i.focus()}const pg=$('#page-search');if(pg&&pg.classList.contains('active'))page(v);else{lastQ=v;run(v)}},
+  literal(){if(orig&&lastQ)orig(lastQ)}};
+const inp=$('#searchInput');if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&inp.value.trim().length>=2){e.preventDefault();page(inp.value.trim())}});
+
+/* ── tag engine (Super Office) ── */
+const BAD=/^(seen live|favorites?|favourites?|favorite songs?|my favou?rites?|love at first listen|albums? i own|spotify|youtube|under ?rated|awesome|amazing|best|good|cool|beautiful|all|00s|10s|90s|80s|70s|60s|\d{4}s?|male vocalists?|female vocalists?|singer-songwriter)$/i;
+let EN={running:false,stop:false,done:0,total:0,key:null,stats:null,msg:'',manual:false,booted:false};
+const cleanTitle=t=>String(t||'').replace(/\s*[\(\[].*?(feat|ft|prod|official|remaster|live|video|audio|lyric|edit|version)[^\)\]]*[\)\]]/ig,'').replace(/\s+-\s+(remaster|radio|official|live|single).*$/i,'').replace(/\s+(feat|ft)\.?\s.*$/i,'').trim();
+async function lf(method,p){const u='https://ws.audioscrobbler.com/2.0/?'+new URLSearchParams(Object.assign({method,api_key:EN.key,format:'json',autocorrect:'1'},p));
+  const r=await fetch(u);const j=await r.json();if(j.error){const e=new Error(j.message||'Last.fm error');e.code=j.error;throw e}return j;}
+const pickTags=(j,mul)=>{const a=(j&&j.toptags&&j.toptags.tag)||[];return(Array.isArray(a)?a:[a]).filter(x=>x&&x.name&&(+x.count||0)>=20&&!BAD.test(x.name.trim())&&x.name.length<=30).slice(0,8).map(x=>({t:x.name.trim().toLowerCase(),w:Math.round((+x.count||0)*mul),s:mul<1?'lastfm-artist':'lastfm'}))};
+async function tagsFor(t){
+  let tags=[];const a=String(t.artist||'').split(/\s*(?:,|&|feat\.?|ft\.?|x)\s+/i)[0].trim();
+  try{tags=pickTags(await lf('track.getTopTags',{artist:a,track:cleanTitle(t.title)}),1)}catch(e){if(e.code!==6)throw e}
+  if(tags.length<2&&a){try{tags=tags.concat(pickTags(await lf('artist.getTopTags',{artist:a}),.8)).slice(0,8)}catch(e){if(e.code!==6)throw e}}
+  const seen=new Set();tags=tags.filter(x=>!seen.has(x.t)&&seen.add(x.t));
+  if(/\b(ai|a\.i\.|suno|udio|ai[- ]generated|artificial intelligence)\b/i.test([t.title,t.artist,t.genre,t.description].join(' ')))tags.push({t:'ai',w:100,s:'local'});
+  return tags;}
+function paintEng(){
+  const el=$('#bxsEng');if(!el)return;const s=EN.stats;
+  if(s){$('#bxsStats').innerHTML='<span>SONGS<b>'+fmt(s.tracks)+'</b></span><span>INDEXED<b>'+fmt(s.indexed)+'</b></span><span>WITH LYRICS<b>'+fmt(s.with_lyrics)+'</b></span><span>TAGGED<b>'+fmt(s.tagged)+'</b></span><span>CHECKED<b>'+fmt(s.tried)+' / '+fmt(s.tracks)+'</b></span>';
+    $('#bxsBar').style.width=(s.tracks?Math.min(100,s.tried/s.tracks*100):0)+'%';
+    const k=$('#bxsKey');if(k&&s.has_key&&!k.value)k.placeholder='•••••••• saved — paste to replace';}
+  $('#bxsMsg').textContent=EN.msg||(s&&s.lyrics_source==='not found'?'⚠ Lyrics table not detected — lyric search is off.':'');
+  const g=$('#bxsGo');g.textContent=EN.running?'⏸ PAUSE TAGGING':'▶ START TAGGING';
+}
+async function stats(){try{EN.stats=await call('search_index_stats')}catch(e){EN.msg=/does not exist|schema cache|Could not find/i.test(e.message)?'Run blastr_v130.sql once in Supabase (P3).':e.message}paintEng();}
+async function loop(){
+  if(EN.running)return;EN.running=true;EN.stop=false;EN.msg='';paintEng();let fails=0;
+  try{EN.key=await call('get_search_setting',{p_key:'lastfm_key'});
+    if(!EN.key){EN.msg='Paste your Last.fm API key first.';return;}
+    while(!EN.stop){
+      const q=await call('tag_queue',{p_limit:20});if(!q.length){EN.msg='✓ Every song is tagged and searchable.';break;}
+      const runs=[];
+      for(const t of q){if(EN.stop)break;
+        try{runs.push({id:t.id,tags:await tagsFor(t)});fails=0;EN.msg='Tagging: '+t.title+' — '+(t.artist||'');}
+        catch(e){if(e.code===10||e.code===26){EN.msg='Last.fm rejected the key: '+e.message;EN.stop=true;break}
+          if(e.code===29){EN.msg='Last.fm rate limit — waiting…';await sleep(6000);continue}
+          if(++fails>=5){EN.msg='Last.fm unreachable from the browser ('+e.message+'). Check the key or your connection.';EN.stop=true;break}
+          runs.push({id:t.id,tags:[]});}
+        paintEng();await sleep(260);}
+      if(runs.length){await call('save_track_tags',{p_runs:runs});await stats();}
+    }
+  }catch(e){EN.msg=e.message}
+  EN.running=false;await stats();
+}
+function engHTML(){return '<div class="bxs-eng" id="bxsEng"><div class="bxs-eh">🔎 SMART SEARCH ENGINE<small>lyrics · typo tolerance · tags</small></div><div class="bxs-es" id="bxsStats"></div>'+
+  '<div class="bxs-ef"><label>LAST.FM API KEY (free · last.fm/api/account/create)<input id="bxsKey" type="password" autocomplete="off" placeholder="paste your key"></label><button class="bxs-btn" id="bxsSave">SAVE KEY</button></div>'+
+  '<div class="bxs-pb"><i id="bxsBar"></i></div><div class="bxs-em" id="bxsMsg"></div>'+
+  '<div class="bxs-ea"><button class="bxs-btn" id="bxsGo">▶ START TAGGING</button><button class="bxs-btn alt" id="bxsRe">REBUILD INDEX</button><button class="bxs-btn alt" id="bxsRt">RE-TAG ALL</button></div></div>';}
+function wireEng(){
+  $('#bxsSave').onclick=async()=>{const v=$('#bxsKey').value.trim();if(!v){EN.msg='Paste a key first.';return paintEng();}
+    try{await call('set_search_setting',{p_key:'lastfm_key',p_val:v});$('#bxsKey').value='';EN.msg='✓ Key saved — tagging starts now.';await stats();EN.manual=false;loop()}catch(e){EN.msg=e.message;paintEng()}};
+  $('#bxsGo').onclick=()=>{if(EN.running){EN.stop=true;EN.manual=true;EN.msg='Pausing…';paintEng()}else{EN.manual=false;loop()}};
+  $('#bxsRe').onclick=async()=>{EN.msg='Rebuilding…';paintEng();try{const r=await call('rebuild_track_search');EN.msg='✓ Indexed '+fmt(r.indexed)+' songs · '+fmt(r.with_lyrics)+' with lyrics ('+r.lyrics_source+')'}catch(e){EN.msg=e.message}await stats()};
+  $('#bxsRt').onclick=async()=>{if(!confirm('Re-check every song on Last.fm? Existing tags are kept.'))return;try{await call('reset_tag_runs');EN.msg='Queue reset.';await stats();EN.manual=false;loop()}catch(e){EN.msg=e.message;paintEng()}};
+  stats();
+}
+function hookOffice(){const o=$('#baTab_office');if(!o||o.__bxs||!isSuper())return;o.__bxs=1;
+  const inj=()=>{if(!isSuper()||$('#bxsEng'))return;const s=$('#bxtSetter');if(s)s.insertAdjacentHTML('afterend',engHTML());else o.insertAdjacentHTML('afterbegin',engHTML());wireEng()};
+  new MutationObserver(inj).observe(o,{childList:true});inj();}
+async function boot(){ // background tagging: starts by itself for the super admin when a key is saved and songs are untagged
+  if(EN.booted||!isSuper())return;EN.booted=true;await stats();
+  if(EN.stats&&EN.stats.has_key&&EN.stats.tried<EN.stats.tracks&&!EN.manual)setTimeout(()=>{if(!EN.manual&&!EN.running)loop()},4000);}
+setInterval(()=>{if(isSuper()){hookOffice();boot()}else if(EN.booted){EN.booted=false;EN.stop=true}},2500);
+})();
+</script>
 </body>
 </html>
