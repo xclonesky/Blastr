@@ -6008,6 +6008,7 @@ async function handleSignupSubmit() {
       return;
     }
     if(data?.user) {
+      try{window.xaEv&&xaEv('signup')}catch(e){}
       showToast('ACCOUNT READY','Account created! Sign in now.');
       switchToLogin();
       document.getElementById('emailInput').value=email;
@@ -17185,7 +17186,7 @@ if(_tl)window.toggleLike=function(t){var was=false;try{was=(S().favorites||[]).s
 var _hl=window.handleLogin;
 if(_hl)window.handleLogin=async function(){var r=await _hl.apply(this,arguments);try{if(S().session&&S().session.user)xaEv('login')}catch(e){}return r};
 var _hs=window.handleSignupSubmit;
-if(_hs)window.handleSignupSubmit=async function(){var r=await _hs.apply(this,arguments);try{if(S().session&&S().session.user)xaEv('signup')}catch(e){}return r};
+if(_hs)window.handleSignupSubmit=async function(){var r=await _hs.apply(this,arguments);return r};
 })();
 </script>
 
@@ -20625,6 +20626,335 @@ function hide(){if(!ov)return;ov.classList.add('out');setTimeout(()=>{ov.classLi
 W.blastrBrainAnnounce=W.blastrAuraAnnounce=()=>show(true);
 })();
 
+</script>
+<script id="blastrV129XaFix">
+/* v129: count EVERY real sign-up once (email with/without session, Google) */
+(function(){var h=window.blastrHydrateSession;if(!h||h.__xa)return;
+window.blastrHydrateSession=function(s,src){if(src==='signup'&&Date.now()-(window.__xaSu||0)>8000){window.__xaSu=Date.now();try{window.xaEv&&xaEv('signup')}catch(e){}}return h.apply(this,arguments)};
+window.blastrHydrateSession.__xa=1;})();
+</script>
+<style id="blastrV129TargetCss">
+.bxt{--g1:var(--accent,#39FF14);--g2:var(--accent2,#00C6FF);--gd:var(--accent4,#FFD166);position:relative;padding:4px 0 40px;isolation:isolate;font-family:var(--font,sans-serif)}
+.bxt *{box-sizing:border-box}
+.bxt-hero{position:relative;overflow:hidden;border-radius:28px;padding:26px 28px;background:linear-gradient(160deg,rgba(17,17,40,.92),rgba(8,10,24,.95));border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 90px rgba(0,198,255,.10),inset 0 1px 0 rgba(255,255,255,.06)}
+.bxt-hero::before{content:'';position:absolute;inset:-2px;border-radius:30px;padding:2px;background:conic-gradient(from var(--bxa,0deg),transparent 0 62%,var(--g2),var(--g1),var(--gd),transparent 90%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bxtRot 7s linear infinite;pointer-events:none;opacity:.9}
+@property --bxa{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes bxtRot{to{--bxa:360deg}}
+.bxt-glow{position:absolute;width:520px;height:520px;right:-140px;top:-200px;background:radial-gradient(circle,rgba(0,198,255,.22),transparent 65%);filter:blur(20px);pointer-events:none;animation:bxtBreath 6s ease-in-out infinite}
+@keyframes bxtBreath{50%{transform:scale(1.15);opacity:.7}}
+.bxt-k{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:700 12px var(--mono,monospace);letter-spacing:3px;color:var(--dim,#8a8fb5);margin-bottom:18px}
+.bxt-live{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;background:rgba(57,255,20,.1);border:1px solid rgba(57,255,20,.35);color:var(--g1);font:700 10px var(--mono,monospace);letter-spacing:2px}
+.bxt-live i{width:6px;height:6px;border-radius:50%;background:var(--g1);box-shadow:0 0 8px var(--g1);animation:bxtBlink 1.2s infinite}
+@keyframes bxtBlink{50%{opacity:.25}}
+.bxt-chip{margin-left:auto;padding:5px 13px;border-radius:99px;font:700 11px var(--mono,monospace);letter-spacing:2px;border:1px solid;white-space:nowrap}
+.bxt-chip.ok{color:#39FF14;border-color:rgba(57,255,20,.5);background:rgba(57,255,20,.1)}
+.bxt-chip.ahead{color:#00C6FF;border-color:rgba(0,198,255,.5);background:rgba(0,198,255,.1)}
+.bxt-chip.warn{color:#FFD166;border-color:rgba(255,209,102,.5);background:rgba(255,209,102,.1)}
+.bxt-chip.bad{color:#FF5C5C;border-color:rgba(255,92,92,.5);background:rgba(255,92,92,.1)}
+.bxt-chip.done{color:#06060E;border-color:transparent;background:linear-gradient(90deg,#FFD166,#39FF14)}
+.bxt-chip.neu{color:var(--dim,#8a8fb5);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
+.bxt-main{display:flex;align-items:center;gap:34px;position:relative}
+.bxt-ringw{position:relative;width:230px;height:230px;flex:none}
+.bxt-ringw svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.bxt-ringw .tr{fill:none;stroke:rgba(255,255,255,.07);stroke-width:14}
+.bxt-ringw .pg{fill:none;stroke:url(#bxtRg);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.2,.9,.2,1);filter:drop-shadow(0 0 10px rgba(0,198,255,.7))}
+.bxt-ringw .tk{stroke:rgba(255,255,255,.18);stroke-width:2}
+.bxt-pc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.bxt-pc b{font:800 56px/1 var(--font,sans-serif);background:linear-gradient(120deg,#fff,var(--g2) 55%,var(--g1));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.bxt-pc em{font:700 22px var(--mono,monospace);font-style:normal;color:var(--g2);position:absolute;margin:-26px -66px 0 0;display:none}
+.bxt-pc small{margin-top:6px;font:700 10px var(--mono,monospace);letter-spacing:3px;color:var(--dim,#8a8fb5)}
+.bxt-side{flex:1;min-width:0}
+.bxt-cnt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.bxt-cnt b{font:800 clamp(38px,6vw,64px)/1 var(--font,sans-serif);color:#fff;text-shadow:0 0 30px rgba(0,198,255,.4)}
+.bxt-cnt span{font:700 clamp(18px,2.6vw,28px) var(--mono,monospace);color:var(--dim,#8a8fb5)}
+.bxt-cnt small{font:700 11px var(--mono,monospace);letter-spacing:3px;color:var(--g2)}
+.bxt-tg{margin:8px 0 14px;font:600 17px var(--font,sans-serif);color:var(--text,#F0F0F8)}
+.bxt-tg b{color:var(--gd);font-variant-numeric:tabular-nums;font-size:22px}
+.bxt-bar{position:relative;height:14px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:6px}
+.bxt-bar>i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--g2),var(--g1),var(--gd));transition:width 1.6s cubic-bezier(.2,.9,.2,1);position:relative;overflow:hidden}
+.bxt-bar>i::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:bxtShine 2.8s infinite}
+@keyframes bxtShine{to{transform:translateX(100%)}}
+.bxt-ms{position:relative;height:16px;margin-bottom:14px;font:700 9px var(--mono,monospace);color:var(--dim,#8a8fb5);letter-spacing:1px}
+.bxt-ms span{position:absolute;transform:translateX(-50%)}
+.bxt-ms span.on{color:var(--g1)}
+.bxt-cd{display:flex;gap:8px;margin-bottom:14px}
+.bxt-cd div{min-width:56px;text-align:center;padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+.bxt-cd b{display:block;font:800 22px/1.1 var(--mono,monospace);color:#fff;font-variant-numeric:tabular-nums}
+.bxt-cd small{font:700 8px var(--mono,monospace);letter-spacing:2px;color:var(--dim,#8a8fb5)}
+.bxt-nodl{font:700 11px var(--mono,monospace);letter-spacing:2px;color:var(--dim,#8a8fb5);margin-bottom:14px}
+.bxt-tip{min-height:46px;display:flex;align-items:center;padding:11px 14px;border-radius:14px;background:linear-gradient(90deg,rgba(0,198,255,.1),rgba(57,255,20,.05));border:1px solid rgba(0,198,255,.2);font:500 14px/1.4 var(--font,sans-serif);color:var(--text,#F0F0F8);transition:opacity .45s,transform .45s}
+.bxt-tip.out{opacity:0;transform:translateY(6px)}
+.bxt-me{margin-top:12px;font:700 11px var(--mono,monospace);letter-spacing:1px;color:var(--dim,#8a8fb5)}
+.bxt-me .mb{height:6px;border-radius:9px;background:rgba(255,255,255,.07);margin-top:6px;overflow:hidden}.bxt-me .mb i{display:block;height:100%;background:linear-gradient(90deg,var(--g1),var(--gd));border-radius:9px;transition:width 1s}
+.bxt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.bxt-st{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);transition:transform .25s,border-color .25s;position:relative;overflow:hidden}
+.bxt-st:hover{transform:translateY(-3px);border-color:var(--c,var(--g2))}
+.bxt-st::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--c,var(--g2));box-shadow:0 0 12px var(--c,var(--g2))}
+.bxt-st small{display:block;font:700 9px var(--mono,monospace);letter-spacing:2px;color:var(--dim,#8a8fb5);margin-bottom:6px}
+.bxt-st b{display:block;font:800 25px/1.1 var(--font,sans-serif);color:#fff;font-variant-numeric:tabular-nums}
+.bxt-st span{display:block;margin-top:4px;font:500 11px var(--font,sans-serif);color:var(--dim,#8a8fb5)}
+.bxt-pn{margin-top:14px;padding:18px 20px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.bxt-pn h4{font:700 11px var(--mono,monospace);letter-spacing:3px;color:var(--dim,#8a8fb5);margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bxt-lg{display:flex;gap:14px;margin-left:auto;font:600 10px var(--mono,monospace);letter-spacing:1px}
+.bxt-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.bxt-ch svg{width:100%;height:auto;display:block;overflow:visible}
+.bxt-ch .bar{transform-box:fill-box;transform-origin:bottom}
+.bxt-ch.an .bar{animation:bxtGrow .9s cubic-bezier(.2,.9,.2,1) both}
+@keyframes bxtGrow{from{transform:scaleY(0)}}
+.bxt-ch text{font:600 10px var(--mono,monospace);fill:#8a8fb5}
+.bxt-top{display:grid;gap:9px}
+.bxt-tr{display:flex;align-items:center;gap:11px}
+.bxt-tr .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:800 12px var(--font,sans-serif);color:#06060E;flex:none}
+.bxt-tr .nm{width:34%;max-width:190px;font:600 13px var(--font,sans-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bxt-tr .tb{flex:1;height:8px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}.bxt-tr .tb i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--g2),var(--g1));transition:width 1s}
+.bxt-tr .nv{font:700 12px var(--mono,monospace);min-width:62px;text-align:right}.bxt-tr .nv small{color:var(--g1);margin-left:4px}
+.bxt-need{display:grid;gap:9px}
+.bxt-need div{padding:11px 14px;border-radius:13px;background:rgba(255,255,255,.04);border-left:3px solid var(--gd);font:500 13px/1.45 var(--font,sans-serif)}
+.bxt-need div.g{border-color:var(--g1)}
+.bxt-empty{padding:60px 20px;text-align:center;border-radius:24px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.14)}
+.bxt-empty .e{font-size:46px;margin-bottom:10px}.bxt-empty b{display:block;font:800 20px var(--font,sans-serif);margin-bottom:6px}.bxt-empty span{color:var(--dim,#8a8fb5);font-size:13px}
+.bxt-empty button{margin-top:16px}
+.bxt-btn{height:42px;padding:0 20px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--g2),var(--g1));color:#06060E;font:800 12px var(--mono,monospace);letter-spacing:2px;cursor:pointer;transition:transform .15s,filter .15s}
+.bxt-btn:hover{filter:brightness(1.12)}.bxt-btn:active{transform:scale(.96)}.bxt-btn.alt{background:rgba(255,255,255,.07);color:var(--text,#F0F0F8);border:1px solid rgba(255,255,255,.14)}
+/* strip */
+.bxt-strip{display:flex;align-items:center;gap:12px;margin:0 0 10px;padding:11px 16px;border-radius:16px;cursor:pointer;background:linear-gradient(90deg,rgba(0,198,255,.12),rgba(57,255,20,.07));border:1px solid rgba(0,198,255,.28);transition:transform .2s,border-color .2s;position:relative;overflow:hidden}
+.bxt-strip:hover{transform:translateY(-1px);border-color:rgba(57,255,20,.5)}
+.bxt-strip>b{font:700 11px var(--mono,monospace);letter-spacing:2px;white-space:nowrap}
+.bxt-strip .sb{flex:1;min-width:60px;height:9px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}
+.bxt-strip .sb i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--g2),var(--g1),var(--gd));transition:width 1.4s cubic-bezier(.2,.9,.2,1)}
+.bxt-strip .sm{font:600 12px var(--mono,monospace);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bxt-strip .sm em{font-style:normal;color:var(--gd)}
+.bxt-strip .bxt-chip{margin-left:0;padding:3px 10px;font-size:10px}
+/* setter in super office */
+.bxt-set{margin-bottom:14px;padding:18px 20px;border-radius:22px;background:linear-gradient(160deg,rgba(0,198,255,.09),rgba(57,255,20,.05));border:1px solid rgba(0,198,255,.28)}
+.bxt-sh{font:800 14px var(--mono,monospace);letter-spacing:2px;margin-bottom:12px}.bxt-sh small{font:500 11px var(--font,sans-serif);color:var(--dim,#8a8fb5);letter-spacing:0;margin-left:8px}
+.bxt-sf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bxt-sf label{display:block;font:700 9px var(--mono,monospace);letter-spacing:2px;color:var(--dim,#8a8fb5)}.bxt-sf label.w{grid-column:1/-1}
+.bxt-sf input{display:block;width:100%;margin-top:6px;height:42px;padding:0 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.35);color:var(--text,#F0F0F8);font:600 14px var(--font,sans-serif);outline:0;color-scheme:dark}
+.bxt-sf input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(0,198,255,.18)}
+.bxt-sa{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}.bxt-sa span{font:600 12px var(--font,sans-serif);color:var(--dim,#8a8fb5)}
+.bxt-sc{margin-top:10px;font:600 11px var(--mono,monospace);color:var(--dim,#8a8fb5)}
+.bxt-toast{position:fixed;right:18px;bottom:calc(var(--player-h,88px) + 18px);z-index:99999;padding:12px 18px;border-radius:14px;background:rgba(10,12,28,.95);border:1px solid var(--g2,#00C6FF);box-shadow:0 12px 40px rgba(0,198,255,.35);font:700 13px var(--font,sans-serif);color:#fff;animation:bxtToast 4.2s forwards;pointer-events:none}
+@keyframes bxtToast{0%{opacity:0;transform:translateY(16px) scale(.96)}8%,88%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px)}}
+.bxt-flash{animation:bxtFlash 1.2s}@keyframes bxtFlash{30%{box-shadow:0 0 0 2px var(--g1),0 0 60px rgba(57,255,20,.5)}}
+@media(max-width:700px){.bxt-main{flex-direction:column;gap:18px}.bxt-hero{padding:20px 16px}.bxt-ringw{width:200px;height:200px}.bxt-pc b{font-size:46px}.bxt-sf{grid-template-columns:1fr}.bxt-strip{flex-wrap:wrap}.bxt-strip .sb{order:5;flex-basis:100%}.bxt-cd div{min-width:0;flex:1}}
+@media(prefers-reduced-motion:reduce){.bxt *,.bxt-hero::before{animation:none!important}}
+</style>
+<script id="blastrV129TargetJs">
+/* ═══════ BLASTR v129 · SONG TARGET (mission control) ═══════ */
+(function(){
+if(window.BXTG)return;
+const D=document,$=s=>D.querySelector(s),$$=s=>[...D.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Number(n||0).toLocaleString('en-US'),p2=n=>String(n).padStart(2,'0');
+const isAdmin=()=>!!(window.BA&&BA.admin),isSuper=()=>isAdmin()&&BA.admin.role==='super_admin';
+const C=2*Math.PI*96;
+let S=null,ERR=null,skew=0,tmr=null,cdT=null,tipT=null,tipI=0,mode='',shown={},tips=[];
+const hue=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h};
+const avBg=n=>{const h=hue(n);return 'linear-gradient(135deg,hsl('+h+' 90% 62%),hsl('+((h+50)%360)+' 85% 52%))'};
+const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+const dshort=d=>new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+function call(fn,body){const h=blastrAuthHeaders();h.set('Content-Type','application/json');
+  return fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:h,body:JSON.stringify(body||{})}).then(async r=>{
+    if(!r.ok){const t=await r.json().catch(()=>({}));throw new Error(t.message||('Error '+r.status));}return r.json();});}
+function toast(m){const e=D.createElement('div');e.className='bxt-toast';e.textContent=m;D.body.appendChild(e);setTimeout(()=>e.remove(),4300);}
+
+/* ── maths ── */
+function calc(){
+  const s=S;if(!s||!s.target)return null;
+  const now=Date.now()+skew,total=s.total,target=s.target,rem=Math.max(0,target-total),pct=Math.min(100,total/target*100);
+  const A=Math.max(1,s.admins||1),daily=(s.daily||[]).map(x=>+x.n||0),today=daily.length?daily[daily.length-1]:0;
+  let hist=daily.slice(0,-1);while(hist.length&&!hist[0])hist.shift();
+  const last=hist.slice(-7),pace=last.length?last.reduce((a,b)=>a+b,0)/last.length:today;
+  const dl=s.deadline?new Date(s.deadline).getTime():null,msLeft=dl?dl-now:null;
+  const dLeft=dl?Math.max(1,Math.ceil(msLeft/864e5)):null;
+  const needed=dl&&rem>0?Math.ceil(rem/dLeft):null,perAdmin=needed?Math.ceil(needed/A):null;
+  const etaDays=rem>0&&pace>0?Math.ceil(rem/pace):null,eta=etaDays!=null?new Date(now+etaDays*864e5):null;
+  let st='neu',stT='NO DEADLINE';
+  if(rem===0){st='done';stT='🏆 TARGET REACHED';}
+  else if(dl&&msLeft<=0){st='bad';stT='DEADLINE PASSED';}
+  else if(pace===0&&today===0){st='bad';stT='STALLED';}
+  else if(dl){const r=pace/needed;if(r>=1.15){st='ahead';stT='AHEAD OF PACE';}else if(r>=1){st='ok';stT='ON TRACK';}else{st='warn';stT='BEHIND PACE';}}
+  else if(eta){st='ok';stT='ETA '+dshort(eta);}
+  const extra=needed?Math.max(0,needed-pace):0,avgAdm=pace/A,extraAdm=extra&&avgAdm>0?Math.ceil(extra/avgAdm):null;
+  const me=(s.by_admin||[]).find(x=>isAdmin()&&String(x.admin_id)===String(BA.admin.id));
+  return{total,target,rem,pct,A,daily,today,pace,dl,msLeft,dLeft,needed,perAdmin,etaDays,eta,st,stT,extra,extraAdm,me,since:total-(s.start_count||0)};
+}
+function mkTips(c){
+  const t=[];if(S.note)t.push('📣 '+S.note);
+  t.push('🎯 '+fmt(c.rem)+' songs to go — every upload moves the bar.');
+  if(c.perAdmin)t.push('📅 Daily quota: '+c.perAdmin+' songs per admin ('+c.A+' admins) to hit the deadline.');
+  if(c.st==='warn'&&c.needed)t.push('⚡ Pace is '+Math.round(c.pace)+'/day but '+fmt(c.needed)+'/day is needed — '+fmt(Math.ceil(c.extra))+' more songs a day closes the gap.');
+  if((c.st==='ok'||c.st==='ahead')&&c.eta)t.push('🚀 Holding this pace, the target lands on '+dshort(c.eta)+'.');
+  if(c.eta&&c.st!=='done')t.push('🔮 At today\'s trend we finish in about '+c.etaDays+' day'+(c.etaDays===1?'':'s')+'.');
+  const top=(S.by_admin||[])[0];if(top&&top.d7>0)t.push('🔥 '+top.name+' leads the week with '+top.d7+' songs.');
+  if(c.today>0)t.push('🎵 '+c.today+' song'+(c.today===1?'':'s')+' added today — keep it rolling.');
+  ['Small uploads, big catalogue.','Consistency beats intensity — keep the streak alive.','Every song you add is someone\'s next favourite.','Clean covers, correct tags, fast uploads — the Blastr standard.','One more song. Then one more.'].forEach(x=>t.push('✨ '+x));
+  return t;
+}
+
+/* ── tab ── */
+function ensureTab(){
+  const pg=$('#page-admin'),tabs=pg&&$('.sm-tabs',pg);if(!tabs||!isAdmin())return;
+  if(!$('.bxt-tabbtn',tabs)){
+    const b=D.createElement('button');b.className='sm-tab bxt-tabbtn';b.innerHTML='🎯 TARGET';b.onclick=function(){openTab(this)};tabs.appendChild(b);
+    const d=D.createElement('div');d.className='ba-tab';d.id='baTab_target';d.style.display='none';pg.appendChild(d);}
+}
+function openTab(btn){
+  $$('.sm-tab').forEach(t=>t.classList.remove('active'));btn&&btn.classList.add('active');
+  ['Matrix','Edit','Artists','Stage','DMP'].forEach(k=>{const e=D.getElementById('smTab'+k);e&&(e.style.display='none')});
+  $$('.ba-tab').forEach(e=>e.style.display=e.id==='baTab_target'?'':'none');
+  mode='';paintTab();refresh(true);
+}
+const tabOpen=()=>{const e=$('#baTab_target');return !!e&&e.style.display!=='none'};
+function skeleton(){
+  return '<div class="bxt"><div class="bxt-hero" id="bxtHero"><div class="bxt-glow"></div>'+
+  '<div class="bxt-k">🎯 SONG TARGET<span class="bxt-live"><i></i>LIVE</span><span class="bxt-chip" id="bxtChip"></span></div>'+
+  '<div class="bxt-main"><div class="bxt-ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="bxtRg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00C6FF"/><stop offset=".6" stop-color="#39FF14"/><stop offset="1" stop-color="#FFD166"/></linearGradient></defs>'+
+  '<circle class="tr" cx="110" cy="110" r="96"/><circle class="pg" id="bxtRing" cx="110" cy="110" r="96" stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"/></svg>'+
+  '<div class="bxt-pc"><b id="bxtPct">0</b><small>% COMPLETE</small></div></div>'+
+  '<div class="bxt-side"><div class="bxt-cnt"><b id="bxtTot">0</b><span>/ <span id="bxtTar">0</span></span><small>SONGS</small></div>'+
+  '<div class="bxt-tg"><b id="bxtRem">0</b> songs to go</div>'+
+  '<div class="bxt-bar"><i id="bxtBar"></i></div><div class="bxt-ms" id="bxtMs"></div>'+
+  '<div id="bxtCdW"></div><div class="bxt-tip" id="bxtTip"></div><div class="bxt-me" id="bxtMe"></div></div></div></div>'+
+  '<div class="bxt-grid" id="bxtStats"></div>'+
+  '<div class="bxt-pn"><h4>DAILY UPLOADS · LAST 30 DAYS<span class="bxt-lg"><span><i style="background:#00C6FF"></i>UPLOADS</span><span><i style="background:#39FF14"></i>7-DAY AVG</span><span id="bxtLgN"><i style="background:#FFD166"></i>NEEDED / DAY</span></span></h4><div class="bxt-ch an" id="bxtChart"></div></div>'+
+  '<div class="bxt-pn"><h4>TOP UPLOADERS · THIS WEEK</h4><div class="bxt-top" id="bxtTop"></div></div>'+
+  '<div class="bxt-pn"><h4>HOW WE FINISH FASTER</h4><div class="bxt-need" id="bxtNeed"></div></div></div>';
+}
+function animNum(el,key,to,dec){
+  if(!el)return;const from=shown[key]!=null?shown[key]:0;shown[key]=to;if(from===to){el.textContent=dec?to.toFixed(dec):fmt(to);return;}
+  const t0=performance.now(),dur=1100;(function f(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3),v=from+(to-from)*e;el.textContent=dec?v.toFixed(dec):fmt(Math.round(v));if(k<1)requestAnimationFrame(f)})(t0);
+}
+function chartSVG(c){
+  const d=(S.daily||[]).map(x=>({d:x.d,n:+x.n||0})),W=640,H=200,pl=34,pr=8,pt=12,pb=24,w=W-pl-pr,h=H-pt-pb;if(!d.length)return '';
+  const mx=Math.max(1,...d.map(x=>x.n),c.needed||0)*1.15,bw=w/d.length,y=v=>pt+h-v/mx*h;
+  let s='<svg viewBox="0 0 '+W+' '+H+'"><defs><linearGradient id="bxtBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00C6FF"/><stop offset="1" stop-color="#00C6FF" stop-opacity=".25"/></linearGradient></defs>';
+  for(let i=0;i<=4;i++){const v=mx/1.15*i/4,yy=y(v);s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+yy+'" y2="'+yy+'" stroke="rgba(255,255,255,.07)"/><text x="'+(pl-6)+'" y="'+(yy+3)+'" text-anchor="end">'+Math.round(v)+'</text>';}
+  d.forEach((x,i)=>{const bh=Math.max(x.n?2:0,x.n/mx*h),last=i===d.length-1;
+    s+='<rect class="bar" x="'+(pl+i*bw+bw*.16).toFixed(1)+'" y="'+(pt+h-bh).toFixed(1)+'" width="'+(bw*.68).toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3" fill="'+(last?'#FFD166':'url(#bxtBg)')+'" style="animation-delay:'+(i*18)+'ms"><title>'+dshort(x.d)+': '+x.n+' songs</title></rect>';});
+  const av=d.map((_,i)=>{const a=d.slice(Math.max(0,i-6),i+1);return a.reduce((p,q)=>p+q.n,0)/a.length});
+  s+='<path d="'+av.map((v,i)=>(i?'L':'M')+(pl+i*bw+bw/2).toFixed(1)+' '+y(v).toFixed(1)).join('')+'" fill="none" stroke="#39FF14" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 5px #39FF14)"/>';
+  if(c.needed){const yy=y(c.needed);s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+yy+'" y2="'+yy+'" stroke="#FFD166" stroke-width="1.6" stroke-dasharray="6 5"/><text x="'+(W-pr)+'" y="'+(yy-5)+'" text-anchor="end" style="fill:#FFD166">'+fmt(c.needed)+'/day needed</text>';}
+  [0,Math.floor(d.length/2),d.length-1].forEach(i=>{s+='<text x="'+(pl+i*bw+bw/2)+'" y="'+(H-6)+'" text-anchor="'+(i===0?'start':i===d.length-1?'end':'middle')+'">'+dshort(d[i].d)+'</text>'});
+  return s+'</svg>';
+}
+function needHTML(c){
+  const o=[];
+  if(c.st==='done')return '<div class="g">🏆 Target reached — set a new one in the Super Office to keep the momentum.</div>';
+  if(!c.dl)o.push('<div>🗓 No deadline set. Add one in the Super Office to unlock daily quotas and a pace verdict.'+(c.eta?' At the current pace the finish is <b>'+dshort(c.eta)+'</b> (~'+c.etaDays+' days).':'')+'</div>');
+  else if(c.st==='bad'&&c.msLeft<=0)o.push('<div>⏰ The deadline has passed with '+fmt(c.rem)+' songs left. Move the deadline'+(c.eta?' to about <b>'+dshort(c.eta)+'</b> (current pace)':'')+' or raise the daily output.</div>');
+  else if(c.st==='warn'||c.st==='bad'){
+    o.push('<div>📈 Need <b>'+fmt(c.needed)+'</b> songs/day for the next '+c.dLeft+' day'+(c.dLeft===1?'':'s')+' — currently <b>'+Math.round(c.pace)+'</b>. Gap: <b>+'+fmt(Math.ceil(c.extra))+'/day</b>.</div>');
+    o.push('<div>👥 Option A — every admin adds about <b>+'+Math.max(1,Math.ceil(c.extra/c.A))+'</b> songs a day ('+c.A+' admins).</div>');
+    if(c.extraAdm)o.push('<div>➕ Option B — bring in about <b>'+c.extraAdm+'</b> more active admin'+(c.extraAdm===1?'':'s')+' at today\'s average output.</div>');
+    if(c.eta)o.push('<div>🗓 Option C — keep the pace and move the deadline to about <b>'+dshort(c.eta)+'</b>.</div>');
+  }else o.push('<div class="g">✅ On track'+(c.perAdmin?' — about <b>'+c.perAdmin+'</b> songs per admin per day keeps it that way':'')+(c.eta?'. Projected finish: <b>'+dshort(c.eta)+'</b>':'')+'. Stay consistent.</div>');
+  const top=(S.by_admin||[]);if(top.length>1)o.push('<div>🤝 '+top.length+' admins uploaded this week; ones with 0 songs are the fastest way to add pace.</div>');
+  return o.join('');
+}
+function statsHTML(c){
+  const st=(l,v,sub,col)=>'<div class="bxt-st" style="--c:'+col+'"><small>'+l+'</small><b>'+v+'</b><span>'+sub+'</span></div>';
+  return st('PACE / DAY',fmt(Math.round(c.pace)),'7-day average','#00C6FF')+
+    st('TODAY',fmt(c.today),'songs added','#39FF14')+
+    st('PROJECTED FINISH',c.eta?dshort(c.eta):'—',c.eta?'in ~'+c.etaDays+' day'+(c.etaDays===1?'':'s'):(c.rem?'needs some uploads':'done'),'#FFD166')+
+    st('NEEDED / DAY',c.needed?fmt(c.needed):'—',c.needed?'to meet the deadline':'set a deadline','#FF1493')+
+    st('PER ADMIN / DAY',c.perAdmin?fmt(c.perAdmin):'—',c.A+' active admin'+(c.A===1?'':'s'),'#B388FF')+
+    st('SINCE TARGET SET','+'+fmt(c.since),'songs added','#39FF14');
+}
+function paintTab(){
+  const el=$('#baTab_target');if(!el||!tabOpen())return;
+  if(ERR){const miss=/does not exist|Could not find|schema cache/i.test(ERR);mode='err';el.innerHTML='<div class="bxt"><div class="bxt-empty"><div class="e">🛠</div><b>'+(miss?'Target not switched on yet':'Could not load the target')+'</b><span>'+(miss?'Run <b>blastr_v129.sql</b> once in Supabase (P3).':esc(ERR))+'</span></div></div>';return;}
+  if(!S)return;const c=calc();
+  if(!c){if(mode!=='empty'){mode='empty';el.innerHTML='<div class="bxt"><div class="bxt-empty"><div class="e">🎯</div><b>No song target yet</b><span>'+(isSuper()?'Set one in the Super Office tab — all admins will see it live.':'The super admin hasn\'t set a target yet. Check back soon.')+'</span>'+(isSuper()?'<br><button class="bxt-btn" onclick="BXTG.goOffice()">OPEN SUPER OFFICE</button>':'')+'</div></div>';}return;}
+  if(mode!=='ready'){mode='ready';el.innerHTML=skeleton();shown={};tipI=0;requestAnimationFrame(()=>requestAnimationFrame(()=>{const r=$('#bxtRing');r&&(r.style.strokeDashoffset=C*(1-c.pct/100));const b=$('#bxtBar');b&&(b.style.width=c.pct+'%')}));}
+  else{const r=$('#bxtRing');r&&(r.style.strokeDashoffset=C*(1-c.pct/100));const b=$('#bxtBar');b&&(b.style.width=c.pct+'%');}
+  const chip=$('#bxtChip');chip.className='bxt-chip '+c.st;chip.textContent=c.stT;
+  animNum($('#bxtPct'),'pct',c.pct,c.pct<100?1:0);animNum($('#bxtTot'),'tot',c.total);animNum($('#bxtTar'),'tar',c.target);animNum($('#bxtRem'),'rem',c.rem);
+  $('#bxtMs').innerHTML=[25,50,75,100].map(m=>'<span class="'+(c.pct>=m?'on':'')+'" style="left:'+m+'%'+(m===100?';transform:translateX(-100%)':'')+'">'+(c.pct>=m?'✓ ':'')+m+'%</span>').join('');
+  $('#bxtCdW').innerHTML=c.dl?(c.msLeft>0?'<div class="bxt-cd"><div><b data-u="d">0</b><small>DAYS</small></div><div><b data-u="h">00</b><small>HRS</small></div><div><b data-u="m">00</b><small>MIN</small></div><div><b data-u="s">00</b><small>SEC</small></div></div>':'<div class="bxt-nodl">⏰ DEADLINE PASSED · '+dshort(c.dl)+'</div>'):'<div class="bxt-nodl">NO DEADLINE SET</div>';
+  tick();
+  $('#bxtMe').innerHTML=c.me&&c.perAdmin?'YOU · '+c.me.today+' / '+c.perAdmin+' SONGS TODAY'+(c.me.today>=c.perAdmin?' ✅':'')+'<div class="mb"><i style="width:'+Math.min(100,c.me.today/c.perAdmin*100)+'%"></i></div>':(c.perAdmin&&!isSuper()?'YOUR DAILY QUOTA · '+c.perAdmin+' SONGS':'');
+  $('#bxtStats').innerHTML=statsHTML(c);
+  const ch=$('#bxtChart');ch.innerHTML=chartSVG(c);setTimeout(()=>ch.classList.remove('an'),1500);
+  $('#bxtLgN').style.display=c.needed?'':'none';
+  const tp=S.by_admin||[],mxv=Math.max(1,...tp.map(x=>x.d7));
+  $('#bxtTop').innerHTML=tp.length?tp.map((x,i)=>'<div class="bxt-tr"><div class="av" style="background:'+avBg(x.name)+'">'+esc(ini(x.name))+'</div><div class="nm">'+(i===0?'👑 ':'')+esc(x.name||'Admin')+'</div><div class="tb"><i style="width:'+Math.max(3,x.d7/mxv*100)+'%"></i></div><div class="nv">'+x.d7+(x.today?'<small>+'+x.today+' today</small>':'')+'</div></div>').join(''):'<div style="color:#8a8fb5;font-size:13px">No uploads logged in the last 7 days yet.</div>';
+  $('#bxtNeed').innerHTML=needHTML(c);
+  tips=mkTips(c);if(!tipT)rotate(true);
+}
+function rotate(first){
+  clearInterval(tipT);const show=()=>{const e=$('#bxtTip');if(!e||!tips.length)return;e.classList.add('out');setTimeout(()=>{e.textContent=tips[tipI++%tips.length];e.classList.remove('out')},first?0:420);first=false};
+  show();tipT=setInterval(show,6500);
+}
+function tick(){
+  const c=S&&S.target?calc():null;if(!c||!c.dl)return;const ms=Math.max(0,c.msLeft),s=Math.floor(ms/1000),v={d:Math.floor(s/86400),h:p2(Math.floor(s%86400/3600)),m:p2(Math.floor(s%3600/60)),s:p2(s%60)};
+  $$('[data-u]').forEach(e=>{const x=String(v[e.dataset.u]);if(e.textContent!==x)e.textContent=x});
+  $$('.bxt-strip .dl').forEach(e=>{e.textContent=ms<=0?'overdue':(v.d?v.d+'d ':'')+v.h+':'+v.m+':'+v.s});
+}
+
+/* ── strip (visible at the top of the admin page) ── */
+function paintStrip(){
+  const pg=$('#page-admin');if(!pg||!isAdmin())return;let b=$('#bxtStrip');
+  const c=S&&S.target?calc():null;
+  if(!c){if(b&&!isSuper())b.remove();else if(isSuper()&&S&&!ERR){if(!b)b=mkStrip(pg);b.innerHTML='<b>🎯 SONG TARGET</b><span class="sm">No target set — tap to set one for all admins</span>';b.dataset.s='none'}return;}
+  if(!b||b.dataset.s!=='ready'){if(!b)b=mkStrip(pg);b.dataset.s='ready';b.innerHTML='<span class="bxt-live"><i></i>LIVE</span><b>🎯 SONG TARGET</b><div class="sb"><i></i></div><span class="sm"></span><span class="sm dl"></span><span class="bxt-chip"></span>';}
+  b.querySelector('.sb i').style.width=c.pct+'%';
+  b.querySelector('.sm').innerHTML='<em>'+(c.pct<10?c.pct.toFixed(1):Math.round(c.pct))+'%</em> · '+fmt(c.total)+' / '+fmt(c.target)+' · '+fmt(c.rem)+' to go';
+  const ch=b.querySelector('.bxt-chip');ch.className='bxt-chip '+c.st;ch.textContent=c.stT;
+  b.querySelector('.dl').style.display=c.dl?'':'none';
+}
+function mkStrip(pg){const b=D.createElement('div');b.id='bxtStrip';b.className='bxt-strip';b.onclick=()=>{const t=$('.bxt-tabbtn');if(t)t.click()};
+  const anchor=$('#bxLbBanner')||$('.sm-tabs',pg);anchor?pg.insertBefore(b,anchor):pg.appendChild(b);return b;}
+
+/* ── super office setter ── */
+function setterHTML(){return '<div class="bxt-set" id="bxtSetter"><div class="bxt-sh">🎯 SONG TARGET<small>every admin sees this live</small></div>'+
+  '<div class="bxt-sf"><label>TARGET · TOTAL SONGS IN CATALOGUE<input id="bxtIn" type="number" min="1" step="1" placeholder="e.g. 10000"></label>'+
+  '<label>DEADLINE (OPTIONAL)<input id="bxtDl" type="date"></label>'+
+  '<label class="w">MOTIVATION NOTE (OPTIONAL · SHOWN TO ADMINS)<input id="bxtNote" type="text" maxlength="140" placeholder="e.g. Let\'s make Blastr the biggest library in Kenya!"></label></div>'+
+  '<div class="bxt-sa"><button class="bxt-btn" id="bxtSave">SET TARGET</button><button class="bxt-btn alt" id="bxtClr">CLEAR</button><span id="bxtMsg"></span></div><div class="bxt-sc" id="bxtSc"></div></div>';}
+function fillSetter(force){
+  if(!S)return;const i=$('#bxtIn');if(!i)return;
+  $('#bxtSc').textContent='CATALOGUE NOW: '+fmt(S.total)+' SONGS'+(S.target?' · TARGET '+fmt(S.target)+' ('+(S.total/S.target*100).toFixed(1)+'%)':' · NO TARGET SET');
+  if(!force&&D.activeElement&&D.activeElement.closest('#bxtSetter'))return;
+  if(force||!i.dataset.f){i.dataset.f=1;i.value=S.target||'';$('#bxtNote').value=S.note||'';$('#bxtDl').value=S.deadline?new Date(new Date(S.deadline).getTime()+3*36e5).toISOString().slice(0,10):'';}
+}
+function wireSetter(){
+  const msg=(t,ok)=>{const m=$('#bxtMsg');if(m){m.textContent=t;m.style.color=ok?'#39FF14':'#FF5C5C'}};
+  $('#bxtSave').onclick=async()=>{
+    const v=parseInt($('#bxtIn').value,10),dv=$('#bxtDl').value,note=$('#bxtNote').value.trim();
+    if(!v||v<1)return msg('Enter a target number.');
+    if(S&&v<=S.total)return msg('Target must be above the current '+fmt(S.total)+' songs.');
+    if(dv&&new Date(dv+'T23:59:59+03:00').getTime()<=Date.now())return msg('Deadline must be in the future.');
+    const b=$('#bxtSave');b.disabled=true;msg('Saving…',true);
+    try{S=await call('set_song_target',{p_target:v,p_deadline:dv?dv+'T23:59:59+03:00':null,p_note:note||null});ERR=null;msg('✓ Target live for all admins',true);fillSetter(true);paint();toast('🎯 Target set: '+fmt(v)+' songs');}
+    catch(e){msg(e.message)}b.disabled=false;};
+  $('#bxtClr').onclick=async()=>{if(!confirm('Clear the song target for all admins?'))return;try{S=await call('clear_song_target');msg('Target cleared',true);mode='';fillSetter(true);paint();}catch(e){msg(e.message)}};
+  fillSetter(true);
+}
+function hookOffice(){
+  const o=$('#baTab_office');if(!o||o.__bxt||!isSuper())return;o.__bxt=1;
+  const inj=()=>{if(!isSuper()||$('#bxtSetter'))return;o.insertAdjacentHTML('afterbegin',setterHTML());wireSetter()};
+  new MutationObserver(inj).observe(o,{childList:true});inj();
+}
+
+/* ── loop ── */
+function paint(){ensureTab();hookOffice();paintStrip();paintTab();fillSetter();tick();}
+async function refresh(force){
+  if(!isAdmin()){stop();return;}if(!force&&D.hidden)return;
+  try{const d=await call('song_target_status');skew=new Date(d.now).getTime()-Date.now();const prev=S;S=d;ERR=null;
+    if(prev&&prev.total!=null&&d.total>prev.total){const n=d.total-prev.total;toast('🎵 +'+n+' new song'+(n>1?'s':'')+' · '+fmt(d.total)+(d.target?' / '+fmt(d.target):''));const h=$('#bxtHero');if(h){h.classList.remove('bxt-flash');void h.offsetWidth;h.classList.add('bxt-flash')}}
+    if(d.target){try{const k='bxt_ms_'+d.target,p=d.total/d.target*100,old=+localStorage.getItem(k);const m=[25,50,75,100].filter(x=>p>=x).pop()||0;if(old!=null&&localStorage.getItem(k)!==null&&m>old)toast('🎉 '+m+'% of the target reached!');localStorage.setItem(k,m)}catch(e){}}
+  }catch(e){ERR=e.message;}
+  paint();
+}
+function stop(){clearInterval(tmr);clearInterval(cdT);clearInterval(tipT);tmr=cdT=tipT=null;S=null;mode='';const s=$('#bxtStrip');s&&s.remove();}
+function mount(){if(!isAdmin())return;ensureTab();clearInterval(tmr);clearInterval(cdT);tmr=setInterval(()=>refresh(),10000);cdT=setInterval(tick,1000);refresh(true);}
+window.BXTG={mount,refresh,goOffice(){const b=$$('.sm-tab').find(x=>/SUPER OFFICE/i.test(x.textContent));b&&b.click()}};
+if(window.BXLB&&BXLB.mount&&!BXLB.__tg){const m=BXLB.mount;BXLB.mount=function(){const r=m.apply(this,arguments);try{mount()}catch(e){}return r};BXLB.__tg=1;}
+setInterval(()=>{if(isAdmin()&&!tmr)mount()},3000);
+})();
 </script>
 </body>
 </html>
