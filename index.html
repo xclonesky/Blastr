@@ -21546,5 +21546,184 @@ addEventListener('pagehide',micOff);
 window.BXV132={open,restoreMode,pauseBy,resumeBy,_R:R};
 })();
 </script>
+<!-- ═══════ BLASTR v133 · Android app announcement (queued after the other popups) · My Account download card ═══════ -->
+<style id="blastrV133Css">
+#axOv{position:fixed;inset:0;z-index:100003;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,4,10,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:opacity .35s}
+#axOv.on{opacity:1}
+.ax-card{position:relative;width:min(500px,100%);border-radius:32px;overflow:hidden;text-align:center;background:linear-gradient(160deg,color-mix(in srgb,var(--panel,#0D0D1C) 92%,#000),var(--bg,#06060E));border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 120px rgba(0,0,0,.65);transform:translateY(26px) scale(.95);transition:transform .55s cubic-bezier(.2,.9,.3,1.2)}
+#axOv.on .ax-card{transform:none}
+.ax-card::before{content:'';position:absolute;inset:0;border-radius:32px;padding:2px;pointer-events:none;z-index:2;background:conic-gradient(from var(--axa,0deg),transparent 0 55%,var(--accent,#39FF14),var(--accent2,#00C6FF),transparent 85%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:axSpin 6s linear infinite}
+@property --axa{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes axSpin{to{--axa:360deg}}
+.ax-orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:.42;pointer-events:none;animation:axFloat 7s ease-in-out infinite}
+.ax-orb.a{width:200px;height:200px;right:-60px;top:-70px;background:var(--accent,#39FF14)}.ax-orb.b{width:160px;height:160px;left:-50px;bottom:-50px;background:var(--accent2,#00C6FF);animation-delay:-3s}
+@keyframes axFloat{50%{transform:translate(-14px,16px) scale(1.12)}}
+.ax-body{position:relative;z-index:1;max-height:calc(100dvh - 32px);overflow:auto;padding:26px 24px 16px;animation:axUp .5s both}
+@keyframes axUp{from{opacity:0;transform:translateY(14px)}}
+.ax-scene{position:relative;height:200px;display:grid;place-items:center;margin-bottom:8px}
+.ax-phone{position:relative;width:104px;height:184px;border-radius:24px;border:3px solid rgba(255,255,255,.85);background:linear-gradient(170deg,#12122a,#06060E);box-shadow:0 24px 50px rgba(0,0,0,.55),0 0 0 6px rgba(255,255,255,.05),0 0 60px color-mix(in srgb,var(--accent,#39FF14) 35%,transparent);transform:rotate(-6deg);animation:axPhone 5s ease-in-out infinite}
+@keyframes axPhone{50%{transform:rotate(-3deg) translateY(-8px)}}
+.ax-phone::before{content:'';position:absolute;top:7px;left:50%;width:30px;height:5px;margin-left:-15px;border-radius:9px;background:rgba(255,255,255,.18)}
+.ax-ico,.ax-mini{display:grid;place-items:center;background:linear-gradient(135deg,var(--accent,#39FF14),var(--accent2,#00C6FF));color:#06060E;font:900 22px var(--font,sans-serif)}
+.ax-ico{position:absolute;top:28px;left:50%;width:44px;height:44px;margin-left:-22px;border-radius:13px;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.ax-eq{position:absolute;left:14px;right:14px;bottom:18px;height:58px;display:flex;align-items:flex-end;gap:5px}
+.ax-eq i{flex:1;height:30%;border-radius:4px;background:linear-gradient(0deg,var(--accent2,#00C6FF),var(--accent,#39FF14));animation:axEq 1.1s ease-in-out infinite;animation-delay:calc(var(--i)*-.18s)}
+@keyframes axEq{50%{height:95%}}
+.ax-chip{position:absolute;left:calc(50% + 34px);bottom:26px;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent,#39FF14),var(--accent2,#00C6FF));box-shadow:0 12px 30px rgba(0,0,0,.5);animation:axBounce 1.8s ease-in-out infinite}
+.ax-chip svg{width:24px;height:24px;stroke:#06060E;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+@keyframes axBounce{50%{transform:translateY(-9px)}}
+.ax-h{font:900 clamp(26px,6.6vw,36px)/1.05 var(--font,sans-serif);letter-spacing:-1px;margin:4px 0 10px;color:var(--text,#F0F0F8)}
+.ax-h2{font:900 22px/1.1 var(--font,sans-serif);letter-spacing:-.5px;margin:2px 0 10px;color:var(--text,#F0F0F8)}
+.ax-p{margin:0 auto;max-width:400px;font:500 14px/1.5 var(--font,sans-serif);color:color-mix(in srgb,var(--text,#F0F0F8) 76%,transparent)}
+.ax-fs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.ax-fs span{padding:8px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font:700 11px var(--font,sans-serif);color:var(--text,#F0F0F8)}
+.ax-go,.ax-abtn{display:block;width:100%;border:0;cursor:pointer;background:linear-gradient(90deg,var(--accent,#39FF14),var(--accent2,#00C6FF));color:#06060E;font:900 14px var(--mono,monospace);letter-spacing:3px;transition:filter .15s,transform .15s}
+.ax-go{height:58px;margin-top:18px;border-radius:18px;animation:axGlow 2.4s ease-in-out infinite}
+@keyframes axGlow{0%,100%{box-shadow:0 14px 40px color-mix(in srgb,var(--accent,#39FF14) 35%,transparent)}50%{box-shadow:0 16px 64px color-mix(in srgb,var(--accent,#39FF14) 65%,transparent)}}
+.ax-go:hover,.ax-abtn:hover{filter:brightness(1.1)}.ax-go:active,.ax-abtn:active{transform:scale(.98)}
+.ax-ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.ax-ft button{background:none;border:0;cursor:pointer;padding:10px 4px;color:var(--dim,#8a8fb5);font:700 11px var(--mono,monospace);letter-spacing:1px}
+.ax-ft button:hover{color:var(--text,#F0F0F8)}.ax-ft .never{text-decoration:underline}
+.ax-ft .ok{flex:1;height:44px;border-radius:13px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:var(--text,#F0F0F8);padding:0}
+.ax-dl{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0 14px}
+.ax-ring{width:84px;height:84px}.ax-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ax-ring circle,.ax-ring path{fill:none;stroke-width:5}
+.ax-ring .t{stroke:rgba(255,255,255,.1)}
+.ax-ring .p{stroke:var(--accent,#39FF14);stroke-linecap:round;stroke-dasharray:70 144;animation:axRing 1.1s linear infinite}
+@keyframes axRing{to{stroke-dashoffset:-214}}
+.ax-ring .ck{stroke:var(--accent,#39FF14);stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;transform:rotate(90deg);transform-origin:40px 40px}
+.ax-dl.done .p{animation:none;stroke-dasharray:214;stroke-dashoffset:0;transition:stroke-dasharray .4s}
+.ax-dl.done .ck{stroke-dashoffset:0;transition:stroke-dashoffset .5s .25s}
+.ax-dt{font:800 16px var(--font,sans-serif);color:var(--text,#F0F0F8)}
+.ax-ds{max-width:380px;font:500 12px/1.5 var(--font,sans-serif);color:var(--dim,#8a8fb5)}
+.ax-ds a{color:var(--accent2,#00C6FF)}
+.ax-steps{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:8px;counter-reset:ax}
+.ax-steps li{position:relative;padding:11px 12px 11px 48px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);counter-increment:ax;animation:axUp .5s calc(var(--i)*.15s + .3s) both}
+.ax-steps li::before{content:counter(ax);position:absolute;left:12px;top:11px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 12px var(--mono,monospace);background:linear-gradient(135deg,var(--accent,#39FF14),var(--accent2,#00C6FF));color:#06060E}
+.ax-steps b{display:block;margin-bottom:2px;font:800 13px var(--font,sans-serif);color:var(--text,#F0F0F8)}
+.ax-steps span{display:block;font:500 12px/1.45 var(--font,sans-serif);color:color-mix(in srgb,var(--text,#F0F0F8) 72%,transparent)}
+.ax-note{margin:10px 0 0;font:500 11px/1.4 var(--font,sans-serif);color:var(--dim,#8a8fb5);text-align:center}
+.ax-acct{margin:14px 0;padding:16px;border-radius:22px;border:1px solid rgba(255,255,255,.1);background:radial-gradient(circle at 12% 0%,color-mix(in srgb,var(--accent,#39FF14) 18%,transparent),transparent 45%),rgba(255,255,255,.04)}
+.ax-ahead{display:flex;align-items:center;gap:12px;text-align:left}
+.ax-mini{flex:none;width:46px;height:46px;border-radius:14px}
+.ax-at{font:800 15px var(--font,sans-serif);color:var(--text,#F0F0F8)}.ax-as{margin-top:2px;font:500 12px var(--font,sans-serif);color:var(--dim,#8a8fb5)}
+.ax-abtn{height:46px;margin-top:12px;border-radius:14px;font-size:12px}
+.ax-adl{margin-top:14px}.ax-adl[hidden]{display:none}
+@media(max-width:420px){.ax-body{padding:22px 16px 12px}.ax-scene{height:184px}.ax-phone{width:96px;height:170px}}
+@media(prefers-reduced-motion:reduce){.ax-card::before,.ax-phone,.ax-eq i,.ax-chip,.ax-go,.ax-orb,.ax-ring .p{animation:none!important}}
+</style>
+<script id="blastrV133Js">
+(function(){
+if(window.BXV133)return;
+const D=document,$=s=>D.querySelector(s);
+/* ── EDIT HERE when you upload a new APK (Google Drive file id, version, size label) ── */
+const APK={id:'1lExGg8KF0FAfz43WshahKMAJrpDPj2a6',ver:'1.0',size:'5 MB'};
+const URL_='https://drive.usercontent.google.com/download?id='+APK.id+'&export=download&confirm=t';
+const UA=navigator.userAgent,isAndroid=/Android/i.test(UA);
+/* never show inside the installed app itself */
+if((window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())||/; wv\)/.test(UA))return;
+
+/* ── remembered choices ── */
+const SK='bx_android_ann_v1';
+const snoozed=()=>{try{const v=JSON.parse(localStorage.getItem(SK));return !!(v&&v.until>Date.now())}catch(e){return false}};
+const snooze=d=>{try{localStorage.setItem(SK,JSON.stringify({until:Date.now()+d*864e5}))}catch(e){}};
+const later=()=>{try{sessionStorage.setItem('ax_later','1')}catch(e){}};
+const isLater=()=>{try{return sessionStorage.getItem('ax_later')==='1'}catch(e){return false}};
+
+/* ── download: hidden frame, so the page never navigates and the source is never shown ── */
+let fr=null;
+function fire(){
+  try{if(fr)fr.remove();fr=D.createElement('iframe');fr.style.cssText='display:none;width:0;height:0;border:0';fr.referrerPolicy='no-referrer';fr.src=URL_;D.body.appendChild(fr);
+    setTimeout(()=>{if(fr){fr.remove();fr=null}},60000)}catch(e){window.open(URL_,'_blank','noopener')}
+}
+const STEPS=[
+ ['Open the file','Tap the download notification, or find it in Files → Downloads. If Chrome asks, choose Keep or Download anyway.'],
+ ['Allow installs from this source','If Android says it can’t install unknown apps, tap Settings, switch on Allow from this source, then go back.'],
+ ['Get past Play Protect','If you see “Blocked by Play Protect” or “Unrecognised app”, tap More details, then Install anyway.'],
+ ['Install and open','Tap Install, then Open. Blastr lands on your home screen.']
+];
+function dlHTML(){
+  return '<div class="ax-dl"><div class="ax-ring"><svg viewBox="0 0 80 80"><circle class="t" cx="40" cy="40" r="34"/><circle class="p" cx="40" cy="40" r="34"/><path class="ck" d="M26 41l10 10 19-21"/></svg></div><div class="ax-dt" aria-live="polite"></div><div class="ax-ds"></div></div>'
+   +'<ol class="ax-steps">'+STEPS.map((s,i)=>'<li style="--i:'+i+'"><b>'+s[0]+'</b><span>'+s[1]+'</span></li>').join('')+'</ol>'
+   +'<p class="ax-note">Android shows these prompts for any app installed outside the Play Store.</p>';
+}
+function runDownload(root){
+  const dl=root.querySelector('.ax-dl'),dt=root.querySelector('.ax-dt'),ds=root.querySelector('.ax-ds');if(!dl)return;
+  dl.classList.remove('done');dt.textContent='Starting your download…';ds.textContent='';fire();
+  setTimeout(()=>{dl.classList.add('done');dt.textContent='Download started';
+    ds.innerHTML=(isAndroid?'Look for Blastr in your notifications or Downloads.':'Saved to this computer’s Downloads. Send the file to your Android phone and open it there.')+' <a href="#" data-retry="1">Didn’t start? Tap here.</a>'},1600);
+}
+D.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-retry]');if(a){e.preventDefault();window.open(URL_,'_blank','noopener')}});
+
+/* ── the announcement card ── */
+let shown=false,onKey=null;
+function promoView(){
+  return '<div class="ax-scene"><div class="ax-phone"><div class="ax-ico">B</div><div class="ax-eq">'+[0,1,2,3,4].map(i=>'<i style="--i:'+i+'"></i>').join('')+'</div></div><div class="ax-chip"><svg viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg></div></div>'
+   +'<div class="ax-h">Blastr is now an Android app.</div>'
+   +'<p class="ax-p">Install it once and open Blastr straight from your home screen: full screen, no browser bar, one tap away.</p>'
+   +'<div class="ax-fs"><span>Home screen icon</span><span>Full screen</span><span>Only '+APK.size+'</span></div>'
+   +'<button class="ax-go" data-a="go">'+(isAndroid?'INSTALL NOW':'GET THE ANDROID APP')+'</button>'
+   +'<div class="ax-ft"><button data-a="later">Maybe later</button><button class="never" data-a="never">Don’t show for 30 days</button></div>';
+}
+function closeOv(){const o=$('#axOv');if(!o)return;o.classList.remove('on');if(onKey){D.removeEventListener('keydown',onKey);onKey=null}setTimeout(()=>o.remove(),400)}
+function openOv(){
+  if($('#axOv'))return;shown=true;
+  const o=D.createElement('div');o.id='axOv';
+  o.innerHTML='<div class="ax-card" role="dialog" aria-modal="true" aria-label="Blastr for Android"><i class="ax-orb a"></i><i class="ax-orb b"></i><div class="ax-body">'+promoView()+'</div></div>';
+  D.body.appendChild(o);requestAnimationFrame(()=>requestAnimationFrame(()=>o.classList.add('on')));
+  const body=o.querySelector('.ax-body');
+  const swap=html=>{body.style.animation='none';body.offsetWidth;body.innerHTML=html;body.style.animation='';body.scrollTop=0};
+  o.addEventListener('click',e=>{
+    if(e.target===o){later();closeOv();return}
+    const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+    if(a==='go'){snooze(30);swap('<div class="ax-h2">Installing Blastr</div>'+dlHTML()+'<div class="ax-ft"><button data-a="again">Download again</button><button class="ok" data-a="done">GOT IT</button></div>');runDownload(body)}
+    else if(a==='again')runDownload(body);
+    else if(a==='done')closeOv();
+    else if(a==='later'){later();closeOv()}
+    else if(a==='never'){snooze(30);closeOv()}
+  });
+  onKey=e=>{if(e.key==='Escape'){later();closeOv()}};D.addEventListener('keydown',onKey);
+}
+
+/* ── queue: wait for every other interruptive screen so nothing clashes ── */
+let loginAt=0,promoSeen=false,clear=0;
+const S=()=>window.state||{};
+const uidv=()=>{const s=S(),p=s.currentUserProfile||{};return p.id||(s.session&&s.session.user&&s.session.user.id)||null};
+const gl=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+function busy(){
+  const lg=$('#loginScreen');
+  return !!($('#bxIntro')||$('#bxPromo')||$('#bbOv.on')||$('#apOv.on')||$('#nfOverlay.open')||$('.modal-overlay.open')||$('.admin-modal-overlay.active')||(lg&&!lg.classList.contains('hidden')));
+}
+function pending(){            /* order: Artists screen → AURA → 1-minute theme promo → this one */
+  const el=Date.now()-loginAt,u=uidv();
+  if(u&&!gl('blastr_aura_ann_v1_'+u)&&el<120000)return true;
+  try{const s=S(),k=JSON.parse(gl('bx_promo_v1_'+((s.session&&s.session.user&&s.session.user.id)||'anon'))||'{}');
+    if(!promoSeen&&!k.never&&!(k.snooze&&Date.now()<k.snooze)&&el<85000)return true}catch(e){}
+  return false;
+}
+setInterval(()=>{
+  const s=S();
+  if(!(s.session&&s.session.user)||s.guest){loginAt=0;clear=0;return}
+  if(!loginAt)loginAt=Date.now();
+  if($('#bxPromo'))promoSeen=true;
+  if(shown||snoozed()||isLater()||D.hidden)return;
+  if(busy()||s.inZen||Date.now()-loginAt<8000||pending()){clear=0;return}
+  if(++clear>=3)openOv();
+},1000);
+
+/* ── My Account → Download app (Android phones only) ── */
+function injectAcct(){
+  if(!isAndroid)return;const pg=$('#page-account');if(!pg||$('#axAcct'))return;
+  const html='<div class="ax-acct" id="axAcct"><div class="ax-ahead"><div class="ax-mini">B</div><div><div class="ax-at">Blastr for Android</div><div class="ax-as">Version '+APK.ver+' · '+APK.size+' · installs in under a minute</div></div></div><button class="ax-abtn">DOWNLOAD APP</button><div class="ax-adl" hidden></div></div>';
+  const g=pg.querySelector('.account-grid'),r=pg.querySelector('.account-rail');
+  if(g)g.insertAdjacentHTML('beforebegin',html);else if(r)r.insertAdjacentHTML('afterbegin',html);else return;
+  const c=$('#axAcct'),btn=c.querySelector('.ax-abtn'),box=c.querySelector('.ax-adl');
+  btn.onclick=()=>{if(box.hidden){box.hidden=false;box.innerHTML=dlHTML();btn.textContent='DOWNLOAD AGAIN'}runDownload(box)};
+}
+const t=setInterval(()=>{const pg=$('#page-account');if(pg){clearInterval(t);new MutationObserver(injectAcct).observe(pg,{childList:true,subtree:true});injectAcct()}},1000);
+
+window.BXV133={open:openOv,reset(){try{localStorage.removeItem(SK);sessionStorage.removeItem('ax_later')}catch(e){}}};
+})();
+</script>
 </body>
 </html>
