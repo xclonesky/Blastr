@@ -21349,7 +21349,7 @@ async function xmasPlace(){
 }
 const hc=$('#homeContent');
 if(hc)new MutationObserver(()=>{clearTimeout(XT);XT=setTimeout(xmasPlace,300)}).observe(hc,{childList:true});
-setInterval(xmasPlace,4000);
+setInterval(()=>{if(!D.hidden)xmasPlace()},8000);
 window.BXV131={xp(i){const t=XL&&XL[i];t&&initiateHandshake(t)},xs(){if(XL&&XL.length)initiateHandshake(XL[Math.floor(Math.random()*XL.length)])}};
 })();
 </script>
@@ -21425,12 +21425,12 @@ const curMode=()=>D.body.classList.contains('light')?'light':LS.g(MODE_KEY,'dark
 
 /* ── 1-minute-after-login announcement ── */
 const FEATURED=['neon_green','cyber_pink','gold_rush','royal_purple','lava_flow'];
-const DELAY=window.__BX_PROMO_DELAY||60000;let scheduled=false,shown=false,step=1;
+const DELAY=window.__BX_PROMO_DELAY||4000;let scheduled=false,shown=false,step=1;
 const key=()=>'bx_promo_v1_'+uid();
 function mayShow(){const k=LS.g(key(),{});if(k.never)return false;if(k.snooze&&Date.now()<k.snooze)return false;return true}
 function schedule(){if(scheduled)return;scheduled=true;
   const go=()=>{if(shown)return;if(!mayShow())return;
-    if((window.state&&state.inZen)||D.hidden){setTimeout(go,20000);return}open()};
+    if((window.state&&state.inZen)||D.hidden){setTimeout(go,20000);return}if(window.BXV133&&BXV133.wait&&BXV133.wait('promo')){setTimeout(go,1200);return}open()};
   setTimeout(go,DELAY)}
 function curAccent(){return getComputedStyle(D.documentElement).getPropertyValue('--accent').trim().toLowerCase()}
 function swHTML(){const T=window.__BX_THEMES||{},ca=curAccent(),n=Object.keys(T).length;
@@ -21546,6 +21546,33 @@ addEventListener('pagehide',micOff);
 window.BXV132={open,restoreMode,pauseBy,resumeBy,_R:R};
 })();
 </script>
+<!-- ═══════ BLASTR v133 · butter-smooth pass (Christmas row, scrolling, off-screen motion) ═══════ -->
+<style id="blastrV133Perf">
+.bxx-ban::before{animation-name:bxxTw2}
+@keyframes bxxTw2{50%{opacity:.45}}
+.bxx-snow i{will-change:transform}
+.bxx-snow i:nth-child(n+9){display:none}
+.bxx-ban.off *,.bxx-ban.off::before{animation-play-state:paused!important}
+html.bx-lite .bxx-snow,body.blastr-lite-mode .bxx-snow{display:none}
+html.bx-lite .bxx-ban::before,html.bx-lite .bxx-em,body.blastr-lite-mode .bxx-ban::before,body.blastr-lite-mode .bxx-em{animation:none}
+.page{will-change:scroll-position;scroll-padding-top:12px}
+.bxx-sc{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+html.bx-scrolling .bxx-snow i,html.bx-scrolling .bxx-em,html.bx-scrolling .bxx-ban::before,html.bx-scrolling .orb{animation-play-state:paused}
+html.bx-scrolling .page>*{pointer-events:none}
+html.bx-hid *,html.bx-hid *::before,html.bx-hid *::after{animation-play-state:paused!important}
+</style>
+<script id="blastrV133PerfJs">
+(function(){
+const R=document.documentElement;let t=0;
+/* freeze decorative motion + hover work while the page is being scrolled */
+addEventListener('scroll',()=>{if(!t)R.classList.add('bx-scrolling');clearTimeout(t);t=setTimeout(()=>{t=0;R.classList.remove('bx-scrolling')},150)},{passive:true,capture:true});
+/* pause everything when the tab / app is in the background */
+document.addEventListener('visibilitychange',()=>R.classList.toggle('bx-hid',document.hidden));
+/* pause the Christmas banner's motion whenever it is off-screen */
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('off',!e.isIntersecting)));
+  setInterval(()=>{if(document.hidden)return;document.querySelectorAll('.bxx-ban:not([data-io])').forEach(b=>{b.dataset.io=1;io.observe(b)})},3000)}
+})();
+</script>
 <!-- ═══════ BLASTR v133 · Android app announcement (queued after the other popups) · My Account download card ═══════ -->
 <style id="blastrV133Css">
 #axOv{position:fixed;inset:0;z-index:100003;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,4,10,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:opacity .35s}
@@ -21617,8 +21644,8 @@ window.BXV132={open,restoreMode,pauseBy,resumeBy,_R:R};
 if(window.BXV133)return;
 const D=document,$=s=>D.querySelector(s);
 /* ── EDIT HERE when you upload a new APK (Google Drive file id, version, size label) ── */
-const APK={id:'1lExGg8KF0FAfz43WshahKMAJrpDPj2a6',ver:'1.0',size:'5 MB'};
-const URL_='https://drive.usercontent.google.com/download?id='+APK.id+'&export=download&confirm=t';
+const APK={url:'',id:'1lExGg8KF0FAfz43WshahKMAJrpDPj2a6',ver:'1.0',size:'5 MB'};   /* url: paste a direct GitHub Releases link here when you have one */
+const URL_=APK.url||('https://drive.google.com/uc?export=download&id='+APK.id),viaDrive=!APK.url;
 const UA=navigator.userAgent,isAndroid=/Android/i.test(UA);
 /* never show inside the installed app itself */
 if((window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())||/; wv\)/.test(UA))return;
@@ -21631,10 +21658,9 @@ const later=()=>{try{sessionStorage.setItem('ax_later','1')}catch(e){}};
 const isLater=()=>{try{return sessionStorage.getItem('ax_later')==='1'}catch(e){return false}};
 
 /* ── download: hidden frame, so the page never navigates and the source is never shown ── */
-let fr=null;
 function fire(){
-  try{if(fr)fr.remove();fr=D.createElement('iframe');fr.style.cssText='display:none;width:0;height:0;border:0';fr.referrerPolicy='no-referrer';fr.src=URL_;D.body.appendChild(fr);
-    setTimeout(()=>{if(fr){fr.remove();fr=null}},60000)}catch(e){window.open(URL_,'_blank','noopener')}
+  if(viaDrive){window.open(URL_,'_blank','noopener');return}
+  try{const a=D.createElement('a');a.href=URL_;a.download='Blastr.apk';a.rel='noopener';a.style.display='none';D.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000)}catch(e){window.open(URL_,'_blank','noopener')}
 }
 const STEPS=[
  ['Open the file','Tap the download notification, or find it in Files → Downloads. If Chrome asks, choose Keep or Download anyway.'],
@@ -21650,8 +21676,8 @@ function dlHTML(){
 function runDownload(root){
   const dl=root.querySelector('.ax-dl'),dt=root.querySelector('.ax-dt'),ds=root.querySelector('.ax-ds');if(!dl)return;
   dl.classList.remove('done');dt.textContent='Starting your download…';ds.textContent='';fire();
-  setTimeout(()=>{dl.classList.add('done');dt.textContent='Download started';
-    ds.innerHTML=(isAndroid?'Look for Blastr in your notifications or Downloads.':'Saved to this computer’s Downloads. Send the file to your Android phone and open it there.')+' <a href="#" data-retry="1">Didn’t start? Tap here.</a>'},1600);
+  setTimeout(()=>{dl.classList.add('done');dt.textContent=viaDrive?'One more tap':'Download started';
+    ds.innerHTML=(viaDrive?'A new tab opened. Tap Download anyway there and the file will save.':isAndroid?'Look for Blastr in your notifications or Downloads.':'Saved to this computer’s Downloads. Send the file to your Android phone and open it there.')+' <a href="#" data-retry="1">Didn’t start? Tap here.</a>'},1600);
 }
 D.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-retry]');if(a){e.preventDefault();window.open(URL_,'_blank','noopener')}});
 
@@ -21692,13 +21718,13 @@ const uidv=()=>{const s=S(),p=s.currentUserProfile||{};return p.id||(s.session&&
 const gl=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 function busy(){
   const lg=$('#loginScreen');
-  return !!($('#bxIntro')||$('#bxPromo')||$('#bbOv.on')||$('#apOv.on')||$('#nfOverlay.open')||$('.modal-overlay.open')||$('.admin-modal-overlay.active')||(lg&&!lg.classList.contains('hidden')));
+  return !!($('#axOv')||$('#bxIntro')||$('#bxPromo')||$('#bbOv.on')||$('#apOv.on')||$('#nfOverlay.open')||$('.modal-overlay.open')||$('.admin-modal-overlay.active')||(lg&&!lg.classList.contains('hidden')));
 }
 function pending(){            /* order: Artists screen → AURA → 1-minute theme promo → this one */
   const el=Date.now()-loginAt,u=uidv();
   if(u&&!gl('blastr_aura_ann_v1_'+u)&&el<120000)return true;
   try{const s=S(),k=JSON.parse(gl('bx_promo_v1_'+((s.session&&s.session.user&&s.session.user.id)||'anon'))||'{}');
-    if(!promoSeen&&!k.never&&!(k.snooze&&Date.now()<k.snooze)&&el<85000)return true}catch(e){}
+    if(!promoSeen&&!k.never&&!(k.snooze&&Date.now()<k.snooze)&&el<120000)return true}catch(e){}
   return false;
 }
 setInterval(()=>{
@@ -21707,8 +21733,8 @@ setInterval(()=>{
   if(!loginAt)loginAt=Date.now();
   if($('#bxPromo'))promoSeen=true;
   if(shown||snoozed()||isLater()||D.hidden)return;
-  if(busy()||s.inZen||Date.now()-loginAt<8000||pending()){clear=0;return}
-  if(++clear>=3)openOv();
+  if(busy()||s.inZen||Date.now()-loginAt<5000||pending()){clear=0;return}
+  if(++clear>=2)openOv();
 },1000);
 
 /* ── My Account → Download app (Android phones only) ── */
@@ -21722,7 +21748,7 @@ function injectAcct(){
 }
 const t=setInterval(()=>{const pg=$('#page-account');if(pg){clearInterval(t);new MutationObserver(injectAcct).observe(pg,{childList:true,subtree:true});injectAcct()}},1000);
 
-window.BXV133={open:openOv,reset(){try{localStorage.removeItem(SK);sessionStorage.removeItem('ax_later')}catch(e){}}};
+window.BXV133={open:openOv,wait(){const u=uidv();return busy()||!!(u&&loginAt&&!gl('blastr_aura_ann_v1_'+u)&&Date.now()-loginAt<120000)},reset(){try{localStorage.removeItem(SK);sessionStorage.removeItem('ax_later')}catch(e){}}};
 })();
 </script>
 </body>
