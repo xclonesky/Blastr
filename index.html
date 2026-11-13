@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="preconnect" href="https://icpzknawzlrgdbgnpdcj.supabase.co" crossorigin>
+<link rel="preconnect" href="https://blastr-media.alexadrian-theoriginal.workers.dev" crossorigin>
+<link rel="dns-prefetch" href="https://flagcdn.com">
 <style id="bxPre">html.bx-pre #loginScreen,html.bx-pre #appScreen,html.bx-rest #loginScreen{visibility:hidden!important}html.bx-pre,html.bx-pre body,html.bx-rest,html.bx-rest body{background:#05050f}
 html.bx-rest body::after{content:'';position:fixed;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;border:3px solid rgba(143,107,255,.25);border-top-color:#39FF14;animation:bxSp .8s linear infinite;z-index:99998}@keyframes bxSp{to{transform:rotate(360deg)}}</style>
 <script>(function(){var d=document.documentElement,s=null,seen=0,L=null;try{s=JSON.parse(localStorage.getItem('blastr_session_v3')||'null')}catch(e){}try{seen=sessionStorage.getItem('bx_intro')}catch(e){}try{L=localStorage.getItem('blastr_lite')}catch(e){}
@@ -15493,15 +15496,16 @@ body.jn-open #jnIntro{display:none}
 (function(){
 'use strict';
 // ═══ JOHN AI — Groq-powered personal music companion ═══
-const GROQ_KEY='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';
-const API='https://api.groq.com/openai/v1/chat/completions';
+const JOHN_FN=SUPABASE_URL+'/functions/v1/john-ai';
+function jh(json){const h=blastrAuthHeaders();if(json)h.set('Content-Type','application/json');return h}
+const API=JOHN_FN+'?op=chat';
 const PREFERRED=['openai/gpt-oss-120b','openai/gpt-oss-20b','qwen/qwen3.8-27b','qwen/qwen3.6-27b']; // Groq retired the Llama 3.x models on 16 Aug 2026
 let MODELS=PREFERRED.slice(),modelsReady=null;
 const SKIP_MODEL=/guard|whisper|tts|orpheus|playai|safeguard|embed/i;
 function discoverModels(){ // asks Groq which models are live right now, so a future retirement can't break John again
   if(modelsReady)return modelsReady;
   modelsReady=(async()=>{try{
-    const r=await fetch('https://api.groq.com/openai/v1/models',{headers:{Authorization:'Bearer '+GROQ_KEY}});
+    const r=await fetch(JOHN_FN+'?op=models',{headers:jh(false)});
     if(!r.ok)return;
     const live=((await r.json()).data||[]).filter(m=>m.active!==false).map(m=>m.id).filter(id=>!SKIP_MODEL.test(id));
     if(!live.length)return;
@@ -15956,7 +15960,7 @@ async function ask(msgs){
     for(let attempt=0;attempt<2;attempt++){
       const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),22000);
       try{
-        const r=await fetch(API,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json',Authorization:'Bearer '+GROQ_KEY},body:JSON.stringify(mk(model,msgs,lean))});
+        const r=await fetch(API,{method:'POST',signal:ctl.signal,headers:jh(true),body:JSON.stringify(mk(model,msgs,lean))});
         clearTimeout(to);
         if(r.status===401||r.status===403)throw Object.assign(new Error('auth'),{code:401,fatal:true});
         if(!r.ok){
@@ -15984,7 +15988,7 @@ async function ask(msgs){
 }
 function friendly(e){
   const c=e.code,d=e.detail?' · '+String(e.detail).slice(0,80):'';
-  if(c===401)return["My access key got rejected, mate — the Groq API key needs checking.",'AUTH 401'];
+  if(c===401)return["I can’t reach my brain right now, mate — please sign in again or try in a moment.",'AUTH 401'];
   if(c==='offline')return["Looks like you're offline — I'll be right here when you're back.",'OFFLINE'];
   if(c==='timeout')return["That took too long — the line went quiet. Give it another go.",'TIMEOUT 22s'];
   if(c===429){const s=Math.ceil(e.retry||0);return["I'm catching my breath — rate limit hit"+(s?" — ready in about "+s+"s.":". Give me a few seconds."),'RATE LIMIT 429'];}
@@ -21921,7 +21925,7 @@ if(typeof sb0==='function')window.sbFetch=async function(url,opts,key){
   const isArt=typeof url==='string'&&url.indexOf('/rest/v1/artists')>=0,m=((opts&&opts.method)||'GET').toUpperCase();
   if(isArt&&m!=='GET'&&opts&&opts.body){try{let b=opts.body,str=typeof b==='string';const o=str?JSON.parse(b):b;
     if(o&&typeof o.avatar_url==='string'&&(o.avatar_url.indexOf('bxgen')>=0||/^https:\/\/i\.scdn\.co\//.test(o.avatar_url))){delete o.avatar_url;opts=Object.assign({},opts,{body:str?JSON.stringify(o):o})}}catch(e){}}
-  const r=await sb0.apply(this,[url,opts,key].slice(0,arguments.length));
+  const r=await sb0.apply(this,[url,opts,key,arguments[3]].slice(0,arguments.length));
   if(isArt&&m==='GET'&&r){Array.isArray(r)?r.forEach(fixArtist):fixArtist(r)}
   return r};
 
@@ -22414,14 +22418,19 @@ window.BXV135={pickCountry,showMod,showBlocked,compact,statusTick};
 (function(){
 if(window.BXV136)return;
 /* 1 · track lists no longer drag every song's full lyrics along (that grew with every lyric stamped) */
-var sb1=window.sbFetch,COLS=null,COLP=null;
+var sb1=window.sbFetch,COLS=null,COLP=null,LITE_OFF=false;
+try{LITE_OFF=sessionStorage.getItem('bx_lite_off')==='1'}catch(e){}
 function cols(){if(COLS)return Promise.resolve(COLS);
   if(!COLP)COLP=sb1('/rest/v1/tracks?select=*&limit=1').then(function(r){if(r&&r[0])COLS=Object.keys(r[0]).filter(function(k){return k!=='lyrics'}).join(',');return COLS}).catch(function(){COLP=null;return null});
   return COLP}
 if(typeof sb1==='function')window.sbFetch=async function(url,opts,key){
   var a=[].slice.call(arguments);
-  if(typeof url==='string'&&url.indexOf('/rest/v1/tracks?')===0&&url.indexOf('select=*')>-1&&!/[?&](id=eq\.|lyrics)/.test(url)&&((opts&&opts.method)||'GET').toUpperCase()==='GET'){
-    var c=await cols();if(c)a[0]=url.replace('select=*','select='+c)}
+  if(!LITE_OFF&&typeof url==='string'&&url.indexOf('/rest/v1/tracks?')===0&&url.indexOf('select=*')>-1&&!/[?&](id=eq\.|lyrics)/.test(url)&&((opts&&opts.method)||'GET').toUpperCase()==='GET'){
+    var c=await cols();
+    if(c){var b=a.slice();b[0]=url.replace('select=*','select='+c);var res=await sb1.apply(this,b);
+      if(Array.isArray(res)&&(res.length===0||(res[0]&&res[0].title!==undefined)))return res;
+      LITE_OFF=true;try{sessionStorage.setItem('bx_lite_off','1')}catch(e){}}   /* lighter query failed → original query for the rest of the session */
+  }
   return sb1.apply(this,a)};
 /* 2 · one request at a time for the full list (home, explore and search used to fire it in parallel) */
 var gt=window.getTracks,inflight=null;
